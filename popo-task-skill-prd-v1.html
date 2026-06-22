@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>POPO-CLI · popo-task Skill（一期 MVP） · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+    padding: 32px 24px;
+    line-height: 1.7;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 32px 36px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .header .meta {
+    display: flex; gap: 24px; font-size: 13px; opacity: 0.92; margin-top: 12px;
+  }
+
+  .section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 18px; font-weight: 700; color: #0f172a;
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .section-title .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    background: #4f46e5; color: #fff; border-radius: 50%;
+    font-size: 13px; font-weight: 600;
+  }
+  .section h3 {
+    font-size: 15px; font-weight: 700; color: #0f172a;
+    margin: 18px 0 10px; padding-left: 10px;
+    border-left: 3px solid #4f46e5;
+  }
+  .section h4 {
+    font-size: 13px; font-weight: 600; color: #475569;
+    margin: 14px 0 6px;
+  }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 10px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 6px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  td code, p code, li code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #be185d;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  .callout {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+  .callout.do { background: #ecfdf5; border-color: #10b981; color: #047857; }
+  .callout.dont { background: #fef2f2; border-color: #ef4444; color: #b91c1c; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+
+  .scope-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .scope-card {
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 1.5px solid;
+  }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 {
+    font-size: 14px; font-weight: 700; margin-bottom: 10px; padding-left: 0;
+    margin-top: 0;
+  }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+
+  /* 能力概览 */
+  .cap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 12px 0 6px;
+  }
+  .cap-card {
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .cap-card .cap-icon { font-size: 22px; margin-bottom: 8px; }
+  .cap-card .cap-name {
+    font-size: 15px; font-weight: 700; color: #4338ca; margin-bottom: 6px;
+  }
+  .cap-card .cap-desc { font-size: 13px; color: #4338ca; opacity: 0.85; line-height: 1.6; }
+
+  /* 三类入口 */
+  .entry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .entry-card {
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  .entry-card .entry-name {
+    font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 6px;
+  }
+  .entry-card .entry-count {
+    font-size: 11px; color: #64748b; margin-bottom: 8px;
+  }
+  .entry-card ul { padding-left: 18px; font-size: 12px; }
+  .entry-card li { margin-bottom: 3px; color: #475569; }
+
+  /* 字段对照 */
+  .field-tags {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+  }
+  .field-tag {
+    background: #fef3c7; color: #92400e;
+    padding: 5px 12px; border-radius: 14px;
+    font-size: 12px; border: 1px solid #fcd34d;
+  }
+
+  /* 用户场景 */
+  .scenario {
+    background: #f8fafc;
+    border-left: 3px solid #4f46e5;
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+  }
+  .scenario .quote {
+    font-style: italic; color: #1e40af;
+    font-size: 13px; margin-bottom: 6px;
+  }
+  .scenario .ans {
+    font-size: 13px; color: #475569;
+  }
+
+  .footer {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>POPO-CLI · <code style="background:rgba(255,255,255,0.18);padding:2px 10px;border-radius:6px;color:#fff;">popo-task</code> Skill（一期 MVP）</h1>
+    <div style="opacity:0.92;font-size:14px;">把 POPO 客户端「任务」模块的核心能力，搬到本地 Agent 对话里</div>
+    <div class="meta">
+      <span>📅 创建：2026-06-22</span>
+      <span>🏷️ 版本：v1.0</span>
+      <span>👤 作者：张振</span>
+      <span>🧩 归属：Ⓑ POPO-CLI Skills</span>
+    </div>
+  </div>
+
+  <!-- 一、背景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>POPO 客户端「任务」模块是员工日常协同的高频入口，承载任务创建、跟进、查看等核心场景。POPO-CLI 当前已上线 IM、云文档、电子表格、多维表格、日程/会议室共 5 个 Skills，<b>任务能力缺失</b>，导致用户无法在 Codemaker、龙虾等本地 Agent 中完成任务相关诉求，必须切回 POPO 客户端。</p>
+
+    <p style="margin-top:10px;"><b>本期目标</b>：上线 <code>popo-task</code> Skill，让用户在与 Agent 的自然对话中即可完成<b>创建任务</b>与<b>查看任务</b>两类最高频操作，对齐 POPO 客户端「任务」模块的核心能力布局。</p>
+
+    <div class="callout tip">
+      <div class="title">📌 设计基准</div>
+      本 PRD 所有功能项<b>与 POPO 客户端「任务」页面一一对齐</b>，不引入客户端尚未提供的概念。
+    </div>
+  </div>
+
+  <!-- 二、一期范围 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>一期范围（做 vs 不做）</div>
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 一期要做</h4>
+        <ul>
+          <li><b>创建任务</b>（可填写任务字段、可指定所属项目）</li>
+          <li><b>更新任务</b>（修改任务字段：执行人、时间、项目、优先级、备注等）</li>
+          <li><b>删除任务</b></li>
+          <li><b>创建子任务</b>（在已有任务下挂子任务）</li>
+          <li><b>查看任务详情</b>（含执行人完成进度、附件、备注、子任务等）</li>
+          <li><b>查看评论</b>与<b>查看日志</b>（任务变更操作记录）</li>
+          <li><b>上传附件</b>到任务（对齐客户端「附件 · 添加附件」入口）</li>
+          <li>查看「全部任务」</li>
+          <li>查看 3 个固定「快捷方式」视图：分配给我、我关注的、我创建的</li>
+          <li>查看具体某个已有「项目」下的任务</li>
+          <li>应用 4 个「快捷筛选条件」：已完成、分配给我、今天截止、本周截止</li>
+          <li>应用 8 个「添加条件」自定义筛选维度</li>
+          <li>查询结果支持<b>分组</b>展示</li>
+        </ul>
+      </div>
+      <div class="scope-card dont">
+        <h4>❌ 一期不做</h4>
+        <ul>
+          <li>不支持<b>新建项目</b>（只能在已有项目下建任务）</li>
+          <li>不做看板、日历、时间线视图的 CLI 等价物（这些是客户端可视化形态，CLI 一期只输出列表）</li>
+          <li>不做<b>评论的写操作</b>：添加评论、回复评论、删除评论（仅支持查看评论；写操作涉及富文本、@ 提及、权限校验，复杂度高，整体放二期）</li>
+          <li>不做<b>子任务的智能拆解</b>（客户端「智能拆解」按钮能力，一期不在 CLI 提供）</li>
+          <li>不做<b>附件的下载</b>（客户端任务详情面板未提供下载入口，CLI 保持一致；如需下载请在客户端打开）</li>
+          <li>不做任务变更的事件订阅与推送</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 一期原则</div>
+      先把 POPO 客户端任务模块里<b>使用频次最高的「建 + 看」</b>这两件事在 CLI 里跑通，覆盖率优先于功能纵深。
+    </div>
+  </div>
+
+  <!-- 三、核心能力 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>核心能力</div>
+
+    <div class="cap-grid">
+      <div class="cap-card">
+        <div class="cap-icon">📝</div>
+        <div class="cap-name">创建任务</div>
+        <div class="cap-desc">自然语言描述任务，Agent 调用本 Skill 完成创建，可指定字段，可挂到已有项目下，可挂子任务。</div>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">✏️</div>
+        <div class="cap-name">更新 / 删除任务</div>
+        <div class="cap-desc">修改任务字段（执行人、时间、项目、优先级、备注等）；删除任务。</div>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">📋</div>
+        <div class="cap-name">查看任务</div>
+        <div class="cap-desc">「全部任务 / 快捷方式 / 项目」三种入口；叠加快捷筛选、自定义筛选、分组；查看单条任务的<b>详情、评论、日志</b>。</div>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">🔍</div>
+        <div class="cap-name">详情 / 评论 / 日志</div>
+        <div class="cap-desc">查看单条任务的完整详情、所有评论（一期只读）、所有变更日志，回答「这个任务进展到哪儿了」类问题。</div>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top:14px;">
+      <div class="title">🛡️ 全局写操作约束：执行前必须用户确认</div>
+      <b>创建任务、创建子任务、更新任务、删除任务</b>均为写操作。Skill 在执行前必须：
+      <ol style="margin-top:6px;padding-left:20px;">
+        <li>向用户<b>回显将要执行的内容</b>（操作类型 + 目标任务 + 涉及字段及取值）</li>
+        <li>等待用户在对话中<b>明确确认</b>（如「确认」「执行」「OK」等）</li>
+        <li>用户确认后方可真正调用接口；若用户取消，整条操作中止</li>
+      </ol>
+      该约束<b>对所有写操作生效</b>，本 PRD 后续章节不再单独重复说明。
+      <div style="margin-top:8px;font-size:12px;color:#92400e;">
+        <b>📎 设计参考：</b><code>popo-calendar</code> 仅对创建/取消/退出/接受拒绝邀请做二次确认，更新日程直接执行。<code>popo-task</code> 选择<b>更保守</b>的策略——更新任务同样要求确认，原因：任务字段修改（如执行人、截止时间）会通知到执行人和关注人，影响面与新建相当，宁可多一步确认以防误改。
+      </div>
+    </div>
+  </div>
+
+  <!-- 四、创建任务 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>创建任务</div>
+
+    <h3>4.1 支持的任务字段</h3>
+    <p>字段口径与 POPO 客户端「新建任务」一致。一期 <b>只有「任务名称」必填</b>，其余字段按用户表达自动带入：</p>
+
+    <table>
+      <thead>
+        <tr><th>字段</th><th>必填</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>任务名称</td><td>是</td><td>对齐客户端「输入任务名称，回车保存」</td></tr>
+        <tr><td>执行人</td><td>否</td><td>支持多人；任务详情页展示「X/Y 人完成」进度；缺省=创建人本人</td></tr>
+        <tr><td>关注人</td><td>否</td><td>支持多人</td></tr>
+        <tr><td>截止时间</td><td>否</td><td>支持自然语言（如「明天」「下周一」「6 月 30 日」）</td></tr>
+        <tr><td>开始时间</td><td>否</td><td>同上</td></tr>
+        <tr><td>提醒时间</td><td>否</td><td>同上</td></tr>
+        <tr><td>优先级</td><td>否</td><td>沿用客户端优先级选项</td></tr>
+        <tr><td>所属项目</td><td>否</td><td>缺省=不归属任何项目（落在「无」分组下）</td></tr>
+        <tr><td>备注</td><td>否</td><td>对齐客户端详情面板「备注 · 编辑」</td></tr>
+        <tr><td>附件</td><td>否</td><td>对齐客户端「附件 · 添加附件」：一期<b>支持上传</b>附件、展示已有附件列表；<b>不支持下载</b>（与客户端一致，客户端目前也不提供下载入口）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 项目选择规则</h3>
+    <ul>
+      <li>用户在对话里指定项目名 → 在用户<b>可见的已有项目</b>中匹配</li>
+      <li>匹配唯一 → 直接归属到该项目</li>
+      <li>匹配多个 → Agent 列出候选让用户确认</li>
+      <li>未匹配到 → <b>明确提示「未找到该项目」</b>，引导用户到 POPO 客户端先建项目</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="title">⚠️ 项目能力边界</div>
+      一期 <b>不在 CLI 中提供「新建项目」入口</b>。原因：项目的创建涉及成员、关联群组等管理动作，更适合在客户端图形化完成。
+    </div>
+
+    <h3>4.3 用户场景示例</h3>
+    <div class="scenario">
+      <div class="quote">「帮我建个任务：完成 popo-task PRD 评审，明天下班前交，分配给李四，挂到 POPO AI 能力推进项目下。」</div>
+      <div class="ans">→ Agent 先回显：「将创建任务【完成 popo-task PRD 评审】 / 项目=POPO AI 能力推进 / 执行人=李四 / 截止=明天 18:00，是否确认？」<br>用户确认后才真正调用 popo-task 创建任务，回执任务链接。</div>
+    </div>
+    <div class="scenario">
+      <div class="quote">「记一条待办：周五前看完云协作 UX 计划表。」</div>
+      <div class="ans">→ 回显待创建任务信息（截止=本周五，无项目，执行人=用户本人），确认后创建。</div>
+    </div>
+  </div>
+
+  <!-- 五、查看任务 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>查看任务</div>
+
+    <p>客户端「任务」模块的查询能力由<b>四个层次</b>叠加而成，本 Skill 完整对齐：</p>
+    <ol>
+      <li><b>入口</b>：选择从哪里开始看（全部 / 某个快捷方式 / 某个项目）</li>
+      <li><b>快捷筛选条件</b>：一键快速过滤</li>
+      <li><b>添加条件</b>（自定义筛选）：组合更精细的条件</li>
+      <li><b>分组</b>：把结果按某个维度归类</li>
+    </ol>
+
+    <h3>5.1 入口（必选其一）</h3>
+    <div class="entry-grid">
+      <div class="entry-card">
+        <div class="entry-name">📂 全部任务</div>
+        <div class="entry-count">客户端左上角默认项</div>
+        <ul>
+          <li>当前用户可见的所有任务</li>
+        </ul>
+      </div>
+      <div class="entry-card">
+        <div class="entry-name">⚡ 快捷方式（3 项）</div>
+        <div class="entry-count">客户端左侧固定视图</div>
+        <ul>
+          <li>分配给我</li>
+          <li>我关注的</li>
+          <li>我创建的</li>
+        </ul>
+      </div>
+      <div class="entry-card">
+        <div class="entry-name">📁 项目视图</div>
+        <div class="entry-count">客户端左侧「项目」区</div>
+        <ul>
+          <li>查看用户的某个具体项目下任务（如「青远的测试项目」）</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>5.2 快捷筛选条件（4 项，可叠加在任意入口上）</h3>
+    <p>对齐客户端筛选弹窗顶部的「快捷筛选条件」区：</p>
+    <div class="field-tags">
+      <span class="field-tag">已完成</span>
+      <span class="field-tag">分配给我</span>
+      <span class="field-tag">今天截止</span>
+      <span class="field-tag">本周截止</span>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 与"显示已完成"开关的关系</div>
+      客户端列表上方有「显示已完成」开关。一期处理为：<b>默认不展示已完成任务</b>；用户明确表达「看已完成」时（如使用「已完成」快捷筛选或自然语言"我已经完成的"），Skill 自动包含已完成任务。
+    </div>
+
+    <h3>5.3 添加条件（8 项自定义筛选，可叠加）</h3>
+    <p>对齐客户端筛选弹窗「添加条件」下拉列表，完整 8 项：</p>
+    <div class="field-tags">
+      <span class="field-tag">执行人</span>
+      <span class="field-tag">创建人</span>
+      <span class="field-tag">关注人</span>
+      <span class="field-tag">截止时间</span>
+      <span class="field-tag">开始时间</span>
+      <span class="field-tag">提醒时间</span>
+      <span class="field-tag">所属项目</span>
+      <span class="field-tag">优先级</span>
+    </div>
+    <p style="margin-top:8px;">多个条件之间为 <b>AND</b> 关系（与客户端一致）。</p>
+
+    <h3>5.4 分组展示</h3>
+    <p>支持按以下维度对查询结果分组（对齐客户端列表分组能力，例如客户端默认按「无 / 项目」分组）：</p>
+    <ul>
+      <li>所属项目</li>
+      <li>执行人</li>
+      <li>优先级</li>
+      <li>截止时间（今日 / 本周 / 本月 / 更晚 / 无）</li>
+    </ul>
+
+    <h3>5.5 用户场景示例</h3>
+    <div class="scenario">
+      <div class="quote">「我今天有哪些任务？」</div>
+      <div class="ans">→ 入口=分配给我 + 快捷筛选=今天截止。</div>
+    </div>
+    <div class="scenario">
+      <div class="quote">「青远的测试项目下还有哪些紧急任务没做完？」</div>
+      <div class="ans">→ 入口=项目「青远的测试项目」 + 添加条件=优先级=紧急 + 默认不含已完成。</div>
+    </div>
+    <div class="scenario">
+      <div class="quote">「我创建的任务里，本周要截止的有哪些，按项目分组。」</div>
+      <div class="ans">→ 入口=我创建的 + 快捷筛选=本周截止 + 分组=所属项目。</div>
+    </div>
+    <div class="scenario">
+      <div class="quote">「李四这周开始要做的所有任务。」</div>
+      <div class="ans">→ 入口=全部任务 + 添加条件=执行人=李四 + 添加条件=开始时间=本周。</div>
+    </div>
+  </div>
+
+  <!-- 六、查看任务详情、评论、日志 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>任务详情：详情、评论、日志</div>
+    <p>对齐 POPO 客户端任务详情侧边栏。用户对单条任务表达「看下详情 / 看下进度 / 看下大家怎么说 / 看下谁改过什么」时，Skill 提供对应能力。</p>
+
+    <h3>6.1 查看任务详情</h3>
+    <p>返回客户端详情面板上能看到的所有信息：</p>
+    <ul>
+      <li>任务名称、所属项目、执行人（含「X/Y 人完成」进度）</li>
+      <li>时间（开始 / 截止 / 提醒）、优先级</li>
+      <li>备注、附件清单（展示文件名；如需查看附件内容请在客户端打开）</li>
+      <li><b>子任务列表</b>（含每个子任务的名称、执行人、截止时间、完成状态）</li>
+      <li>评论数、日志数（提示用户可继续展开）</li>
+    </ul>
+
+    <h3>6.2 查看评论</h3>
+    <p>对齐详情面板「评论」Tab。<b>一期仅支持「读」</b>：展示该任务下所有评论，每条评论包含评论人、发布时间、评论内容、是否为回复（以及回复的对象）。</p>
+    <div class="callout warn">
+      <div class="title">⚠️ 一期不做评论写操作</div>
+      添加评论、回复评论、删除评论<b>均不在一期范围</b>。评论写操作涉及富文本、@ 提及、权限校验等，复杂度高，整体放二期。
+    </div>
+
+    <h3>6.3 查看日志</h3>
+    <p>对齐详情面板「日志」Tab。展示该任务的<b>变更记录</b>，例如：</p>
+    <ul>
+      <li>「<b>利奥李(李扬)</b> 06/17 19:02 · 完成了任务」</li>
+      <li>「<b>qingtian(李斌斌)</b> 05/13 13:47 · 关注了该任务」</li>
+      <li>「<b>魏建磊</b> 05/13 13:46 · 关注了该任务」</li>
+    </ul>
+    <p>用户可用自然语言问「这个任务都谁改过？」「最近谁完成了？」，Agent 基于日志回答。</p>
+
+    <h3>6.4 用户场景示例</h3>
+    <div class="scenario">
+      <div class="quote">「『请在本周完成个人目标设置提交』这个任务，现在多少人完成了？」</div>
+      <div class="ans">→ 查看任务详情，返回执行人完成进度（如 8/37 人完成）。</div>
+    </div>
+    <div class="scenario">
+      <div class="quote">「测试项目下的测试任务的评论里大家说了啥？」</div>
+      <div class="ans">→ 查看评论 Tab，按时间倒序输出。</div>
+    </div>
+  </div>
+
+  <!-- 七、更新、删除、子任务 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>更新任务 / 删除任务 / 创建子任务</div>
+
+    <h3>7.1 更新任务</h3>
+    <p>用户在对话中指明要改的任务和要改的字段，Skill 完成更新。可更新字段范围 = 第 4 章「支持的任务字段」一致：</p>
+    <ul>
+      <li>任务名称、执行人、关注人、截止/开始/提醒时间、优先级、所属项目、备注</li>
+      <li><b>支持单字段更新，也支持多字段同时更新</b></li>
+    </ul>
+
+    <div class="scenario">
+      <div class="quote">「把『测试项目下的测试任务』的截止时间改成下周一，再把李四加进执行人。」</div>
+      <div class="ans">→ Agent 回显：「将更新任务【测试项目下的测试任务】 / 截止时间：6 月 16 日 → 下周一 / 执行人：青远(张振) → 青远(张振)、李四，是否确认？」<br>用户确认后执行更新。</div>
+    </div>
+
+    <h3>7.2 删除任务</h3>
+    <p>对齐客户端详情页右上角的删除入口。除「全局写操作约束」要求的二次确认外，删除场景还需额外做到：</p>
+    <ul>
+      <li>回显内容包含<b>任务名称、所属项目、执行人</b>，方便用户核对</li>
+      <li>若该任务存在<b>子任务</b>，需提示用户「将一并删除其下 N 个子任务」</li>
+      <li>删除为<b>不可逆</b>操作，文案需明确</li>
+    </ul>
+
+    <h3>7.3 创建子任务</h3>
+    <p>对齐客户端「在任务下新建子任务」能力（鼠标悬停任务行右侧出现「新建子任务」入口，或在详情面板「子任务 · 新建子任务」处操作）。</p>
+    <ul>
+      <li>必须指定<b>挂载到哪个父任务</b>下</li>
+      <li>子任务字段范围与普通任务一致（一期允许最少只填名称）</li>
+      <li>父任务的所属项目<b>自动继承</b>到子任务</li>
+    </ul>
+
+    <div class="scenario">
+      <div class="quote">「在『测试项目下的测试任务』下拆 3 个子任务：写文档、约评审、跟进结论，都分给我。」</div>
+      <div class="ans">→ Agent 回显将创建的 3 条子任务清单（含父任务、执行人=当前用户、继承的项目），用户确认后批量创建。</div>
+    </div>
+
+    <div class="callout warn">
+      <div class="title">⚠️ 一期不做子任务智能拆解</div>
+      客户端详情面板「子任务 · 智能拆解」按钮的能力一期<b>不在 CLI 提供</b>；若用户表达「帮我智能拆一下」，引导其到客户端使用。
+    </div>
+  </div>
+
+  <!-- 八、与其他 Skill 协同 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>与其他 Skill 协同</div>
+    <table>
+      <thead>
+        <tr><th>场景</th><th>组合 Skill</th><th>用户表达示例</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>建完任务通知执行人</td>
+          <td><code>popo-task</code> + <code>popo-im</code></td>
+          <td>"给李四建个 PRD 评审的任务，建完在 IM 里提醒他一下"</td>
+        </tr>
+        <tr>
+          <td>会议后把 TODO 落地成任务</td>
+          <td><code>popo-calendar</code> + <code>popo-task</code></td>
+          <td>"把今天 3 点这场会议的 3 条 TODO 拆成任务，挂到云协作-B线需求管理"</td>
+        </tr>
+        <tr>
+          <td>任务进度沉淀为周报</td>
+          <td><code>popo-task</code> + <code>popo-doc</code></td>
+          <td>"把我本周已完成的任务整理成一份周报文档"</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 九、二期方向 -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span>二期方向（不在一期范围）</div>
+    <ul>
+      <li><b>评论的写操作</b>：添加评论、回复评论、删除评论（含富文本与 @ 提及）</li>
+      <li>新建项目（CLI 内直接建项目）</li>
+      <li>看板视图、日历视图、时间线视图在 CLI 中的合理输出形态</li>
+      <li>子任务智能拆解</li>
+      <li>附件的下载（待客户端先放开下载入口后再跟进）</li>
+      <li>任务变更事件订阅，让 Agent 主动提醒用户</li>
+      <li>面向高频指令的 Shortcut（如「我今天的待办」「我本周的任务摘要」）</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    POPO 产品团队 · POPO-CLI Skills · popo-task v1.0 一期 MVP
+  </div>
+
+</div>
+</body>
+</html>
