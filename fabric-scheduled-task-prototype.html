@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Fabric · 定时任务 · 高保真交互原型</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa;
+    color: #0f172a;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow: hidden;
+  }
+
+  /* ============ 顶栏 ============ */
+  .topbar {
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center;
+    padding: 0 24px;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 16px; color: #0f172a;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: #fff; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px;
+  }
+  .tenant-select {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 13px; color: #475569;
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
+  }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13px; color: #475569; }
+  .topbar-right .user {
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    color: #fff; font-weight: 700; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* ============ 主区 ============ */
+  .main {
+    display: flex;
+    height: calc(100vh - 56px);
+  }
+
+  /* 侧边栏 */
+  .sidebar {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    padding: 14px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-group { margin-bottom: 12px; }
+  .sidebar-title {
+    font-size: 11px; color: #94a3b8;
+    padding: 8px 20px 6px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 700;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    font-size: 13.5px; color: #475569;
+    cursor: pointer; user-select: none;
+    border-left: 3px solid transparent;
+    transition: background 0.12s;
+  }
+  .sidebar-item:hover { background: #f8fafc; }
+  .sidebar-item.active {
+    background: #eff6ff; color: #1d4ed8; font-weight: 600;
+    border-left-color: #2563eb;
+  }
+  .sidebar-item .new-badge {
+    margin-left: auto;
+    background: #ef4444; color: #fff;
+    font-size: 10px; padding: 1px 6px; border-radius: 8px;
+    font-weight: 700;
+  }
+
+  /* 内容区 */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+
+  /* 面包屑 */
+  .breadcrumb {
+    font-size: 13px; color: #64748b;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .breadcrumb a {
+    color: #2563eb; cursor: pointer; text-decoration: none;
+  }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb .sep { color: #cbd5e1; }
+
+  /* 页面标题 */
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .page-title {
+    font-size: 22px; font-weight: 700; color: #0f172a;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .page-subtitle {
+    font-size: 13px; color: #64748b; margin-top: 4px;
+  }
+
+  /* 按钮 */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 500;
+    border: 1px solid; cursor: pointer;
+    transition: all 0.12s;
+    background: #fff;
+  }
+  .btn-primary {
+    background: #2563eb; border-color: #2563eb; color: #fff;
+  }
+  .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+  .btn-secondary {
+    background: #fff; border-color: #e2e8f0; color: #475569;
+  }
+  .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .btn-danger {
+    background: #fff; border-color: #fecaca; color: #b91c1c;
+  }
+  .btn-danger:hover { background: #fef2f2; }
+  .btn-danger-solid {
+    background: #dc2626; border-color: #dc2626; color: #fff;
+  }
+  .btn-danger-solid:hover { background: #b91c1c; border-color: #b91c1c; }
+
+  /* 工具栏 */
+  .toolbar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    position: relative;
+    flex: 1; min-width: 240px; max-width: 320px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    outline: none;
+  }
+  .search-box input:focus { border-color: #2563eb; }
+  .search-box::before {
+    content: "🔍"; position: absolute;
+    left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; opacity: 0.7;
+  }
+  .filter-select {
+    padding: 7px 28px 7px 12px;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    background: #fff;
+    font-size: 13px; color: #475569;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%2364748b' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    outline: none;
+    cursor: pointer;
+  }
+  .toolbar .grow { flex: 1; }
+
+  /* 表格 */
+  .table-wrap {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600; color: #475569;
+    font-size: 12.5px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  tbody tr { transition: background 0.1s; }
+  tbody tr.clickable { cursor: pointer; }
+  tbody tr.clickable:hover { background: #f8fafc; }
+  tbody tr:last-child td { border-bottom: none; }
+  .task-name {
+    font-weight: 600; color: #0f172a;
+    cursor: pointer;
+  }
+  .task-name:hover { color: #2563eb; }
+  .task-desc { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+  /* tag */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 10px;
+    font-size: 11.5px; font-weight: 600;
+  }
+  .tag.green { background: #d1fae5; color: #047857; }
+  .tag.gray { background: #f1f5f9; color: #64748b; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.red { background: #fee2e2; color: #b91c1c; }
+  .tag.yellow { background: #fef3c7; color: #b45309; }
+  .tag .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+  }
+
+  /* 操作按钮组 */
+  .row-actions {
+    display: flex; gap: 4px;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .icon-btn {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer; color: #64748b;
+    font-size: 13px;
+  }
+  .icon-btn:hover { background: #f1f5f9; color: #0f172a; }
+  .icon-btn.danger:hover { background: #fef2f2; color: #b91c1c; }
+
+  /* switch */
+  .switch {
+    width: 32px; height: 18px;
+    background: #cbd5e1;
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.16s;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .switch::after {
+    content: "";
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.16s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .switch.on { background: #2563eb; }
+  .switch.on::after { left: 16px; }
+
+  /* 空状态 */
+  .empty-state {
+    padding: 80px 24px;
+    text-align: center;
+    color: #94a3b8;
+  }
+  .empty-state .icon {
+    font-size: 40px; margin-bottom: 12px; opacity: 0.5;
+  }
+
+  /* ============ 抽屉 ============ */
+  .drawer-mask {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.36);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .drawer-mask.open { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed;
+    top: 0; right: 0;
+    height: 100vh;
+    width: 520px;
+    background: #fff;
+    z-index: 110;
+    transform: translateX(100%);
+    transition: transform 0.26s cubic-bezier(.4,.0,.2,1);
+    display: flex; flex-direction: column;
+    box-shadow: -8px 0 32px rgba(0,0,0,0.08);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .drawer-title { font-size: 16px; font-weight: 700; }
+  .close-btn {
+    background: transparent; border: none;
+    font-size: 18px; color: #94a3b8;
+    cursor: pointer;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+  }
+  .close-btn:hover { background: #f1f5f9; color: #0f172a; }
+  .drawer-body {
+    flex: 1; overflow-y: auto;
+    padding: 18px 24px 24px;
+  }
+  .drawer-footer {
+    padding: 14px 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex; justify-content: flex-end; gap: 8px;
+    flex-shrink: 0;
+    background: #fafbfc;
+  }
+
+  /* 表单 */
+  .form-item { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 13px; font-weight: 600; color: #334155;
+    margin-bottom: 6px;
+  }
+  .form-label .req { color: #ef4444; margin-right: 3px; }
+  .form-hint {
+    font-size: 12px; color: #94a3b8;
+    margin-top: 5px;
+  }
+  .form-input, .form-textarea, .form-select-real {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #fff;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.12s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select-real:focus {
+    border-color: #2563eb;
+  }
+  .form-textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  /* 频率 + 时间 */
+  .freq-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 12px;
+    position: relative;
+  }
+  .pseudo-select {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px 32px 8px 12px;
+    font-size: 13.5px;
+    color: #0f172a;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    transition: border-color 0.12s;
+  }
+  .pseudo-select.active { border-color: #2563eb; }
+  .pseudo-select::after {
+    content: "";
+    width: 8px; height: 8px;
+    border-right: 1.5px solid #64748b;
+    border-bottom: 1.5px solid #64748b;
+    transform: rotate(45deg);
+    position: absolute;
+    right: 14px; top: 12px;
+    transition: transform 0.18s;
+  }
+  .pseudo-select.active::after { transform: rotate(-135deg); top: 16px; }
+
+  .dropdown-menu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.12);
+    padding: 6px;
+    z-index: 20;
+    min-width: 220px;
+    display: none;
+  }
+  .dropdown-menu.open { display: block; }
+  .dropdown-menu .opt {
+    padding: 9px 12px;
+    font-size: 13.5px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    color: #0f172a;
+  }
+  .dropdown-menu .opt:hover { background: #f1f5f9; }
+  .dropdown-menu .opt.selected {
+    background: #eff6ff; color: #1d4ed8; font-weight: 600;
+  }
+  .dropdown-menu .opt .check {
+    width: 14px;
+    color: #2563eb;
+    font-weight: 700;
+  }
+
+  /* 星期chips */
+  .weekday-chips {
+    display: flex; gap: 6px;
+    margin-top: 10px;
+  }
+  .weekday-chip {
+    width: 36px; height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #475569;
+    transition: all 0.12s;
+  }
+  .weekday-chip:hover { border-color: #2563eb; }
+  .weekday-chip.selected {
+    background: #eff6ff; border-color: #2563eb; color: #1d4ed8; font-weight: 600;
+  }
+  .day-of-month-input {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #475569;
+  }
+  .day-of-month-input input {
+    width: 64px; text-align: center;
+  }
+
+  /* ============ 详情页 ============ */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 22px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 700; color: #0f172a;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .info-list { display: grid; grid-template-columns: 90px 1fr; gap: 10px 16px; font-size: 13px; }
+  .info-list .k { color: #94a3b8; }
+  .info-list .v { color: #0f172a; font-weight: 500; }
+
+  /* ============ 模态框 ============ */
+  .modal-mask {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.4);
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  .modal-mask.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 10px;
+    width: 380px;
+    padding: 22px 24px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  }
+  .modal-title {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal-body {
+    font-size: 13.5px; color: #475569;
+    margin-bottom: 18px;
+    line-height: 1.7;
+  }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+
+  /* ============ Toast ============ */
+  .toast-stack {
+    position: fixed;
+    top: 76px; left: 50%; transform: translateX(-50%);
+    z-index: 999;
+    display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+  }
+  .toast {
+    background: #0f172a; color: #fff;
+    padding: 9px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    display: flex; align-items: center; gap: 8px;
+    animation: toastIn 0.22s;
+  }
+  .toast.success { background: #047857; }
+  .toast.error { background: #b91c1c; }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 警告条 */
+  .alert-banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #92400e;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .alert-banner .a-icon { font-size: 16px; }
+  .alert-banner a {
+    color: #1d4ed8; text-decoration: underline; cursor: pointer; margin-left: auto;
+  }
+
+  /* 隐藏与显示 */
+  .hidden { display: none !important; }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<!-- ============ 顶栏 ============ -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-icon">F</span>
+    <span>Fabric</span>
+  </div>
+  <div class="tenant-select">📁 Echo <span style="font-size:10px;color:#94a3b8;">▾</span></div>
+  <div class="topbar-right">
+    <span style="cursor:pointer;">🧭 服务导航</span>
+    <span>📖 帮助</span>
+    <div class="user">
+      <span class="avatar">张</span>
+      <span>张振</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 主区 ============ -->
+<div class="main">
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-group">
+      <div class="sidebar-title">⚙️ AI 工厂</div>
+      <div class="sidebar-item">💬 对话</div>
+      <div class="sidebar-item">🤖 Bots</div>
+      <div class="sidebar-item">🧠 Agents</div>
+      <div class="sidebar-item">🛠️ Skills</div>
+      <div class="sidebar-item">🧩 知识库</div>
+      <div class="sidebar-item active">
+        ⏰ 定时任务
+        <span class="new-badge">NEW</span>
+      </div>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-title">⚙️ 系统</div>
+      <div class="sidebar-item">👥 成员</div>
+      <div class="sidebar-item">🔑 密钥</div>
+      <div class="sidebar-item">⚙️ 设置</div>
+    </div>
+  </aside>
+
+  <!-- 内容区 -->
+  <main class="content" id="content">
+    <!-- 渲染挂载点 -->
+  </main>
+
+</div>
+
+<!-- ============ 抽屉（创建/编辑） ============ -->
+<div class="drawer-mask" id="drawerMask"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">新建定时任务</div>
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+
+    <div class="form-item">
+      <label class="form-label"><span class="req">*</span> 任务名称</label>
+      <input type="text" class="form-input" id="f_name" placeholder="便于配置者识别，1~40 字" maxlength="40">
+    </div>
+
+    <div class="form-item">
+      <label class="form-label">描述</label>
+      <textarea class="form-textarea" id="f_desc" placeholder="简单说明该任务用途（选填）" style="min-height:60px;"></textarea>
+    </div>
+
+    <div class="form-item">
+      <label class="form-label"><span class="req">*</span> 关联 Agent</label>
+      <select class="form-select-real" id="f_agent">
+        <option value="">请选择 Agent</option>
+        <option>网易POPO-开放平台群运维 Agent</option>
+        <option>财务审核助手</option>
+        <option>团队周报 Agent</option>
+        <option>合规知识更新 Agent</option>
+      </select>
+      <div class="form-hint">仅可选择本组织已创建且启用中的 Agent</div>
+    </div>
+
+    <div class="form-item">
+      <label class="form-label"><span class="req">*</span> 触发频率</label>
+      <div class="freq-row">
+        <div class="pseudo-select" id="freqSelect" onclick="toggleFreqMenu(event)">
+          <span id="freqLabel">每天</span>
+        </div>
+        <div class="pseudo-select" id="timeSelect" onclick="toggleTimeMenu(event)">
+          <span id="timeLabel">18:00</span>
+        </div>
+        <div class="dropdown-menu" id="freqMenu" style="top:48px;left:0;width:calc(58.3% - 6px);">
+          <div class="opt" data-freq="workday">
+            <span class="check"></span>每个工作日（周一到周五）
+          </div>
+          <div class="opt selected" data-freq="daily">
+            <span class="check">✓</span>每天
+          </div>
+          <div class="opt" data-freq="weekly">
+            <span class="check"></span>每周
+          </div>
+          <div class="opt" data-freq="biweekly">
+            <span class="check"></span>每双周
+          </div>
+          <div class="opt" data-freq="monthly">
+            <span class="check"></span>每月
+          </div>
+        </div>
+        <div class="dropdown-menu" id="timeMenu" style="top:48px;right:0;width:calc(41.7% - 6px);max-height:220px;overflow-y:auto;">
+          <!-- 时间选项 JS 生成 -->
+        </div>
+      </div>
+
+      <!-- 每周/每双周 - 星期选择 -->
+      <div id="weekdayBlock" class="hidden">
+        <div class="weekday-chips">
+          <div class="weekday-chip" data-day="1">一</div>
+          <div class="weekday-chip" data-day="2">二</div>
+          <div class="weekday-chip" data-day="3">三</div>
+          <div class="weekday-chip" data-day="4">四</div>
+          <div class="weekday-chip" data-day="5">五</div>
+          <div class="weekday-chip" data-day="6">六</div>
+          <div class="weekday-chip" data-day="0">日</div>
+        </div>
+      </div>
+
+      <!-- 每月 - 日期 -->
+      <div id="monthdayBlock" class="hidden">
+        <div class="day-of-month-input">
+          每月
+          <input type="number" class="form-input" id="f_monthday" min="1" max="31" value="1" style="width:64px;text-align:center;">
+          日（或最后一天）
+        </div>
+      </div>
+
+      <div class="form-hint">时区：组织默认时区（Asia/Shanghai）</div>
+    </div>
+
+    <div class="form-item">
+      <label class="form-label"><span class="req">*</span> 给 Agent 的指令</label>
+      <textarea class="form-textarea" id="f_prompt" placeholder="例如：请汇总今日 POPO 用户反馈群里的关键问题，整理成日报后通过机器人发给 @张振"></textarea>
+      <div class="form-hint">Agent 收到此指令后开始执行，可调用其已挂载的工具（如「机器人主动发消息」）完成送达</div>
+    </div>
+
+    <div class="form-item" style="display:flex;align-items:center;gap:14px;">
+      <label class="form-label" style="margin:0;">启用状态</label>
+      <span class="switch on" id="f_enabled" onclick="this.classList.toggle('on')"></span>
+      <span style="font-size:12px;color:#64748b;">保存后立即按时间表执行</span>
+    </div>
+
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-secondary" onclick="closeDrawer()">取消</button>
+    <button class="btn btn-primary" onclick="saveTask()">确定</button>
+  </div>
+</div>
+
+<!-- ============ 确认删除模态 ============ -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-title">🗑️ 删除定时任务</div>
+    <div class="modal-body" id="modalBody">
+      确定要删除任务「<b id="modalTaskName"></b>」吗？此操作不可恢复，已配置的指令和执行历史都会被一并清除。
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger-solid" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ============ 数据 ============ */
+const FREQ_LABEL = {
+  workday: "每个工作日（周一到周五）",
+  daily: "每天",
+  weekly: "每周",
+  biweekly: "每双周",
+  monthly: "每月"
+};
+const WEEK_LABEL = { 0:"日", 1:"一", 2:"二", 3:"三", 4:"四", 5:"五", 6:"六" };
+
+let tasks = [
+  {
+    id: 1,
+    name: "POPO 用户群运维日报",
+    desc: "每天向负责人推送运维日报",
+    agent: "网易POPO-开放平台群运维 Agent",
+    freq: "daily",
+    weekdays: [],
+    monthday: 1,
+    time: "18:00",
+    prompt: "请汇总今日 POPO 用户反馈群里的关键问题（咨询/Bug/建议），整理成日报后通过机器人主动发给 @张振。日报包含：① 问题总数 ② 高优问题列表 ③ 待跟进事项。",
+    enabled: true,
+    creator: "张振",
+    lastResult: "success",
+    lastRunAt: "今天 18:00",
+    nextRun: "明天 18:00",
+    history: [
+      { time: "2026-06-22 18:00", status: "success", duration: "12.4s", note: "已发送给 @张振" },
+      { time: "2026-06-21 18:00", status: "success", duration: "11.8s", note: "已发送给 @张振" },
+      { time: "2026-06-20 18:00", status: "success", duration: "14.2s", note: "已发送给 @张振" },
+      { time: "2026-06-19 18:00", status: "retry", duration: "21.6s", note: "首次超时，重试后成功" },
+      { time: "2026-06-18 18:00", status: "success", duration: "10.9s", note: "已发送给 @张振" }
+    ]
+  },
+  {
+    id: 2,
+    name: "财税合规月度提醒",
+    desc: "每月 28 日提醒同学准备申报材料",
+    agent: "财务审核助手",
+    freq: "monthly",
+    weekdays: [],
+    monthday: 28,
+    time: "09:00",
+    prompt: "在财务公告群里发送：本月个税申报将于 5 个工作日内截止，请同学们准备好材料。",
+    enabled: true,
+    creator: "李扬",
+    lastResult: "success",
+    lastRunAt: "05-28 09:00",
+    nextRun: "06-28 09:00",
+    history: [
+      { time: "2026-05-28 09:00", status: "success", duration: "8.2s", note: "已发送至财务公告群" }
+    ]
+  },
+  {
+    id: 3,
+    name: "周一早会提醒",
+    desc: "每周一在团队群同步本周日程",
+    agent: "团队周报 Agent",
+    freq: "weekly",
+    weekdays: [1],
+    monthday: 1,
+    time: "09:00",
+    prompt: "拉取本周所有关键日程，整理成简报并发到团队群。",
+    enabled: false,
+    creator: "魏建磊",
+    lastResult: "success",
+    lastRunAt: "06-16 09:00",
+    nextRun: "—（已停用）",
+    history: [
+      { time: "2026-06-16 09:00", status: "success", duration: "9.1s", note: "已发送" }
+    ]
+  },
+  {
+    id: 4,
+    name: "合规知识更新通知",
+    desc: "每周五在合规交流群同步当周新增条目",
+    agent: "合规知识更新 Agent",
+    freq: "weekly",
+    weekdays: [5],
+    monthday: 1,
+    time: "17:30",
+    prompt: "查询本周新增的合规条目，整理成清单后通过机器人发到「合规交流群」。",
+    enabled: true,
+    creator: "青远",
+    lastResult: "fail",
+    lastRunAt: "06-20 17:30",
+    nextRun: "06-27 17:30",
+    history: [
+      { time: "2026-06-20 17:30", status: "fail", duration: "—", note: "调用失败：知识库接口超时（已自动重试 1 次仍失败）" },
+      { time: "2026-06-13 17:30", status: "success", duration: "13.5s", note: "已发送至合规交流群" }
+    ]
+  }
+];
+
+/* ============ 状态 ============ */
+let view = { name: "list", taskId: null };
+let editing = { id: null, freq: "daily", weekdays: [], monthday: 1 };
+let pendingDeleteId = null;
+let filterText = "";
+let filterAgent = "";
+let filterStatus = "";
+
+/* ============ 工具 ============ */
+function $(id) { return document.getElementById(id); }
+function freqText(t) {
+  if (t.freq === "daily") return "每天 " + t.time;
+  if (t.freq === "workday") return "每工作日 " + t.time;
+  if (t.freq === "weekly") {
+    const days = (t.weekdays || []).slice().sort().map(d => "周" + WEEK_LABEL[d]).join("、");
+    return "每周 " + (days || "—") + " " + t.time;
+  }
+  if (t.freq === "biweekly") {
+    const days = (t.weekdays || []).slice().sort().map(d => "周" + WEEK_LABEL[d]).join("、");
+    return "每双周 " + (days || "—") + " " + t.time;
+  }
+  if (t.freq === "monthly") return "每月 " + t.monthday + " 日 " + t.time;
+  return "—";
+}
+function toast(msg, type) {
+  const t = document.createElement("div");
+  t.className = "toast " + (type || "");
+  t.innerHTML = (type === "success" ? "✓ " : type === "error" ? "✕ " : "") + msg;
+  $("toastStack").appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+/* ============ 渲染列表 ============ */
+function render() {
+  if (view.name === "list") renderList();
+  else if (view.name === "detail") renderDetail();
+}
+
+function renderList() {
+  const filtered = tasks.filter(t => {
+    if (filterText && !(t.name + t.desc).toLowerCase().includes(filterText.toLowerCase())) return false;
+    if (filterAgent && t.agent !== filterAgent) return false;
+    if (filterStatus === "on" && !t.enabled) return false;
+    if (filterStatus === "off" && t.enabled) return false;
+    return true;
+  });
+
+  let html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">⏰ 定时任务</div>
+        <div class="page-subtitle">在指定时间点自动驱动 Agent 执行任务（如每天定时让 Agent 推送日报、月度推送提醒）</div>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="openCreate()">＋ 新建定时任务</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="搜索任务名称 / 描述" value="${filterText}" oninput="onSearch(this.value)">
+      </div>
+      <select class="filter-select" onchange="filterAgent=this.value;render()">
+        <option value="">全部 Agent</option>
+        ${[...new Set(tasks.map(t => t.agent))].map(a =>
+          `<option ${a===filterAgent?'selected':''}>${a}</option>`).join("")}
+      </select>
+      <select class="filter-select" onchange="filterStatus=this.value;render()">
+        <option value="">全部状态</option>
+        <option value="on" ${filterStatus==='on'?'selected':''}>启用中</option>
+        <option value="off" ${filterStatus==='off'?'selected':''}>已停用</option>
+      </select>
+      <div class="grow"></div>
+      <div style="font-size:12px;color:#94a3b8;">共 ${filtered.length} 个任务</div>
+    </div>
+
+    <div class="table-wrap">
+  `;
+
+  if (filtered.length === 0) {
+    html += `
+      <div class="empty-state">
+        <div class="icon">🗂️</div>
+        <div>没有匹配的定时任务</div>
+        <div style="margin-top:8px;font-size:12px;">尝试调整筛选条件，或<a style="color:#2563eb;cursor:pointer" onclick="openCreate()">新建一个任务</a></div>
+      </div>
+    `;
+  } else {
+    html += `
+      <table>
+        <thead><tr>
+          <th style="width:25%;">任务名称</th>
+          <th style="width:22%;">关联 Agent</th>
+          <th style="width:18%;">触发规则</th>
+          <th style="width:12%;">下次执行</th>
+          <th style="width:9%;">最近结果</th>
+          <th style="width:7%;">状态</th>
+          <th style="width:7%;">操作</th>
+        </tr></thead>
+        <tbody>
+    `;
+    filtered.forEach(t => {
+      const lastTag = t.lastResult === "success" ? `<span class="tag blue"><span class="dot"></span>成功</span>`
+        : t.lastResult === "fail" ? `<span class="tag red"><span class="dot"></span>失败</span>`
+        : `<span class="tag gray">—</span>`;
+      html += `
+        <tr class="clickable" onclick="openDetail(${t.id})">
+          <td>
+            <div class="task-name">${t.name}</div>
+            <div class="task-desc">${t.desc || ""}</div>
+          </td>
+          <td>${t.agent}</td>
+          <td style="font-size:12.5px;">${freqText(t)}</td>
+          <td style="font-size:12.5px;color:${t.enabled?'#0f172a':'#94a3b8'}">${t.nextRun}</td>
+          <td>${lastTag}</td>
+          <td onclick="event.stopPropagation()">
+            <span class="switch ${t.enabled?'on':''}" onclick="toggleEnabled(${t.id})"></span>
+          </td>
+          <td onclick="event.stopPropagation()">
+            <div class="row-actions">
+              <button class="icon-btn" title="编辑" onclick="openEdit(${t.id})">✎</button>
+              <button class="icon-btn danger" title="删除" onclick="askDelete(${t.id})">🗑</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    html += "</tbody></table>";
+  }
+  html += "</div>";
+
+  $("content").innerHTML = html;
+}
+
+function onSearch(v) {
+  filterText = v;
+  // 不全量重渲染，避免输入框失焦：仅更新表格部分
+  renderList();
+  const inp = $("searchInput");
+  if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); }
+}
+
+/* ============ 详情页 ============ */
+function renderDetail() {
+  const t = tasks.find(x => x.id === view.taskId);
+  if (!t) { view.name = "list"; render(); return; }
+
+  const banner = !t.enabled && t.lastResult === "fail"
+    ? `<div class="alert-banner"><span class="a-icon">⚠️</span>该任务最近一次执行失败，已被系统自动停用。请检查 Agent 配置后重新启用。<a onclick="toggleEnabled(${t.id})">重新启用</a></div>`
+    : "";
+
+  let historyRows = "";
+  t.history.forEach(h => {
+    const tag = h.status === "success" ? `<span class="tag blue"><span class="dot"></span>成功</span>`
+      : h.status === "retry" ? `<span class="tag yellow"><span class="dot"></span>重试后成功</span>`
+      : `<span class="tag red"><span class="dot"></span>失败</span>`;
+    historyRows += `
+      <tr>
+        <td style="font-size:12.5px;color:#475569;">${h.time}</td>
+        <td>${tag}</td>
+        <td style="font-size:12.5px;">${h.duration}</td>
+        <td style="font-size:12.5px;color:#64748b;">${h.note}</td>
+        <td><a style="color:#2563eb;cursor:pointer;font-size:12px;" onclick="toast('（演示）查看日志详情', 'info')">查看日志</a></td>
+      </tr>
+    `;
+  });
+
+  $("content").innerHTML = `
+    <div class="breadcrumb">
+      <a onclick="backToList()">定时任务</a>
+      <span class="sep">/</span>
+      <span>${t.name}</span>
+    </div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">
+          ${t.name}
+          <span class="tag ${t.enabled?'green':'gray'}"><span class="dot"></span>${t.enabled?'启用':'停用'}</span>
+        </div>
+        <div class="page-subtitle">${t.desc || "（无描述）"}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="backToList()">← 返回列表</button>
+        <button class="btn btn-secondary" onclick="toggleEnabled(${t.id})">${t.enabled?'停用':'启用'}</button>
+        <button class="btn btn-secondary" onclick="openEdit(${t.id})">✎ 编辑</button>
+        <button class="btn btn-danger" onclick="askDelete(${t.id})">🗑 删除</button>
+      </div>
+    </div>
+
+    ${banner}
+
+    <div class="detail-grid">
+      <div class="card">
+        <div class="card-title">基础信息</div>
+        <div class="info-list">
+          <div class="k">关联 Agent</div><div class="v">${t.agent}</div>
+          <div class="k">触发规则</div><div class="v">${freqText(t)}</div>
+          <div class="k">时区</div><div class="v">Asia/Shanghai</div>
+          <div class="k">创建人</div><div class="v">${t.creator}</div>
+          <div class="k">下次执行</div><div class="v">${t.nextRun}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">给 Agent 的指令</div>
+        <div style="font-size:13px;color:#334155;background:#f8fafc;border-radius:6px;padding:12px 14px;white-space:pre-wrap;border:1px solid #f1f5f9;">${t.prompt}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>执行历史 <span style="font-weight:400;color:#94a3b8;font-size:12px;">最近 30 天</span></span>
+        <button class="btn btn-secondary" style="padding:4px 12px;" onclick="toast('（演示）手动触发一次执行','info')">▶ 立即执行一次</button>
+      </div>
+      <table style="margin-top:-6px;">
+        <thead><tr>
+          <th>执行时间</th><th>状态</th><th>耗时</th><th>说明</th><th></th>
+        </tr></thead>
+        <tbody>${historyRows || `<tr><td colspan="5" class="empty-state" style="padding:40px 0;">暂无执行记录</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openDetail(id) {
+  view = { name: "detail", taskId: id };
+  render();
+}
+function backToList() {
+  view = { name: "list", taskId: null };
+  render();
+}
+
+/* ============ 启停 ============ */
+function toggleEnabled(id) {
+  const t = tasks.find(x => x.id === id);
+  t.enabled = !t.enabled;
+  t.nextRun = t.enabled ? computeNextRun(t) : "—（已停用）";
+  toast(t.enabled ? "已启用「" + t.name + "」" : "已停用「" + t.name + "」", "success");
+  render();
+}
+function computeNextRun(t) {
+  // 简化：仅展示用
+  if (t.freq === "daily") return "明天 " + t.time;
+  if (t.freq === "workday") return "下个工作日 " + t.time;
+  if (t.freq === "weekly") return "本周 " + t.time;
+  if (t.freq === "biweekly") return "下次 " + t.time;
+  if (t.freq === "monthly") return "下月 " + t.monthday + " 日 " + t.time;
+  return "—";
+}
+
+/* ============ 删除 ============ */
+function askDelete(id) {
+  pendingDeleteId = id;
+  const t = tasks.find(x => x.id === id);
+  $("modalTaskName").textContent = t.name;
+  $("modalMask").classList.add("open");
+}
+function closeModal() {
+  $("modalMask").classList.remove("open");
+  pendingDeleteId = null;
+}
+function confirmDelete() {
+  const t = tasks.find(x => x.id === pendingDeleteId);
+  tasks = tasks.filter(x => x.id !== pendingDeleteId);
+  toast("已删除「" + t.name + "」", "success");
+  closeModal();
+  if (view.name === "detail" && view.taskId === t.id) backToList();
+  else render();
+}
+
+/* ============ 抽屉 ============ */
+function openCreate() {
+  editing = { id: null, freq: "daily", weekdays: [], monthday: 1 };
+  $("drawerTitle").textContent = "新建定时任务";
+  $("f_name").value = "";
+  $("f_desc").value = "";
+  $("f_agent").value = "";
+  $("f_prompt").value = "";
+  $("f_monthday").value = 1;
+  $("f_enabled").classList.add("on");
+  setFreq("daily", []);
+  setTime("18:00");
+  openDrawer();
+}
+function openEdit(id) {
+  const t = tasks.find(x => x.id === id);
+  editing = { id: t.id, freq: t.freq, weekdays: t.weekdays.slice(), monthday: t.monthday };
+  $("drawerTitle").textContent = "编辑定时任务";
+  $("f_name").value = t.name;
+  $("f_desc").value = t.desc;
+  $("f_agent").value = t.agent;
+  $("f_prompt").value = t.prompt;
+  $("f_monthday").value = t.monthday;
+  $("f_enabled").classList.toggle("on", t.enabled);
+  setFreq(t.freq, t.weekdays);
+  setTime(t.time);
+  openDrawer();
+}
+function openDrawer() {
+  $("drawerMask").classList.add("open");
+  $("drawer").classList.add("open");
+}
+function closeDrawer() {
+  $("drawerMask").classList.remove("open");
+  $("drawer").classList.remove("open");
+  $("freqMenu").classList.remove("open");
+  $("timeMenu").classList.remove("open");
+  $("freqSelect").classList.remove("active");
+  $("timeSelect").classList.remove("active");
+}
+$("drawerMask").onclick = closeDrawer;
+
+/* ============ 频率下拉 ============ */
+function toggleFreqMenu(e) {
+  e.stopPropagation();
+  const opened = $("freqMenu").classList.toggle("open");
+  $("freqSelect").classList.toggle("active", opened);
+  $("timeMenu").classList.remove("open");
+  $("timeSelect").classList.remove("active");
+}
+function toggleTimeMenu(e) {
+  e.stopPropagation();
+  const opened = $("timeMenu").classList.toggle("open");
+  $("timeSelect").classList.toggle("active", opened);
+  $("freqMenu").classList.remove("open");
+  $("freqSelect").classList.remove("active");
+}
+document.addEventListener("click", () => {
+  $("freqMenu").classList.remove("open");
+  $("timeMenu").classList.remove("open");
+  $("freqSelect").classList.remove("active");
+  $("timeSelect").classList.remove("active");
+});
+
+document.querySelectorAll("#freqMenu .opt").forEach(o => {
+  o.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setFreq(o.dataset.freq, editing.weekdays);
+    $("freqMenu").classList.remove("open");
+    $("freqSelect").classList.remove("active");
+  });
+});
+
+function setFreq(freq, weekdays) {
+  editing.freq = freq;
+  editing.weekdays = weekdays || [];
+  $("freqLabel").textContent = FREQ_LABEL[freq];
+  document.querySelectorAll("#freqMenu .opt").forEach(o => {
+    const isSel = o.dataset.freq === freq;
+    o.classList.toggle("selected", isSel);
+    o.querySelector(".check").textContent = isSel ? "✓" : "";
+  });
+  // 显隐控制
+  $("weekdayBlock").classList.toggle("hidden", !(freq === "weekly" || freq === "biweekly"));
+  $("monthdayBlock").classList.toggle("hidden", freq !== "monthly");
+  // 默认值
+  if ((freq === "weekly" || freq === "biweekly") && editing.weekdays.length === 0) {
+    editing.weekdays = [1];
+  }
+  // 标记 chips
+  document.querySelectorAll("#weekdayBlock .weekday-chip").forEach(c => {
+    c.classList.toggle("selected", editing.weekdays.includes(Number(c.dataset.day)));
+  });
+}
+
+document.querySelectorAll("#weekdayBlock .weekday-chip").forEach(c => {
+  c.addEventListener("click", () => {
+    const d = Number(c.dataset.day);
+    const idx = editing.weekdays.indexOf(d);
+    if (idx >= 0) editing.weekdays.splice(idx, 1);
+    else editing.weekdays.push(d);
+    c.classList.toggle("selected");
+  });
+});
+
+/* 时间下拉：生成 24 小时 × 半小时 */
+(function buildTimeMenu() {
+  let html = "";
+  ["09:00","09:30","10:00","12:00","14:00","17:30","18:00","19:00","21:00","22:00"].forEach(t => {
+    html += `<div class="opt" data-time="${t}"><span class="check"></span>${t}</div>`;
+  });
+  html += `<div class="opt" data-time="custom" style="border-top:1px solid #f1f5f9;margin-top:4px;color:#2563eb;">✎ 自定义时间…</div>`;
+  $("timeMenu").innerHTML = html;
+  $("timeMenu").querySelectorAll(".opt").forEach(o => {
+    o.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (o.dataset.time === "custom") {
+        const v = prompt("请输入时间（HH:MM）", $("timeLabel").textContent);
+        if (v && /^\d{2}:\d{2}$/.test(v)) setTime(v);
+      } else {
+        setTime(o.dataset.time);
+      }
+      $("timeMenu").classList.remove("open");
+      $("timeSelect").classList.remove("active");
+    });
+  });
+})();
+function setTime(t) {
+  $("timeLabel").textContent = t;
+  document.querySelectorAll("#timeMenu .opt").forEach(o => {
+    const isSel = o.dataset.time === t;
+    o.classList.toggle("selected", isSel);
+    if (o.dataset.time !== "custom") o.querySelector(".check").textContent = isSel ? "✓" : "";
+  });
+}
+
+/* ============ 保存 ============ */
+function saveTask() {
+  const name = $("f_name").value.trim();
+  const agent = $("f_agent").value.trim();
+  const prompt = $("f_prompt").value.trim();
+  if (!name) { toast("请填写任务名称", "error"); $("f_name").focus(); return; }
+  if (!agent) { toast("请选择关联 Agent", "error"); $("f_agent").focus(); return; }
+  if (!prompt) { toast("请填写给 Agent 的指令", "error"); $("f_prompt").focus(); return; }
+  if ((editing.freq === "weekly" || editing.freq === "biweekly") && editing.weekdays.length === 0) {
+    toast("请至少选择 1 个星期", "error"); return;
+  }
+
+  const monthday = Math.max(1, Math.min(31, Number($("f_monthday").value) || 1));
+  const enabled = $("f_enabled").classList.contains("on");
+  const time = $("timeLabel").textContent;
+  const desc = $("f_desc").value.trim();
+
+  if (editing.id) {
+    const t = tasks.find(x => x.id === editing.id);
+    Object.assign(t, { name, desc, agent, prompt, freq: editing.freq, weekdays: editing.weekdays.slice(), monthday, time, enabled });
+    t.nextRun = enabled ? computeNextRun(t) : "—（已停用）";
+    toast("已更新「" + name + "」", "success");
+  } else {
+    const newId = Math.max(0, ...tasks.map(x => x.id)) + 1;
+    const t = {
+      id: newId, name, desc, agent, prompt,
+      freq: editing.freq, weekdays: editing.weekdays.slice(), monthday, time,
+      enabled, creator: "张振",
+      lastResult: "", lastRunAt: "—",
+      nextRun: enabled ? computeNextRun({ freq: editing.freq, time, monthday }) : "—（已停用）",
+      history: []
+    };
+    tasks.unshift(t);
+    toast("已创建「" + name + "」", "success");
+  }
+  closeDrawer();
+  render();
+}
+
+/* ============ 初始 ============ */
+render();
+</script>
+</body>
+</html>
