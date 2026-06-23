@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>POPO Task / Fabric 系列 PRD 索引</title>
+<style>
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa; color: #0f172a;
+    max-width: 880px; margin: 40px auto; padding: 0 24px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  .sub { color: #64748b; margin-bottom: 28px; font-size: 14px; }
+  .group {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 18px;
+  }
+  .group h2 {
+    font-size: 16px; color: #1d4ed8; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;
+  }
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 4px; border-bottom: 1px solid #f8fafc;
+  }
+  .item:last-child { border-bottom: none; }
+  .item .name { flex: 1; }
+  .item .name a {
+    color: #0f172a; text-decoration: none; font-weight: 600; font-size: 14.5px;
+  }
+  .item .name a:hover { color: #2563eb; }
+  .item .name .desc { font-size: 12.5px; color: #94a3b8; margin-top: 2px; }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: #dbeafe; color: #1e40af; font-weight: 600;
+  }
+  .tag.proto { background: #d1fae5; color: #047857; }
+  .tag.mockup { background: #ede9fe; color: #5b21b6; }
+  footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px; }
+</style>
+</head>
+<body>
+  <h1>POPO Task / Fabric 系列 PRD</h1>
+  <div class="sub">作者：张振 · 更新：2026-06-23</div>
+
+  <div class="group">
+    <h2>⏰ Fabric 定时任务</h2>
+    <div class="item">
+      <span class="tag proto">交互原型</span>
+      <div class="name">
+        <a href="fabric-scheduled-task-prototype.html">高保真交互原型</a>
+        <div class="desc">可点击、可跳转、可弹窗的完整后台原型</div>
+      </div>
+    </div>
+    <div class="item">
+      <span class="tag mockup">静态原型</span>
+      <div class="name">
+        <a href="fabric-scheduled-task-mockup-v1.html">4 页静态原型</a>
+        <div class="desc">列表 + 抽屉 + 详情 + 异常态</div>
+      </div>
+    </div>
+    <div class="item">
+      <span class="tag">PRD</span>
+      <div class="name">
+        <a href="fabric-scheduled-task-prd-v1.html">PRD 文档</a>
+        <div class="desc">菜单方案，5 种预设频率，组织级配置</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>🤖 Fabric 内置工具</h2>
+    <div class="item">
+      <span class="tag">PRD</span>
+      <div class="name">
+        <a href="fabric-bot-send-tool-prd-v1.html">机器人主动发消息</a>
+        <div class="desc">Agent 通过其绑定的机器人主动发消息给个人或群</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>🛠️ POPO-CLI Skills</h2>
+    <div class="item">
+      <span class="tag">PRD</span>
+      <div class="name">
+        <a href="popo-task-skill-prd-v1.html">popo-task Skill</a>
+        <div class="desc">在 Agent 对话中完成 POPO 任务的创建、更新、查看等</div>
+      </div>
+    </div>
+    <div class="item">
+      <span class="tag">PRD</span>
+      <div class="name">
+        <a href="popo-im-link-card-prd-v1.html">IM 链接卡片解析</a>
+        <div class="desc">CLI 发送内部文档链接时，模拟客户端能力解析成卡片</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    GitHub Repo · <a href="https://github.com/zzhen6930-wq/popo-task-prd">zzhen6930-wq/popo-task-prd</a>
+  </footer>
+</body>
+</html>
