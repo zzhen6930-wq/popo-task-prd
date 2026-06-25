@@ -258,7 +258,7 @@
   <div class="section">
     <div class="section-title"><span class="num">1</span>背景与目标</div>
     <p>Fabric AI 工厂的「<b>工具</b>」是 Agent 可挂载的能力模块。当前已有联网搜索、调用子 Agent、保存产物、思考记录、浏览器自动化、Fabric 业务调用等。</p>
-    <p>另一方面，POPO 开放平台已支持「<b>机器人发消息</b>」接口，且 Fabric Agent 在「POPO 配置」中已能<b>绑定一个机器人</b>（App ID / Key / Secret）。但二者目前没有打通——Agent 不知道"如何用绑定的机器人去主动发消息"，导致：</p>
+    <p>另一方面，POPO 开放平台已支持「<b>机器人发消息</b>」接口，且 Fabric Agent 在「POPO 配置」中已能<b>绑定一个机器人</b>。但二者目前没有打通——Agent 不知道"如何用绑定的机器人去主动发消息"，导致：</p>
     <ul>
       <li>每天 Agent 在 POPO 用户反馈群里答疑，但<b>无法主动发起播报</b>（如运维日报、状态摘要）</li>
       <li>长任务完成后，Agent <b>无法主动把结果推送</b>到指定的人或群</li>
@@ -351,7 +351,7 @@
     <div class="section-title"><span class="num">5</span>启用前置条件</div>
     <p>Agent 创建者在「内置工具」中勾选启用该工具时，平台进行<b>前置校验</b>：</p>
     <ul>
-      <li>当前 Agent 必须已在「<b>POPO 配置</b>」Tab 中<b>完成机器人绑定</b>（App ID / Key / Secret 有效、状态启用）</li>
+      <li>当前 Agent 必须已在「<b>POPO 配置</b>」Tab 中<b>完成机器人绑定</b>（绑定关系有效、机器人状态启用）</li>
       <li>若未绑定 → 提示「请先在「POPO 配置」中绑定机器人后再启用本工具」，并提供跳转入口</li>
       <li>若绑定的机器人后被停用 → 工具自动失效，运行时调用直接报错并提示 Agent 创建者</li>
     </ul>
@@ -372,10 +372,10 @@
         <tr><th style="width:18%">参数</th><th style="width:12%">必填</th><th>说明</th></tr>
       </thead>
       <tbody>
-        <tr><td><b>机器人名称</b></td><td>是</td><td>指定用哪个机器人发送（对应 Agent 已绑定的机器人）</td></tr>
-        <tr><td><b>接收人</b></td><td>是</td><td>消息接收方：指定用户或群</td></tr>
-        <tr><td><b>消息类型</b></td><td>是</td><td>文本 / 图片 / 文件</td></tr>
-        <tr><td><b>消息内容</b></td><td>是</td><td>与消息类型对应的具体内容</td></tr>
+        <tr><td><b>机器人名称</b></td><td>是</td><td><b>由装载期从 Agent 绑定关系自动带入</b>（非模型填写）；开放平台据此换取 token</td></tr>
+        <tr><td><b>接收人</b></td><td>是</td><td>消息接收方：指定用户或群（由模型根据用户意图填写）</td></tr>
+        <tr><td><b>消息类型</b></td><td>是</td><td>文本 / 图片 / 文件（由模型填写）</td></tr>
+        <tr><td><b>消息内容</b></td><td>是</td><td>与消息类型对应的具体内容（由模型填写）</td></tr>
       </tbody>
     </table>
     <pre><span class="c">// 工具 schema（写入模型上下文的"说明书"）</span>
@@ -398,7 +398,7 @@
         <div class="vflow-num">1</div>
         <div class="vflow-body">
           <div class="vflow-title">装载期：把"工具说明书"塞进 LLM 上下文<span class="vflow-actor actor-fabric">Fabric</span></div>
-          <div class="vflow-desc">会话启动时，Fabric 动态拼装工具 schema（工具名、用途、4 个参数）注入模型上下文。例：<code>{name:"bot_send", params:{bot_name, receiver, message_type, content}}</code></div>
+          <div class="vflow-desc">会话启动时，Fabric 动态拼装工具 schema（工具名、用途、参数）注入模型上下文。其中<b>「机器人名称」在装载时取该 Agent 当前绑定的机器人并烤入 schema</b>（取最新、内部以 bot_id 关联，避免改绑/改名后过期），模型无需也不应自行填写机器人名称。</div>
         </div>
       </div>
       <div class="vflow-step">
@@ -412,11 +412,11 @@
         <div class="vflow-num">3</div>
         <div class="vflow-body">
           <div class="vflow-title">LLM 输出一段结构化文字（不是调用，只是文字）<span class="vflow-actor actor-llm">LLM</span></div>
-          <div class="vflow-desc">模型基于上下文里的工具清单，判断该用 <code>bot_send</code>，并产出参数：</div>
+          <div class="vflow-desc">模型基于上下文里的工具清单，判断该用 <code>bot_send</code>，并产出参数。<b>注意：模型只产出 3 个参数，不产出机器人名称</b>（名称已在装载期烤入 schema，由 Runtime 自动带上）：</div>
           <pre style="margin-top:6px;">{
   <span class="k">"tool"</span>: <span class="s">"bot_send"</span>,
   <span class="k">"args"</span>: {
-    <span class="k">"bot_name"</span>: <span class="s">"运维助手"</span>,
+    <span class="c">// bot_name 不由模型产出，装载期已烤入</span>
     <span class="k">"receiver"</span>: <span class="s">"张三"</span>,
     <span class="k">"message_type"</span>: <span class="s">"text"</span>,
     <span class="k">"content"</span>: <span class="s">"今晚 22:00 维护，预计 30 分钟"</span>
@@ -428,14 +428,14 @@
         <div class="vflow-num">4</div>
         <div class="vflow-body">
           <div class="vflow-title">⭐ 真正执行工具的是 Agent Runtime，不是 LLM<span class="vflow-actor actor-runtime">Runtime</span></div>
-          <div class="vflow-desc">宿主程序（Agent Runtime）解析这段文字 → 组装真实 HTTP 请求。<b>本工具的核心难点也在这一步：鉴权凭证如何注入</b>（见第 5 章前置校验与下方说明）。</div>
+          <div class="vflow-desc">宿主程序（Agent Runtime）解析这段文字 → 组装真实 HTTP 请求，请求体只含 <b>4 个业务参数</b>（机器人名称 / 接收人 / 消息类型 / 内容）。<b>请求里不含任何机器人凭证（token）</b>——Runtime 只透传业务参数，不接触凭证。</div>
         </div>
       </div>
       <div class="vflow-step">
         <div class="vflow-num">5</div>
         <div class="vflow-body">
-          <div class="vflow-title">HTTP 请求 → Fabric Gateway → 开放平台<span class="vflow-actor actor-gateway">Gateway</span></div>
-          <div class="vflow-desc">请求经 Fabric Gateway 转发到 POPO 开放平台机器人发消息接口；开放平台在此做<b>两道权限闸门</b>校验（见 6.3）。</div>
+          <div class="vflow-title">HTTP 请求 → Fabric Gateway（纯转发） → 开放平台<span class="vflow-actor actor-gateway">Gateway</span></div>
+          <div class="vflow-desc">请求经 Fabric Gateway <b>纯转发</b>（不注入凭证、不做业务逻辑）到 POPO 开放平台发消息接口。<b>开放平台用「机器人名称」自行换取该机器人的 token</b>，再完成权限校验（见 6.3）后发送。</div>
         </div>
       </div>
       <div class="vflow-step">
@@ -447,16 +447,27 @@
       </div>
     </div>
 
-    <h3>6.3 权限校验（两道闸门，沿用 POPO 开放平台已有机制）</h3>
+    <div class="callout tip">
+      <div class="title">🔑 凭证如何解决：开放平台按名称换 token</div>
+      本工具<b>不存在"凭证如何注入链路"的难题</b>。调用开放平台发消息接口<b>不需要调用方提供机器人 token</b>——调用方只传「机器人名称 / 接收人 / 消息类型 / 内容」4 个参数，<b>开放平台内部根据机器人名称自行换取 token</b> 并发送。因此：① token 全程不进入 schema / 模型 / Runtime / Gateway，无凭证泄露风险；② Fabric Gateway 保持纯转发即可，无需新增凭证注入能力。
+    </div>
+
+    <h3>6.3 鉴权与权限校验（全部由 POPO 开放平台完成）</h3>
+    <p>调用方<b>不传 token</b>，开放平台收到请求后依次完成：</p>
     <ul>
-      <li><b>① 机器人状态</b>：Agent 绑定的机器人必须处于<b>启用状态</b>，且凭证有效</li>
-      <li><b>② 接收方在可使用范围内</b>：接收人 / 群必须在<b>该机器人的"可使用范围"</b>内（由 POPO 开放平台维护）</li>
-      <li>两个权限均通过 POPO 开放平台已有机制判定，<b>不在 Fabric 侧本地维护权限信息</b></li>
+      <li><b>① 按机器人名称换取 token</b>：开放平台内部解析「机器人名称」→ 对应机器人的 token</li>
+      <li><b>② 调用方使用权校验</b>：校验该机器人处于<b>启用状态</b>，且<b>调用方有权使用该机器人</b></li>
+      <li><b>③ 接收方范围校验</b>：接收人 / 群必须在<b>该机器人的"可使用范围"</b>内</li>
+      <li>以上均由 POPO 开放平台已有机制判定，<b>Fabric 侧不本地维护 token、不本地维护权限</b></li>
     </ul>
+    <div class="callout warn">
+      <div class="title">⚠️ 待开放平台确认</div>
+      "按名称换 token"时，开放平台<b>如何判断调用方有权使用该机器人</b>（基于 caller 身份 / 调用方是否为机器人管理员 / 其他机制），需与开放平台对齐确认，以补全②的鉴权细节。
+    </div>
 
     <h3>6.4 失败处理</h3>
     <ul>
-      <li>机器人凭证失效 → 工具返回错误，Agent 把失败原因告知用户</li>
+      <li>机器人已停用 / 调用方无权使用该机器人 → 工具返回错误，Agent 把失败原因告知用户</li>
       <li>接收方不在可使用范围 → 工具返回错误，提示「接收方不在机器人 X 的可使用范围」</li>
       <li>消息内容超长 / 类型不支持 → 工具返回错误并明确原因</li>
     </ul>
