@@ -138,6 +138,55 @@
   .flow-step.end { background: #ede9fe; border-color: #a78bfa; color: #5b21b6; }
   .flow-arrow { color: #9ca3af; font-size: 16px; }
 
+  /* 分步纵向流程 */
+  .vflow { margin: 14px 0; }
+  .vflow-step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    margin-bottom: 10px;
+    align-items: stretch;
+  }
+  .vflow-num {
+    background: linear-gradient(135deg,#4f46e5,#7c3aed);
+    color: #fff; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  .vflow-step.highlight .vflow-num {
+    background: linear-gradient(135deg,#f59e0b,#ef4444);
+  }
+  .vflow-body {
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 10px 14px;
+  }
+  .vflow-step.highlight .vflow-body {
+    background: #fffbeb; border-color: #fcd34d;
+  }
+  .vflow-title { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+  .vflow-desc { font-size: 12.5px; color: #475569; line-height: 1.55; }
+  .vflow-actor {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 1px 7px; border-radius: 4px; margin-left: 6px;
+    vertical-align: middle;
+  }
+  .actor-fabric { background: #ede9fe; color: #5b21b6; }
+  .actor-user { background: #e0f2fe; color: #0369a1; }
+  .actor-llm { background: #d1fae5; color: #047857; }
+  .actor-runtime { background: #fed7aa; color: #9a3412; }
+  .actor-gateway { background: #f1f5f9; color: #475569; }
+
+  pre {
+    background: #0f172a; color: #e2e8f0;
+    padding: 12px 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 12.5px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    line-height: 1.6; margin: 8px 0;
+  }
+  pre .k { color: #fbbf24; }
+  pre .s { color: #86efac; }
+  pre .c { color: #64748b; font-style: italic; }
+
   /* 场景 */
   .scenario-grid {
     display: grid;
@@ -315,26 +364,97 @@
   <!-- 六、运行时流程 -->
   <div class="section">
     <div class="section-title"><span class="num">6</span>运行时流程</div>
-    <div class="flow">
-      <div class="flow-step start">Agent 触发<br>调用工具</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step">读取本 Agent 绑定的机器人凭证</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step gate">权限校验<br>（两道闸门）</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step">调用 POPO 开放平台<br>发消息接口</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step end">消息以机器人身份<br>送达接收方</div>
+
+    <h3>6.1 工具入参（4 个参数）</h3>
+    <p>Agent 调用本工具发消息，需要以下 <b>4 个参数</b>，这些参数会作为工具的 <code>schema</code> 写入模型上下文：</p>
+    <table>
+      <thead>
+        <tr><th style="width:18%">参数</th><th style="width:12%">必填</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>机器人名称</b></td><td>是</td><td>指定用哪个机器人发送（对应 Agent 已绑定的机器人）</td></tr>
+        <tr><td><b>接收人</b></td><td>是</td><td>消息接收方：指定用户或群</td></tr>
+        <tr><td><b>消息类型</b></td><td>是</td><td>文本 / 图片 / 文件</td></tr>
+        <tr><td><b>消息内容</b></td><td>是</td><td>与消息类型对应的具体内容</td></tr>
+      </tbody>
+    </table>
+    <pre><span class="c">// 工具 schema（写入模型上下文的"说明书"）</span>
+{
+  <span class="k">"name"</span>: <span class="s">"bot_send"</span>,
+  <span class="k">"description"</span>: <span class="s">"用 Agent 绑定的机器人主动发消息"</span>,
+  <span class="k">"params"</span>: {
+    <span class="k">"bot_name"</span>:     <span class="s">"机器人名称"</span>,
+    <span class="k">"receiver"</span>:     <span class="s">"接收人（用户或群）"</span>,
+    <span class="k">"message_type"</span>: <span class="s">"消息类型：text / image / file"</span>,
+    <span class="k">"content"</span>:      <span class="s">"消息内容"</span>
+  }
+}</pre>
+
+    <h3>6.2 完整调用链路（function calling 机制）</h3>
+    <p>关键认知：<b>LLM 自己不执行任何调用，它只输出结构化文字</b>；真正发起请求的是宿主程序 Agent Runtime。完整链路如下：</p>
+
+    <div class="vflow">
+      <div class="vflow-step">
+        <div class="vflow-num">1</div>
+        <div class="vflow-body">
+          <div class="vflow-title">装载期：把"工具说明书"塞进 LLM 上下文<span class="vflow-actor actor-fabric">Fabric</span></div>
+          <div class="vflow-desc">会话启动时，Fabric 动态拼装工具 schema（工具名、用途、4 个参数）注入模型上下文。例：<code>{name:"bot_send", params:{bot_name, receiver, message_type, content}}</code></div>
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">2</div>
+        <div class="vflow-body">
+          <div class="vflow-title">用户提问<span class="vflow-actor actor-user">User</span></div>
+          <div class="vflow-desc">例："让运维助手机器人通知张三今晚 10 点维护。"</div>
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">3</div>
+        <div class="vflow-body">
+          <div class="vflow-title">LLM 输出一段结构化文字（不是调用，只是文字）<span class="vflow-actor actor-llm">LLM</span></div>
+          <div class="vflow-desc">模型基于上下文里的工具清单，判断该用 <code>bot_send</code>，并产出参数：</div>
+          <pre style="margin-top:6px;">{
+  <span class="k">"tool"</span>: <span class="s">"bot_send"</span>,
+  <span class="k">"args"</span>: {
+    <span class="k">"bot_name"</span>: <span class="s">"运维助手"</span>,
+    <span class="k">"receiver"</span>: <span class="s">"张三"</span>,
+    <span class="k">"message_type"</span>: <span class="s">"text"</span>,
+    <span class="k">"content"</span>: <span class="s">"今晚 22:00 维护，预计 30 分钟"</span>
+  }
+}</pre>
+        </div>
+      </div>
+      <div class="vflow-step highlight">
+        <div class="vflow-num">4</div>
+        <div class="vflow-body">
+          <div class="vflow-title">⭐ 真正执行工具的是 Agent Runtime，不是 LLM<span class="vflow-actor actor-runtime">Runtime</span></div>
+          <div class="vflow-desc">宿主程序（Agent Runtime）解析这段文字 → 组装真实 HTTP 请求。<b>本工具的核心难点也在这一步：鉴权凭证如何注入</b>（见第 5 章前置校验与下方说明）。</div>
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">5</div>
+        <div class="vflow-body">
+          <div class="vflow-title">HTTP 请求 → Fabric Gateway → 开放平台<span class="vflow-actor actor-gateway">Gateway</span></div>
+          <div class="vflow-desc">请求经 Fabric Gateway 转发到 POPO 开放平台机器人发消息接口；开放平台在此做<b>两道权限闸门</b>校验（见 6.3）。</div>
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">6</div>
+        <div class="vflow-body">
+          <div class="vflow-title">结果回给 Runtime → 拼回 LLM 上下文 → LLM 生成回复<span class="vflow-actor actor-llm">LLM</span></div>
+          <div class="vflow-desc">发送结果（成功 / 失败原因）原路返回，模型据此生成给用户的自然语言回复。</div>
+        </div>
+      </div>
     </div>
 
-    <h3>权限校验（两道闸门，沿用 POPO 开放平台已有机制）</h3>
+    <h3>6.3 权限校验（两道闸门，沿用 POPO 开放平台已有机制）</h3>
     <ul>
       <li><b>① 机器人状态</b>：Agent 绑定的机器人必须处于<b>启用状态</b>，且凭证有效</li>
       <li><b>② 接收方在可使用范围内</b>：接收人 / 群必须在<b>该机器人的"可使用范围"</b>内（由 POPO 开放平台维护）</li>
       <li>两个权限均通过 POPO 开放平台已有机制判定，<b>不在 Fabric 侧本地维护权限信息</b></li>
     </ul>
 
-    <h3>失败处理</h3>
+    <h3>6.4 失败处理</h3>
     <ul>
       <li>机器人凭证失效 → 工具返回错误，Agent 把失败原因告知用户</li>
       <li>接收方不在可使用范围 → 工具返回错误，提示「接收方不在机器人 X 的可使用范围」</li>
