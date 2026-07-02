@@ -252,6 +252,21 @@
   .bind-col { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; background: #fff; }
   .bind-searchbox { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; margin-bottom:10px; }
   .bind-searchbox:focus { border-color:#0891b2; }
+  /* Agents 列表 */
+  .agents-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .agents-toolbar .search-box { flex:0 0 300px; }
+  .agents-toolbar .search-box input { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; }
+  .agents-toolbar .search-box input:focus { border-color:#0891b2; }
+  .agents-toolbar .tb-icons { margin-left:auto; display:flex; gap:8px; }
+  .agents-table th, .agents-table td { white-space:nowrap; font-size:13px; padding:11px 14px; }
+  .agents-table .col-name .kb-name { font-weight:600; }
+  .agents-table .model-link { color:#2563eb; }
+  .agents-table .col-time { color:#64748b; font-size:12.5px; }
+  .agents-table .col-desc { color:#94a3b8; max-width:120px; overflow:hidden; text-overflow:ellipsis; }
+  .op-ic { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; cursor:pointer; color:#64748b; }
+  .op-ic:hover { background:#f1f5f9; color:#0f172a; }
+  .op-ic.danger:hover { background:#fef2f2; color:#dc2626; }
+  .col-op { display:flex; gap:4px; }
   .bind-bar { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#94a3b8; margin-bottom:8px; }
   .bind-bar .act { color:#0e7490; cursor:pointer; }
   .bind-bar .act:hover { text-decoration:underline; }
@@ -276,9 +291,9 @@
 <script>
 // ============ 数据 ============
 let agents = [
-  { id: 'ag1', name: '开放平台群运维 Agent', desc: 'POPO 开放平台答疑与运维', boundKbs: ['kb1', 'kb2'] },
-  { id: 'ag2', name: '财务审核助手', desc: '财税合规咨询', boundKbs: ['kb3'] },
-  { id: 'ag3', name: '团队周报 Agent', desc: '周报汇总', boundKbs: [] },
+  { id: 'ag1', name: '网易POPO-开放平台群运维 Agent', desc: 'POPO 开放平台答疑与运维', model:'deepseek-v4-pro', temp:0.7, maxTokens:'4,096', memory:true, plan:'自动', status:true, creator:'张振', createdAt:'2026-06-16 15:11', updatedBy:'张振', updatedAt:'2026-06-22 14:44', boundKbs: ['kb1', 'kb2'] },
+  { id: 'ag2', name: '财务审核助手', desc: '财税合规咨询', model:'deepseek-v4-flash', temp:0.7, maxTokens:'4,096', memory:false, plan:'自动', status:true, creator:'陈杰', createdAt:'2026-06-17 21:02', updatedBy:'陈杰', updatedAt:'2026-06-18 11:07', boundKbs: ['kb3'] },
+  { id: 'ag3', name: '团队周报 Agent', desc: '周报汇总', model:'deepseek-v4-flash', temp:0.7, maxTokens:'4,096', memory:true, plan:'自动', status:true, creator:'汪晓东', createdAt:'2026-06-24 15:26', updatedBy:'汪晓东', updatedAt:'2026-06-24 19:48', boundKbs: [] },
 ];
 
 let kbs = [
@@ -679,25 +694,47 @@ function confirmDeleteKb(id){
 
 // ============ Agent 列表 + 详情 · 知识绑定 ============
 function renderAgents(){
-  let rows = agents.map(a=>`
+  const q = (state.agentSearch||'').trim();
+  const list = q ? agents.filter(a=>a.name.includes(q)) : agents;
+  let rows = list.map(a=>`
     <tr>
-      <td><span class="kb-name" onclick="openAgentDetail('${a.id}')">🤖 ${esc(a.name)}</span><div style="font-size:12px;color:#94a3b8">${esc(a.desc)}</div></td>
-      <td>${a.boundKbs.length
-        ? a.boundKbs.map(id=>{const k=kbs.find(x=>x.id===id);return k?`<span class="tag cyan" style="margin:2px">📚 ${esc(k.name)}</span>`:''}).join('')
-        : '<span style="color:#94a3b8">未绑定知识本</span>'}</td>
-      <td><button class="btn btn-secondary btn-sm" onclick="openAgentDetail('${a.id}')">配置</button></td>
+      <td class="col-name"><span class="kb-name" onclick="openAgentDetail('${a.id}')">${esc(a.name)}</span></td>
+      <td><span class="model-link">${esc(a.model)}</span></td>
+      <td>${a.temp}</td>
+      <td>${a.maxTokens}</td>
+      <td><span class="tag ${a.memory?'green':'gray'}">${a.memory?'启用':'关闭'}</span></td>
+      <td>${a.plan}</td>
+      <td><span class="tag ${a.status?'green':'gray'}">${a.status?'启用':'关闭'}</span></td>
+      <td>${esc(a.creator)}</td>
+      <td class="col-time">${a.createdAt}</td>
+      <td>${esc(a.updatedBy)}</td>
+      <td class="col-time">${a.updatedAt}</td>
+      <td class="col-desc">${a.desc?esc(a.desc):'—'}</td>
+      <td class="col-op">
+        <span class="op-ic" title="配置" onclick="openAgentDetail('${a.id}')">📝</span>
+        <span class="op-ic danger" title="删除" onclick="toast('原型仅演示，暂不支持删除 Agent')">🗑️</span>
+      </td>
     </tr>`).join('');
   return `
   <div class="page-header">
-    <div><div class="page-title">🤖 Agents</div><div class="page-subtitle">进入 Agent 配置「知识绑定」：可多选知识本，检索范围限定在所选集合内</div></div>
+    <div class="page-title" style="font-size:20px">Agents</div>
+    <button class="btn btn-primary" onclick="toast('原型聚焦知识绑定，暂不支持新建 Agent')">＋ 新建 Agent</button>
+  </div>
+  <div class="agents-toolbar">
+    <div class="search-box"><input placeholder="搜索 Agent 名称..." value="${esc(state.agentSearch||'')}" oninput="onAgentSearch(this.value)"></div>
+    <div class="tb-icons"><span class="op-ic">⚙️</span><span class="op-ic">⟳</span><span class="op-ic">⛶</span></div>
   </div>
   <div class="table-wrap">
-    <table class="data">
-      <thead><tr><th>Agent</th><th>已绑定知识本</th><th style="width:120px">操作</th></tr></thead>
-      <tbody>${rows}</tbody>
+    <table class="data agents-table">
+      <thead><tr>
+        <th>名称</th><th>模型</th><th>Temperature</th><th>Max Tokens</th><th>记忆</th>
+        <th>规划模式</th><th>状态</th><th>创建人</th><th>创建时间</th><th>更新人</th><th>更新时间</th><th>描述</th><th>操作</th>
+      </tr></thead>
+      <tbody>${rows||'<tr><td colspan="13" class="empty">无匹配 Agent</td></tr>'}</tbody>
     </table>
   </div>`;
 }
+function onAgentSearch(v){ state.agentSearch=v; const tb=document.querySelector('.agents-table tbody'); if(tb) render(); }
 
 let bindDraft = [];
 const AGENT_TABS = ['基础信息','内置工具','Prompt 绑定','Skill 绑定','MCP 绑定','知识绑定'];
