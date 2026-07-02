@@ -238,6 +238,28 @@
     background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 10px; padding: 10px 14px;
     font-size: 12.5px; color: #0e7490; margin-bottom: 14px; display: flex; gap: 8px;
   }
+
+  /* Agent 详情 + 知识绑定穿梭框 */
+  .agent-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .agent-ava { width: 46px; height: 46px; border-radius: 10px; background: linear-gradient(135deg,#4f46e5,#0891b2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+  .bind-wrap { display: flex; gap: 0; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; min-height: 440px; }
+  .bind-col { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; }
+  .bind-col.left { border-right: 1px solid #f1f5f9; }
+  .bind-searchbox { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; margin-bottom:10px; }
+  .bind-searchbox:focus { border-color:#0891b2; }
+  .bind-bar { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#94a3b8; margin-bottom:8px; }
+  .bind-bar .act { color:#0e7490; cursor:pointer; }
+  .bind-bar .act:hover { text-decoration:underline; }
+  .bind-list { flex:1; overflow-y:auto; }
+  .bind-item { display:flex; gap:10px; padding:10px 8px; border-radius:8px; cursor:pointer; align-items:flex-start; }
+  .bind-item:hover { background:#f8fafc; }
+  .bind-cb { width:18px; height:18px; border:1.5px solid #cbd5e1; border-radius:5px; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; }
+  .bind-item.on .bind-cb { background:#0891b2; border-color:#0891b2; }
+  .bind-item .bi-name { font-size:13.5px; font-weight:600; color:#0f172a; }
+  .bind-item .bi-desc { font-size:12px; color:#94a3b8; margin-top:1px; }
+  .sel-item { display:flex; align-items:flex-start; gap:8px; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:8px; }
+  .sel-item .si-x { margin-left:auto; color:#94a3b8; cursor:pointer; font-size:15px; }
+  .sel-item .si-x:hover { color:#dc2626; }
 </style>
 </head>
 <body>
@@ -257,7 +279,7 @@ let agents = [
 let kbs = [
   {
     id: 'kb1', name: 'POPO 开放平台集成避坑指南', desc: '开放平台接口限制与 Agent 搭建最佳实践',
-    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-07-02',
+    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-28', updatedBy: '张振', updatedAt: '2026-07-02',
     docs: [
       { name: '开放平台问题测试集-运维Agent专用', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-1' },
       { name: '群运维Agent配置方法', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-2' },
@@ -282,27 +304,27 @@ let kbs = [
   },
   {
     id: 'kb2', name: '通用客服 FAQ', desc: '各 Agent 共用的通用问答库',
-    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-30',
+    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-30', updatedBy: '李四', updatedAt: '2026-07-01',
     docs: [ { name: '通用FAQ汇总.md', type: '本地文件' }, { name: '常见问题KM文章', type: 'KM文章' } ],
     wikiTree: { '原文摘要': ['通用FAQ汇总'], '术语解释': ['工单', 'SLA'], '方法与流程': ['问题上报流程'] },
     facts: { '工单': '工单默认 SLA 为 24 小时内响应。' }
   },
   {
     id: 'kb3', name: '财税合规知识库', desc: '个税申报、发票合规等',
-    source: 'admin', owner: '李财务', wiki: 'processing', createdAt: '2026-07-01',
+    source: 'admin', owner: '李财务', wiki: 'processing', createdAt: '2026-07-01', updatedBy: '李财务', updatedAt: '2026-07-01',
     docs: [ { name: '2026个税政策汇编.pdf', type: '本地文件' } ],
     wikiTree: {}, facts: {}
   },
   {
     id: 'kb4', name: '我的读书笔记', desc: 'C 端用户自建：产品方法论摘录',
-    source: 'cuser', owner: '王五', wiki: 'done', createdAt: '2026-07-02',
+    source: 'cuser', owner: '王五', wiki: 'done', createdAt: '2026-07-02', updatedBy: '王五', updatedAt: '2026-07-02',
     docs: [ { name: '《启示录》读书笔记', type: 'POPO文档' }, { name: '某公众号文章', type: '网络链接' } ],
     wikiTree: { '原文摘要': ['启示录读书笔记'], '人物与事物': ['产品经理'], '术语解释': ['MVP'] },
     facts: {}
   },
   {
     id: 'kb5', name: '竞品调研合集', desc: 'C 端用户自建：行业竞品资料',
-    source: 'cuser', owner: '赵六', wiki: 'done', createdAt: '2026-06-28',
+    source: 'cuser', owner: '赵六', wiki: 'done', createdAt: '2026-06-28', updatedBy: '赵六', updatedAt: '2026-06-29',
     docs: [ { name: '竞品功能对比表.xls', type: '本地文件' } ],
     wikiTree: { '原文摘要': ['竞品功能对比'], '待解问题': ['竞品定价策略'] }, facts: {}
   },
@@ -330,7 +352,7 @@ function shell(inner){
   const menu = ['对话','Bots','Agents','Teams','Models','Prompts','Skills','记忆','知识','工具','会话'];
   const items = menu.map(m=>{
     let active = (m==='知识' && (state.view==='kbList'||state.view==='kbDetail'))
-      || (m==='Agents' && (state.view==='agents'));
+      || (m==='Agents' && (state.view==='agents'||state.view==='agentDetail'));
     let icon = m==='知识'?'📚': m==='Agents'?'🤖':'▫️';
     let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识管理流程')";
     return `<div class="sidebar-item ${active?'active':''}" onclick="${onclick}"><span>${icon}</span>${m}</div>`;
@@ -358,6 +380,7 @@ function render(){
   if(state.view==='kbList') inner = renderKbList();
   else if(state.view==='kbDetail') inner = renderKbDetail();
   else if(state.view==='agents') inner = renderAgents();
+  else if(state.view==='agentDetail') inner = renderAgentDetail();
   else if(state.view==='chat') inner = renderChat();
   document.getElementById('app').innerHTML = shell(inner);
 }
@@ -370,9 +393,12 @@ function renderKbList(){
       <td><span class="kb-name" onclick="go('kbDetail','${k.id}')">📚 ${esc(k.name)}</span>
         <div style="font-size:12px;color:#94a3b8">${esc(k.desc)}</div></td>
       <td>${esc(k.owner)}</td>
+      <td style="white-space:nowrap">${k.createdAt}</td>
+      <td>${esc(k.updatedBy||'—')}</td>
+      <td style="white-space:nowrap">${k.updatedAt||'—'}</td>
       <td>${k.docs.length} 份</td>
       <td><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></td>
-      <td>${boundAgentCount(k.id)} 个 Agent</td>
+      <td>${boundAgentCount(k.id)} 个</td>
       <td class="row-actions">
         <span class="link-btn" onclick="go('kbDetail','${k.id}')">查看</span>
         <span class="link-btn" onclick="openEditKb('${k.id}')">编辑</span>
@@ -392,13 +418,11 @@ function renderKbList(){
   </div>
   <div class="table-wrap">
     <table class="data">
-      <thead><tr><th>知识本</th><th>创建人</th><th>资料</th><th>Wiki 状态</th><th>被绑定</th><th style="width:180px">操作</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="6" class="empty">暂无知识本</td></tr>'}</tbody>
+      <thead><tr><th>知识本</th><th>创建人</th><th>创建时间</th><th>更新人</th><th>更新时间</th><th>资料</th><th>Wiki</th><th>被绑定</th><th style="width:150px">操作</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="9" class="empty">暂无知识本</td></tr>'}</tbody>
     </table>
   </div>`;
 }
-
-function setFilter(v){ state.filterSource = v; render(); }
 
 // ============ 知识本详情 ============
 function renderKbDetail(){
@@ -496,8 +520,8 @@ function openWikiNode(kbId, group, node){
 }
 
 // ============ 新建 / 编辑知识本 ============
-function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.srcTab='云空间'; openKbDrawer('新建知识本'); }
-function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.srcTab='云空间'; openKbDrawer('编辑知识本', k); }
+function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('新建知识本'); }
+function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('编辑知识本', k); }
 
 function openKbDrawer(title, k){
   const d = document.getElementById('drawer');
@@ -512,7 +536,11 @@ function openKbDrawer(title, k){
         <label class="form-label">描述</label>
         <textarea class="form-textarea" id="kbDesc" placeholder="说明该知识本覆盖的领域 / 用途">${k?esc(k.desc):''}</textarea>
       </div>
-      <div class="form-item">
+      <div class="tabs" style="margin-bottom:14px">
+        <div class="tab ${state.editTab==='docs'?'active':''}" onclick="setEditTab('docs')">资料</div>
+        <div class="tab ${state.editTab==='wiki'?'active':''}" onclick="setEditTab('wiki')">Wiki 视图</div>
+      </div>
+      <div id="tabDocs" style="display:${state.editTab==='docs'?'block':'none'}">
         <label class="form-label"><span class="req">*</span>资料来源<span class="form-hint" style="display:inline;margin-left:8px">多源上传，上传后自动解析并生成关联 Wiki</span></label>
         <div class="src-tabs">
           ${['云空间','本地文件','网络链接','KM 文章'].map(s=>`<div class="src-tab ${state.srcTab===s?'active':''}" onclick="setSrcTab('${s}')">${s}</div>`).join('')}
@@ -524,17 +552,25 @@ function openKbDrawer(title, k){
         </div>
         <div id="draftDocs">${renderDraftDocs()}</div>
       </div>
-      ${state.editingKb ? `
-      <div class="form-item">
-        <label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label>
-        <div id="draftWiki">${renderDraftWiki()}</div>
-      </div>` : ''}
+      <div id="tabWiki" style="display:${state.editTab==='wiki'?'block':'none'}">
+        ${state.editingKb
+          ? `<label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label><div id="draftWiki">${renderDraftWiki()}</div>`
+          : '<div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>'}
+      </div>
     </div>
     <div class="drawer-footer">
       <button class="btn btn-secondary" onclick="closeAll()">取消</button>
       <button class="btn btn-primary" onclick="saveKb()">保存</button>
     </div>`;
   showDrawer();
+}
+function setEditTab(t){
+  state.editTab=t;
+  document.getElementById('tabDocs').style.display = t==='docs'?'block':'none';
+  document.getElementById('tabWiki').style.display = t==='wiki'?'block':'none';
+  document.querySelectorAll('.drawer-body .tabs .tab').forEach((el,i)=>{
+    el.classList.toggle('active', (i===0 && t==='docs') || (i===1 && t==='wiki'));
+  });
 }
 function setSrcTab(s){
   const nm = document.getElementById('kbName'); const ds = document.getElementById('kbDesc');
@@ -583,13 +619,14 @@ function saveKb(){
     const k = kbs.find(x=>x.id===state.editingKb); const wasC = k.source==='cuser';
     k.name=name; k.desc=desc; k.docs=state.draftDocs.slice();
     k.wikiTree = JSON.parse(JSON.stringify(state.draftWiki||{}));
+    k.updatedBy = '张振'; k.updatedAt = '2026-07-02';
     if(k.wiki==='done' && !Object.keys(k.wikiTree).length){ /* Wiki 被清空，保留状态，详情显示暂无 */ }
     closeAll(); render();
     toast(wasC ? '已更新，未通知 C 端用户' : '已保存');
   } else {
     if(!state.draftDocs.length){ toast('请至少添加一条资料'); return; }
     const id = 'kb'+(Date.now()%100000);
-    kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
+    kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', updatedBy:'张振', updatedAt:'2026-07-02', docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
     closeAll(); go('kbList');
     toast('知识本已创建，Wiki 生成中');
     setTimeout(()=>{ const k=kbs.find(x=>x.id===id); if(k){ k.wiki='done'; k.wikiTree={'原文摘要':k.docs.map(d=>d.name),'术语解释':['示例术语']}; if(state.view==='kbList'||state.view==='kbDetail') render(); toast('Wiki 已生成'); } }, 2600);
@@ -624,63 +661,107 @@ function confirmDeleteKb(id){
   toast(isC ? '已删除，未通知 C 端用户' : '已删除');
 }
 
-// ============ Agent 列表 + 绑定知识本 ============
+// ============ Agent 列表 + 详情 · 知识绑定 ============
 function renderAgents(){
   let rows = agents.map(a=>`
     <tr>
-      <td><span class="kb-name">🤖 ${esc(a.name)}</span><div style="font-size:12px;color:#94a3b8">${esc(a.desc)}</div></td>
+      <td><span class="kb-name" onclick="openAgentDetail('${a.id}')">🤖 ${esc(a.name)}</span><div style="font-size:12px;color:#94a3b8">${esc(a.desc)}</div></td>
       <td>${a.boundKbs.length
         ? a.boundKbs.map(id=>{const k=kbs.find(x=>x.id===id);return k?`<span class="tag cyan" style="margin:2px">📚 ${esc(k.name)}</span>`:''}).join('')
         : '<span style="color:#94a3b8">未绑定知识本</span>'}</td>
-      <td><button class="btn btn-secondary btn-sm" onclick="openBindKb('${a.id}')">配置知识库</button></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openAgentDetail('${a.id}')">配置</button></td>
     </tr>`).join('');
   return `
   <div class="page-header">
-    <div><div class="page-title">🤖 Agents</div><div class="page-subtitle">给 Agent 配置知识库：可多选知识本，检索范围限定在所选集合内</div></div>
+    <div><div class="page-title">🤖 Agents</div><div class="page-subtitle">进入 Agent 配置「知识绑定」：可多选知识本，检索范围限定在所选集合内</div></div>
   </div>
   <div class="table-wrap">
     <table class="data">
-      <thead><tr><th>Agent</th><th>已绑定知识本</th><th style="width:140px">操作</th></tr></thead>
+      <thead><tr><th>Agent</th><th>已绑定知识本</th><th style="width:120px">操作</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </div>`;
 }
 
 let bindDraft = [];
-function openBindKb(agentId){
-  const a = agents.find(x=>x.id===agentId); bindDraft = a.boundKbs.slice();
-  const d = document.getElementById('drawer');
-  d.innerHTML = `
-    <div class="drawer-header"><span class="title">配置知识库 · ${esc(a.name)}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="drawer-body">
-      <div class="callout-strip">勾选一个或多个知识本作为该 Agent 的知识库。C 端对话时只在所选知识本内检索。</div>
-      <div id="bindList">${renderBindList()}</div>
-    </div>
-    <div class="drawer-footer">
-      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
-      <button class="btn btn-primary" onclick="saveBind('${agentId}')">保存（已选 <span id="bindCount">${bindDraft.length}</span>）</button>
-    </div>`;
-  showDrawer();
+const AGENT_TABS = ['基础信息','内置工具','Prompt 绑定','Skill 绑定','MCP 绑定','知识绑定'];
+function openAgentDetail(id){
+  const a = agents.find(x=>x.id===id);
+  state.view='agentDetail'; state.agentId=id; state.agentTab='知识绑定'; state.bindSearch='';
+  bindDraft = a.boundKbs.slice();
+  render();
 }
-function renderBindList(){
-  return kbs.filter(k=>k.wiki!=='fail').map(k=>{
-    const checked = bindDraft.includes(k.id);
-    return `<div class="kb-pick ${checked?'checked':''}" onclick="toggleBind('${k.id}')">
-      <div class="cbox">${checked?'✓':''}</div>
-      <div>
-        <div class="kp-name">📚 ${esc(k.name)} ${k.source==='cuser'?'<span class="tag purple" style="font-size:10px">C端</span>':''} ${k.wiki==='processing'?'<span class="tag amber" style="font-size:10px">Wiki生成中</span>':''}</div>
-        <div class="kp-desc">${esc(k.desc)} · ${k.docs.length} 份资料</div>
-      </div></div>`;
+function setAgentTab(t){ state.agentTab=t; render(); }
+
+function renderAgentDetail(){
+  const a = agents.find(x=>x.id===state.agentId);
+  const tabs = AGENT_TABS.map(t=>`<div class="tab ${state.agentTab===t?'active':''}" onclick="setAgentTab('${t}')">${t}</div>`).join('');
+  let body = '';
+  if(state.agentTab==='知识绑定') body = renderKnowledgeBind();
+  else body = `<div class="empty">「${state.agentTab}」为占位（保持 Fabric 现有配置规范），本原型聚焦「知识绑定」。</div>`;
+  return `
+  <div class="breadcrumb"><a onclick="go('agents')">← 返回 Agents</a></div>
+  <div class="agent-head">
+    <div class="agent-ava">${esc(a.name.slice(0,1))}</div>
+    <div><div class="page-title" style="font-size:20px">${esc(a.name)}</div><div class="page-subtitle">${esc(a.desc)}</div></div>
+  </div>
+  <div class="tabs">${tabs}</div>
+  ${body}`;
+}
+
+function renderKnowledgeBind(){
+  return `
+  <div class="bind-wrap">
+    <div class="bind-col left">
+      <input class="bind-searchbox" placeholder="请输入知识本名称搜索" value="${esc(state.bindSearch||'')}" oninput="onBindSearch(this.value)">
+      <div class="bind-bar"><span>共 <b id="bindTotal">${filteredBindKbs().length}</b> 项</span><span class="act" onclick="bindSelectAll()">全选</span></div>
+      <div class="bind-list" id="bindLeft">${renderBindLeft()}</div>
+    </div>
+    <div class="bind-col right">
+      <div class="bind-bar"><span>已选 <b id="bindCount">${bindDraft.length}</b> 项</span><span class="act" onclick="bindClear()">清空</span></div>
+      <div class="bind-list" id="bindRight">${renderBindRight()}</div>
+    </div>
+  </div>
+  <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBind('${state.agentId}')">💾 保存绑定</button></div>`;
+}
+function filteredBindKbs(){
+  const q = (state.bindSearch||'').trim();
+  return kbs.filter(k=> k.wiki!=='fail' && (!q || k.name.includes(q) || (k.desc||'').includes(q)));
+}
+function renderBindLeft(){
+  const list = filteredBindKbs();
+  if(!list.length) return '<div class="empty">无匹配知识本</div>';
+  return list.map(k=>{
+    const on = bindDraft.includes(k.id);
+    return `<div class="bind-item ${on?'on':''}" onclick="toggleBind('${k.id}')">
+      <div class="bind-cb">${on?'✓':''}</div>
+      <div><div class="bi-name">📚 ${esc(k.name)}${k.wiki==='processing'?' <span class="tag amber" style="font-size:10px">Wiki生成中</span>':''}</div><div class="bi-desc">${esc(k.desc)}</div></div>
+    </div>`;
   }).join('');
 }
+function renderBindRight(){
+  if(!bindDraft.length) return '<div class="empty">从左侧选择知识本，选中后在此展示</div>';
+  return bindDraft.map(id=>{
+    const k = kbs.find(x=>x.id===id); if(!k) return '';
+    return `<div class="sel-item"><div><div class="bi-name">📚 ${esc(k.name)}</div><div class="bi-desc">${esc(k.desc)}</div></div><span class="si-x" onclick="toggleBind('${id}')">×</span></div>`;
+  }).join('');
+}
+function refreshBind(){
+  document.getElementById('bindLeft').innerHTML = renderBindLeft();
+  document.getElementById('bindRight').innerHTML = renderBindRight();
+  document.getElementById('bindCount').textContent = bindDraft.length;
+  const bt = document.getElementById('bindTotal'); if(bt) bt.textContent = filteredBindKbs().length;
+}
+function onBindSearch(v){ state.bindSearch=v; document.getElementById('bindLeft').innerHTML = renderBindLeft(); const bt=document.getElementById('bindTotal'); if(bt) bt.textContent=filteredBindKbs().length; }
 function toggleBind(id){
   if(bindDraft.includes(id)) bindDraft = bindDraft.filter(x=>x!==id); else bindDraft.push(id);
-  document.getElementById('bindList').innerHTML = renderBindList();
-  document.getElementById('bindCount').textContent = bindDraft.length;
+  refreshBind();
 }
+function bindSelectAll(){ filteredBindKbs().forEach(k=>{ if(!bindDraft.includes(k.id)) bindDraft.push(k.id); }); refreshBind(); }
+function bindClear(){ bindDraft = []; refreshBind(); }
 function saveBind(agentId){
   const a = agents.find(x=>x.id===agentId); a.boundKbs = bindDraft.slice();
-  closeAll(); render(); toast('知识库配置已保存');
+  toast('知识绑定已保存'); go('agents');
 }
 
 // ============ C 端对话检索演示 ============
