@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Fabric · AI 工厂「知识管理」（集成「知识本」· 一期）· PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+    padding: 32px 24px;
+    line-height: 1.7;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .header {
+    background: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%);
+    color: #fff;
+    padding: 30px 34px;
+    border-radius: 16px;
+    margin-bottom: 22px;
+  }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta {
+    display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px;
+  }
+
+  .section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 17px; font-weight: 700; color: #0f172a;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .section-title .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: #0891b2; color: #fff; border-radius: 50%;
+    font-size: 12px; font-weight: 600;
+  }
+  .section h3 {
+    font-size: 15px; font-weight: 700; color: #0f172a;
+    margin: 16px 0 8px; padding-left: 10px;
+    border-left: 3px solid #0891b2;
+  }
+  .section h4 {
+    font-size: 13px; font-weight: 600; color: #475569;
+    margin: 12px 0 6px;
+  }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #0e7490;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  .callout {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout.key { background: #ecfeff; border-color: #06b6d4; color: #0e7490; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+
+  /* 痛点对比 */
+  .pain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .pain-card {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .pain-card h4 { color: #b91c1c; font-size: 13px; margin: 0 0 6px; }
+  .pain-card p { font-size: 12px; color: #7f1d1d; margin: 0; }
+
+  /* 范围对比 */
+  .scope-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 10px 0;
+  }
+  .scope-card {
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1.5px solid;
+  }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+
+  /* 模拟菜单 */
+  .mock-menu {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: #475569;
+    width: 220px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .mock-menu .mm-group {
+    font-size: 11px; color: #94a3b8; padding: 4px 0;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .mock-menu .mm-item { padding: 6px 10px; border-radius: 6px; margin: 2px 0; }
+  .mock-menu .mm-item.active { background: #cffafe; color: #0e7490; font-weight: 600; }
+
+  /* 垂直流程 */
+  .vflow { margin: 14px 0; }
+  .vflow-step {
+    display: flex; gap: 14px;
+    padding: 0 0 18px 0;
+    position: relative;
+  }
+  .vflow-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 15px; top: 32px; bottom: 0;
+    width: 2px; background: #e2e8f0;
+  }
+  .vflow-num {
+    flex: 0 0 32px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #0891b2; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    z-index: 1;
+  }
+  .vflow-body {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #334155;
+  }
+  .vflow-body.hl { background: #ecfeff; border-color: #a5f3fc; }
+  .vflow-body .actor {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .actor-user { background: #ecfdf5; color: #047857; }
+  .actor-agent { background: #ede9fe; color: #6d28d9; }
+  .actor-kb { background: #cffafe; color: #0e7490; }
+  .actor-fabric { background: #fef3c7; color: #92400e; }
+
+  /* 关联示意 */
+  .rel-diagram {
+    display: flex; align-items: center; justify-content: center;
+    gap: 20px; flex-wrap: wrap;
+    background: #f8fafc; border: 1px dashed #cbd5e1;
+    border-radius: 10px; padding: 20px; margin: 12px 0;
+  }
+  .rel-node {
+    background: #fff; border: 1.5px solid #0891b2;
+    border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; font-weight: 600; color: #0e7490;
+    text-align: center;
+  }
+  .rel-node.agent { border-color: #7c3aed; color: #6d28d9; }
+  .rel-node small { display: block; font-weight: 400; color: #94a3b8; font-size: 11px; }
+  .rel-link { color: #94a3b8; font-size: 13px; }
+  .rel-col { display: flex; flex-direction: column; gap: 10px; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .badge.on { background: #dcfce7; color: #166534; }
+  .badge.off { background: #f1f5f9; color: #64748b; }
+  .badge.processing { background: #fef3c7; color: #92400e; }
+  .badge.fail { background: #fee2e2; color: #991b1b; }
+
+  .mock-list {
+    background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 10px; overflow: hidden; margin: 10px 0; font-size: 12px;
+  }
+  .mock-list table { margin: 0; }
+  .mock-list th, .mock-list td { border: none; border-bottom: 1px solid #f1f5f9; }
+
+  .footer {
+    text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Fabric · AI 工厂「知识管理」（集成「知识本」）</h1>
+    <div style="opacity:0.92;font-size:13px;">把 NotebookLM 式的知识本能力接进 Fabric，让 Agent 拥有可维护、可精准检索的专属知识库</div>
+    <div class="meta">
+      <span>📅 2026-07-02</span>
+      <span>🏷️ v1.0（一期）</span>
+      <span>👤 作者：张振</span>
+      <span>🧩 归属：Fabric / AI 工厂</span>
+    </div>
+  </div>
+
+  <!-- 一、背景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>在 Fabric 给 Agent 配置知识时，当前后台<b>没有独立的知识管理模块</b>，只能把整理后的知识塞进以下 3 个地方，各有明显局限：</p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <h4>① 写进 Prompt</h4>
+        <p>受上下文长度约束，无法承载大量知识；改一处要动 Prompt，难维护、易污染指令。</p>
+      </div>
+      <div class="pain-card">
+        <h4>② 放云空间文档</h4>
+        <p>Agent 读不到，得靠 Skill 绕路去读；格式杂、无结构化检索，命中率低。</p>
+      </div>
+      <div class="pain-card">
+        <h4>③ 塞 Echo 知识库</h4>
+        <p>需自己整理成规定格式，整理成本高；来源单一，多格式知识进不来。</p>
+      </div>
+    </div>
+    <p style="margin-top:10px;">而内部已有一款成熟的知识类产品 <b>「知识本」</b>（高度类似 Google NotebookLM），却<b>无法在 Fabric 里直接使用</b>：</p>
+    <ul>
+      <li><b>多源多格式上传</b>：POPO 云空间 / 本地文件（PDF、DOCX、XLS、CSV、Markdown、PNG、MP4、SRT…）/ 网络链接 / KM 文章</li>
+      <li><b>自动生成 Wiki</b>：上传后自动抽取「原文摘要 / 人物与事物 / 术语解释 / 待解问题 / 方法与流程」，且 <b>Wiki 之间带关联关系</b>，利于关联检索</li>
+      <li><b>价值</b>：一站式覆盖多来源知识、大幅降低整理成本、并通过结构化 + 关联增强检索准确性</li>
+    </ul>
+    <p style="margin-top:10px;"><b>本期目标</b>：把「知识本」作为知识底座接入 Fabric，在「AI 工厂」下新增「<b>知识</b>」模块，实现三件事——① 给 Agent 配专属知识库；② C 端咨询时 Agent 能精准检索知识；③ 在 POPO 租户下治理 C 端用户上传的知识与 Wiki。</p>
+  </div>
+
+  <!-- 二、定位 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>产品定位</div>
+    <h3>2.1 谁来配、谁受益</h3>
+    <table>
+      <thead><tr><th>角色</th><th>能做什么</th></tr></thead>
+      <tbody>
+        <tr><td><b>组织配置者</b>（管理员）</td><td>在「AI 工厂 · 知识」下新建知识本、上传资料、把知识本绑定到 Agent；在 POPO 租户下治理 C 端用户上传的知识与 Wiki</td></tr>
+        <tr><td><b>C 端使用者</b></td><td>与投放的 Agent 对话时，间接享受知识本检索带来的更准回答；<b>不感知</b>知识本配置细节</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 为什么直接复用「知识本」，而不自建知识模块</h3>
+    <table>
+      <thead><tr><th>维度</th><th>复用知识本（本期）</th><th>Fabric 自建知识库</th></tr></thead>
+      <tbody>
+        <tr><td>多源多格式上传</td><td>✅ 已具备</td><td>❌ 需从零建设</td></tr>
+        <tr><td>结构化 / Wiki / 关联检索</td><td>✅ 自动生成</td><td>❌ 需自研抽取与向量能力</td></tr>
+        <tr><td>整理成本</td><td>低（自动整理）</td><td>高（需人工规整）</td></tr>
+        <tr><td>C 端知识本已有存量</td><td>✅ 可直接治理复用</td><td>❌ 数据割裂</td></tr>
+        <tr><td>研发投入</td><td>集成对接为主</td><td>重复造轮子</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key">
+      <div class="title">🔑 核心策略：Fabric 不重造知识能力，只做「集成 + 关联 + 治理」</div>
+      Fabric 负责三层薄封装：<b>关联层</b>（知识本 ↔ Agent）、<b>检索接入层</b>（Agent 对话时调用知识本检索）、<b>治理层</b>（POPO 租户下管理 C 端知识 / Wiki）。知识的存储、整理、Wiki 生成、检索算法全部沉在知识本。
+    </div>
+  </div>
+
+  <!-- 三、菜单入口 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>菜单入口</div>
+    <p>在「AI 工厂」侧边导航新增「<b>知识</b>」一级菜单，建议放在「记忆」附近：</p>
+    <div class="mock-menu">
+      <div class="mm-group">AI 工厂</div>
+      <div class="mm-item">对话</div>
+      <div class="mm-item">Bots</div>
+      <div class="mm-item">Agents</div>
+      <div class="mm-item">Teams</div>
+      <div class="mm-item">Models</div>
+      <div class="mm-item">Prompts</div>
+      <div class="mm-item">Skills</div>
+      <div class="mm-item">记忆</div>
+      <div class="mm-item active">📚 知识</div>
+      <div class="mm-item">工具</div>
+      <div class="mm-item">会话</div>
+    </div>
+    <p>「知识」菜单含两个 Tab：</p>
+    <ul>
+      <li><b>知识本管理</b>：本租户下的知识本列表，可新建 / 编辑 / 删除，进入后即知识本原生界面（资料 + Wiki 视图）</li>
+      <li><b>C 端知识治理</b>：治理 C 端用户在 POPO 租户下上传的知识与生成的 Wiki（见第 6 节）</li>
+    </ul>
+  </div>
+
+  <!-- 四、一期范围 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>一期范围</div>
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 一期要做</h4>
+        <ul>
+          <li>「AI 工厂 · 知识」菜单，仅组织配置者可见</li>
+          <li>Fabric 内<b>新建知识本</b>，复用知识本原生的多源上传 + 自动 Wiki 能力</li>
+          <li><b>知识本 ↔ Agent 一对一绑定</b>，检索范围严格隔离</li>
+          <li>C 端对话时，Agent <b>调用知识本检索能力</b>获取知识作答</li>
+          <li>回答支持<b>引用回链</b>（引用了哪几条来源资料 / Wiki 节点）</li>
+          <li>POPO 租户下对 C 端用户上传知识 / Wiki 的<b>完整管理</b>（查看 / 编辑 / 删除 / 下架 / 归属移转）</li>
+        </ul>
+      </div>
+      <div class="scope-card dont">
+        <h4>❌ 一期不做</h4>
+        <ul>
+          <li>一个 Agent 绑多个知识本 / 多 Agent 共享同一本（二期）</li>
+          <li>引用已有 C 端知识本作为 Agent 知识（一期只在 Fabric 内新建）</li>
+          <li>关注 / 管理知识本的<b>产物</b>（思维导图、可视化报告、云文档、KM 文章）</li>
+          <li>检索的向量库自建、检索算法调优（沉在知识本）</li>
+          <li>知识本内容的版本管理与审批流</li>
+          <li>C 端用户与配置者之间的知识协作 / 评论</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、核心流程一 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>核心流程一：给 Agent 配知识</div>
+
+    <h3>5.1 关联模型：知识本 ↔ Agent 一对一</h3>
+    <p>一个租户下有 N 个 Agent，为避免"可查全部知识、检索找乱"，<b>知识与 Agent 必须强关联</b>。一期采用<b>一个 Agent 绑定一个知识本</b>，检索时只在该 Agent 绑定的知识本内进行：</p>
+    <div class="rel-diagram">
+      <div class="rel-col">
+        <div class="rel-node agent">运维 Agent</div>
+        <div class="rel-node agent">财务 Agent</div>
+        <div class="rel-node agent">客服 Agent</div>
+      </div>
+      <div class="rel-link">— 1:1 绑定 →</div>
+      <div class="rel-col">
+        <div class="rel-node">运维知识本<small>只被运维 Agent 检索</small></div>
+        <div class="rel-node">财务知识本<small>只被财务 Agent 检索</small></div>
+        <div class="rel-node">客服知识本<small>只被客服 Agent 检索</small></div>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 为什么强调一对一隔离</div>
+      若允许 Agent 检索全部知识本，跨领域知识互相干扰会显著拉低命中率、答非所问。一期用最强的隔离约束保证检索精度；多绑定 / 共享等灵活形态放二期，且需配套"检索范围可控"设计。
+    </div>
+
+    <h3>5.2 配置流程</h3>
+    <div class="vflow">
+      <div class="vflow-step">
+        <div class="vflow-num">1</div>
+        <div class="vflow-body">
+          <span class="actor actor-fabric">配置者 @ Fabric</span><br>
+          进入「AI 工厂 · 知识」→ 新建知识本（填名称、描述、所属业务）。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">2</div>
+        <div class="vflow-body">
+          <span class="actor actor-kb">知识本</span><br>
+          上传资料：POPO 云空间 / 本地文件 / 网络链接 / KM 文章。知识本自动解析、生成关联 Wiki（摘要 / 人物与事物 / 术语 / 待解问题 / 方法流程）。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">3</div>
+        <div class="vflow-body">
+          <span class="actor actor-fabric">配置者 @ Fabric</span><br>
+          进入目标 Agent 编辑页 → 「知识库」配置项 → 选择一个已建好的知识本进行绑定。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">4</div>
+        <div class="vflow-body hl">
+          <span class="actor actor-fabric">Fabric</span><br>
+          建立 <code>Agent ↔ 知识本</code> 关联记录（存 <code>agent_id + notebook_id</code>）。绑定校验：一个 Agent 只能绑定一个知识本，重复绑定则替换并提示。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">5</div>
+        <div class="vflow-body">
+          <span class="actor actor-agent">Agent</span><br>
+          配置完成，Agent 具备专属知识库；投放到 C 端后即可基于该知识本作答（见第 6 节检索流程）。
+        </div>
+      </div>
+    </div>
+
+    <h3>5.3 知识本配置字段</h3>
+    <table>
+      <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>知识本名称</td><td>是</td><td>便于识别，1~40 字</td></tr>
+        <tr><td>描述</td><td>否</td><td>说明该知识本覆盖的领域 / 用途</td></tr>
+        <tr><td>资料来源</td><td>是</td><td>至少 1 条：云空间 / 本地文件 / 网络链接 / KM 文章；沿用知识本原生上传能力与格式支持</td></tr>
+        <tr><td>处理状态</td><td>—</td><td>系统态：解析中 / 已生成 Wiki / 处理失败（供绑定前判断是否就绪）</td></tr>
+        <tr><td>绑定 Agent</td><td>—</td><td>展示当前被哪个 Agent 绑定（一期至多 1 个）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 Agent 侧「知识库」配置项</h3>
+    <table>
+      <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>绑定知识本</td><td>否</td><td>从本租户已建知识本中选 1 个；不绑则该 Agent 无知识库、走原有作答逻辑</td></tr>
+        <tr><td>知识优先级</td><td>否</td><td>检索命中时是否优先采信知识本内容（默认：优先，未命中再走模型通用能力）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 六、核心流程二 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>核心流程二：C 端咨询时的检索方案</div>
+    <p>Agent 投放到 C 端后，用户提问时，采用<b>调用知识本检索能力</b>的方案（Fabric 不自建向量库，检索算法沉在知识本）。完整链路：</p>
+
+    <div class="vflow">
+      <div class="vflow-step">
+        <div class="vflow-num">1</div>
+        <div class="vflow-body">
+          <span class="actor actor-user">C 端用户</span><br>
+          向投放的 Agent 提问，如"POPO 机器人发消息接口有字数限制吗？"
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">2</div>
+        <div class="vflow-body">
+          <span class="actor actor-agent">Agent Runtime</span><br>
+          根据 Agent 绑定关系拿到 <code>notebook_id</code>，携带用户 query 调用<b>知识本检索接口</b>。检索范围被 <code>notebook_id</code> 严格限定，只在该知识本内检索。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">3</div>
+        <div class="vflow-body hl">
+          <span class="actor actor-kb">知识本</span><br>
+          在指定知识本内做语义检索（结合 Wiki 结构与关联关系），返回 Top-K 相关片段 + 来源信息（来源资料 / Wiki 节点、原文位置）。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">4</div>
+        <div class="vflow-body">
+          <span class="actor actor-agent">Agent</span><br>
+          将检索片段作为上下文与用户 query 一并喂给模型，生成答案。按「知识优先级」策略决定采信程度。
+        </div>
+      </div>
+      <div class="vflow-step">
+        <div class="vflow-num">5</div>
+        <div class="vflow-body">
+          <span class="actor actor-user">返回用户</span><br>
+          输出答案，并附<b>引用回链</b>（本次引用了哪几条来源资料 / Wiki 节点），可点击溯源，增强可信度。
+        </div>
+      </div>
+    </div>
+
+    <h3>6.1 检索时机</h3>
+    <p>一期采用<b>命中即用</b>策略：Agent 绑定了知识本时，每轮用户提问都先做一次知识本检索；检索为空或相关度低于阈值时，回落到模型通用能力作答，并可提示"该问题未在知识库中找到明确依据"。</p>
+
+    <h3>6.2 关键约束</h3>
+    <ul>
+      <li><b>范围隔离</b>：检索请求必须带上 Agent 绑定的 <code>notebook_id</code>，服务端二次校验绑定关系，杜绝跨知识本检索。</li>
+      <li><b>无绑定即降级</b>：Agent 未绑定知识本时不发起检索，走原有作答逻辑，不报错。</li>
+      <li><b>可溯源</b>：检索结果需带来源标识，供答案回链；无来源的片段不作为引用展示。</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="title">⚠️ 待知识本团队确认</div>
+      ① 知识本是否提供<b>指定 notebook 范围的检索 API</b>（入参 query + notebook_id，出参片段 + 来源）；② 检索延迟与并发上限（影响 C 端体验）；③ 是否返回可用于回链的<b>来源定位信息</b>（资料 ID / Wiki 节点 ID）。
+    </div>
+  </div>
+
+  <!-- 七、核心流程三 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>核心流程三：C 端知识治理（POPO 租户）</div>
+    <p>知识本当前已作为 C 端产品对用户开放。需在 <b>Fabric-POPO 租户</b>下，对 C 端用户上传的<b>知识</b>与生成的 <b>Wiki</b> 进行<b>完整管理</b>。<b>不关注产物</b>（思维导图、可视化报告、云文档、KM 文章）。</p>
+
+    <h3>7.1 治理列表</h3>
+    <div class="mock-list">
+      <table>
+        <thead>
+          <tr><th>知识本 / 资料</th><th>上传用户</th><th>来源类型</th><th>Wiki 状态</th><th>上传时间</th><th>操作</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>开放平台用户问题示例.docx</td>
+            <td>张三</td>
+            <td>本地文件</td>
+            <td><span class="badge on">已生成</span></td>
+            <td>2026-07-02</td>
+            <td>查看 / 编辑 / 下架 / 删除 / 移转</td>
+          </tr>
+          <tr>
+            <td>群运维 Agent 配置方法</td>
+            <td>李四</td>
+            <td>POPO 云文档</td>
+            <td><span class="badge processing">生成中</span></td>
+            <td>2026-07-02</td>
+            <td>查看 / 编辑 / 下架 / 删除 / 移转</td>
+          </tr>
+          <tr>
+            <td>某网络链接资料</td>
+            <td>王五</td>
+            <td>网络链接</td>
+            <td><span class="badge fail">失败</span></td>
+            <td>2026-07-01</td>
+            <td>查看 / 重试 / 删除</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.2 完整管理能力</h3>
+    <table>
+      <thead><tr><th>操作</th><th>作用对象</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>查看 / 搜索</b></td><td>知识、Wiki</td><td>按用户、来源类型、时间、关键词检索；可进入查看原文与 Wiki 结构</td></tr>
+        <tr><td><b>编辑</b></td><td>知识、Wiki</td><td>修正内容 / Wiki 节点（如违规、错误信息）</td></tr>
+        <tr><td><b>下架</b></td><td>知识、Wiki</td><td>暂时不可被检索 / 不可见，保留数据，可恢复</td></tr>
+        <tr><td><b>删除</b></td><td>知识、Wiki</td><td>彻底移除；需二次确认；记录操作审计</td></tr>
+        <tr><td><b>归属移转</b></td><td>知识本 / 资料</td><td>变更所属用户 / 归属（如离职交接）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <div class="title">⚠️ 待确认</div>
+      ① 治理范围是否限定在 <b>POPO 租户</b>内的 C 端知识（跨租户不可见）；② 编辑 / 删除 C 端用户内容是否需<b>通知原用户</b>或走审批；③ 完整管理权限授予哪一类管理员角色。
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 明确不纳入治理的范围</div>
+      本期<b>不管理知识本产物</b>：思维导图、可视化报告、云文档、KM 文章。治理只对准"输入侧的知识（资料）"与"结构化产出的 Wiki"。
+    </div>
+  </div>
+
+  <!-- 八、权限与依赖 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>权限与依赖</div>
+    <ul>
+      <li><b>菜单可见性</b>：「AI 工厂 · 知识」仅<b>组织配置者</b>可见 / 可操作；C 端用户完全不可见。</li>
+      <li><b>对知识本的依赖</b>：整个方案依赖知识本提供 —— 新建 / 上传 / Wiki 生成能力、<b>指定范围检索 API</b>、C 端知识 / Wiki 的<b>管理 API</b>（查看 / 编辑 / 下架 / 删除 / 移转）。</li>
+      <li><b>对 Agent 的依赖</b>：知识本被绑定的 Agent 删除 → 解除绑定关系并提示；知识本被删除 → 关联 Agent 的知识库置空并提示。</li>
+      <li><b>数据隔离</b>：检索、治理均以租户 + <code>notebook_id</code> 为边界，严禁越界访问。</li>
+    </ul>
+  </div>
+
+  <!-- 九、交付与验收 -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span>交付与验收</div>
+    <ul>
+      <li>「知识」菜单出现在 AI 工厂下，仅管理员可见，含「知识本管理」「C 端知识治理」两 Tab。</li>
+      <li>可在 Fabric 内新建知识本、多源上传、自动生成 Wiki。</li>
+      <li>可将一个知识本绑定到一个 Agent，且检索严格限定在该知识本内。</li>
+      <li>C 端提问端到端跑通：Agent 调用知识本检索 → 命中知识 → 作答 → 附引用回链。</li>
+      <li>未绑定知识本的 Agent 正常降级作答，不报错。</li>
+      <li>POPO 租户下可对 C 端用户上传知识 / Wiki 完成查看 / 编辑 / 下架 / 删除 / 移转，操作有审计。</li>
+      <li>产物（思维导图 / 可视化报告 / 云文档 / KM 文章）确认不在治理范围。</li>
+    </ul>
+  </div>
+
+  <!-- 十、二期方向 -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span>二期方向（不在一期范围）</div>
+    <ul>
+      <li>一个 Agent 绑定多个知识本 / 多个 Agent 共享同一知识本（配套检索范围可控设计）</li>
+      <li>引用 C 端已有知识本直接作为 Agent 知识（免重复新建）</li>
+      <li>检索策略增强：多路召回、重排、按 Wiki 关联做扩展检索</li>
+      <li>知识本内容版本管理与变更审批</li>
+      <li>知识本使用分析：命中率、未命中问题沉淀（反哺补充知识）</li>
+      <li>知识本产物（思维导图 / 报告等）在 Fabric 侧的呈现与复用</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Fabric · AI 工厂「知识管理」（集成知识本）v1.0 一期
+  </div>
+
+</div>
+</body>
+</html>
