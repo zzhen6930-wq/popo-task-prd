@@ -337,7 +337,7 @@
         <ul>
           <li>「AI 工厂 · 知识」菜单，仅组织配置者可见</li>
           <li>Fabric 内<b>新建知识本</b>，复用知识本原生的多源上传 + 自动 Wiki 能力</li>
-          <li><b>知识本 ↔ Agent 一对一绑定</b>，检索范围严格隔离</li>
+          <li><b>一个 Agent 可选绑多个知识本</b>，检索范围严格限定在所选知识本集合内</li>
           <li>C 端对话时，Agent <b>调用知识本检索能力</b>获取知识作答</li>
           <li>回答支持<b>引用回链</b>（引用了哪几条来源资料 / Wiki 节点）</li>
           <li>POPO 租户下对 C 端用户上传知识 / Wiki 的<b>完整管理</b>（查看 / 编辑 / 删除 / 下架 / 归属移转）</li>
@@ -346,7 +346,7 @@
       <div class="scope-card dont">
         <h4>❌ 一期不做</h4>
         <ul>
-          <li>一个 Agent 绑多个知识本 / 多 Agent 共享同一本（二期）</li>
+          <li>多个 Agent 共享同一知识本（二期，需配套共享 / 权限设计）</li>
           <li>引用已有 C 端知识本作为 Agent 知识（一期只在 Fabric 内新建）</li>
           <li>关注 / 管理知识本的<b>产物</b>（思维导图、可视化报告、云文档、KM 文章）</li>
           <li>检索的向量库自建、检索算法调优（沉在知识本）</li>
@@ -361,24 +361,23 @@
   <div class="section">
     <div class="section-title"><span class="num">5</span>核心流程一：给 Agent 配知识</div>
 
-    <h3>5.1 关联模型：知识本 ↔ Agent 一对一</h3>
-    <p>一个租户下有 N 个 Agent，为避免"可查全部知识、检索找乱"，<b>知识与 Agent 必须强关联</b>。一期采用<b>一个 Agent 绑定一个知识本</b>，检索时只在该 Agent 绑定的知识本内进行：</p>
+    <h3>5.1 关联模型：一个 Agent 可选多个知识本</h3>
+    <p>一个租户下有 N 个 Agent，为避免"可查全部知识、检索找乱"，<b>知识与 Agent 必须显式关联</b>。配置 Agent 时可从本租户已建知识本中<b>勾选一个或多个知识本</b>；检索时只在该 Agent 所选的知识本集合内进行，未选中的知识本不参与检索：</p>
     <div class="rel-diagram">
       <div class="rel-col">
         <div class="rel-node agent">运维 Agent</div>
-        <div class="rel-node agent">财务 Agent</div>
         <div class="rel-node agent">客服 Agent</div>
       </div>
-      <div class="rel-link">— 1:1 绑定 →</div>
+      <div class="rel-link">— 可多选绑定 →</div>
       <div class="rel-col">
-        <div class="rel-node">运维知识本<small>只被运维 Agent 检索</small></div>
-        <div class="rel-node">财务知识本<small>只被财务 Agent 检索</small></div>
-        <div class="rel-node">客服知识本<small>只被客服 Agent 检索</small></div>
+        <div class="rel-node">运维知识本<small>被运维 Agent 选中</small></div>
+        <div class="rel-node">通用 FAQ 知识本<small>被运维 + 客服 Agent 选中</small></div>
+        <div class="rel-node">客服知识本<small>被客服 Agent 选中</small></div>
       </div>
     </div>
     <div class="callout tip">
-      <div class="title">💡 为什么强调一对一隔离</div>
-      若允许 Agent 检索全部知识本，跨领域知识互相干扰会显著拉低命中率、答非所问。一期用最强的隔离约束保证检索精度；多绑定 / 共享等灵活形态放二期，且需配套"检索范围可控"设计。
+      <div class="title">💡 多选带来的检索范围管控</div>
+      允许多选是为覆盖"专属本 + 公共本"等组合场景（如各 Agent 都需通用 FAQ）。但选得越多、跨领域知识越易互相干扰而拉低命中率，因此：① 检索范围严格限定在<b>所选集合</b>内，绝不扩展到全部；② 建议配置者按需精选，避免堆叠无关知识本；③ 多本检索结果需<b>统一重排 / 去重</b>后再喂给模型（见 6.2）。
     </div>
 
     <h3>5.2 配置流程</h3>
@@ -401,21 +400,21 @@
         <div class="vflow-num">3</div>
         <div class="vflow-body">
           <span class="actor actor-fabric">配置者 @ Fabric</span><br>
-          进入目标 Agent 编辑页 → 「知识库」配置项 → 选择一个已建好的知识本进行绑定。
+          进入目标 Agent 编辑页 → 「知识库」配置项 → <b>勾选一个或多个</b>已建好的知识本。
         </div>
       </div>
       <div class="vflow-step">
         <div class="vflow-num">4</div>
         <div class="vflow-body hl">
           <span class="actor actor-fabric">Fabric</span><br>
-          建立 <code>Agent ↔ 知识本</code> 关联记录（存 <code>agent_id + notebook_id</code>）。绑定校验：一个 Agent 只能绑定一个知识本，重复绑定则替换并提示。
+          建立 <code>Agent ↔ 知识本</code> 多对关联记录（一个 <code>agent_id</code> 对应一组 <code>notebook_id</code>）。绑定校验：所选知识本须属于本租户且处理就绪；重复勾选自动去重。
         </div>
       </div>
       <div class="vflow-step">
         <div class="vflow-num">5</div>
         <div class="vflow-body">
           <span class="actor actor-agent">Agent</span><br>
-          配置完成，Agent 具备专属知识库；投放到 C 端后即可基于该知识本作答（见第 6 节检索流程）。
+          配置完成，Agent 具备由所选知识本组成的知识库；投放到 C 端后即可基于该集合作答（见第 6 节检索流程）。
         </div>
       </div>
     </div>
@@ -428,7 +427,7 @@
         <tr><td>描述</td><td>否</td><td>说明该知识本覆盖的领域 / 用途</td></tr>
         <tr><td>资料来源</td><td>是</td><td>至少 1 条：云空间 / 本地文件 / 网络链接 / KM 文章；沿用知识本原生上传能力与格式支持</td></tr>
         <tr><td>处理状态</td><td>—</td><td>系统态：解析中 / 已生成 Wiki / 处理失败（供绑定前判断是否就绪）</td></tr>
-        <tr><td>绑定 Agent</td><td>—</td><td>展示当前被哪个 Agent 绑定（一期至多 1 个）</td></tr>
+        <tr><td>绑定 Agent</td><td>—</td><td>展示当前被哪些 Agent 选用（可被多个 Agent 选中）</td></tr>
       </tbody>
     </table>
 
@@ -436,7 +435,7 @@
     <table>
       <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>绑定知识本</td><td>否</td><td>从本租户已建知识本中选 1 个；不绑则该 Agent 无知识库、走原有作答逻辑</td></tr>
+        <tr><td>绑定知识本</td><td>否</td><td>从本租户已建知识本中<b>多选</b>（0~多个）；不选则该 Agent 无知识库、走原有作答逻辑</td></tr>
         <tr><td>知识优先级</td><td>否</td><td>检索命中时是否优先采信知识本内容（默认：优先，未命中再走模型通用能力）</td></tr>
       </tbody>
     </table>
@@ -459,14 +458,14 @@
         <div class="vflow-num">2</div>
         <div class="vflow-body">
           <span class="actor actor-agent">Agent Runtime</span><br>
-          根据 Agent 绑定关系拿到 <code>notebook_id</code>，携带用户 query 调用<b>知识本检索接口</b>。检索范围被 <code>notebook_id</code> 严格限定，只在该知识本内检索。
+          根据 Agent 绑定关系拿到<b>所选知识本 ID 列表</b>（<code>notebook_ids</code>），携带用户 query 调用<b>知识本检索接口</b>。检索范围被 <code>notebook_ids</code> 严格限定，只在这些知识本内检索。
         </div>
       </div>
       <div class="vflow-step">
         <div class="vflow-num">3</div>
         <div class="vflow-body hl">
           <span class="actor actor-kb">知识本</span><br>
-          在指定知识本内做语义检索（结合 Wiki 结构与关联关系），返回 Top-K 相关片段 + 来源信息（来源资料 / Wiki 节点、原文位置）。
+          在指定的<b>知识本集合</b>内做语义检索（结合 Wiki 结构与关联关系），跨多本结果统一召回、<b>重排 / 去重</b>后返回 Top-K 相关片段 + 来源信息（所属知识本 / 来源资料 / Wiki 节点、原文位置）。
         </div>
       </div>
       <div class="vflow-step">
@@ -490,14 +489,15 @@
 
     <h3>6.2 关键约束</h3>
     <ul>
-      <li><b>范围隔离</b>：检索请求必须带上 Agent 绑定的 <code>notebook_id</code>，服务端二次校验绑定关系，杜绝跨知识本检索。</li>
-      <li><b>无绑定即降级</b>：Agent 未绑定知识本时不发起检索，走原有作答逻辑，不报错。</li>
+      <li><b>范围隔离</b>：检索请求必须带上 Agent 所选的 <code>notebook_ids</code>，服务端二次校验绑定关系，杜绝检索到未选中 / 越权的知识本。</li>
+      <li><b>多本重排</b>：跨多个知识本召回的片段需统一相关度重排、去重后再取 Top-K，避免单本淹没或重复。</li>
+      <li><b>无绑定即降级</b>：Agent 未选任何知识本时不发起检索，走原有作答逻辑，不报错。</li>
       <li><b>可溯源</b>：检索结果需带来源标识，供答案回链；无来源的片段不作为引用展示。</li>
     </ul>
 
     <div class="callout warn">
       <div class="title">⚠️ 待知识本团队确认</div>
-      ① 知识本是否提供<b>指定 notebook 范围的检索 API</b>（入参 query + notebook_id，出参片段 + 来源）；② 检索延迟与并发上限（影响 C 端体验）；③ 是否返回可用于回链的<b>来源定位信息</b>（资料 ID / Wiki 节点 ID）。
+      ① 知识本是否提供<b>指定 notebook 范围的检索 API</b>（入参 query + <b>notebook_ids 列表</b>，出参片段 + 来源，跨多本已统一重排 / 去重）；② 检索延迟与并发上限（影响 C 端体验）；③ 是否返回可用于回链的<b>来源定位信息</b>（所属知识本 ID / 资料 ID / Wiki 节点 ID）。
     </div>
   </div>
 
@@ -569,8 +569,8 @@
     <ul>
       <li><b>菜单可见性</b>：「AI 工厂 · 知识」仅<b>组织配置者</b>可见 / 可操作；C 端用户完全不可见。</li>
       <li><b>对知识本的依赖</b>：整个方案依赖知识本提供 —— 新建 / 上传 / Wiki 生成能力、<b>指定范围检索 API</b>、C 端知识 / Wiki 的<b>管理 API</b>（查看 / 编辑 / 下架 / 删除 / 移转）。</li>
-      <li><b>对 Agent 的依赖</b>：知识本被绑定的 Agent 删除 → 解除绑定关系并提示；知识本被删除 → 关联 Agent 的知识库置空并提示。</li>
-      <li><b>数据隔离</b>：检索、治理均以租户 + <code>notebook_id</code> 为边界，严禁越界访问。</li>
+      <li><b>对 Agent 的依赖</b>：知识本被某 Agent 选用时，该 Agent 删除 → 解除对应绑定关系；知识本被删除 → 从所有选用它的 Agent 知识库中移除并提示。</li>
+      <li><b>数据隔离</b>：检索、治理均以租户 + <code>notebook_ids</code> 为边界，严禁越界访问。</li>
     </ul>
   </div>
 
@@ -580,9 +580,9 @@
     <ul>
       <li>「知识」菜单出现在 AI 工厂下，仅管理员可见，含「知识本管理」「C 端知识治理」两 Tab。</li>
       <li>可在 Fabric 内新建知识本、多源上传、自动生成 Wiki。</li>
-      <li>可将一个知识本绑定到一个 Agent，且检索严格限定在该知识本内。</li>
-      <li>C 端提问端到端跑通：Agent 调用知识本检索 → 命中知识 → 作答 → 附引用回链。</li>
-      <li>未绑定知识本的 Agent 正常降级作答，不报错。</li>
+      <li>可给一个 Agent 勾选一个或多个知识本，且检索严格限定在所选知识本集合内。</li>
+      <li>C 端提问端到端跑通：Agent 调用知识本检索 → 跨所选多本召回重排 → 命中知识 → 作答 → 附引用回链。</li>
+      <li>未选任何知识本的 Agent 正常降级作答，不报错。</li>
       <li>POPO 租户下可对 C 端用户上传知识 / Wiki 完成查看 / 编辑 / 下架 / 删除 / 移转，操作有审计。</li>
       <li>产物（思维导图 / 可视化报告 / 云文档 / KM 文章）确认不在治理范围。</li>
     </ul>
@@ -592,7 +592,7 @@
   <div class="section">
     <div class="section-title"><span class="num">10</span>二期方向（不在一期范围）</div>
     <ul>
-      <li>一个 Agent 绑定多个知识本 / 多个 Agent 共享同一知识本（配套检索范围可控设计）</li>
+      <li>多个 Agent 共享同一知识本（配套共享 / 权限 / 检索范围可控设计）</li>
       <li>引用 C 端已有知识本直接作为 Agent 知识（免重复新建）</li>
       <li>检索策略增强：多路召回、重排、按 Wiki 关联做扩展检索</li>
       <li>知识本内容版本管理与变更审批</li>
