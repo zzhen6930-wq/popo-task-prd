@@ -259,9 +259,13 @@ let kbs = [
     id: 'kb1', name: 'POPO 开放平台集成避坑指南', desc: '开放平台接口限制与 Agent 搭建最佳实践',
     source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-07-02',
     docs: [
-      { name: '开放平台问题测试集-运维Agent专用', type: 'POPO文档' },
-      { name: '群运维Agent配置方法', type: 'POPO文档' },
-      { name: '开放平台用户问题示例.docx', type: '本地文件' },
+      { name: '开放平台问题测试集-运维Agent专用', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-1' },
+      { name: '群运维Agent配置方法', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-2' },
+      { name: '开放平台用户问题示例.docx', type: '本地文件', kind: 'file' },
+      { name: '机器人配置截图.png', type: '本地文件', kind: 'image' },
+      { name: '接入演示录屏.mp4', type: '本地文件', kind: 'video' },
+      { name: '开放平台接口规范', type: 'KM文章', url: 'https://km.netease.com/article/demo-123' },
+      { name: '某技术博客参考', type: '网络链接', url: 'https://example.com/tech-blog' },
     ],
     wikiTree: {
       '原文摘要': ['开放平台用户问题示例', '开放平台问题测试集-运维Agent专用', '群运维Agent配置方法'],
@@ -314,6 +318,12 @@ let chat = { agentId: 'ag1', messages: [{ from: 'bot', text: '你好，我是开
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function agentName(id){ const a = agents.find(x=>x.id===id); return a? a.name : '—'; }
 function boundAgentCount(kbId){ return agents.filter(a=>a.boundKbs.includes(kbId)).length; }
+// 资料类型：本地文件（图片/视频/文件）在容器内展示；云文档/KM/网络链接点击打开原链接
+function isLinkDoc(d){ return d.type==='POPO文档' || d.type==='KM文章' || d.type==='网络链接'; }
+function docIcon(d){
+  if(isLinkDoc(d)) return d.type==='KM文章'?'📗': d.type==='网络链接'?'🔗':'📘';
+  if(d.kind==='image') return '🖼️'; if(d.kind==='video') return '🎬'; return '📄';
+}
 
 // ============ 外壳 ============
 function shell(inner){
@@ -359,9 +369,7 @@ function renderKbList(){
     <tr>
       <td><span class="kb-name" onclick="go('kbDetail','${k.id}')">📚 ${esc(k.name)}</span>
         <div style="font-size:12px;color:#94a3b8">${esc(k.desc)}</div></td>
-      <td>${k.source==='admin'
-        ? '<span class="tag cyan">配置者创建</span>'
-        : '<span class="tag purple">C 端用户创建</span>'}<div style="font-size:12px;color:#94a3b8;margin-top:2px">${esc(k.owner)}</div></td>
+      <td>${esc(k.owner)}</td>
       <td>${k.docs.length} 份</td>
       <td><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></td>
       <td>${boundAgentCount(k.id)} 个 Agent</td>
@@ -379,18 +387,12 @@ function renderKbList(){
     </div>
     <button class="btn btn-primary" onclick="openCreateKb()">＋ 新建知识本</button>
   </div>
-  <div class="callout-strip">💡 POPO 是 Fabric 的一个租户，C 端用户自建的知识本自动汇入此后台。删除 / 更新 C 端用户知识本不通知用户（与 Skills 治理逻辑一致）。</div>
   <div class="toolbar">
     <div class="search-box"><input placeholder="搜索知识本名称…" oninput="toast('演示原型，搜索未接后端')"></div>
-    <select class="filter-select" onchange="setFilter(this.value)">
-      <option value="all">全部来源</option>
-      <option value="admin">配置者创建</option>
-      <option value="cuser">C 端用户创建</option>
-    </select>
   </div>
   <div class="table-wrap">
     <table class="data">
-      <thead><tr><th>知识本</th><th>来源 / 归属</th><th>资料</th><th>Wiki 状态</th><th>被绑定</th><th style="width:180px">操作</th></tr></thead>
+      <thead><tr><th>知识本</th><th>创建人</th><th>资料</th><th>Wiki 状态</th><th>被绑定</th><th style="width:180px">操作</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="6" class="empty">暂无知识本</td></tr>'}</tbody>
     </table>
   </div>`;
@@ -402,7 +404,7 @@ function setFilter(v){ state.filterSource = v; render(); }
 function renderKbDetail(){
   const k = kbs.find(x=>x.id===state.kbId);
   if(!k) return renderKbList();
-  const docs = k.docs.map(d=>`<div class="doc-chip">📄 ${esc(d.name)} <span class="tag gray">${d.type}</span></div>`).join('') || '<div class="empty">暂无资料</div>';
+  const docs = k.docs.map((d,i)=>`<div class="doc-chip" style="cursor:pointer" onclick="openDoc('${k.id}',${i})">${docIcon(d)} ${esc(d.name)} <span class="tag gray">${d.type}</span>${isLinkDoc(d)?'<span class="link-btn" style="margin-left:auto">打开原链接 ↗</span>':'<span class="link-btn" style="margin-left:auto">预览</span>'}</div>`).join('') || '<div class="empty">暂无资料</div>';
   let wikiHtml = '';
   const keys = Object.keys(k.wikiTree||{});
   if(k.wiki==='processing') wikiHtml = '<div class="empty">Wiki 生成中，请稍候…</div>';
@@ -410,7 +412,7 @@ function renderKbDetail(){
   else wikiHtml = `<div class="wiki-tree">` + keys.map(g=>`
       <div class="wiki-group">
         <div class="wg-title">✨ ${g} <span class="wg-count">${k.wikiTree[g].length}</span></div>
-        ${k.wikiTree[g].map(n=>`<div class="wiki-node">${esc(n)}</div>`).join('')}
+        ${k.wikiTree[g].map(n=>`<div class="wiki-node" style="cursor:pointer" onclick="openWikiNode('${k.id}','${esc(g)}','${esc(n)}')">${esc(n)}</div>`).join('')}
       </div>`).join('') + `
       <div style="margin-top:14px;font-size:12px;color:#94a3b8">Wiki 间关联（利于关联检索）：</div>
       <div>${(keys.length?['publicVar','引用回复','IP 溯源','长连接','机器人拉群']:[]).map(r=>`<span class="rel-chip">🔗 ${r}</span>`).join('')}</div>
@@ -446,9 +448,56 @@ function renderKbDetail(){
 }
 function setKbTab(t){ state.kbTab=t; render(); }
 
+// 查看资料：链接类打开原链接；本地文件在容器内预览
+function openDoc(kbId, i){
+  const k = kbs.find(x=>x.id===kbId); const d = k.docs[i];
+  if(isLinkDoc(d)){
+    const url = d.url || 'https://docs.popo.netease.com';
+    toast('打开原链接：'+url);
+    window.open(url, '_blank');
+    return;
+  }
+  let viewer = '';
+  if(d.kind==='image'){
+    viewer = `<div style="background:#0f172a;border-radius:10px;height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e2e8f0"><div style="font-size:48px">🖼️</div><div style="margin-top:10px">${esc(d.name)}</div><div style="font-size:12px;color:#64748b;margin-top:4px">图片预览（演示占位）</div></div>`;
+  } else if(d.kind==='video'){
+    viewer = `<div style="background:#0f172a;border-radius:10px;height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e2e8f0;position:relative"><div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:28px">▶️</div><div style="margin-top:12px">${esc(d.name)}</div><div style="font-size:12px;color:#64748b;margin-top:4px">视频播放器（演示占位）</div></div>`;
+  } else {
+    viewer = `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:26px;text-align:center"><div style="font-size:48px">📄</div><div style="margin-top:10px;font-weight:600">${esc(d.name)}</div><div style="font-size:12px;color:#94a3b8;margin-top:4px">本地文件 · 已进入知识本解析</div><button class="btn btn-secondary btn-sm" style="margin-top:14px" onclick="toast('下载（演示）')">⬇️ 下载原文件</button></div>`;
+  }
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">${docIcon(d)} ${esc(d.name)}</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">${viewer}
+      <div style="margin-top:14px;font-size:12px;color:#94a3b8">类型：${d.type} · 本地文件（图片 / 视频 / 文件）在此容器内展示；云文档 / KM / 链接类点击直接打开原链接。</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAll()">关闭</button></div>`;
+  showModal();
+}
+
+// 查看 Wiki 节点详情
+function openWikiNode(kbId, group, node){
+  const k = kbs.find(x=>x.id===kbId);
+  let body = '';
+  if(k.facts && k.facts[node]) body = esc(k.facts[node]);
+  else body = `「${esc(node)}」的结构化知识摘要（由知识本从资料中自动抽取，演示占位）。`;
+  const related = (k.wikiTree[group]||[]).filter(n=>n!==node).slice(0,4);
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">✨ ${esc(node)}</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">所属分类：${esc(group)}</div>
+      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:14px;line-height:1.7">${body}</div>
+      <div style="margin-top:14px;font-size:12px;color:#94a3b8">关联节点（利于关联检索）：</div>
+      <div>${related.length?related.map(r=>`<span class="rel-chip" style="cursor:pointer" onclick="openWikiNode('${kbId}','${esc(group)}','${esc(r)}')">🔗 ${esc(r)}</span>`).join(''):'<span style="color:#94a3b8;font-size:12px">暂无</span>'}</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAll()">关闭</button></div>`;
+  showModal();
+}
+
 // ============ 新建 / 编辑知识本 ============
-function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.srcTab='云空间'; openKbDrawer('新建知识本'); }
-function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.srcTab='云空间'; openKbDrawer('编辑知识本', k); }
+function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.srcTab='云空间'; openKbDrawer('新建知识本'); }
+function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.srcTab='云空间'; openKbDrawer('编辑知识本', k); }
 
 function openKbDrawer(title, k){
   const d = document.getElementById('drawer');
@@ -475,6 +524,11 @@ function openKbDrawer(title, k){
         </div>
         <div id="draftDocs">${renderDraftDocs()}</div>
       </div>
+      ${state.editingKb ? `
+      <div class="form-item">
+        <label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label>
+        <div id="draftWiki">${renderDraftWiki()}</div>
+      </div>` : ''}
     </div>
     <div class="drawer-footer">
       <button class="btn btn-secondary" onclick="closeAll()">取消</button>
@@ -503,17 +557,37 @@ function addDraftDoc(){
 }
 function rmDraftDoc(i){ state.draftDocs.splice(i,1); document.getElementById('draftDocs').innerHTML = renderDraftDocs(); }
 
+function renderDraftWiki(){
+  const keys = Object.keys(state.draftWiki||{});
+  if(!keys.length) return '<div style="font-size:12px;color:#94a3b8;padding:8px 0">Wiki 已全部删除 / 暂无 Wiki</div>';
+  return `<div style="text-align:right;margin-bottom:6px"><span class="link-btn danger" onclick="clearDraftWiki()">删除整个 Wiki</span></div>` + keys.map(g=>`
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px">✨ ${esc(g)} <span style="font-size:11px;color:#94a3b8">${state.draftWiki[g].length}</span>
+        <span class="link-btn danger" style="margin-left:auto;font-size:12px" onclick="rmWikiGroup('${esc(g)}')">删除该分类</span></div>
+      ${state.draftWiki[g].map((n,ni)=>`<div class="doc-chip" style="padding:5px 10px;margin-top:6px">• ${esc(n)}<span class="rm" onclick="rmWikiNode('${esc(g)}',${ni})">×</span></div>`).join('')}
+    </div>`).join('');
+}
+function rmWikiNode(g, ni){
+  state.draftWiki[g].splice(ni,1);
+  if(!state.draftWiki[g].length) delete state.draftWiki[g];
+  document.getElementById('draftWiki').innerHTML = renderDraftWiki();
+}
+function rmWikiGroup(g){ delete state.draftWiki[g]; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); }
+function clearDraftWiki(){ state.draftWiki={}; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已删除整个 Wiki（不影响资料）'); }
+
 function saveKb(){
   const name = document.getElementById('kbName').value.trim();
   const desc = document.getElementById('kbDesc').value.trim();
   if(!name){ toast('请填写知识本名称'); return; }
-  if(!state.draftDocs.length){ toast('请至少添加一条资料'); return; }
   if(state.editingKb){
     const k = kbs.find(x=>x.id===state.editingKb); const wasC = k.source==='cuser';
     k.name=name; k.desc=desc; k.docs=state.draftDocs.slice();
+    k.wikiTree = JSON.parse(JSON.stringify(state.draftWiki||{}));
+    if(k.wiki==='done' && !Object.keys(k.wikiTree).length){ /* Wiki 被清空，保留状态，详情显示暂无 */ }
     closeAll(); render();
     toast(wasC ? '已更新，未通知 C 端用户' : '已保存');
   } else {
+    if(!state.draftDocs.length){ toast('请至少添加一条资料'); return; }
     const id = 'kb'+(Date.now()%100000);
     kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
     closeAll(); go('kbList');
