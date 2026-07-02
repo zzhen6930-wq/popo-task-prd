@@ -37,6 +37,12 @@
     font-size: 11px; color: #94a3b8; padding: 8px 20px 6px; text-transform: uppercase;
     letter-spacing: 0.6px; font-weight: 700;
   }
+  .sb-group-head {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; font-weight: 700; color: #334155; padding: 12px 18px 6px;
+  }
+  .sb-group-head .chev { color: #cbd5e1; font-size: 12px; }
+  .sb-ic { width: 16px; display: inline-flex; justify-content: center; font-size: 13px; }
   .sidebar-item {
     display: flex; align-items: center; gap: 10px; padding: 8px 20px; font-size: 13.5px; color: #475569;
     cursor: pointer; user-select: none; border-left: 3px solid transparent; transition: background 0.12s;
@@ -242,9 +248,8 @@
   /* Agent 详情 + 知识绑定穿梭框 */
   .agent-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .agent-ava { width: 46px; height: 46px; border-radius: 10px; background: linear-gradient(135deg,#4f46e5,#0891b2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
-  .bind-wrap { display: flex; gap: 0; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; min-height: 440px; }
-  .bind-col { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; }
-  .bind-col.left { border-right: 1px solid #f1f5f9; }
+  .bind-wrap { display: flex; gap: 16px; min-height: 440px; }
+  .bind-col { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; background: #fff; }
   .bind-searchbox { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; margin-bottom:10px; }
   .bind-searchbox:focus { border-color:#0891b2; }
   .bind-bar { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#94a3b8; margin-bottom:8px; }
@@ -257,7 +262,7 @@
   .bind-item.on .bind-cb { background:#0891b2; border-color:#0891b2; }
   .bind-item .bi-name { font-size:13.5px; font-weight:600; color:#0f172a; }
   .bind-item .bi-desc { font-size:12px; color:#94a3b8; margin-top:1px; }
-  .sel-item { display:flex; align-items:flex-start; gap:8px; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:8px; }
+  .sel-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid #f1f5f9; }
   .sel-item .si-x { margin-left:auto; color:#94a3b8; cursor:pointer; font-size:15px; }
   .sel-item .si-x:hover { color:#dc2626; }
 </style>
@@ -349,25 +354,36 @@ function docIcon(d){
 
 // ============ 外壳 ============
 function shell(inner){
-  const menu = ['对话','Bots','Agents','Teams','Models','Prompts','Skills','记忆','知识','工具','会话'];
-  const items = menu.map(m=>{
-    let active = (m==='知识' && (state.view==='kbList'||state.view==='kbDetail'))
-      || (m==='Agents' && (state.view==='agents'||state.view==='agentDetail'));
-    let icon = m==='知识'?'📚': m==='Agents'?'🤖':'▫️';
-    let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识管理流程')";
-    return `<div class="sidebar-item ${active?'active':''}" onclick="${onclick}"><span>${icon}</span>${m}</div>`;
+  const groups = [
+    { title:'AI 工厂', open:true, items:[
+      ['对话','💬'],['Bots','🤖'],['Agents','🧊'],['Teams','👥'],['Models','🗄️'],
+      ['Prompts','📋'],['Skills','🧩'],['记忆','🧠'],['知识','📚'],['工具','🔧'],['会话','💬'] ] },
+    { title:'接入管理', open:true, items:[ ['应用管理','🗂️'],['Channel','🔗'],['Secret Key','🔑'],['权限管理','🛡️'] ] },
+    { title:'组织管理', open:false, items:[] },
+    { title:'系统设置', open:false, items:[] },
+  ];
+  const sidebar = groups.map(g=>{
+    const head = `<div class="sb-group-head">${g.title}<span class="chev">${g.open?'⌃':'⌄'}</span></div>`;
+    if(!g.open || !g.items.length) return head;
+    const items = g.items.map(([m,icon])=>{
+      let active = (m==='知识' && (state.view==='kbList'||state.view==='kbDetail'))
+        || (m==='Agents' && (state.view==='agents'||state.view==='agentDetail'));
+      let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识管理流程')";
+      return `<div class="sidebar-item ${active?'active':''}" onclick="${onclick}"><span class="sb-ic">${icon}</span>${m}</div>`;
+    }).join('');
+    return head + items;
   }).join('');
   return `
   <div class="topbar">
     <div class="logo"><span class="logo-icon">F</span>Fabric</div>
-    <div class="tenant-select" onclick="toast('当前租户：POPO')">🏢 POPO 租户 ▾</div>
+    <div class="tenant-select" onclick="toast('当前租户：POPO')">📓 POPO 租户 ▾</div>
     <div class="topbar-right">
       <div class="link-btn" onclick="go('chat')">🔎 C 端对话预览</div>
       <span>🔔</span><div class="avatar">振</div>
     </div>
   </div>
   <div class="main">
-    <div class="sidebar"><div class="sidebar-title">AI 工厂</div>${items}</div>
+    <div class="sidebar">${sidebar}</div>
     <div class="content">${inner}</div>
   </div>`;
 }
@@ -711,18 +727,20 @@ function renderAgentDetail(){
 
 function renderKnowledgeBind(){
   return `
-  <div class="bind-wrap">
-    <div class="bind-col left">
-      <input class="bind-searchbox" placeholder="请输入知识本名称搜索" value="${esc(state.bindSearch||'')}" oninput="onBindSearch(this.value)">
-      <div class="bind-bar"><span>共 <b id="bindTotal">${filteredBindKbs().length}</b> 项</span><span class="act" onclick="bindSelectAll()">全选</span></div>
-      <div class="bind-list" id="bindLeft">${renderBindLeft()}</div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px">
+    <div class="bind-wrap">
+      <div class="bind-col left">
+        <input class="bind-searchbox" placeholder="请输入" value="${esc(state.bindSearch||'')}" oninput="onBindSearch(this.value)">
+        <div class="bind-bar"><span>共 <b id="bindTotal">${filteredBindKbs().length}</b> 项</span><span class="act" onclick="bindSelectAll()">全选</span></div>
+        <div class="bind-list" id="bindLeft">${renderBindLeft()}</div>
+      </div>
+      <div class="bind-col right">
+        <div class="bind-bar"><span>共 <b id="bindCount">${bindDraft.length}</b> 项</span><span class="act" onclick="bindClear()">清空</span></div>
+        <div class="bind-list" id="bindRight">${renderBindRight()}</div>
+      </div>
     </div>
-    <div class="bind-col right">
-      <div class="bind-bar"><span>已选 <b id="bindCount">${bindDraft.length}</b> 项</span><span class="act" onclick="bindClear()">清空</span></div>
-      <div class="bind-list" id="bindRight">${renderBindRight()}</div>
-    </div>
-  </div>
-  <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBind('${state.agentId}')">💾 保存绑定</button></div>`;
+    <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBind('${state.agentId}')">🖫 保存绑定</button></div>
+  </div>`;
 }
 function filteredBindKbs(){
   const q = (state.bindSearch||'').trim();
@@ -743,7 +761,7 @@ function renderBindRight(){
   if(!bindDraft.length) return '<div class="empty">从左侧选择知识本，选中后在此展示</div>';
   return bindDraft.map(id=>{
     const k = kbs.find(x=>x.id===id); if(!k) return '';
-    return `<div class="sel-item"><div><div class="bi-name">📚 ${esc(k.name)}</div><div class="bi-desc">${esc(k.desc)}</div></div><span class="si-x" onclick="toggleBind('${id}')">×</span></div>`;
+    return `<div class="sel-item"><div class="bi-name" style="font-weight:500">${esc(k.name)}</div><span class="si-x" onclick="toggleBind('${id}')">×</span></div>`;
   }).join('');
 }
 function refreshBind(){
