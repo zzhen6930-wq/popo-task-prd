@@ -238,7 +238,7 @@
 
   <div class="header">
     <h1>Fabric · AI 工厂「知识管理」（集成「知识本」）</h1>
-    <div style="opacity:0.92;font-size:13px;">把 NotebookLM 式的知识本能力接进 Fabric，让 Agent 拥有可维护、可精准检索的专属知识库</div>
+    <div style="opacity:0.92;font-size:13px;">把成熟的知识本能力接进 Fabric，让 Agent 拥有可维护、可精准检索的专属知识库</div>
     <div class="meta">
       <span>📅 2026-07-02</span>
       <span>🏷️ v1.0（一期）</span>
@@ -265,7 +265,7 @@
         <p>需自己整理成规定格式，整理成本高；来源单一，多格式知识进不来。</p>
       </div>
     </div>
-    <p style="margin-top:10px;">而内部已有一款成熟的知识类产品 <b>「知识本」</b>（高度类似 Google NotebookLM），却<b>无法在 Fabric 里直接使用</b>：</p>
+    <p style="margin-top:10px;">而内部已有一款成熟的知识类产品 <b>「知识本」</b>，却<b>无法在 Fabric 里直接使用</b>：</p>
     <ul>
       <li><b>多源多格式上传</b>：POPO 云空间 / 本地文件（PDF、DOCX、XLS、CSV、Markdown、PNG、MP4、SRT…）/ 网络链接 / KM 文章</li>
       <li><b>自动生成 Wiki</b>：上传后自动抽取「原文摘要 / 人物与事物 / 术语解释 / 待解问题 / 方法与流程」，且 <b>Wiki 之间带关联关系</b>，利于关联检索</li>
@@ -281,8 +281,8 @@
     <table>
       <thead><tr><th>角色</th><th>能做什么</th></tr></thead>
       <tbody>
-        <tr><td><b>组织配置者</b>（管理员）</td><td>在「AI 工厂 · 知识」下新建知识本、上传资料、把知识本绑定到 Agent；在 POPO 租户下治理 C 端用户上传的知识与 Wiki</td></tr>
-        <tr><td><b>C 端使用者</b></td><td>与投放的 Agent 对话时，间接享受知识本检索带来的更准回答；<b>不感知</b>知识本配置细节</td></tr>
+        <tr><td><b>租户配置 / 管理人员</b>（具备该租户权限）</td><td>在「AI 工厂 · 知识」下新建知识本、上传资料、把知识本绑定到 Agent；并对本租户下 C 端用户创建的知识本 / Wiki 做统一治理</td></tr>
+        <tr><td><b>C 端用户</b></td><td>① 在 C 端可自建知识本；② 与投放的 Agent 对话时，间接享受知识本检索带来的更准回答，<b>不感知</b> Agent 侧知识配置细节</td></tr>
       </tbody>
     </table>
 
@@ -321,10 +321,10 @@
       <div class="mm-item">工具</div>
       <div class="mm-item">会话</div>
     </div>
-    <p>「知识」菜单含两个 Tab：</p>
+    <p>「知识」菜单是本租户<b>统一的知识本管理后台</b>，列表展示该租户下的<b>全部知识本</b>，两类来源统一呈现、统一增删改查：</p>
     <ul>
-      <li><b>知识本管理</b>：本租户下的知识本列表，可新建 / 编辑 / 删除，进入后即知识本原生界面（资料 + Wiki 视图）</li>
-      <li><b>C 端知识治理</b>：治理 C 端用户在 POPO 租户下上传的知识与生成的 Wiki（见第 6 节）</li>
+      <li><b>配置者创建的知识本</b>：在 Fabric 内新建、上传资料、绑定给 Agent</li>
+      <li><b>C 端用户创建的知识本</b>：C 端用户在本租户（如 POPO 租户）下自建的知识本，自动汇入同一后台，供租户管理人员治理（详见第 7 节）</li>
     </ul>
   </div>
 
@@ -335,9 +335,9 @@
       <div class="scope-card do">
         <h4>✅ 一期要做</h4>
         <ul>
-          <li>「AI 工厂 · 知识」菜单，仅组织配置者可见</li>
+          <li>「AI 工厂 · 知识」菜单，具备该租户权限的成员可见</li>
           <li>Fabric 内<b>新建知识本</b>，复用知识本原生的多源上传 + 自动 Wiki 能力</li>
-          <li><b>一个 Agent 可选绑多个知识本</b>，检索范围严格限定在所选知识本集合内</li>
+          <li><b>知识本与 Agent 多对多绑定</b>：一个 Agent 可选多个知识本，一个知识本也可被多个 Agent 选用；检索范围严格限定在所选集合内</li>
           <li>C 端对话时，Agent <b>调用知识本检索能力</b>获取知识作答</li>
           <li>POPO 租户下对 C 端用户上传知识 / Wiki 的<b>完整管理</b>（查看 / 编辑 / 删除 / 下架 / 归属移转）</li>
         </ul>
@@ -345,7 +345,6 @@
       <div class="scope-card dont">
         <h4>❌ 一期不做</h4>
         <ul>
-          <li>多个 Agent 共享同一知识本（二期，需配套共享 / 权限设计）</li>
           <li>引用已有 C 端知识本作为 Agent 知识（一期只在 Fabric 内新建）</li>
           <li>关注 / 管理知识本的<b>产物</b>（思维导图、可视化报告、云文档、KM 文章）</li>
           <li>检索的向量库自建、检索算法调优（沉在知识本）</li>
@@ -501,8 +500,12 @@
 
   <!-- 七、核心流程三 -->
   <div class="section">
-    <div class="section-title"><span class="num">7</span>核心流程三：C 端知识治理（POPO 租户）</div>
-    <p>知识本当前已作为 C 端产品对用户开放。需在 <b>Fabric-POPO 租户</b>下，对 C 端用户上传的<b>知识</b>与生成的 <b>Wiki</b> 进行<b>完整管理</b>。<b>不关注产物</b>（思维导图、可视化报告、云文档、KM 文章）。</p>
+    <div class="section-title"><span class="num">7</span>C 端用户知识本的统一治理</div>
+    <p><b>POPO 是 Fabric 平台的一个租户</b>。C 端用户在 POPO 租户下自建的知识本，与配置者创建的知识本一样，<b>统一汇入第 3 节的知识本管理后台</b>——并非单独的菜单 / Tab，而是复用同一套统一管理功能，只是把 C 端用户创建的知识本一并展示出来，支持<b>增删改查</b>。治理只针对<b>知识与 Wiki</b>，<b>不关注产物</b>（思维导图、可视化报告、云文档、KM 文章）。</p>
+    <div class="callout tip">
+      <div class="title">💡 与 Skills 治理保持相同逻辑</div>
+      POPO 租户下同样支持 C 端用户自建 <b>Skills</b>，创建后也在统一管理后台展示，供租户管理人员管理。知识本治理<b>对齐这套现成逻辑</b>：租户管理人员可对 C 端用户创建的知识本执行删除 / 更新，<b>删除 / 更新后不通知 C 端用户</b>（与 Skills 一致）。
+    </div>
 
     <h3>7.1 治理列表</h3>
     <div class="mock-list">
@@ -553,7 +556,7 @@
 
     <div class="callout warn">
       <div class="title">⚠️ 待确认</div>
-      ① 治理范围是否限定在 <b>POPO 租户</b>内的 C 端知识（跨租户不可见）；② 编辑 / 删除 C 端用户内容是否需<b>通知原用户</b>或走审批；③ 完整管理权限授予哪一类管理员角色。
+      ① 治理范围限定在<b>本租户</b>内的 C 端知识（跨租户不可见）；② 完整管理能力授予哪一类具备本租户权限的角色。
     </div>
     <div class="callout tip">
       <div class="title">💡 明确不纳入治理的范围</div>
@@ -565,7 +568,7 @@
   <div class="section">
     <div class="section-title"><span class="num">8</span>权限与依赖</div>
     <ul>
-      <li><b>菜单可见性</b>：「AI 工厂 · 知识」仅<b>组织配置者</b>可见 / 可操作；C 端用户完全不可见。</li>
+      <li><b>菜单可见性</b>：「AI 工厂 · 知识」对<b>具备该租户权限的成员</b>可见 / 可操作；C 端用户在 Fabric 后台不可见。</li>
       <li><b>对知识本的依赖</b>：整个方案依赖知识本提供 —— 新建 / 上传 / Wiki 生成能力、<b>检索能力</b>、C 端知识 / Wiki 的<b>管理 API</b>（查看 / 编辑 / 下架 / 删除 / 移转）。</li>
       <li><b>对 Agent 的依赖</b>：知识本被某 Agent 选用时，该 Agent 删除 → 解除对应绑定关系；知识本被删除 → 从所有选用它的 Agent 知识库中移除并提示。</li>
       <li><b>数据隔离</b>：检索、治理均以租户 + <code>notebook_ids</code> 为边界，严禁越界访问。</li>
@@ -576,12 +579,12 @@
   <div class="section">
     <div class="section-title"><span class="num">9</span>交付与验收</div>
     <ul>
-      <li>「知识」菜单出现在 AI 工厂下，仅管理员可见，含「知识本管理」「C 端知识治理」两 Tab。</li>
+      <li>「知识」菜单出现在 AI 工厂下，具备该租户权限的成员可见，为统一的知识本管理后台。</li>
       <li>可在 Fabric 内新建知识本、多源上传、自动生成 Wiki。</li>
       <li>可给一个 Agent 勾选一个或多个知识本，且检索严格限定在所选知识本集合内。</li>
       <li>C 端提问端到端跑通：Agent 调用知识本检索 → 跨所选多本召回重排 → 命中知识 → 作答。</li>
       <li>未选任何知识本的 Agent 正常降级作答，不报错。</li>
-      <li>POPO 租户下可对 C 端用户上传知识 / Wiki 完成查看 / 编辑 / 下架 / 删除 / 移转，操作有审计。</li>
+      <li>C 端用户在 POPO 租户下创建的知识本，自动汇入统一后台，可增删改查；删除 / 更新不通知 C 端用户（与 Skills 一致）。</li>
       <li>产物（思维导图 / 可视化报告 / 云文档 / KM 文章）确认不在治理范围。</li>
     </ul>
   </div>
@@ -590,7 +593,6 @@
   <div class="section">
     <div class="section-title"><span class="num">10</span>二期方向（不在一期范围）</div>
     <ul>
-      <li>多个 Agent 共享同一知识本（配套共享 / 权限 / 检索范围可控设计）</li>
       <li>引用 C 端已有知识本直接作为 Agent 知识（免重复新建）</li>
       <li>检索策略增强：多路召回、重排、按 Wiki 关联做扩展检索</li>
       <li>知识本内容版本管理与变更审批</li>
