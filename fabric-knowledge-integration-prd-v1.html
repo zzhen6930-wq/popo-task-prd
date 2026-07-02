@@ -265,6 +265,12 @@
         <p>需自己整理成规定格式，整理成本高；来源单一，多格式知识进不来。</p>
       </div>
     </div>
+    <p style="margin-top:10px;">缺少标准化的知识配置能力，由此带来 3 个突出问题：</p>
+    <ul>
+      <li><b>无标准操作、效果不一</b>：Fabric 当前没有配置知识的能力，只能各自想办法配置，不同方法差异较大，缺乏标准操作，导致 Agent 最终呈现效果参差不齐。</li>
+      <li><b>配置门槛高、费力度大</b>：自己配置知识时，还要额外配置各类 Skill 去链接知识，对配置同学的能力要求高、投入也大。</li>
+      <li><b>结构化差、检索不准</b>：手工整理的知识结构化程度低，知识之间缺少关联关系，导致检索不准，最终影响回复效果。</li>
+    </ul>
     <p style="margin-top:10px;">而内部已有一款成熟的知识类产品 <b>「知识本」</b>，却<b>无法在 Fabric 里直接使用</b>：</p>
     <ul>
       <li><b>多源多格式上传</b>：POPO 云空间 / 本地文件（PDF、DOCX、XLS、CSV、Markdown、PNG、MP4、SRT…）/ 网络链接 / KM 文章</li>
@@ -306,20 +312,51 @@
   <!-- 三、菜单入口 -->
   <div class="section">
     <div class="section-title"><span class="num">3</span>菜单入口</div>
-    <p>在「AI 工厂」侧边导航新增「<b>知识</b>」一级菜单，建议放在「记忆」附近：</p>
-    <div class="mock-menu">
-      <div class="mm-group">AI 工厂</div>
-      <div class="mm-item">对话</div>
-      <div class="mm-item">Bots</div>
-      <div class="mm-item">Agents</div>
-      <div class="mm-item">Teams</div>
-      <div class="mm-item">Models</div>
-      <div class="mm-item">Prompts</div>
-      <div class="mm-item">Skills</div>
-      <div class="mm-item">记忆</div>
-      <div class="mm-item active">📚 知识</div>
-      <div class="mm-item">工具</div>
-      <div class="mm-item">会话</div>
+    <p>在「AI 工厂」侧边导航新增「<b>知识</b>」一级菜单，建议放在「记忆」附近。下图为「知识」页原型示意（本租户统一的知识本管理后台）：</p>
+    <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;display:flex;font-size:12px;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.05);">
+      <!-- 侧栏 -->
+      <div style="width:150px;background:#fff;border-right:1px solid #eef2f7;padding:12px 0;flex-shrink:0;">
+        <div style="font-size:11px;font-weight:700;color:#334155;padding:6px 14px;display:flex;justify-content:space-between;">AI 工厂 <span style="color:#cbd5e1;">⌃</span></div>
+        <div style="padding:5px 14px;color:#64748b;">💬 对话</div>
+        <div style="padding:5px 14px;color:#64748b;">🤖 Bots</div>
+        <div style="padding:5px 14px;color:#64748b;">🧊 Agents</div>
+        <div style="padding:5px 14px;color:#64748b;">👥 Teams</div>
+        <div style="padding:5px 14px;color:#64748b;">🗄️ Models</div>
+        <div style="padding:5px 14px;color:#64748b;">📋 Prompts</div>
+        <div style="padding:5px 14px;color:#64748b;">🧩 Skills</div>
+        <div style="padding:5px 14px;color:#64748b;">🧠 记忆</div>
+        <div style="padding:5px 14px;color:#0e7490;background:#ecfeff;border-left:3px solid #0891b2;font-weight:600;">📚 知识</div>
+        <div style="padding:5px 14px;color:#64748b;">🔧 工具</div>
+        <div style="padding:5px 14px;color:#64748b;">💬 会话</div>
+        <div style="font-size:11px;font-weight:700;color:#334155;padding:10px 14px 6px;display:flex;justify-content:space-between;">接入管理 <span style="color:#cbd5e1;">⌄</span></div>
+        <div style="font-size:11px;font-weight:700;color:#334155;padding:6px 14px;display:flex;justify-content:space-between;">组织管理 <span style="color:#cbd5e1;">⌄</span></div>
+        <div style="font-size:11px;font-weight:700;color:#334155;padding:6px 14px;display:flex;justify-content:space-between;">系统设置 <span style="color:#cbd5e1;">⌄</span></div>
+      </div>
+      <!-- 内容 -->
+      <div style="flex:1;padding:16px 18px;background:#fafbfc;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#0f172a;">📚 知识</div>
+            <div style="color:#94a3b8;margin-top:3px;">本租户统一的知识本管理后台 · 配置者创建的与 C 端用户创建的知识本统一在此增删改查</div>
+          </div>
+          <div style="background:#0891b2;color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">＋ 新建知识本</div>
+        </div>
+        <div style="margin:12px 0;padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#94a3b8;max-width:280px;">🔍 搜索知识本名称...</div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#f8fafc;color:#64748b;font-size:11px;">
+              <th style="text-align:left;padding:9px 10px;">知识本</th><th style="text-align:left;padding:9px 10px;">创建人</th><th style="text-align:left;padding:9px 10px;">创建时间</th><th style="text-align:left;padding:9px 10px;">更新人</th><th style="text-align:left;padding:9px 10px;">更新时间</th><th style="text-align:left;padding:9px 10px;">资料</th><th style="text-align:left;padding:9px 10px;">Wiki</th><th style="text-align:left;padding:9px 10px;">被绑定</th><th style="text-align:left;padding:9px 10px;">操作</th>
+            </tr></thead>
+            <tbody style="color:#0f172a;">
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 POPO 开放平台集成避坑指南</b><div style="color:#94a3b8;">开放平台接口限制与 Agent 搭建最佳实践</div></td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-06-28</td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">7 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 通用客服 FAQ</b><div style="color:#94a3b8;">各 Agent 共用的通用问答库</div></td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-06-30</td><td style="padding:9px 10px;">李四</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 财税合规知识库</b><div style="color:#94a3b8;">个税申报、发票合规等</div></td><td style="padding:9px 10px;">李财务</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">李财务</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#fef3c7;color:#b45309;padding:1px 8px;border-radius:8px;">生成中</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 我的读书笔记</b><div style="color:#94a3b8;">C 端用户自建：产品方法论摘要</div></td><td style="padding:9px 10px;">王五</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">王五</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 竞品调研合集</b><div style="color:#94a3b8;">C 端用户自建：行业竞品资料</div></td><td style="padding:9px 10px;">赵六</td><td style="padding:9px 10px;color:#64748b;">2026-06-28</td><td style="padding:9px 10px;">赵六</td><td style="padding:9px 10px;color:#64748b;">2026-06-29</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <p>「知识」菜单是本租户<b>统一的知识本管理后台</b>，列表展示该租户下的<b>全部知识本</b>，两类来源统一呈现、统一增删改查：</p>
     <ul>
