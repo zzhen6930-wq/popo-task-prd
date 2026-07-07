@@ -339,20 +339,28 @@
             <div style="font-size:16px;font-weight:700;color:#0f172a;">📚 知识</div>
             <div style="color:#94a3b8;margin-top:3px;">Agent 可用的知识库</div>
           </div>
-          <div style="background:#0891b2;color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">＋ 新建知识本</div>
+          <div style="display:flex;gap:8px;">
+            <div style="border:1px solid #0891b2;color:#0e7490;padding:6px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">管理分类</div>
+            <div style="border:1px solid #0891b2;color:#0e7490;padding:6px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">管理标签</div>
+            <div style="background:#0891b2;color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">＋ 新建知识本</div>
+          </div>
         </div>
-        <div style="margin:12px 0;padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#94a3b8;max-width:280px;">🔍 搜索知识本名称...</div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
-          <table style="width:100%;border-collapse:collapse;">
+        <div style="display:flex;gap:10px;margin:12px 0;align-items:center;">
+          <div style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#94a3b8;flex:0 0 240px;">🔍 搜索知识本名称...</div>
+          <div style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#475569;">分类 ▾</div>
+          <div style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#475569;">展示标签 ▾</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;min-width:960px;">
             <thead><tr style="background:#f8fafc;color:#64748b;font-size:11px;">
-              <th style="text-align:left;padding:9px 10px;">知识本</th><th style="text-align:left;padding:9px 10px;">创建人</th><th style="text-align:left;padding:9px 10px;">创建时间</th><th style="text-align:left;padding:9px 10px;">更新人</th><th style="text-align:left;padding:9px 10px;">更新时间</th><th style="text-align:left;padding:9px 10px;">资料</th><th style="text-align:left;padding:9px 10px;">Wiki</th><th style="text-align:left;padding:9px 10px;">被绑定</th><th style="text-align:left;padding:9px 10px;">操作</th>
+              <th style="text-align:left;padding:9px 10px;">知识本</th><th style="text-align:left;padding:9px 10px;">分类</th><th style="text-align:left;padding:9px 10px;">展示标签</th><th style="text-align:left;padding:9px 10px;">创建人</th><th style="text-align:left;padding:9px 10px;">更新时间</th><th style="text-align:left;padding:9px 10px;">资料</th><th style="text-align:left;padding:9px 10px;">Wiki</th><th style="text-align:left;padding:9px 10px;">被绑定</th><th style="text-align:left;padding:9px 10px;">操作</th>
             </tr></thead>
             <tbody style="color:#0f172a;">
-              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 POPO 开放平台集成避坑指南</b><div style="color:#94a3b8;">开放平台接口限制与 Agent 搭建最佳实践</div></td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-06-28</td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">7 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
-              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 通用客服 FAQ</b><div style="color:#94a3b8;">各 Agent 共用的通用问答库</div></td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-06-30</td><td style="padding:9px 10px;">李四</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
-              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 财税合规知识库</b><div style="color:#94a3b8;">个税申报、发票合规等</div></td><td style="padding:9px 10px;">李财务</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">李财务</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#fef3c7;color:#b45309;padding:1px 8px;border-radius:8px;">生成中</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
-              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 我的读书笔记</b><div style="color:#94a3b8;">C 端用户自建：产品方法论摘要</div></td><td style="padding:9px 10px;">王五</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">王五</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
-              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 竞品调研合集</b><div style="color:#94a3b8;">C 端用户自建：行业竞品资料</div></td><td style="padding:9px 10px;">赵六</td><td style="padding:9px 10px;color:#64748b;">2026-06-28</td><td style="padding:9px 10px;">赵六</td><td style="padding:9px 10px;color:#64748b;">2026-06-29</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 POPO 开放平台集成避坑指南</b><div style="color:#94a3b8;">开放平台接口限制与 Agent 搭建最佳实践</div></td><td style="padding:9px 10px;"><span style="color:#6d28d9;">● 开放平台</span></td><td style="padding:9px 10px;"><span style="border:1px solid #93c5fd;color:#1d4ed8;padding:1px 8px;border-radius:6px;">POPO</span></td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">7 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 通用客服 FAQ</b><div style="color:#94a3b8;">各 Agent 共用的通用问答库</div></td><td style="padding:9px 10px;"><span style="color:#0891b2;">● 客服</span></td><td style="padding:9px 10px;color:#cbd5e1;">—</td><td style="padding:9px 10px;">张振</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 财税合规知识库</b><div style="color:#94a3b8;">个税申报、发票合规等</div></td><td style="padding:9px 10px;"><span style="color:#ea580c;">● 财税</span></td><td style="padding:9px 10px;color:#cbd5e1;">—</td><td style="padding:9px 10px;">李财务</td><td style="padding:9px 10px;color:#64748b;">2026-07-01</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#fef3c7;color:#b45309;padding:1px 8px;border-radius:8px;">生成中</span></td><td style="padding:9px 10px;">1 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 我的读书笔记</b><div style="color:#94a3b8;">C 端用户自建：产品方法论摘要</div></td><td style="padding:9px 10px;"><span style="color:#0e7490;">＋ 设置分类</span></td><td style="padding:9px 10px;color:#cbd5e1;">—</td><td style="padding:9px 10px;">王五</td><td style="padding:9px 10px;color:#64748b;">2026-07-02</td><td style="padding:9px 10px;">2 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
+              <tr style="border-top:1px solid #f1f5f9;"><td style="padding:9px 10px;"><b>📗 竞品调研合集</b><div style="color:#94a3b8;">C 端用户自建：行业竞品资料</div></td><td style="padding:9px 10px;"><span style="color:#0e7490;">＋ 设置分类</span></td><td style="padding:9px 10px;color:#cbd5e1;">—</td><td style="padding:9px 10px;">赵六</td><td style="padding:9px 10px;color:#64748b;">2026-06-29</td><td style="padding:9px 10px;">1 份</td><td style="padding:9px 10px;"><span style="background:#d1fae5;color:#047857;padding:1px 8px;border-radius:8px;">已生成</span></td><td style="padding:9px 10px;">0 个</td><td style="padding:9px 10px;color:#0e7490;">查看 编辑 <span style="color:#dc2626;">删除</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -363,6 +371,65 @@
       <li><b>配置者创建的知识本</b>：在 Fabric 内新建、上传资料、绑定给 Agent</li>
       <li><b>C 端用户创建的知识本</b>：C 端用户在本租户（如 POPO 租户）下自建的知识本，自动汇入同一后台，供租户管理人员治理（详见第 7 节）</li>
     </ul>
+
+    <h3>3.1 复用 Skills 已有的「分类 / 标签 / 可见性」能力</h3>
+    <p>知识本管理后台<b>直接复用 Skills 模块现有的同名能力，功能逻辑不变</b>，仅把作用对象从 Skill 换成知识本：</p>
+    <table>
+      <thead><tr><th style="width:26%">复用能力</th><th>说明（与 Skills 一致）</th></tr></thead>
+      <tbody>
+        <tr><td><b>可见性配置</b></td><td>每个知识本可单独配置可见范围：部门白名单、人员白名单（与部门取并集）、Channel（与前两者取交集）。入口在行操作里（齿轮图标），逻辑同 Skills「可见性配置」弹窗。</td></tr>
+        <tr><td><b>管理分类</b></td><td>顶部「管理分类」按钮，维护本租户的分类字典（增删改、配色）。知识本可绑定分类。</td></tr>
+        <tr><td><b>管理标签</b></td><td>顶部「管理标签」按钮，维护官方「展示标签」字典。知识本可选官方展示标签（如 POPO）。</td></tr>
+        <tr><td><b>分类过滤</b></td><td>列表工具栏「分类 ▾」下拉，按分类过滤知识本列表。</td></tr>
+        <tr><td><b>展示标签过滤</b></td><td>列表工具栏「展示标签 ▾」下拉，按展示标签过滤知识本列表。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 列表新增「分类」「展示标签」两列的交互</h3>
+    <ul>
+      <li><b>分类</b>：列表直接展示当前分类；<b>点击该单元格即可设置分类</b>——弹出「设置分类」弹窗，从已有分类字典中单选/多选后保存（未设置时展示「＋ 设置分类」）。</li>
+      <li><b>展示标签</b>：列表展示已选的官方展示标签；<b>在右侧抽屉中设置</b>——点击行操作「编辑」打开右侧抽屉，在「展示标签」项里从官方标签字典中选择后保存。</li>
+    </ul>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;">
+      <!-- 设置分类弹窗 -->
+      <div style="flex:1;min-width:300px;">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">点击列表「分类」单元格 → 设置分类弹窗</div>
+        <div style="border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 6px 20px rgba(15,23,42,.1);padding:16px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <b style="font-size:14px;">设置分类 — POPO 开放平台集成避坑指南</b><span style="color:#94a3b8;">✕</span>
+          </div>
+          <div style="color:#94a3b8;font-size:12px;margin:8px 0 12px;">选择要绑定到该知识本的分类</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;">
+            <span><span style="color:#6d28d9;">●</span> 开放平台</span>
+            <span><span style="color:#0891b2;">●</span> 客服</span>
+            <span><span style="color:#ea580c;">●</span> 财税</span>
+            <span><span style="color:#dc2626;">●</span> 竞品</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+            <span style="border:1px solid #e2e8f0;color:#475569;padding:5px 14px;border-radius:6px;">取消</span>
+            <span style="background:#0891b2;color:#fff;padding:5px 14px;border-radius:6px;">保存</span>
+          </div>
+        </div>
+      </div>
+      <!-- 展示标签右侧抽屉 -->
+      <div style="flex:1;min-width:300px;">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">行操作「编辑」→ 右侧抽屉设置展示标签</div>
+        <div style="border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 6px 20px rgba(15,23,42,.1);overflow:hidden;">
+          <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;"><b style="font-size:14px;">编辑知识本</b><span style="color:#94a3b8;">✕</span></div>
+          <div style="padding:14px 16px;font-size:13px;">
+            <div style="color:#334155;font-weight:600;margin-bottom:4px;">名称</div>
+            <div style="border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;color:#0f172a;margin-bottom:12px;">POPO 开放平台集成避坑指南</div>
+            <div style="color:#334155;font-weight:600;margin-bottom:4px;">展示标签</div>
+            <div style="border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;color:#475569;display:flex;justify-content:space-between;">请选择官方展示标签（选填） <span style="color:#94a3b8;">▾</span></div>
+            <div style="margin-top:8px;"><span style="border:1px solid #93c5fd;color:#1d4ed8;padding:1px 8px;border-radius:6px;font-size:12px;">POPO ✕</span></div>
+          </div>
+          <div style="padding:12px 16px;border-top:1px solid #f1f5f9;text-align:right;">
+            <span style="border:1px solid #e2e8f0;color:#475569;padding:5px 14px;border-radius:6px;">取消</span>
+            <span style="background:#0891b2;color:#fff;padding:5px 14px;border-radius:6px;margin-left:8px;">保存</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 四、一期范围 -->
@@ -377,6 +444,7 @@
           <li><b>知识本与 Agent 多对多绑定</b>：一个 Agent 可选多个知识本，一个知识本也可被多个 Agent 选用；检索范围严格限定在所选集合内</li>
           <li>C 端对话时，Agent <b>调用知识本检索能力</b>获取知识作答</li>
           <li>POPO 租户下对 C 端用户上传知识 / Wiki 的<b>完整管理</b>（查看 / 编辑 / 删除 / 下架 / 归属移转）</li>
+          <li><b>复用 Skills 的分类 / 展示标签 / 可见性能力</b>：管理分类、管理标签、按分类 / 展示标签过滤，以及每个知识本的可见性配置（逻辑同 Skills）</li>
         </ul>
       </div>
       <div class="scope-card dont">
