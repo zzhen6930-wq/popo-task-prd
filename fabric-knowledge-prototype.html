@@ -267,6 +267,18 @@
   .op-ic:hover { background:#f1f5f9; color:#0f172a; }
   .op-ic.danger:hover { background:#fef2f2; color:#dc2626; }
   .col-op { display:flex; gap:4px; }
+  /* 分类 / 展示标签 / 管理弹窗 */
+  .cat-cell { display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#334155; }
+  .cat-cell:hover { color:#0891b2; }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .show-tag { display:inline-block; border:1px solid #93c5fd; color:#1d4ed8; padding:1px 8px; border-radius:6px; font-size:12px; }
+  .tag-pick { display:flex; flex-wrap:wrap; gap:8px; }
+  .tag-opt { border:1px solid #e2e8f0; color:#475569; padding:4px 12px; border-radius:14px; font-size:12px; cursor:pointer; user-select:none; }
+  .tag-opt.on { border-color:#0891b2; background:#ecfeff; color:#0e7490; font-weight:600; }
+  .cat-opts { display:flex; flex-wrap:wrap; gap:10px; }
+  .cat-opt { display:inline-flex; align-items:center; gap:6px; border:1px solid #e2e8f0; padding:6px 14px; border-radius:16px; cursor:pointer; font-size:13px; color:#475569; user-select:none; }
+  .cat-opt.on { border-color:#0891b2; background:#ecfeff; color:#0e7490; font-weight:600; }
+  .mng-row { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid #f1f5f9; font-size:13px; }
   .bind-bar { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#94a3b8; margin-bottom:8px; }
   .bind-bar .act { color:#0e7490; cursor:pointer; }
   .bind-bar .act:hover { text-decoration:underline; }
@@ -300,6 +312,7 @@ let kbs = [
   {
     id: 'kb1', name: 'POPO 开放平台集成避坑指南', desc: '开放平台接口限制与 Agent 搭建最佳实践',
     source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-28', updatedBy: '张振', updatedAt: '2026-07-02',
+    cat: '开放平台', tags: ['POPO'], visibility: { depts: ['POPO 产品部'], users: [], channels: [] },
     docs: [
       { name: '开放平台问题测试集-运维Agent专用', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-1' },
       { name: '群运维Agent配置方法', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-2' },
@@ -325,6 +338,7 @@ let kbs = [
   {
     id: 'kb2', name: '通用客服 FAQ', desc: '各 Agent 共用的通用问答库',
     source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-30', updatedBy: '李四', updatedAt: '2026-07-01',
+    cat: '客服', tags: [], visibility: { depts: [], users: [], channels: [] },
     docs: [ { name: '通用FAQ汇总.md', type: '本地文件' }, { name: '常见问题KM文章', type: 'KM文章' } ],
     wikiTree: { '原文摘要': ['通用FAQ汇总'], '术语解释': ['工单', 'SLA'], '方法与流程': ['问题上报流程'] },
     facts: { '工单': '工单默认 SLA 为 24 小时内响应。' }
@@ -332,12 +346,14 @@ let kbs = [
   {
     id: 'kb3', name: '财税合规知识库', desc: '个税申报、发票合规等',
     source: 'admin', owner: '李财务', wiki: 'processing', createdAt: '2026-07-01', updatedBy: '李财务', updatedAt: '2026-07-01',
+    cat: '财税', tags: [], visibility: { depts: [], users: [], channels: [] },
     docs: [ { name: '2026个税政策汇编.pdf', type: '本地文件' } ],
     wikiTree: {}, facts: {}
   },
   {
     id: 'kb4', name: '我的读书笔记', desc: 'C 端用户自建：产品方法论摘录',
     source: 'cuser', owner: '王五', wiki: 'done', createdAt: '2026-07-02', updatedBy: '王五', updatedAt: '2026-07-02',
+    cat: null, tags: [], visibility: { depts: [], users: [], channels: [] },
     docs: [ { name: '《启示录》读书笔记', type: 'POPO文档' }, { name: '某公众号文章', type: '网络链接' } ],
     wikiTree: { '原文摘要': ['启示录读书笔记'], '人物与事物': ['产品经理'], '术语解释': ['MVP'] },
     facts: {}
@@ -345,6 +361,7 @@ let kbs = [
   {
     id: 'kb5', name: '竞品调研合集', desc: 'C 端用户自建：行业竞品资料',
     source: 'cuser', owner: '赵六', wiki: 'done', createdAt: '2026-06-28', updatedBy: '赵六', updatedAt: '2026-06-29',
+    cat: null, tags: [], visibility: { depts: [], users: [], channels: [] },
     docs: [ { name: '竞品功能对比表.xls', type: '本地文件' } ],
     wikiTree: { '原文摘要': ['竞品功能对比'], '待解问题': ['竞品定价策略'] }, facts: {}
   },
@@ -353,8 +370,15 @@ let kbs = [
 const SOURCE_LABEL = { admin: '配置者创建', cuser: 'C 端用户创建' };
 const WIKI_LABEL = { done: '已生成', processing: '生成中', fail: '失败' };
 const WIKI_CLASS = { done: 'green', processing: 'amber', fail: 'red' };
+// 复用 Skills 的分类 / 展示标签字典（逻辑不变）
+let CATEGORIES = [
+  { name: '开放平台', color: '#6d28d9' }, { name: '客服', color: '#0891b2' },
+  { name: '财税', color: '#ea580c' }, { name: '竞品', color: '#dc2626' },
+];
+let DISPLAY_TAGS = ['POPO', '官方推荐', '内部通用'];
+function catColor(name){ const c = CATEGORIES.find(x=>x.name===name); return c?c.color:'#94a3b8'; }
 
-let state = { view: 'kbList', kbId: null, kbTab: 'docs', srcTab: '云空间', filterSource: 'all', editingKb: null, draftDocs: [] };
+let state = { view: 'kbList', kbId: null, kbTab: 'docs', srcTab: '云空间', filterSource: 'all', filterCat: 'all', filterTag: 'all', editingKb: null, draftDocs: [], draftTags: [] };
 let chat = { agentId: 'ag1', messages: [{ from: 'bot', text: '你好，我是开放平台群运维 Agent，有什么可以帮你？' }], lastRetrieval: null };
 
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -418,14 +442,18 @@ function render(){
 
 // ============ 知识本管理后台 ============
 function renderKbList(){
-  let list = kbs.filter(k=> state.filterSource==='all' || k.source===state.filterSource);
+  let list = kbs.filter(k=> state.filterSource==='all' || k.source===state.filterSource)
+    .filter(k=> state.filterCat==='all' || k.cat===state.filterCat)
+    .filter(k=> state.filterTag==='all' || (k.tags||[]).includes(state.filterTag));
   let rows = list.map(k=>`
     <tr>
       <td><span class="kb-name" onclick="go('kbDetail','${k.id}')">📚 ${esc(k.name)}</span>
         <div style="font-size:12px;color:#94a3b8">${esc(k.desc)}</div></td>
+      <td>${k.cat
+        ? `<span class="cat-cell" onclick="openSetCategory('${k.id}')"><span class="dot" style="background:${catColor(k.cat)}"></span>${esc(k.cat)}</span>`
+        : `<span class="link-btn" onclick="openSetCategory('${k.id}')">＋ 设置分类</span>`}</td>
+      <td>${(k.tags&&k.tags.length)? k.tags.map(t=>`<span class="show-tag">${esc(t)}</span>`).join(' ') : '<span style="color:#cbd5e1">—</span>'}</td>
       <td>${esc(k.owner)}</td>
-      <td style="white-space:nowrap">${k.createdAt}</td>
-      <td>${esc(k.updatedBy||'—')}</td>
       <td style="white-space:nowrap">${k.updatedAt||'—'}</td>
       <td>${k.docs.length} 份</td>
       <td><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></td>
@@ -433,23 +461,32 @@ function renderKbList(){
       <td class="row-actions">
         <span class="link-btn" onclick="go('kbDetail','${k.id}')">查看</span>
         <span class="link-btn" onclick="openEditKb('${k.id}')">编辑</span>
+        <span class="link-btn" title="可见性配置" onclick="openVisibility('${k.id}')">可见性</span>
         <span class="link-btn danger" onclick="askDeleteKb('${k.id}')">删除</span>
       </td>
     </tr>`).join('');
+  const catOpts = ['<option value="all">分类：全部</option>'].concat(CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${state.filterCat===c.name?'selected':''}>${esc(c.name)}</option>`)).join('');
+  const tagOpts = ['<option value="all">展示标签：全部</option>'].concat(DISPLAY_TAGS.map(t=>`<option value="${esc(t)}" ${state.filterTag===t?'selected':''}>${esc(t)}</option>`)).join('');
   return `
   <div class="page-header">
     <div>
       <div class="page-title">📚 知识</div>
       <div class="page-subtitle">Agent 可用的知识库</div>
     </div>
-    <button class="btn btn-primary" onclick="openCreateKb()">＋ 新建知识本</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="openManageCategory()">管理分类</button>
+      <button class="btn btn-secondary" onclick="openManageTag()">管理标签</button>
+      <button class="btn btn-primary" onclick="openCreateKb()">＋ 新建知识本</button>
+    </div>
   </div>
   <div class="toolbar">
     <div class="search-box"><input placeholder="搜索知识本名称…" oninput="toast('演示原型，搜索未接后端')"></div>
+    <select class="filter-select" onchange="state.filterCat=this.value;render()">${catOpts}</select>
+    <select class="filter-select" onchange="state.filterTag=this.value;render()">${tagOpts}</select>
   </div>
   <div class="table-wrap">
     <table class="data">
-      <thead><tr><th>知识本</th><th>创建人</th><th>创建时间</th><th>更新人</th><th>更新时间</th><th>资料</th><th>Wiki</th><th>被绑定</th><th style="width:150px">操作</th></tr></thead>
+      <thead><tr><th>知识本</th><th>分类</th><th>展示标签</th><th>创建人</th><th>更新时间</th><th>资料</th><th>Wiki</th><th>被绑定</th><th style="width:190px">操作</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="9" class="empty">暂无知识本</td></tr>'}</tbody>
     </table>
   </div>`;
@@ -488,6 +525,9 @@ function renderKbDetail(){
   <div class="detail-card">
     <div class="info-grid">
       <div class="k">归属用户</div><div>${esc(k.owner)}</div>
+      <div class="k">分类</div><div>${k.cat?`<span class="cat-cell" onclick="openSetCategory('${k.id}')"><span class="dot" style="background:${catColor(k.cat)}"></span>${esc(k.cat)}</span>`:'<span class="link-btn" onclick="openSetCategory(\''+k.id+'\')">＋ 设置分类</span>'}</div>
+      <div class="k">展示标签</div><div>${(k.tags&&k.tags.length)?k.tags.map(t=>`<span class="show-tag">${esc(t)}</span>`).join(' '):'<span style="color:#cbd5e1">—</span>'}</div>
+      <div class="k">可见性</div><div><span class="link-btn" onclick="openVisibility('${k.id}')">${(k.visibility&&(k.visibility.depts.length||k.visibility.users.length||k.visibility.channels.length))?'已配置 · 点击编辑':'未配置 · 点击设置'}</span></div>
       <div class="k">Wiki 状态</div><div><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></div>
       <div class="k">被 Agent 绑定</div><div>${boundAgentCount(k.id)} 个（${agents.filter(a=>a.boundKbs.includes(k.id)).map(a=>a.name).join('、')||'暂无'}）</div>
       <div class="k">创建时间</div><div>${k.createdAt}</div>
@@ -551,8 +591,8 @@ function openWikiNode(kbId, group, node){
 }
 
 // ============ 新建 / 编辑知识本 ============
-function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('新建知识本'); }
-function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('编辑知识本', k); }
+function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.draftTags=[]; state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('新建知识本'); }
+function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.draftTags=(k.tags||[]).slice(); state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('编辑知识本', k); }
 
 function openKbDrawer(title, k){
   const d = document.getElementById('drawer');
@@ -566,6 +606,10 @@ function openKbDrawer(title, k){
       <div class="form-item">
         <label class="form-label">描述</label>
         <textarea class="form-textarea" id="kbDesc" placeholder="说明该知识本覆盖的领域 / 用途">${k?esc(k.desc):''}</textarea>
+      </div>
+      <div class="form-item">
+        <label class="form-label">展示标签<span class="form-hint" style="display:inline;margin-left:8px">选官方展示标签（复用 Skills 标签字典）</span></label>
+        <div id="tagPick" class="tag-pick">${renderTagPick()}</div>
       </div>
       <div class="tabs" style="margin-bottom:14px">
         <div class="tab ${state.editTab==='docs'?'active':''}" onclick="setEditTab('docs')">资料</div>
@@ -642,6 +686,115 @@ function rmWikiNode(g, ni){
 function rmWikiGroup(g){ delete state.draftWiki[g]; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); }
 function clearDraftWiki(){ state.draftWiki={}; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已删除整个 Wiki（不影响资料）'); }
 
+function renderTagPick(){
+  return DISPLAY_TAGS.map(t=>{
+    const on = (state.draftTags||[]).includes(t);
+    return `<span class="tag-opt ${on?'on':''}" onclick="toggleTag('${esc(t)}')">${on?'✓ ':''}${esc(t)}</span>`;
+  }).join('');
+}
+function toggleTag(t){
+  state.draftTags = state.draftTags||[];
+  const i = state.draftTags.indexOf(t);
+  if(i>=0) state.draftTags.splice(i,1); else state.draftTags.push(t);
+  const el = document.getElementById('tagPick'); if(el) el.innerHTML = renderTagPick();
+}
+
+// —— 列表点击「分类」→ 设置分类弹窗 ——
+function openSetCategory(id){
+  const k = kbs.find(x=>x.id===id);
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">设置分类 — ${esc(k.name)}</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">选择要绑定到该知识本的分类（单选，可清空）</div>
+      <div class="cat-opts">
+        <span class="cat-opt ${!k.cat?'on':''}" data-cat="" onclick="pickCat('${id}','')">无分类</span>
+        ${CATEGORIES.map(c=>`<span class="cat-opt ${k.cat===c.name?'on':''}" data-cat="${esc(c.name)}" onclick="pickCat('${id}','${esc(c.name)}')"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>`).join('')}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
+      <button class="btn btn-primary" onclick="closeAll();render();toast('分类已保存')">保存</button>
+    </div>`;
+  m.classList.remove('sm'); showModal();
+}
+function pickCat(id, name){
+  const k = kbs.find(x=>x.id===id); k.cat = name||null;
+  document.querySelectorAll('#modal .cat-opt').forEach(el=> el.classList.toggle('on', (el.getAttribute('data-cat')||'')===(name||'')));
+}
+
+// —— 管理分类 ——
+function openManageCategory(){
+  const m = document.getElementById('modal');
+  const rows = CATEGORIES.map((c,i)=>`<div class="mng-row"><span class="dot" style="background:${c.color}"></span><span style="flex:1">${esc(c.name)}</span><span class="link-btn danger" onclick="rmCategory(${i})">删除</span></div>`).join('') || '<div class="empty">暂无分类</div>';
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">管理分类</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">维护本租户的分类字典（逻辑同 Skills）</div>
+      <div id="mngCatList">${rows}</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input class="form-input" id="newCat" placeholder="新增分类名称">
+        <button class="btn btn-secondary" onclick="addCategory()">添加</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeAll();render()">完成</button></div>`;
+  m.classList.remove('sm'); showModal();
+}
+function addCategory(){
+  const v = document.getElementById('newCat').value.trim(); if(!v) return;
+  const palette=['#6d28d9','#0891b2','#ea580c','#dc2626','#16a34a','#2563eb'];
+  CATEGORIES.push({ name:v, color: palette[CATEGORIES.length%palette.length] });
+  openManageCategory(); toast('已添加分类');
+}
+function rmCategory(i){ CATEGORIES.splice(i,1); openManageCategory(); }
+
+// —— 管理标签 ——
+function openManageTag(){
+  const m = document.getElementById('modal');
+  const rows = DISPLAY_TAGS.map((t,i)=>`<div class="mng-row"><span class="show-tag">${esc(t)}</span><span style="flex:1"></span><span class="link-btn danger" onclick="rmTag(${i})">删除</span></div>`).join('') || '<div class="empty">暂无标签</div>';
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">管理展示标签</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">维护官方展示标签字典（逻辑同 Skills）</div>
+      <div id="mngTagList">${rows}</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input class="form-input" id="newTag" placeholder="新增展示标签">
+        <button class="btn btn-secondary" onclick="addTag()">添加</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeAll();render()">完成</button></div>`;
+  m.classList.remove('sm'); showModal();
+}
+function addTag(){ const v=document.getElementById('newTag').value.trim(); if(!v) return; if(!DISPLAY_TAGS.includes(v)) DISPLAY_TAGS.push(v); openManageTag(); toast('已添加标签'); }
+function rmTag(i){ DISPLAY_TAGS.splice(i,1); openManageTag(); }
+
+// —— 可见性配置（复用 Skills 逻辑）——
+function openVisibility(id){
+  const k = kbs.find(x=>x.id===id); const v = k.visibility||{depts:[],users:[],channels:[]};
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-header"><span class="title">可见性配置 — ${esc(k.name)}</span><span class="close" onclick="closeAll()">×</span></div>
+    <div class="modal-body">
+      <div class="form-item"><label class="form-label">部门白名单</label>
+        <input class="form-input" id="visDept" placeholder="选择部门…" value="${esc((v.depts||[]).join('、'))}"></div>
+      <div class="form-item"><label class="form-label">人员白名单（与部门取并集）</label>
+        <input class="form-input" id="visUser" placeholder="搜索用户名或邮箱…" value="${esc((v.users||[]).join('、'))}"></div>
+      <div class="form-item"><label class="form-label">Channel（与部门和人员白名单取交集）</label>
+        <input class="form-input" id="visCh" placeholder="选择 Channel…" value="${esc((v.channels||[]).join('、'))}"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
+      <button class="btn btn-primary" onclick="saveVisibility('${id}')">保存</button>
+    </div>`;
+  m.classList.remove('sm'); showModal();
+}
+function saveVisibility(id){
+  const k = kbs.find(x=>x.id===id);
+  const sp = s => s.split(/[、,，]/).map(x=>x.trim()).filter(Boolean);
+  k.visibility = { depts: sp(document.getElementById('visDept').value), users: sp(document.getElementById('visUser').value), channels: sp(document.getElementById('visCh').value) };
+  closeAll(); render(); toast('可见性已保存');
+}
+
 function saveKb(){
   const name = document.getElementById('kbName').value.trim();
   const desc = document.getElementById('kbDesc').value.trim();
@@ -650,6 +803,7 @@ function saveKb(){
     const k = kbs.find(x=>x.id===state.editingKb); const wasC = k.source==='cuser';
     k.name=name; k.desc=desc; k.docs=state.draftDocs.slice();
     k.wikiTree = JSON.parse(JSON.stringify(state.draftWiki||{}));
+    k.tags = (state.draftTags||[]).slice();
     k.updatedBy = '张振'; k.updatedAt = '2026-07-02';
     if(k.wiki==='done' && !Object.keys(k.wikiTree).length){ /* Wiki 被清空，保留状态，详情显示暂无 */ }
     closeAll(); render();
@@ -657,7 +811,7 @@ function saveKb(){
   } else {
     if(!state.draftDocs.length){ toast('请至少添加一条资料'); return; }
     const id = 'kb'+(Date.now()%100000);
-    kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', updatedBy:'张振', updatedAt:'2026-07-02', docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
+    kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', updatedBy:'张振', updatedAt:'2026-07-02', cat:null, tags:(state.draftTags||[]).slice(), visibility:{depts:[],users:[],channels:[]}, docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
     closeAll(); go('kbList');
     toast('知识本已创建，Wiki 生成中');
     setTimeout(()=>{ const k=kbs.find(x=>x.id===id); if(k){ k.wiki='done'; k.wikiTree={'原文摘要':k.docs.map(d=>d.name),'术语解释':['示例术语']}; if(state.view==='kbList'||state.view==='kbDetail') render(); toast('Wiki 已生成'); } }, 2600);
