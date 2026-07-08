@@ -373,6 +373,10 @@
     </ul>
 
     <h3>3.1 复用 Skills 已有的「分类 / 标签 / 可见性」能力</h3>
+    <div class="callout key">
+      <div class="title">🔑 边界：Fabric 后台只"打标签"，前台透出由知识本应用决定</div>
+      Fabric 后台的知识本管理仅负责给知识本<b>打标签</b>（分类 / 展示标签 / 可见性属性）；<b>Notebook 租户 C 端前台是否透出该知识本、如何呈现，由知识本应用自行实现</b>，Fabric 不介入前台展示逻辑。
+    </div>
     <p>知识本管理后台<b>直接复用 Skills 模块现有的同名能力，功能逻辑不变</b>，仅把作用对象从 Skill 换成知识本：</p>
     <table>
       <thead><tr><th style="width:26%">复用能力</th><th>说明（与 Skills 一致）</th></tr></thead>
