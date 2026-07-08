@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Fabric · 知识管理 · 高保真交互原型</title>
+<title>Fabric · 知识库 · 高保真交互原型</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -407,7 +407,7 @@ function shell(inner){
     const items = g.items.map(([m,icon])=>{
       let active = (m==='知识' && (state.view==='kbList'||state.view==='kbDetail'))
         || (m==='Agents' && (state.view==='agents'||state.view==='agentDetail'));
-      let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识管理流程')";
+      let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识库流程')";
       return `<div class="sidebar-item ${active?'active':''}" onclick="${onclick}"><span class="sb-ic">${icon}</span>${m}</div>`;
     }).join('');
     return head + items;
@@ -538,7 +538,7 @@ function renderKbDetail(){
     <div class="tab ${state.kbTab==='wiki'?'active':''}" onclick="setKbTab('wiki')">Wiki 视图</div>
   </div>
   ${state.kbTab==='docs'
-    ? `<div style="margin-bottom:12px"><button class="btn btn-primary btn-sm" onclick="openAddDoc('${k.id}')">＋ 添加资料</button></div>${docs}`
+    ? `<div class="callout-strip" style="margin-bottom:12px">💡 一期 Fabric 后台仅展示知识本资料 / Wiki，<b>不做内容级增删改</b>。如需管理资料请前往「知识本」应用。</div>${docs}`
     : wikiHtml}`;
 }
 function setKbTab(t){ state.kbTab=t; render(); }
@@ -611,6 +611,9 @@ function openKbDrawer(title, k){
         <label class="form-label">展示标签<span class="form-hint" style="display:inline;margin-left:8px">选官方展示标签（复用 Skills 标签字典）</span></label>
         <div id="tagPick" class="tag-pick">${renderTagPick()}</div>
       </div>
+      ${state.editingKb ? `
+      <div class="callout-strip" style="margin-top:4px">💡 一期 Fabric 后台仅支持编辑元信息（名称 / 描述 / 展示标签 / 分类 / 可见性）。<b>知识内容级编辑（资料增删、Wiki 结构维护）请前往「知识本」应用</b>。</div>
+      ` : `
       <div class="tabs" style="margin-bottom:14px">
         <div class="tab ${state.editTab==='docs'?'active':''}" onclick="setEditTab('docs')">资料</div>
         <div class="tab ${state.editTab==='wiki'?'active':''}" onclick="setEditTab('wiki')">Wiki 视图</div>
@@ -628,10 +631,9 @@ function openKbDrawer(title, k){
         <div id="draftDocs">${renderDraftDocs()}</div>
       </div>
       <div id="tabWiki" style="display:${state.editTab==='wiki'?'block':'none'}">
-        ${state.editingKb
-          ? `<label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label><div id="draftWiki">${renderDraftWiki()}</div>`
-          : '<div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>'}
+        <div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>
       </div>
+      `}
     </div>
     <div class="drawer-footer">
       <button class="btn btn-secondary" onclick="closeAll()">取消</button>
@@ -984,7 +986,7 @@ function renderChat(){
     dbg = `
       <div class="step">① 用户提问：<code>${esc(r.q)}</code></div>
       <div class="step">② Agent Runtime 取绑定知识本 <code>notebook_ids = [${r.ids.join(', ')||'空'}]</code></div>
-      <div class="step">③ 在 ${r.ids.length} 个知识本内语义检索，跨本重排 / 去重 → 命中 ${r.hits} 条片段</div>
+      <div class="step">③ 携 <code>notebook_ids</code> <b>只调 1 次</b>知识本检索接口 → 知识本内部合并检索（统一大索引 + <code>notebook_id</code> filter）→ 命中 ${r.hits} 条片段 <span class="muted">（全局 Top-K，Fabric 不做应用层重排）</span></div>
       <div class="step">④ 片段作为上下文喂给模型生成答案</div>
       <div class="step">⑤ 输出答案给用户 <span class="muted">（不含引用回链 / 来源信息）</span></div>`;
   } else {
