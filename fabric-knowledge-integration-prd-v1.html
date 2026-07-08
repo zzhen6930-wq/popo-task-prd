@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Fabric · AI 工厂「知识管理」（集成「知识本」· 一期）· PRD</title>
+<title>Fabric · AI 工厂「知识库」（集成「知识本」· 一期）· PRD</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -237,8 +237,8 @@
 <div class="container">
 
   <div class="header">
-    <h1>Fabric · AI 工厂「知识管理」（集成「知识本」）</h1>
-    <div style="opacity:0.92;font-size:13px;">把成熟的知识本能力接进 Fabric，让 Agent 拥有可维护、可精准检索的专属知识库</div>
+    <h1>Fabric · AI 工厂「知识库」（集成「知识本」）</h1>
+    <div style="opacity:0.92;font-size:13px;">把成熟的知识本能力接进 Fabric，让 Agent 拥有可精准检索的专属知识库</div>
     <div class="meta">
       <span>📅 2026-07-02</span>
       <span>🏷️ v1.0（一期）</span>
@@ -250,7 +250,7 @@
   <!-- 一、背景 -->
   <div class="section">
     <div class="section-title"><span class="num">1</span>背景与目标</div>
-    <p>在 Fabric 给 Agent 配置知识时，当前后台<b>没有独立的知识管理模块</b>，只能把整理后的知识塞进以下 3 个地方，各有明显局限：</p>
+    <p>在 Fabric 给 Agent 配置知识时，当前后台<b>没有独立的知识库配置能力</b>，只能把整理后的知识塞进以下 3 个地方，各有明显局限：</p>
     <div class="pain-grid">
       <div class="pain-card">
         <h4>① 写进 Prompt</h4>
@@ -277,7 +277,7 @@
       <li><b>自动生成 Wiki</b>：上传后自动抽取「原文摘要 / 人物与事物 / 术语解释 / 待解问题 / 方法与流程」，且 <b>Wiki 之间带关联关系</b>，利于关联检索</li>
       <li><b>价值</b>：一站式覆盖多来源知识、大幅降低整理成本、并通过结构化 + 关联增强检索准确性</li>
     </ul>
-    <p style="margin-top:10px;"><b>本期目标</b>：把「知识本」作为知识底座接入 Fabric，在「AI 工厂」下新增「<b>知识</b>」模块，实现三件事——① 给 Agent 配专属知识库；② C 端咨询时 Agent 能精准检索知识；③ 在 POPO 租户下治理 C 端用户上传的知识与 Wiki。</p>
+    <p style="margin-top:10px;"><b>本期目标</b>：把「知识本」作为知识底座接入 Fabric，在「AI 工厂」下新增「<b>知识</b>」模块，实现三件事——① 给 Agent 配专属知识库；② C 端咨询时 Agent 能精准检索知识；③ 在 POPO 租户下管理 C 端用户上传的知识与 Wiki。</p>
   </div>
 
   <!-- 二、定位 -->
@@ -287,7 +287,7 @@
     <table>
       <thead><tr><th>角色</th><th>能做什么</th></tr></thead>
       <tbody>
-        <tr><td><b>租户配置 / 管理人员</b>（具备该租户权限）</td><td>在「AI 工厂 · 知识」下新建知识本、上传资料、把知识本绑定到 Agent；并对本租户下 C 端用户创建的知识本 / Wiki 做统一治理</td></tr>
+        <tr><td><b>租户配置 / 管理人员</b>（具备该租户权限）</td><td>在「AI 工厂 · 知识」下新建知识本、上传资料、把知识本绑定到 Agent；并对本租户下 C 端用户创建的知识本 / Wiki 做统一管理</td></tr>
         <tr><td><b>C 端用户</b></td><td>① 在 C 端可自建知识本；② 与投放的 Agent 对话时，间接享受知识本检索带来的更准回答，<b>不感知</b> Agent 侧知识配置细节</td></tr>
       </tbody>
     </table>
@@ -304,8 +304,8 @@
       </tbody>
     </table>
     <div class="callout key">
-      <div class="title">🔑 核心策略：Fabric 不重造知识能力，只做「集成 + 关联 + 治理」</div>
-      Fabric 负责三层薄封装：<b>关联层</b>（知识本 ↔ Agent）、<b>检索接入层</b>（Agent 对话时调用知识本检索）、<b>治理层</b>（POPO 租户下管理 C 端知识 / Wiki）。知识的存储、整理、Wiki 生成、检索算法全部沉在知识本。
+      <div class="title">🔑 核心策略：Fabric 不重造知识库和检索能力，只做「集成 + 关联」</div>
+      Fabric 负责两层薄封装：<b>关联层</b>（知识本 ↔ Agent）、<b>检索接入层</b>（Agent 对话时调用知识本检索）。知识库的存储、整理、Wiki 生成、检索算法全部沉在知识本。
     </div>
   </div>
 
@@ -450,6 +450,7 @@
       <div class="scope-card dont">
         <h4>❌ 一期不做</h4>
         <ul>
+          <li>知识内容的编辑 / 结构维护 / 长期治理</li>
           <li>引用已有 C 端知识本作为 Agent 知识（一期只在 Fabric 内新建）</li>
           <li>关注 / 管理知识本的<b>产物</b>（思维导图、可视化报告、云文档、KM 文章）</li>
           <li>检索的向量库自建、检索算法调优（沉在知识本）</li>
@@ -768,7 +769,7 @@
   </div>
 
   <div class="footer">
-    Fabric · AI 工厂「知识管理」（集成知识本）v1.0 一期
+    Fabric · AI 工厂「知识库」（集成知识本）v1.0 一期
   </div>
 
 </div>
