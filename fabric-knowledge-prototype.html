@@ -538,7 +538,7 @@ function renderKbDetail(){
     <div class="tab ${state.kbTab==='wiki'?'active':''}" onclick="setKbTab('wiki')">Wiki 视图</div>
   </div>
   ${state.kbTab==='docs'
-    ? `<div class="callout-strip" style="margin-bottom:12px">💡 一期 Fabric 后台仅展示知识本资料 / Wiki，<b>不做内容级增删改</b>。如需管理资料请前往「知识本」应用。</div>${docs}`
+    ? `<div style="margin-bottom:12px"><button class="btn btn-primary btn-sm" onclick="openAddDoc('${k.id}')">＋ 添加资料</button></div>${docs}`
     : wikiHtml}`;
 }
 function setKbTab(t){ state.kbTab=t; render(); }
@@ -611,9 +611,6 @@ function openKbDrawer(title, k){
         <label class="form-label">展示标签<span class="form-hint" style="display:inline;margin-left:8px">选官方展示标签（复用 Skills 标签字典）</span></label>
         <div id="tagPick" class="tag-pick">${renderTagPick()}</div>
       </div>
-      ${state.editingKb ? `
-      <div class="callout-strip" style="margin-top:4px">💡 一期 Fabric 后台仅支持编辑元信息（名称 / 描述 / 展示标签 / 分类 / 可见性）。<b>知识内容级编辑（资料增删、Wiki 结构维护）请前往「知识本」应用</b>。</div>
-      ` : `
       <div class="tabs" style="margin-bottom:14px">
         <div class="tab ${state.editTab==='docs'?'active':''}" onclick="setEditTab('docs')">资料</div>
         <div class="tab ${state.editTab==='wiki'?'active':''}" onclick="setEditTab('wiki')">Wiki 视图</div>
@@ -631,9 +628,10 @@ function openKbDrawer(title, k){
         <div id="draftDocs">${renderDraftDocs()}</div>
       </div>
       <div id="tabWiki" style="display:${state.editTab==='wiki'?'block':'none'}">
-        <div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>
+        ${state.editingKb
+          ? `<label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label><div id="draftWiki">${renderDraftWiki()}</div>`
+          : '<div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>'}
       </div>
-      `}
     </div>
     <div class="drawer-footer">
       <button class="btn btn-secondary" onclick="closeAll()">取消</button>
@@ -658,7 +656,12 @@ function setSrcTab(s){
   if(n2) n2.value = state._tmpName; if(d2) d2.value = state._tmpDesc;
 }
 function renderDraftDocs(){
-  return state.draftDocs.map((d,i)=>`<div class="doc-chip">📄 ${esc(d.name)} <span class="tag gray">${d.type}</span><span class="rm" onclick="rmDraftDoc(${i})">×</span></div>`).join('');
+  return state.draftDocs.map((d,i)=>`<div class="doc-chip">📄 ${esc(d.name)} <span class="tag gray">${d.type}</span><span class="rm" onclick="renameDraftDoc(${i})" title="重命名">✏️</span><span class="rm" onclick="rmDraftDoc(${i})" title="删除">×</span></div>`).join('');
+}
+function renameDraftDoc(i){
+  const cur = state.draftDocs[i].name;
+  const nv = prompt('重命名资料', cur);
+  if(nv && nv.trim() && nv !== cur){ state.draftDocs[i].name = nv.trim(); document.getElementById('draftDocs').innerHTML = renderDraftDocs(); toast('已重命名'); }
 }
 function addDraftDoc(){
   const map = {'云空间':['季度规划.docx','项目周报'],'本地文件':['需求说明.pdf','数据表.xls'],'网络链接':['某技术博客','某公众号文章'],'KM 文章':['接口规范KM','FAQ汇总KM']};
@@ -677,13 +680,18 @@ function renderDraftWiki(){
     <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px">✨ ${esc(g)} <span style="font-size:11px;color:#94a3b8">${state.draftWiki[g].length}</span>
         <span class="link-btn danger" style="margin-left:auto;font-size:12px" onclick="rmWikiGroup('${esc(g)}')">删除该分类</span></div>
-      ${state.draftWiki[g].map((n,ni)=>`<div class="doc-chip" style="padding:5px 10px;margin-top:6px">• ${esc(n)}<span class="rm" onclick="rmWikiNode('${esc(g)}',${ni})">×</span></div>`).join('')}
+      ${state.draftWiki[g].map((n,ni)=>`<div class="doc-chip" style="padding:5px 10px;margin-top:6px">• ${esc(n)}<span class="rm" onclick="renameWikiNode('${esc(g)}',${ni})" title="重命名">✏️</span><span class="rm" onclick="rmWikiNode('${esc(g)}',${ni})" title="删除">×</span></div>`).join('')}
     </div>`).join('');
 }
 function rmWikiNode(g, ni){
   state.draftWiki[g].splice(ni,1);
   if(!state.draftWiki[g].length) delete state.draftWiki[g];
   document.getElementById('draftWiki').innerHTML = renderDraftWiki();
+}
+function renameWikiNode(g, ni){
+  const cur = state.draftWiki[g][ni];
+  const nv = prompt('重命名 Wiki 节点', cur);
+  if(nv && nv.trim() && nv !== cur){ state.draftWiki[g][ni] = nv.trim(); document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已重命名'); }
 }
 function rmWikiGroup(g){ delete state.draftWiki[g]; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); }
 function clearDraftWiki(){ state.draftWiki={}; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已删除整个 Wiki（不影响资料）'); }
