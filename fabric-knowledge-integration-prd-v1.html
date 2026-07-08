@@ -434,7 +434,7 @@
           <li>Fabric 内<b>新建知识本</b>，复用知识本原生的多源上传 + 自动 Wiki 能力</li>
           <li><b>知识本与 Agent 多对多绑定</b>：一个 Agent 可选多个知识本，一个知识本也可被多个 Agent 选用；检索范围严格限定在所选集合内</li>
           <li>C 端对话时，Agent <b>调用知识本检索能力</b>获取知识作答</li>
-          <li>NoteBook 租户下对本租户知识本（含 C 端上传）的<b>基础管理</b>：知识本级（查看 / 删除 / 归属移转 / 下架）+ <b>资料 / Wiki 节点级的「增、删、重命名」</b></li>
+          <li>NoteBook 租户下对本租户知识本（含 C 端上传）的<b>基础管理</b>：知识本级（查看 / 删除 / 下架）+ <b>资料 / Wiki 节点级的「增、删、重命名」</b></li>
           <li><b>复用 Skills 的分类 / 展示标签 / 可见性能力</b>：管理分类、管理标签、按分类 / 展示标签过滤，以及每个知识本的可见性配置（逻辑同 Skills）</li>
         </ul>
       </div>
@@ -685,7 +685,7 @@
             <td>2 份</td>
             <td><span class="badge on">已生成</span></td>
             <td>0 个</td>
-            <td>查看 / 编辑 / 下架 / 删除 / 移转</td>
+            <td>查看 / 编辑 / 下架 / 删除</td>
           </tr>
           <tr>
             <td><b>📗 竞品调研合集</b><div style="color:#94a3b8;font-size:12px;">C 端用户自建：行业竞品资料</div></td>
@@ -696,7 +696,7 @@
             <td>1 份</td>
             <td><span class="badge on">已生成</span></td>
             <td>0 个</td>
-            <td>查看 / 编辑 / 下架 / 删除 / 移转</td>
+            <td>查看 / 编辑 / 下架 / 删除</td>
           </tr>
           <tr>
             <td><b>📗 个人财税笔记</b><div style="color:#94a3b8;font-size:12px;">C 端用户自建：个税、发票速查</div></td>
@@ -721,7 +721,6 @@
         <tr><td><b>编辑</b></td><td>知识、Wiki</td><td>修正内容 / Wiki 节点（如违规、错误信息）</td></tr>
         <tr><td><b>下架</b></td><td>知识、Wiki</td><td>暂时不可被检索 / 不可见，保留数据，可恢复</td></tr>
         <tr><td><b>删除</b></td><td>知识、Wiki</td><td>彻底移除；需二次确认；记录操作审计</td></tr>
-        <tr><td><b>归属移转</b></td><td>知识本 / 资料</td><td>变更所属用户 / 归属（如离职交接）</td></tr>
       </tbody>
     </table>
 
@@ -740,7 +739,7 @@
     <div class="section-title"><span class="num">8</span>权限与依赖</div>
     <ul>
       <li><b>菜单可见性</b>：「AI 工厂 · 知识」对<b>具备该租户权限的成员</b>可见 / 可操作；C 端用户在 Fabric 后台不可见。</li>
-      <li><b>对知识本的依赖</b>：整个方案依赖知识本提供 —— 新建 / 上传 / Wiki 生成能力、<b>检索能力</b>、C 端知识 / Wiki 的<b>管理 API</b>（查看 / 编辑 / 下架 / 删除 / 移转）。</li>
+      <li><b>对知识本的依赖</b>：整个方案依赖知识本提供 —— 新建 / 上传 / Wiki 生成能力、<b>检索能力</b>、C 端知识 / Wiki 的<b>管理 API</b>（查看 / 编辑 / 下架 / 删除）。</li>
       <li><b>对 Agent 的依赖</b>：知识本被某 Agent 选用时，该 Agent 删除 → 解除对应绑定关系；知识本被删除 → 从所有选用它的 Agent 知识库中移除并提示。</li>
       <li><b>数据隔离</b>：检索、治理均以租户 + <code>notebook_ids</code> 为边界，严禁越界访问。</li>
     </ul>
