@@ -485,7 +485,7 @@
     </div>
     <div class="callout tip">
       <div class="title">💡 多选带来的检索范围管控</div>
-      允许多选是为覆盖"专属本 + 公共本"等组合场景（如各 Agent 都需通用 FAQ）。但选得越多、跨领域知识越易互相干扰而拉低命中率，因此：① 检索范围严格限定在<b>所选集合</b>内，绝不扩展到全部；② 建议配置者按需精选，避免堆叠无关知识本；③ 多本检索结果需<b>统一重排 / 去重</b>后再喂给模型（见 6.2）。
+      允许多选是为覆盖"专属本 + 公共本"等组合场景（如各 Agent 都需通用 FAQ）。但选得越多、跨领域知识越易互相干扰而拉低命中率，因此：① 检索范围严格限定在<b>所选集合</b>内，绝不扩展到全部；② 建议配置者按需精选，避免堆叠无关知识本；③ 多本检索由知识本<b>一次调用完成合并</b>（统一大索引 + <code>notebook_id</code> filter，返回全局 Top-K），Fabric 侧不做应用层重排（见 6.2）。
     </div>
 
     <h3>5.2 配置流程</h3>
@@ -564,14 +564,14 @@
             <div style="color:#1e293b;">发起提问 <span style="color:#94a3b8;">query</span></div>
           </div>
           <div style="display:flex;align-items:center;color:#94a3b8;font-size:18px;">→</div>
-          <div style="flex:0 0 150px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+          <div style="flex:0 0 160px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
             <div style="font-size:11px;color:#2563eb;font-weight:700;margin-bottom:4px;">Agent Runtime</div>
-            <div style="color:#1e293b;">按绑定取 <code>notebook_ids</code><br>携 query 调检索</div>
+            <div style="color:#1e293b;">按绑定取 <code>notebook_ids</code><br><b>只调 1 次</b>检索接口</div>
           </div>
           <div style="display:flex;align-items:center;color:#94a3b8;font-size:18px;">→</div>
-          <div style="flex:0 0 175px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:10px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
-            <div style="font-size:11px;color:#0891b2;font-weight:700;margin-bottom:4px;">知识本</div>
-            <div style="color:#1e293b;">范围内语义检索（Wiki 结构 + 关联）<br>跨本重排 / 去重 Top-K</div>
+          <div style="flex:0 0 200px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:10px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+            <div style="font-size:11px;color:#0891b2;font-weight:700;margin-bottom:4px;">知识本（内部一次完成合并）</div>
+            <div style="color:#1e293b;">统一大索引 + <code>notebook_id</code> filter<br>一次检索 → <b>全局 Top-K</b></div>
           </div>
           <div style="display:flex;align-items:center;color:#94a3b8;font-size:18px;">→</div>
           <div style="flex:0 0 120px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
@@ -613,6 +613,10 @@
         </div>
       </div>
     </div>
+    <div class="callout key">
+      <div class="title">🔑 合并检索原则：Fabric 只调 1 次，由知识本一次完成合并</div>
+      无论 Agent 绑定 1 本还是 N 本知识本，Fabric 侧<b>始终只调 1 次</b>检索接口，把 <code>notebook_ids</code> 列表整体传给知识本；<b>跨本召回 / 去重 / 重排 / 全局 Top-K 排序，全部在知识本内部一次完成</b>（统一大索引 + <code>notebook_id</code> metadata filter）。Fabric 不做应用层"分本查询 + RRF 融合"，避免跨本分数不可比造成的精度损失。
+    </div>
     <p style="color:#94a3b8;font-size:12.5px;margin-top:-2px;">下方为分步详细说明：</p>
 
     <div class="vflow">
@@ -627,14 +631,14 @@
         <div class="vflow-num">2</div>
         <div class="vflow-body">
           <span class="actor actor-agent">Agent Runtime</span><br>
-          根据 Agent 绑定关系拿到<b>所选知识本 ID 列表</b>（<code>notebook_ids</code>），携带用户 query 调用<b>知识本检索接口</b>。检索范围被 <code>notebook_ids</code> 严格限定，只在这些知识本内检索。
+          根据 Agent 绑定关系拿到<b>所选知识本 ID 列表</b>（<code>notebook_ids</code>），携带用户 query <b>只调 1 次</b>知识本检索接口——无论绑定 1 本还是 N 本，都只调 1 次；<b>不做应用层分本查询 + 重排</b>。检索范围被 <code>notebook_ids</code> 严格限定，只在这些知识本内检索。
         </div>
       </div>
       <div class="vflow-step">
         <div class="vflow-num">3</div>
         <div class="vflow-body hl">
           <span class="actor actor-kb">知识本</span><br>
-          在指定的<b>知识本集合</b>内做语义检索（结合 Wiki 结构与关联关系），跨多本结果统一召回、<b>重排 / 去重</b>后返回 Top-K 相关片段。
+          在<b>统一大索引</b>上用 <code>notebook_id</code> filter 限定范围，做一次语义检索（结合 Wiki 结构与关联关系）。<b>跨本召回 / 去重 / 重排全部由知识本内部一次完成</b>，返回<b>全局 Top-K</b> 相关片段——同一大索引下相似度分数天然可比，Fabric 侧不做应用层重排。
         </div>
       </div>
       <div class="vflow-step">
@@ -659,13 +663,13 @@
     <h3>6.2 关键约束</h3>
     <ul>
       <li><b>范围隔离</b>：检索请求必须带上 Agent 所选的 <code>notebook_ids</code>，服务端二次校验绑定关系，杜绝检索到未选中 / 越权的知识本。</li>
-      <li><b>多本重排</b>：跨多个知识本召回的片段需统一相关度重排、去重后再取 Top-K，避免单本淹没或重复。</li>
+      <li><b>合并检索一次完成</b>：跨多个知识本的召回 / 去重 / 重排<b>全部由知识本侧一次调用完成</b>，返回全局 Top-K；Fabric 只调 1 次接口、<b>不做应用层分本查询与重排</b>，跨本相似度分数在同一大索引下天然可比。</li>
       <li><b>无绑定即降级</b>：Agent 未选任何知识本时不发起检索，走原有作答逻辑，不报错。</li>
     </ul>
 
     <div class="callout warn">
       <div class="title">⚠️ 待知识本团队确认</div>
-      ① 跨多个知识本检索时，召回片段的<b>相关度重排 / 去重</b>由知识本侧完成，还是需 Fabric 侧处理；② 检索延迟与并发上限（影响 C 端体验）。
+      ① 底层向量库是否为「<b>统一大索引 + <code>notebook_id</code> metadata</b>」形态，检索接口能否接受 <code>notebook_ids</code> 列表参数、一次返回全局 Top-K；若暂不支持，能否在接口层内部封装完成合并（Fabric 侧仍只调 1 次）；② 检索延迟与并发上限（影响 C 端体验）。
     </div>
   </div>
 
