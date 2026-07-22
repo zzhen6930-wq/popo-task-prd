@@ -368,18 +368,10 @@
           <button class="add-btn" title="添加附件 / 引用">＋</button>
         </div>
 
-        <div class="two-col">
-          <div class="field">
-            <label>指派给</label>
-            <div class="agent-select">
-              <span class="dot"></span> 用户 998144 的智能伙伴 <span class="arw">▾</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>选择项目</label>
-            <div class="agent-select">
-              🗂️ 选择项目 <span class="arw">▾</span>
-            </div>
+        <div class="field">
+          <label>指派给</label>
+          <div class="agent-select">
+            <span class="dot"></span> 用户 998144 的智能伙伴 <span class="arw">▾</span>
           </div>
         </div>
       </div>
@@ -420,10 +412,6 @@
           <div class="toggle-row" style="margin-bottom:6px;">
             <div class="t-main"><b>闲时执行</b><div class="hint" style="margin-top:2px;">开启后任务会在资源空闲时段（00:00–06:00）执行，并按设定的通知时间推送结果，以减少高峰期排队等待。关闭后，任务将按设置的执行时间运行</div></div>
             <div class="switch" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="collapse-h" onclick="toggleAdv()">高级配置 <span id="advArrow">▾</span></div>
-          <div id="advBox" class="hidden">
-            <div class="field"><label>失败重试</label><select class="select"><option>失败自动重试 1 次</option><option>不重试</option></select></div>
           </div>
         </div>
 
@@ -500,13 +488,8 @@
               <span class="ic" onclick="toast('已复制凭证')">📋</span>
             </div>
           </div>
-          <div class="collapse-h" onclick="toggleHookAdv()">高级配置 <span id="hookAdvArrow">▾</span></div>
-          <div id="hookAdvBox" class="hidden">
-            <div class="toggle-row" style="margin-bottom:16px;">
-              <div class="t-main"><b>IP 白名单</b></div>
-              <div class="switch" onclick="this.classList.toggle('on')"></div>
-            </div>
-          </div>
+          <div class="collapse-h" onclick="toggleHookAdv()" style="display:none">高级配置 <span id="hookAdvArrow">▾</span></div>
+          <div id="hookAdvBox" class="hidden"></div>
           <div class="field">
             <label>请求与响应说明</label>
             <div class="code-tabs">
@@ -543,7 +526,6 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
         <div class="field">
           <label>推送给</label>
           <div class="chip-box">
-            <span class="chip"><span class="dot"></span>用户 998144 <span class="x">✕</span></span>
             <span class="chip-add">＋ 部门 / 人 / 群</span>
           </div>
           <div class="hint">请确保推送对象在机器人的可用范围内。若推送对象是群组，机器人需已加入该群。</div>
