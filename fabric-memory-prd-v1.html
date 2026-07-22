@@ -105,10 +105,10 @@
         <tr><td><b>记忆（Memory）</b></td><td>Agent 持久化存储的信息，以<b>文件</b>为载体（Markdown 结构化文本）</td></tr>
         <tr><td><b>基础文件</b></td><td>相对静态的底座文件，含 <code>soul</code>（智能体人格设定）与 <code>user</code>（用户身份档案）两个文件</td></tr>
         <tr><td><b>用户记忆</b></td><td>随交互动态积累的记忆，含<b>短期记忆</b>与<b>长期记忆</b></td></tr>
-        <tr><td><b>短期记忆</b></td><td>就是<b>原始对话日志</b>本身——近期会话的完整流水，未经提炼，是做梦的唯一原料（参考 OpenClaw）</td></tr>
+        <tr><td><b>短期记忆<br>（每日笔记 Daily Notes）</b></td><td>原始对话经<b>细致提炼</b>后的<b>每日记录笔记</b>：按时间线保存、保留大量细节，落盘到 <code>memory/YYYY-MM-DD.md</code>。此提炼是<b>自动日志机制</b>（非做梦），是长期记忆的"原材料"（参考 OpenClaw）</td></tr>
         <tr><td><b>长期记忆</b></td><td>跨会话持久化的知识，由多个<b>分类文件</b>组成（参考 Claude Tag 分层）</td></tr>
-        <tr><td><b>异步做梦（Auto-Dream）</b></td><td><b>每晚定时</b>运行的后台守护进程，把当日短期记忆（原始对话日志）批量提炼、压缩、去重，沉淀到长期记忆与基础文件</td></tr>
-        <tr><td><b>按需注入</b></td><td>对话时只注入相关记忆片段，而非全量背诵；大文档只存索引、用时再读</td></tr>
+        <tr><td><b>异步做梦（Auto-Dream）</b></td><td><b>每晚定时</b>运行的后台守护进程，把当日<b>每日笔记（短期记忆）</b>进一步提炼、压缩、去重，沉淀到长期记忆与基础文件</td></tr>
+        <tr><td><b>按需加载 / 注入</b></td><td>对话时按当前意图<b>检索并只加载相关的记忆片段</b>（含相关每日笔记），而非全量背诵；大文档只存索引、用时再读</td></tr>
       </tbody>
     </table>
   </div>
@@ -129,7 +129,7 @@
       <div class="mem-col user">
         <div class="mc-head">🧠 用户记忆（动态积累）</div>
         <div class="mc-body">
-          <div class="file-chip"><b>短期记忆</b> <span class="tag green">会话缓冲</span><div class="ft">近期会话原始日志，做梦前的临时缓存。滚动窗口，有容量 / 时效上限。</div></div>
+          <div class="file-chip"><b>短期记忆 · 每日笔记</b> <span class="tag green">Daily Notes</span><div class="ft">原始对话细致提炼后的每日记录（保留大量细节、按时间线），落盘 <code>memory/YYYY-MM-DD.md</code>。<b>按需加载</b>进上下文，也是做梦的原材料。</div></div>
           <div class="file-chip"><b>长期记忆</b> <span class="tag purple">多分类文件</span>
             <div class="ft">由多个分类文件组成（见第 5 节）：事实记忆 / 反馈记忆 / 引用记忆。<b>偏好已并入 user 文件</b>，不再单列。</div>
           </div>
@@ -179,15 +179,44 @@
   <div class="section">
     <div class="section-title"><span class="num">5</span>用户记忆详解</div>
 
-    <h3>5.1 短期记忆（原始对话日志，参考 OpenClaw）</h3>
-    <p><b>用户场景</b>：用户白天和 Agent 聊了很多，这些原始对话需要被留存，等到晚上统一"消化"成长期知识。</p>
-    <p><b>解决问题</b>：对话产生的信息量大且零散，实时提炼成本高；先原样留存、每晚统一做梦提炼，兼顾流畅与沉淀。</p>
-    <p><b>机制</b>：</p>
+    <h3>5.1 短期记忆 · 每日笔记（Daily Notes，参考 OpenClaw）</h3>
+    <p><b>用户场景</b>：</p>
     <ul>
-      <li><b>就是原始对话日志</b>：短期记忆不做加工，按会话原样保存当日对话流水，是做梦的<b>唯一原料</b></li>
-      <li><b>不等于上下文</b>：单轮对话所需的上下文已由会话本身逐轮携带，短期记忆<b>不再作为上下文重复注入</b>（见第 7 节注入策略）</li>
-      <li><b>做梦后清理</b>：每晚做梦提炼进长期记忆 / 基础文件后，对应原始日志按策略清理，避免无限膨胀</li>
+      <li>对话记录：「我想查看昨天和智能体的完整对话」</li>
+      <li>工作回顾：「这周都讨论了哪些内容？帮我汇总」</li>
+      <li>知识沉淀：「把今天的讨论整理到长期记忆」</li>
+      <li>问题追溯：「上周遇到的那个问题是怎么解决的？」</li>
     </ul>
+    <p><b>解决问题</b>：原始对话零散且量大，直接堆进上下文既溢出又低效；自动整理成<b>每日笔记</b>，既能回顾检索，又作为长期记忆的原材料。</p>
+    <p><b>机制</b>：短期记忆是平台的<b>自动日志机制</b>，把每日对话<b>细致提炼</b>后按时间线保存到 <code>memory/YYYY-MM-DD.md</code>。</p>
+    <div class="callout key">
+      <div class="title">🔑 关键：短期记忆是"提炼产物"，但提炼 ≠ 做梦</div>
+      短期记忆<b>不是</b>原始对话流水，而是原始对话经一道<b>细致提炼</b>后的每日笔记——保留了大量细节、按时间线组织。这道提炼属于<b>自动日志机制</b>（每日随对话生成）；而<b>做梦</b>是更晚、更高强度的二次提炼（每晚把每日笔记压缩沉淀为长期记忆）。两道提炼强度不同、目的不同。
+    </div>
+    <h4>每日笔记记录内容</h4>
+    <ul>
+      <li>日期和时间戳</li>
+      <li>用户输入和智能体回复</li>
+      <li>重要的工具调用和结果</li>
+      <li>用户明确要求"记住"的事项</li>
+    </ul>
+    <h4>按需加载到上下文</h4>
+    <p>每日笔记<b>不是全量塞进上下文</b>，而是根据当前对话意图<b>智能检索、只加载相关笔记</b>：</p>
+    <div class="flow">
+      <div class="flow-step start">用户输入</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">意图分析<br>关键词 / 时间范围 / 话题领域</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">相关性检索<br>语义搜索 / 关键词 / 时间过滤</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">内容筛选<br>Top-K / 去重 / 截断控长</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step end">加载到上下文<br>+ 生成回复</div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 按需加载 = 不是每次都用全部历史</div>
+      按当前对话内容智能检索（如 <code>semantic_search(query, time_range, top_k=3, min_score=0.7)</code>），<b>只加载相关的历史笔记</b>作为 <code>role=system</code> 的「历史笔记」片段并入当前会话，既省上下文又提高相关性。
+    </div>
 
     <h3>5.2 长期记忆（多分类文件，参考 Claude Tag）</h3>
     <p><b>用户场景</b>：Agent 要记住"项目用 PostgreSQL 15，升级前须跑 X 脚本""上次因为漏了权限校验踩过坑""详细规范在某文档"。</p>
@@ -214,20 +243,20 @@
   <!-- 六、异步做梦 -->
   <div class="section">
     <div class="section-title"><span class="num">6</span>异步做梦机制（Auto-Dream · 核心）</div>
-    <p><b>用户场景</b>：用户白天和 Agent 聊了很多，<b>每晚</b> Agent 自动"消化"当天对话，第二天变得更懂用户。</p>
-    <p><b>解决问题</b>：实时总结会占用推理资源、打断对话流畅度；把提炼放到<b>每晚空闲时段异步</b>批量做，兼顾实时性与知识沉淀。</p>
+    <p><b>用户场景</b>：用户白天和 Agent 聊了很多（已整理为每日笔记），<b>每晚</b> Agent 自动"消化"当天笔记，第二天变得更懂用户。</p>
+    <p><b>解决问题</b>：每日笔记保留了大量细节、会持续堆积；每晚把它二次提炼压缩成高价值长期知识，控制体积、沉淀规则。</p>
 
     <h3>6.1 触发时机</h3>
     <ul>
-      <li><b>每晚定时触发（主）</b>：每日固定时段（类比人类睡眠 REM）批量处理当日全部短期记忆——这是一期<b>唯一的常规触发方式</b>，不做空闲/实时提炼</li>
+      <li><b>每晚定时触发（主）</b>：每日固定时段（类比人类睡眠 REM）批量处理当日<b>每日笔记</b>——这是一期<b>唯一的常规触发方式</b>，不做空闲/实时提炼</li>
       <li><b>手动触发（辅）</b>：配置者可在后台「记忆」菜单手动触发一次做梦，用于调试或即时整理</li>
     </ul>
 
     <h3>6.2 做梦流程</h3>
     <div class="flow">
-      <div class="flow-step start">拉取当日短期记忆<br>（原始对话日志）</div>
+      <div class="flow-step start">拉取当日每日笔记<br>（短期记忆）</div>
       <div class="flow-arrow">→</div>
-      <div class="flow-step dream">LLM 提炼<br>压缩 / 去重 / 抽取</div>
+      <div class="flow-step dream">LLM 二次提炼<br>压缩 / 去重 / 抽取</div>
       <div class="flow-arrow">→</div>
       <div class="flow-step dream">分类归档<br>回填 soul·user / 事实·反馈·引用</div>
       <div class="flow-arrow">→</div>
@@ -249,7 +278,7 @@
     </ul>
     <div class="callout key">
       <div class="title">🔑 知识内化闭环（对标 Claude Tag）</div>
-      感知（对话）→ 暂存（短期记忆 = 原始日志）→ 触发（<b>每晚定时做梦</b>）→ 提炼（压缩规则）→ 固化（回填 soul/user + 写长期记忆）→ 应用（下次直接调用，无需重读历史）。反馈/禁忌为例外，识别当下即时固化，不等做梦。
+      感知（对话）→ <b>一次提炼</b>（自动日志 → 每日笔记，保留细节）→ <b>按需加载</b>（相关笔记进上下文）→ 触发（<b>每晚定时做梦</b>）→ <b>二次提炼</b>（压缩规则）→ 固化（回填 soul/user + 写长期记忆）→ 应用（下次直接调用，无需重读全部历史）。反馈/禁忌为例外，识别当下即时固化，不等做梦。
     </div>
   </div>
 
@@ -262,14 +291,14 @@
       <tbody>
         <tr><td><b>soul</b></td><td>必注入，置于系统提示最前</td></tr>
         <tr><td><b>user</b></td><td>必注入（身份 + 偏好，直接决定回答风格）</td></tr>
-        <tr><td><b>短期记忆</b></td><td><b>不作为上下文注入</b>——单轮所需上下文由会话本身逐轮携带，短期记忆只是做梦的原料，避免与会话上下文重复占用窗口</td></tr>
+        <tr><td><b>短期记忆</b>（每日笔记）</td><td><b>按需加载</b>：意图分析（关键词 / 时间范围 / 话题）→ 相关性检索（语义 / 关键词 / 时间过滤）→ Top-K 筛选去重截断 → 作为「历史笔记」片段并入上下文（详见 5.1）</td></tr>
         <tr><td><b>长期记忆</b>（事实 / 反馈）</td><td>按当前问题<b>相关性检索</b>注入 Top-K 片段；反馈记忆（禁忌）优先注入</td></tr>
         <tr><td><b>引用记忆</b></td><td>默认只注入索引；命中需要时再拉取原文（可走知识本 RAG）</td></tr>
       </tbody>
     </table>
     <div class="callout tip">
-      <div class="title">💡 短期记忆为何不注入</div>
-      会话进行中的上下文（近几轮对话）本就随请求逐轮带入模型，无需再把短期记忆当上下文重复注入。短期记忆的价值在于<b>留存原始日志供每晚做梦</b>，而非参与实时对话。这与"注入 = 越多越好"的直觉不同，可显著节省上下文窗口。
+      <div class="title">💡 按需加载 ≠ 全量背诵</div>
+      不是每次都把全部历史塞进上下文，而是<b>根据当前对话内容智能检索、只加载相关的每日笔记与长期记忆片段</b>，既省上下文窗口又提高相关性。soul / user 因体量小且高频复用，采用必注入。
     </div>
   </div>
 
@@ -294,7 +323,7 @@
     <p>进入某 Agent 后，用<b>横向 Tab</b> 切换查看 / 管理两类记忆：</p>
     <ul>
       <li><b>Tab ①「基础文件」</b>：soul、user 两个文件，支持查看 / 编辑</li>
-      <li><b>Tab ②「用户记忆」</b>：短期记忆（原始对话日志预览 + 清理）+ 长期记忆（事实 / 反馈 / 引用 多个分类文件，支持查看 / 编辑 / 删除）</li>
+      <li><b>Tab ②「用户记忆」</b>：短期记忆（每日笔记 <code>memory/YYYY-MM-DD.md</code> 按日期浏览 / 检索）+ 长期记忆（事实 / 反馈 / 引用 多个分类文件，支持查看 / 编辑 / 删除）</li>
     </ul>
     <div class="callout tip">
       <div class="title">💡 管理能力（一期）</div>
@@ -308,7 +337,7 @@
     <div class="scenario-card">
       <span class="sc-tag">场景 1 · 偏好沉淀</span>
       <div class="sc-title">用户多次要求"回答简洁点"</div>
-      <div class="sc-desc">当天原始对话留在短期记忆 → <b>每晚做梦</b>提炼出"用户偏好简洁、要点式回答" → 回填 <b>user 文件的「偏好设置」</b> → 次日对话必注入 user，无需再交代。</div>
+      <div class="sc-desc">当天对话整理进<b>每日笔记</b>（短期记忆）→ <b>每晚做梦</b>二次提炼出"用户偏好简洁、要点式回答" → 回填 <b>user 文件的「偏好设置」</b> → 次日对话必注入 user，无需再交代。</div>
     </div>
     <div class="scenario-card">
       <span class="sc-tag">场景 2 · 禁忌即时记</span>
@@ -334,11 +363,12 @@
       <div class="scope-card do">
         <h4>✅ 一期要做</h4>
         <ul>
-          <li>分层记忆架构：基础文件（soul / user，含用户偏好）+ 用户记忆（短期 / 长期）</li>
+          <li>分层记忆架构：基础文件（soul / user，含用户偏好）+ 用户记忆（短期=每日笔记 / 长期）</li>
+          <li>短期记忆=每日笔记（细致提炼、按时间线、<code>memory/YYYY-MM-DD.md</code>）+ 按需加载</li>
           <li>长期记忆三类分类文件：事实 / 反馈 / 引用（偏好并入 user）</li>
-          <li>异步做梦：<b>每晚定时</b>触发 + 提炼归档（回填 soul·user + 写长期记忆）+ Dream Log</li>
+          <li>异步做梦：<b>每晚定时</b>把每日笔记二次提炼归档（回填 soul·user + 写长期记忆）+ Dream Log</li>
           <li>反馈记忆强制即时记录</li>
-          <li>按需注入（相关性检索 + 引用只存索引；<b>短期记忆不作上下文注入</b>）</li>
+          <li>按需加载注入（意图分析 + 相关性检索 Top-K + 引用只存索引）</li>
           <li>基础文件做梦克制回填，不静默覆盖人工内容</li>
           <li>「记忆」菜单：Agent 列表 + 详情横向 Tab（基础文件 / 用户记忆）</li>
           <li>记忆文件的查看 / 编辑 / 删除 + 手动触发做梦</li>
@@ -377,7 +407,7 @@
     <ul>
       <li>「记忆」菜单出现在 AI 工厂下，Agent 列表 → 详情横向 Tab 可正常切换查看基础文件 / 用户记忆</li>
       <li>基础文件（soul / user）在对话中必注入并生效；user 含身份 + 偏好分段</li>
-      <li>短期记忆按会话原样留存当日对话日志，不作为上下文重复注入</li>
+      <li>短期记忆按日生成每日笔记（<code>memory/YYYY-MM-DD.md</code>），可按需检索并加载相关笔记进上下文</li>
       <li>异步做梦可被<b>每晚定时</b>及手动触发，产出 Dream Log，长期记忆与 soul/user 被正确分类写入</li>
       <li>反馈 / 禁忌类可即时写入，下一轮对话即生效不再犯</li>
       <li>引用记忆只存索引，按需拉取原文</li>
