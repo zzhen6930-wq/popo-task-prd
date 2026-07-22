@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Fabric · AI 工厂「定时任务」菜单（一期 MVP）· PRD</title>
+<title>Fabric · AI 工厂「自动化任务」菜单（一期 MVP）· PRD</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -213,11 +214,11 @@
 <div class="container">
 
   <div class="header">
-    <h1>Fabric · AI 工厂「定时任务」菜单（一期 MVP）</h1>
-    <div style="opacity:0.92;font-size:13px;">让组织配置者能给 Agent 配置周期性自动任务，覆盖运维日报、定时播报等场景</div>
+    <h1>Fabric · AI 工厂「自动化任务」菜单（一期 MVP）</h1>
+    <div style="opacity:0.92;font-size:13px;">让 B 端租户与 C 端用户都能给 Agent 配置自动化任务，覆盖定时播报、事件响应、外部 WebHook 触发等场景</div>
     <div class="meta">
       <span>📅 2026-06-23</span>
-      <span>🏷️ v1.0</span>
+      <span>🏷️ v2.0</span>
       <span>👤 作者：张振</span>
       <span>🧩 归属：Fabric / AI 工厂</span>
     </div>
@@ -226,48 +227,46 @@
   <!-- 一、背景 -->
   <div class="section">
     <div class="section-title"><span class="num">1</span>背景与目标</div>
-    <p>Fabric 是面向<b>组织/租户</b>的 Agent 配置平台。当前 Agent 只能在<b>用户对话</b>时被动触发执行，缺少<b>主动 / 周期性触发</b>能力，典型场景跑不通：</p>
+    <p>Fabric 是面向<b>组织/租户</b>的 Agent 配置平台。当前 Agent 只能在<b>用户对话</b>时被动触发执行，缺少<b>主动 / 自动化触发</b>能力，典型场景跑不通：</p>
     <ul>
-      <li>每天 18:00 让 Agent 把"群运维日报"主动推给负责人 → 跑不通</li>
-      <li>每周一早上 9:00 让 Agent 在指定群里发"本周提醒" → 跑不通</li>
-      <li>财税合规 Agent 每月 28 日提醒一次"个税申报截止" → 跑不通</li>
+      <li>每天 18:00 让 Agent 把"群运维日报"主动推给负责人 → 跑不通（<b>定时触发</b>）</li>
+      <li>指定云文档一有变更，就让 Agent 总结变更并通知相关人 → 跑不通（<b>事件触发</b>）</li>
+      <li>外部系统构建完成后回调一个地址，触发 Agent 生成发布播报 → 跑不通（<b>WebHook 触发</b>）</li>
     </ul>
-    <p style="margin-top:10px;"><b>本期目标</b>：在「AI 工厂」下新增「<b>定时任务</b>」菜单，让组织配置者能给 Agent 配置周期性自动任务。结合已有内置工具「<b>机器人主动发消息</b>」，完整支撑"定时触发 → Agent 执行 → 机器人送达"的端到端链路。</p>
+    <p style="margin-top:10px;"><b>本期目标</b>：在「AI 工厂」下新增「<b>自动化任务</b>」菜单，让 <b>B 端租户</b>与 <b>C 端用户</b>都能给 Agent 配置自动化任务，支持<b>定时 / 事件 / WebHook</b> 三种触发类型、<b>手动 / 对话</b>两种创建方式。结合已有内置工具「<b>机器人主动发消息</b>」，完整支撑"触发 → Agent 执行 → 推送送达"的端到端链路。</p>
   </div>
 
   <!-- 二、定位 -->
   <div class="section">
     <div class="section-title"><span class="num">2</span>产品定位</div>
-    <h3>2.1 谁来配、谁受益</h3>
+    <h3>2.1 支持 B 端与 C 端两种场景</h3>
+    <p>自动化任务<b>同时面向 B 端租户与 C 端用户</b>，二者能力一致、共用同一套调度引擎与列表。<b>不区分创建场景</b>，任务列表只记录<b>创建人</b>字段用于识别归属。</p>
     <table>
-      <thead><tr><th>角色</th><th>能做什么</th></tr></thead>
+      <thead><tr><th>场景</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>组织配置者</b>（管理员）</td><td>在「AI 工厂 · 定时任务」菜单下配置、启停、查看历史</td></tr>
-        <tr><td><b>使用者</b>（普通成员）</td><td>本期<b>不可配置</b>定时任务；只作为被触发动作的接收方（消息接收、报告查看）</td></tr>
-      </tbody>
-    </table>
-
-    <h3>2.2 为什么放在「AI 工厂」菜单，而不是做成内置工具</h3>
-    <table>
-      <thead><tr><th>维度</th><th>菜单方案（本期）</th><th>工具方案（一期不做）</th></tr></thead>
-      <tbody>
-        <tr><td>配置入口</td><td>后台表单</td><td>对话（Agent 调用工具）</td></tr>
-        <tr><td>谁能配</td><td>组织配置者</td><td>使用者</td></tr>
-        <tr><td>本期核心场景匹配度</td><td>✅ 运维日报等组织级场景</td><td>❌ 个人级提醒为主</td></tr>
-        <tr><td>使用者侧承接面</td><td>不需要</td><td>需要"我的提醒"等承接（Fabric 当前没有）</td></tr>
-        <tr><td>风险面</td><td>受管理员管控，可控</td><td>使用者可配，需做配额/审计</td></tr>
+        <tr><td><b>B 端租户</b></td><td>租户下成员为组织级 Agent 配置自动化任务（如运维日报、月度合规提醒）</td></tr>
+        <tr><td><b>C 端用户</b></td><td>个人用户为自己使用的 Agent 配置自动化任务（如每日资讯汇总、个人提醒）</td></tr>
       </tbody>
     </table>
     <div class="callout tip">
-      <div class="title">💡 与「内置工具」模式互补</div>
-      内置工具模式（类似 openclaw "对话即设定提醒"）是个优雅设计，但前提是平台已有<b>使用者侧的提醒承接面</b>。Fabric 当前没有，<b>放二期再补</b>。一期把组织级跑通，底层调度引擎统一，未来加工具入口零迁移成本。
+      <div class="title">💡 不区分场景，只记录创建人</div>
+      系统<b>不需要区分</b>任务是 B 端还是 C 端场景创建的；列表中统一记录<b>创建人</b>即可，数据可见性按创建人所属租户 / 个人空间隔离。
     </div>
+
+    <h3>2.2 支持手动创建与对话创建两种方式</h3>
+    <table>
+      <thead><tr><th>创建方式</th><th>入口</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>手动创建</b></td><td>后台页面</td><td>在「自动化任务」菜单点击"新建"，通过触发器配置抽屉填写表单创建</td></tr>
+        <tr><td><b>对话创建</b></td><td>与 Agent 对话</td><td>用户对 Agent 说"帮我创建一个自动化任务"，Agent 触发后回吐<b>表单卡片</b>，用户在卡片内配置触发方式、执行动作、时间/频率等条件后提交创建</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- 三、菜单入口 -->
   <div class="section">
     <div class="section-title"><span class="num">3</span>菜单入口</div>
-    <p>在「AI 工厂」侧边导航下新增「<b>定时任务</b>」菜单项，位置参考下图，建议放在「会话」之后：</p>
+    <p>在「AI 工厂」侧边导航下新增「<b>自动化任务</b>」菜单项，位置参考下图，建议放在「会话」之后：</p>
     <div class="mock-menu">
       <div class="mm-group">AI 工厂</div>
       <div class="mm-item">对话</div>
@@ -280,7 +279,7 @@
       <div class="mm-item">记忆</div>
       <div class="mm-item">工具</div>
       <div class="mm-item">会话</div>
-      <div class="mm-item active">⏰ 定时任务</div>
+      <div class="mm-item active">⚡ 自动化任务</div>
     </div>
   </div>
 
@@ -291,24 +290,26 @@
       <div class="scope-card do">
         <h4>✅ 一期要做</h4>
         <ul>
-          <li>新增「定时任务」一级菜单（仅组织配置者可见）</li>
-          <li>定时任务<b>列表</b>页：查看 / 创建 / 编辑 / 启停 / 删除</li>
-          <li>定时任务<b>详情</b>页：基础信息 + <b>执行历史</b></li>
-          <li>触发频率支持 <b>5 种预设</b>：每个工作日（周一到周五）/ 每天 / 每周 / 每双周 / 每月，+ 具体时间点</li>
-          <li>执行内容：选择一个 Agent + 给 Agent 的指令（Prompt 模板）</li>
-          <li>启停状态切换</li>
-          <li>执行失败后自动重试 1 次；仍失败则记录并告警给配置者</li>
+          <li>新增「自动化任务」一级菜单，<b>B 端租户与 C 端用户</b>均可用</li>
+          <li>支持<b>手动创建</b>（后台表单）与<b>对话创建</b>（表单卡片）两种方式</li>
+          <li>支持三种触发类型：<b>定时触发 / 事件触发 / WebHook 触发</b></li>
+          <li>任务<b>列表</b>页：查看 / 创建 / 编辑 / 启停 / 删除，记录<b>创建人</b></li>
+          <li>任务<b>详情</b>页：基础信息 + <b>执行历史</b></li>
+          <li>执行内容：关联一个 Agent + 给 Agent 的指令（Prompt 模板）</li>
+          <li>推送配置：推送渠道（关联 Agent / Agent 绑定的 bot）+ 推送对象（部门 / 人 / 群）</li>
+          <li><b>静默条件</b>：满足条件则跳过本次推送</li>
+          <li>执行生成一条<b>执行结论</b>，记录列表标题为「自动化：任务名称」</li>
+          <li>执行失败后自动重试 1 次；仍失败则记录并告警给创建人</li>
         </ul>
       </div>
       <div class="scope-card dont">
         <h4>❌ 一期不做</h4>
         <ul>
-          <li>完整 cron 表达式（一期只用 5 种预设频率 + 时间点）</li>
-          <li>使用者侧配置入口（即对话式设置定时，留二期 + 工具模式）</li>
-          <li>任务之间的依赖、串联</li>
-          <li>动态参数（如"上周一到本周日"等运行时计算的时间段，一期由 Prompt 模板内描述）</li>
-          <li>外部 webhook 触发（非时间触发）</li>
-          <li>配额管理后台（按需在二期补）</li>
+          <li>完整 cron 表达式（定时触发只用预设频率 + 时间点）</li>
+          <li>任务之间的依赖、串联、编排</li>
+          <li>事件触发的多级复杂条件组合（一期支持单层下级条件）</li>
+          <li>运行时动态参数（如"上周一到本周日"等，由 Prompt 模板内描述）</li>
+          <li>配额管理与计费后台（按需在二期补）</li>
         </ul>
       </div>
     </div>
@@ -316,24 +317,76 @@
 
   <!-- 五、配置字段 -->
   <div class="section">
-    <div class="section-title"><span class="num">5</span>定时任务配置项</div>
+    <div class="section-title"><span class="num">5</span>自动化任务配置项</div>
+
+    <h3>5.1 基础字段</h3>
     <table>
       <thead>
         <tr><th>字段</th><th>必填</th><th>说明</th></tr>
       </thead>
       <tbody>
-        <tr><td>任务名称</td><td>是</td><td>便于配置者识别，1~40 字</td></tr>
+        <tr><td>任务名称</td><td>是</td><td>便于识别，1~40 字</td></tr>
         <tr><td>描述</td><td>否</td><td>说明该任务用途</td></tr>
-        <tr><td>关联 Agent</td><td>是</td><td>从本组织已有 Agent 中选择一个；Agent 启用 / 删除后联动校验</td></tr>
-        <tr><td>触发频率</td><td>是</td><td>5 种预设枚举：<b>每个工作日</b>（周一到周五） / <b>每天</b> / <b>每周</b>（指定 1~多个星期几） / <b>每双周</b>（指定 1~多个星期几） / <b>每月</b>（指定日期，含"最后一天"）</td></tr>
-        <tr><td>触发时间</td><td>是</td><td>具体到分钟（如 18:00）；时区默认按组织时区</td></tr>
-        <tr><td>给 Agent 的指令</td><td>是</td><td>Prompt 模板，例如「请汇总今天 POPO 用户反馈群里的关键问题，整理成日报后通过机器人主动发给 @张振」</td></tr>
+        <tr><td>创建人</td><td>系统</td><td>自动记录，用于列表展示与数据隔离；不区分 B/C 端场景</td></tr>
+        <tr><td>关联 Agent</td><td>是</td><td>从可用 Agent 中选择一个；Agent 启用 / 删除后联动校验</td></tr>
+        <tr><td>给 Agent 的指令</td><td>是</td><td>Prompt 模板，例如「请汇总今天 POPO 用户反馈群里的关键问题，整理成日报」</td></tr>
+        <tr><td>触发方式</td><td>是</td><td>三选一：<b>定时触发 / 事件触发 / WebHook 触发</b>（详见 5.2）</td></tr>
+        <tr><td>推送渠道</td><td>是</td><td>见 5.3</td></tr>
+        <tr><td>推送对象</td><td>是</td><td>见 5.3</td></tr>
+        <tr><td>静默条件</td><td>否</td><td>见 5.4</td></tr>
         <tr><td>启用状态</td><td>是</td><td>启用 / 停用，默认启用</td></tr>
       </tbody>
     </table>
+
+    <h3>5.2 触发方式（三种）</h3>
+
+    <h4>① 定时触发</h4>
+    <table>
+      <thead><tr><th>子项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>触发频率</td><td>预设枚举：<b>仅一次</b>（指定未来某时间点执行一次）/ <b>每隔几分钟</b> / <b>每隔几小时</b> / <b>每个工作日</b>（周一到周五）/ <b>每天</b> / <b>每周</b>（指定星期几）/ <b>每双周</b> / <b>每月</b>（指定日期，含"最后一天"）</td></tr>
+        <tr><td>触发时间</td><td>具体到分钟（如 18:00）；"每隔几分钟/小时"类型填间隔值；时区默认按创建人时区</td></tr>
+      </tbody>
+    </table>
+
+    <h4>② 事件触发</h4>
+    <table>
+      <thead><tr><th>子项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>选择事件</td><td>从事件列表中选择，按类目分组：<b>消息</b>（收到聊天消息）/ <b>日程</b>（日程变更）/ <b>会议</b>（会议结束、妙记生成、纪要生成）/ <b>文档</b>（云文档变更、收到评论、被 @、多维表记录变更）/ <b>邮箱</b>（收到新邮件）等</td></tr>
+        <tr><td>下级条件</td><td>选择事件后，出现<b>下级条件入口</b>：<br>· 需指定对象的事件（如"云文档变更"）→ 出现「<b>指定云文档</b>」选择器<br>· 消息类事件 → 出现「<b>筛选条件</b>」（指定群组 / 指定发送人 / 含任一关键词 / 含全部关键词 / 只接收 @我的消息 / 单聊）</td></tr>
+      </tbody>
+    </table>
+
+    <h4>③ WebHook 触发</h4>
+    <table>
+      <thead><tr><th>子项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>WebHook 地址</td><td>系统生成的 POST 地址，向该地址发请求即可触发；可复制，请妥善保存以免恶意调用</td></tr>
+        <tr><td>凭证校验</td><td>系统生成的 Secret，用于 HMAC 签名校验；支持显示 / 复制</td></tr>
+        <tr><td>调用示例</td><td>提供多语言请求示例（curl / python / node / go / java / rust）、HMAC 算法说明、响应体结构</td></tr>
+        <tr><td>高级配置</td><td>IP 白名单（可选开关）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 推送配置</h3>
+    <table>
+      <thead><tr><th>字段</th><th>可选值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>推送渠道</b></td><td>① 关联的 Agent ② Agent 绑定的 bot</td><td>二选一或多选：通过 Agent 会话推送结果，或通过 Agent 绑定的机器人推送</td></tr>
+        <tr><td><b>推送对象</b></td><td>部门 / 人 / 群</td><td>可选择部门、指定人员或群组。若推送对象是群，机器人需已加入该群；请确保推送对象在机器人可用范围内</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 静默条件</h3>
+    <p>创建任务时可填写<b>静默条件</b>：满足该条件时<b>跳过本次推送</b>（不打扰）。例如：</p>
+    <ul>
+      <li>「若群内今日无新增消息，则不给我发送消息」</li>
+      <li>「若汇总结果为空 / 无异常项，则跳过本次推送」</li>
+    </ul>
     <div class="callout tip">
       <div class="title">💡 与「机器人主动发消息」工具协作</div>
-      定时任务<b>只负责触发 + 喂指令</b>，"消息送达"由 Agent 调用<b>机器人主动发消息</b>工具完成。配置者需保证：① Agent 已挂载该工具；② Agent 已绑定有效机器人；③ 指令里说清"发给谁"。
+      自动化任务<b>负责触发 + 喂指令 + 决定推送</b>，"消息送达"由 Agent / bot 完成。需保证：① Agent 已挂载所需工具；② 推送渠道选 bot 时 Agent 已绑定有效机器人；③ 推送对象在机器人可用范围内。
     </div>
   </div>
 
@@ -342,14 +395,15 @@
     <div class="section-title"><span class="num">6</span>列表与详情页</div>
 
     <h3>6.1 列表页</h3>
-    <p>展示当前组织下所有定时任务，列字段：</p>
+    <p>展示当前空间下所有自动化任务，列字段：</p>
     <div class="mock-list">
       <table>
         <thead>
           <tr>
             <th>任务名称</th>
+            <th>创建人</th>
             <th>关联 Agent</th>
-            <th>触发频率</th>
+            <th>触发方式</th>
             <th>下次执行</th>
             <th>最近结果</th>
             <th>状态</th>
@@ -359,27 +413,30 @@
         <tbody>
           <tr>
             <td>POPO 用户群运维日报</td>
-            <td>网易POPO-开放平台群运维 Agent</td>
-            <td>每天 18:00</td>
+            <td>张振</td>
+            <td>群运维 Agent</td>
+            <td>定时 · 每天 18:00</td>
             <td>今天 18:00</td>
             <td><span class="badge success">成功</span></td>
             <td><span class="badge on">启用</span></td>
             <td>编辑 / 停用 / 查看历史 / 删除</td>
           </tr>
           <tr>
-            <td>财税合规月度提醒</td>
-            <td>财务审核助手</td>
-            <td>每月 28 日 09:00</td>
-            <td>6/28 09:00</td>
+            <td>产品需求文档变更播报</td>
+            <td>李四</td>
+            <td>文档助手</td>
+            <td>事件 · 云文档变更</td>
+            <td>—（事件触发）</td>
             <td><span class="badge success">成功</span></td>
             <td><span class="badge on">启用</span></td>
             <td>编辑 / 停用 / 查看历史 / 删除</td>
           </tr>
           <tr>
-            <td>周一早会提醒</td>
-            <td>团队周报 Agent</td>
-            <td>每周一 09:00</td>
-            <td>下周一</td>
+            <td>发布完成播报</td>
+            <td>王五</td>
+            <td>发布播报 Agent</td>
+            <td>WebHook · 外部回调</td>
+            <td>—（外部触发）</td>
             <td><span class="badge fail">失败</span></td>
             <td><span class="badge off">停用</span></td>
             <td>编辑 / 启用 / 查看历史 / 删除</td>
@@ -390,32 +447,47 @@
 
     <h3>6.2 详情页</h3>
     <ul>
-      <li>上半部分：任务基础信息（5.1 配置项的回显）</li>
-      <li>下半部分：<b>执行历史</b>列表，按时间倒序，每行展示：执行时间、耗时、结果（成功/失败）、错误原因（失败时）、查看执行日志</li>
+      <li>上半部分：任务基础信息（5.1 配置项的回显，含触发方式、推送配置、静默条件）</li>
+      <li>下半部分：<b>执行历史</b>列表，按时间倒序，每行展示：执行时间、耗时、结果（成功/失败/已跳过）、错误原因（失败时）、查看执行日志</li>
       <li>详情页可直接编辑配置（修改后立即生效，下次按新配置触发）</li>
     </ul>
+
+    <h3>6.3 执行结论与记录标题</h3>
+    <p>自动化任务每次执行都会生成一条<b>执行结论</b>（Agent 的产出结果）。该结论进入<b>记录列表</b>时，标题统一格式化为「<b>自动化：任务名称</b>」，便于与手动对话产生的记录区分。</p>
+    <div class="mock-list">
+      <table>
+        <thead><tr><th>记录标题</th><th>执行时间</th><th>结果</th></tr></thead>
+        <tbody>
+          <tr><td>自动化：POPO 用户群运维日报</td><td>今天 18:00</td><td><span class="badge success">成功</span></td></tr>
+          <tr><td>自动化：产品需求文档变更播报</td><td>今天 14:22</td><td><span class="badge success">成功</span></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- 七、运行时流程 -->
   <div class="section">
     <div class="section-title"><span class="num">7</span>运行时流程</div>
     <div class="flow">
-      <div class="flow-step start">调度器到点</div>
+      <div class="flow-step start">触发<br>（定时/事件/WebHook）</div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">读取任务配置<br>找到关联 Agent</div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">把"给 Agent 的指令"<br>作为消息喂给 Agent</div>
       <div class="flow-arrow">→</div>
-      <div class="flow-step tool">Agent 执行<br>（可调用机器人发消息<br>等已挂载工具）</div>
+      <div class="flow-step tool">Agent 执行<br>（生成执行结论）</div>
       <div class="flow-arrow">→</div>
-      <div class="flow-step end">写入执行历史<br>更新最近结果</div>
+      <div class="flow-step">校验<b>静默条件</b><br>满足则跳过推送</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step end">按推送渠道 / 对象推送<br>写执行历史 + 记录列表</div>
     </div>
 
     <h3>失败重试与告警</h3>
     <ul>
       <li>单次执行失败 → 自动重试 <b>1 次</b>（间隔 1 分钟）</li>
-      <li>重试仍失败 → 记录到执行历史，标红显示，并通过 Fabric 站内消息<b>告警给该任务的配置者</b></li>
+      <li>重试仍失败 → 记录到执行历史，标红显示，并通过 Fabric 站内消息<b>告警给创建人</b></li>
       <li>连续 3 次执行失败 → <b>自动停用</b>该任务，避免持续无效消耗</li>
+      <li>命中静默条件 → 记录为「已跳过」，不计入失败</li>
     </ul>
   </div>
 
@@ -424,27 +496,35 @@
     <div class="section-title"><span class="num">8</span>典型场景串联</div>
 
     <div class="scenario-card">
-      <span class="sc-tag">场景 1 · 群运维日报</span>
+      <span class="sc-tag">场景 1 · 定时触发 · 群运维日报</span>
       <div class="sc-title">每晚 18:00 把当天运维情况发给负责人</div>
       <div class="sc-desc">
-        ① 在「定时任务」配置：关联「群运维 Agent」/ 每天 18:00 / 指令="请汇总今日 POPO 用户反馈群里的关键问题，整理成日报后用机器人发给 @张振"<br>
-        ② 18:00 调度器触发 → Agent 收到指令 → 调用<b>机器人主动发消息</b>工具 → 张振 IM 收到日报。
+        ① 手动创建：关联「群运维 Agent」/ 定时触发-每天 18:00 / 指令="请汇总今日 POPO 用户反馈群里的关键问题，整理成日报" / 推送渠道=Agent 绑定的 bot / 推送对象=@张振 / 静默条件="若群内今日无新增消息则不推送"<br>
+        ② 18:00 触发 → Agent 生成日报 → 校验静默 → bot 推给张振；记录列表出现「自动化：群运维日报」。
       </div>
     </div>
 
     <div class="scenario-card">
-      <span class="sc-tag">场景 2 · 月度合规提醒</span>
-      <div class="sc-title">财税合规 Agent 每月 28 日提醒</div>
+      <span class="sc-tag">场景 2 · 事件触发 · 文档变更播报</span>
+      <div class="sc-title">指定云文档一变更，就总结并通知相关人</div>
       <div class="sc-desc">
-        财务部门管理员配置：关联「财务审核助手」/ 每月 28 日 09:00 / 指令="在财务公告群里发送：本月个税申报将于 5 个工作日内截止，请同学们准备好材料。"
+        事件触发-选择「用户的云文档变更」→ 下级条件「指定云文档」选择目标文档；关联「文档助手」/ 指令="总结本次文档变更要点" / 推送对象=产品群。文档一变更即触发执行并推送。
       </div>
     </div>
 
     <div class="scenario-card">
-      <span class="sc-tag">场景 3 · 周一团队早会提醒</span>
-      <div class="sc-title">每周一早上 9:00 推送本周日程概要</div>
+      <span class="sc-tag">场景 3 · WebHook 触发 · 发布播报</span>
+      <div class="sc-title">外部 CI 构建完成回调，触发发布播报</div>
       <div class="sc-desc">
-        关联「团队周报 Agent」/ 每周一 09:00 / 指令="拉取本周所有关键日程，整理成简报并发到团队群。"
+        WebHook 触发-复制系统生成的地址与凭证，配置到外部 CI；构建完成后 CI POST 该地址 → 触发「发布播报 Agent」生成发布说明 → 推送到发布群。
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <span class="sc-tag">场景 4 · 对话创建</span>
+      <div class="sc-title">C 端用户对话式创建自动化任务</div>
+      <div class="sc-desc">
+        用户对 Agent 说"帮我创建一个自动化任务" → Agent 回吐<b>表单卡片</b>（补充触发方式、执行动作、时间/频率、推送对象、静默条件）→ 用户填写提交 → 任务创建成功，创建人记为该用户。
       </div>
     </div>
   </div>
@@ -453,10 +533,11 @@
   <div class="section">
     <div class="section-title"><span class="num">9</span>权限与依赖</div>
     <ul>
-      <li><b>菜单可见性</b>：仅<b>组织配置者</b>（管理员）可见 / 可操作；普通使用者完全不可见</li>
+      <li><b>可见性与隔离</b>：B 端租户 / C 端用户均可创建；数据按<b>创建人</b>所属租户 / 个人空间隔离，互不可见</li>
       <li><b>对 Agent 的依赖</b>：任务关联的 Agent 被删除 → 任务自动停用并提示</li>
-      <li><b>对工具的依赖</b>：若指令期望调用"机器人主动发消息"工具，但 Agent 未挂载该工具或未绑定机器人 → 执行失败时给出明确原因（依赖第 7 节告警通路）</li>
-      <li><b>时区</b>：默认采用<b>组织时区</b>；一期不开放任务级时区设置</li>
+      <li><b>对推送的依赖</b>：推送渠道选 bot 时，Agent 需已绑定有效机器人，且推送对象（人/群）在机器人可用范围内；推送对象是群时机器人需已加群</li>
+      <li><b>对触发源的依赖</b>：事件触发依赖对应事件源接入；WebHook 触发依赖外部系统按签名规范调用</li>
+      <li><b>时区</b>：定时触发默认采用<b>创建人时区</b>；一期不开放任务级时区设置</li>
     </ul>
   </div>
 
@@ -464,12 +545,15 @@
   <div class="section">
     <div class="section-title"><span class="num">10</span>交付与验收</div>
     <ul>
-      <li>菜单出现在 AI 工厂下，仅管理员可见</li>
-      <li>「POPO 用户群运维日报」场景可以端到端跑通：每天 18:00 自动给负责人发出日报</li>
-      <li>任务停用 / 启用 / 编辑 / 删除均可正常生效</li>
-      <li>执行成功 / 失败均有完整历史记录可查</li>
+      <li>菜单出现在 AI 工厂下，B 端与 C 端用户均可进入、创建任务，列表正确记录创建人</li>
+      <li>三种触发类型均可配置并端到端跑通：定时（每天 18:00 发日报）/ 事件（云文档变更触发）/ WebHook（外部回调触发）</li>
+      <li>手动创建与对话创建（表单卡片）两种方式均可成功创建任务</li>
+      <li>推送渠道（Agent / bot）与推送对象（部门 / 人 / 群）配置生效，消息正确送达</li>
+      <li>静默条件命中时正确跳过推送，记录为「已跳过」</li>
+      <li>执行生成执行结论，记录列表标题为「自动化：任务名称」</li>
+      <li>任务停用 / 启用 / 编辑 / 删除均可正常生效；执行成功 / 失败 / 跳过均有完整历史可查</li>
       <li>失败重试、告警、连续失败自动停用机制按 7 节描述工作</li>
-      <li>Agent 被删除后，关联的定时任务自动停用，并在列表中给出标记</li>
+      <li>Agent 被删除后，关联任务自动停用并在列表标记</li>
     </ul>
   </div>
 
@@ -477,17 +561,16 @@
   <div class="section">
     <div class="section-title"><span class="num">11</span>二期方向（不在一期范围）</div>
     <ul>
-      <li>内置工具「设置提醒」（openclaw 模式）：使用者通过对话即可配置个人级定时</li>
-      <li>使用者侧承接面：「我的提醒」/「我的订阅」列表（前置依赖）</li>
       <li>完整 cron 表达式支持</li>
-      <li>外部事件触发（webhook / 业务事件）</li>
+      <li>事件触发的多级复杂条件组合与逻辑运算</li>
+      <li>任务之间的依赖、串联与编排</li>
       <li>任务运行时动态参数（如"上周一 ~ 本周日"）</li>
-      <li>配额管理与计费归属（按 Agent / 按组织）</li>
+      <li>配额管理与计费归属（按 Agent / 按租户 / 按用户）</li>
     </ul>
   </div>
 
   <div class="footer">
-    Fabric · AI 工厂「定时任务」菜单 v1.0 一期 MVP
+    Fabric · AI 工厂「自动化任务」菜单 v2.0 一期 MVP
   </div>
 
 </div>
