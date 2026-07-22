@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Fabric · AI 工厂「记忆」能力（一期）· PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #6366f1; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 16px 0 8px; padding-left: 10px; border-left: 3px solid #6366f1; }
+  .section h4 { font-size: 13px; font-weight: 600; color: #475569; margin: 12px 0 6px; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #be185d; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 10px 0; border-left: 4px solid; font-size: 14px; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout.key { background: #f5f3ff; border-color: #8b5cf6; color: #5b21b6; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+  .mock-menu { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; margin: 10px 0; font-size: 13px; color: #475569; width: 220px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .mock-menu .mm-group { font-size: 11px; color: #94a3b8; padding: 4px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+  .mock-menu .mm-item { padding: 6px 10px; border-radius: 6px; margin: 2px 0; }
+  .mock-menu .mm-item.active { background: #e0e7ff; color: #4338ca; font-weight: 600; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .flow-step { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #334155; min-width: 104px; text-align: center; }
+  .flow-step.start { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
+  .flow-step.dream { background: #ede9fe; border-color: #a78bfa; color: #5b21b6; }
+  .flow-step.end { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+  .flow-arrow { color: #9ca3af; font-size: 16px; }
+  .scenario-card { background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%); border: 1px solid #c7d2fe; border-radius: 10px; padding: 14px 16px; margin: 8px 0; }
+  .scenario-card .sc-tag { display: inline-block; background: #4338ca; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 6px; }
+  .scenario-card .sc-title { font-size: 14px; font-weight: 700; color: #4338ca; margin-bottom: 4px; }
+  .scenario-card .sc-desc { font-size: 12px; color: #4338ca; opacity: 0.9; line-height: 1.6; }
+  .mem-tree { display: flex; gap: 14px; margin: 12px 0; flex-wrap: wrap; }
+  .mem-col { flex: 1; min-width: 300px; border: 1.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  .mem-col .mc-head { padding: 10px 14px; font-weight: 700; font-size: 14px; color: #fff; }
+  .mem-col.base .mc-head { background: #0ea5e9; }
+  .mem-col.user .mc-head { background: #6366f1; }
+  .mem-col .mc-body { padding: 12px 14px; }
+  .file-chip { border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; background: #fafafa; font-size: 13px; }
+  .file-chip b { color: #0f172a; }
+  .file-chip .ft { color: #94a3b8; font-size: 12px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 5px; font-size: 11px; margin-left: 4px; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.purple { background: #ede9fe; color: #6d28d9; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Fabric · AI 工厂「记忆」能力（一期）</h1>
+    <div style="opacity:0.92;font-size:13px;">为 Agent 补齐分层记忆 + 异步做梦能力，让智能体像数字同事一样越用越懂你</div>
+    <div class="meta">
+      <span>📅 2026-07-22</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：Fabric / AI 工厂</span>
+    </div>
+  </div>
+
+  <!-- 一、背景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>Fabric 是面向组织 / 用户的 Agent 配置平台。当前 Agent <b>没有记忆能力</b>——每次对话都是"失忆"状态，导致：</p>
+    <ul>
+      <li>用户反复交代同样的背景、偏好、身份，Agent 记不住，体验断裂</li>
+      <li>用户纠正过的错误、明确过的禁忌，下次对话又犯，无法沉淀"教训"</li>
+      <li>跨会话的项目上下文、决策、事实无法积累，Agent 无法越用越聪明</li>
+      <li>只能靠把信息硬塞进 Prompt / Skill，规模一大就超上下文、命中率低</li>
+    </ul>
+    <p style="margin-top:10px;"><b>本期目标</b>：为 Fabric 补齐一套<b>分层记忆架构</b>（基础文件 + 用户记忆）+ <b>异步做梦（Auto-Dream）</b>机制，并在「AI 工厂」下新增「<b>记忆</b>」菜单支持后台可视化管理。核心机制<b>对标 Claude Tag</b>（分层文件记忆 + 异步做梦 + 按需注入），短期记忆<b>参考 OpenClaw</b> 的会话缓冲设计。</p>
+    <div class="callout key">
+      <div class="title">🔑 一句话定位</div>
+      让 Agent 从「群聊摘要机器人」升级为「<b>具备睡眠整理能力的数字同事</b>」：对话时保持实时流畅，空闲时在"后台做梦"消化信息，沉淀为可复用的长期知识。
+    </div>
+  </div>
+
+  <!-- 二、术语 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>核心概念与术语</div>
+    <table>
+      <thead><tr><th>术语</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>记忆（Memory）</b></td><td>Agent 持久化存储的信息，以<b>文件</b>为载体（Markdown 结构化文本）</td></tr>
+        <tr><td><b>基础文件</b></td><td>相对静态的底座文件，含 <code>soul</code>（智能体人格设定）与 <code>user</code>（用户身份档案）两个文件</td></tr>
+        <tr><td><b>用户记忆</b></td><td>随交互动态积累的记忆，含<b>短期记忆</b>与<b>长期记忆</b></td></tr>
+        <tr><td><b>短期记忆</b></td><td>当前 / 近期会话内的临时缓冲（原始对话日志），未经"做梦"提炼（参考 OpenClaw）</td></tr>
+        <tr><td><b>长期记忆</b></td><td>跨会话持久化的知识，由多个<b>分类文件</b>组成（参考 Claude Tag 分层）</td></tr>
+        <tr><td><b>异步做梦（Auto-Dream）</b></td><td>空闲时段后台守护进程，把短期记忆批量提炼、压缩、去重，写入长期记忆</td></tr>
+        <tr><td><b>按需注入</b></td><td>对话时只注入相关记忆片段，而非全量背诵；大文档只存索引、用时再读</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 三、记忆分层架构 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>记忆分层架构（总览）</div>
+    <p>记忆分为 <b>两大分类</b>：<b>基础文件</b> 与 <b>用户记忆</b>。用户记忆再分<b>短期</b>与<b>长期</b>，长期记忆由多个分类文件组成。</p>
+
+    <div class="mem-tree">
+      <div class="mem-col base">
+        <div class="mc-head">📁 基础文件（相对静态）</div>
+        <div class="mc-body">
+          <div class="file-chip"><b>soul</b> <span class="tag blue">人格</span><div class="ft">智能体的角色设定、语气风格、行为准则、能力边界。定义"我是谁、我怎么说话"。</div></div>
+          <div class="file-chip"><b>user</b> <span class="tag blue">身份</span><div class="ft">用户的身份档案：姓名 / 角色 / 部门 / 基本背景等相对稳定的画像。定义"你是谁"。</div></div>
+        </div>
+      </div>
+      <div class="mem-col user">
+        <div class="mc-head">🧠 用户记忆（动态积累）</div>
+        <div class="mc-body">
+          <div class="file-chip"><b>短期记忆</b> <span class="tag green">会话缓冲</span><div class="ft">近期会话原始日志，做梦前的临时缓存。滚动窗口，有容量 / 时效上限。</div></div>
+          <div class="file-chip"><b>长期记忆</b> <span class="tag purple">多分类文件</span>
+            <div class="ft">由多个分类文件组成（见第 5 节）：偏好记忆 / 事实记忆 / 反馈记忆 / 引用记忆。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 为什么 user（基础文件）与偏好记忆（长期记忆）要分开？</div>
+      <b>user 文件</b> = 相对稳定的身份档案（姓名 / 角色 / 部门），变动少、可人工维护为主；<b>偏好记忆</b> = 交互中动态学到的习惯与风格，由做梦持续增量更新。二者读写节奏与来源不同，故分层管理。
+    </div>
+  </div>
+
+  <!-- 四、基础文件 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>基础文件详解</div>
+
+    <h3>4.1 soul 文件（智能体人格）</h3>
+    <p><b>用户场景</b>：配置者希望 Agent 始终保持一致的角色和语气（如"资深法务顾问，严谨、引用条款"），不因对话漂移。</p>
+    <p><b>解决问题</b>：人格 / 行为准则散落在 Prompt 里易被覆盖、难维护；沉淀为独立文件后稳定、可复用、可版本管理。</p>
+    <p><b>机制</b>：soul 文件在每次对话<b>必注入</b>系统上下文最前部；由配置者维护，做梦机制<b>不改写</b> soul（人格稳定）。</p>
+
+    <h3>4.2 user 文件（用户身份档案）</h3>
+    <p><b>用户场景</b>：用户不想每次重复"我是财务部的张三，负责个税申报"。</p>
+    <p><b>解决问题</b>：身份类信息高频复用、相对稳定，硬塞 Prompt 浪费上下文。</p>
+    <p><b>机制</b>：user 文件在对话时<b>必注入</b>；支持用户 / 管理员人工编辑，做梦机制可对身份类新事实做<b>增量补充</b>（如识别到新角色），但以人工维护为准。</p>
+  </div>
+
+  <!-- 五、用户记忆 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>用户记忆详解</div>
+
+    <h3>5.1 短期记忆（参考 OpenClaw）</h3>
+    <p><b>用户场景</b>：同一次 / 近几次对话里，用户说"就用刚才那个方案"，Agent 要能记得"刚才"。</p>
+    <p><b>解决问题</b>：单纯依赖模型上下文窗口，长对话会溢出、跨会话即丢失。</p>
+    <p><b>机制</b>：</p>
+    <ul>
+      <li><b>会话缓冲</b>：以滚动窗口保存近期原始对话日志（含关键消息、决策片段）</li>
+      <li><b>容量 / 时效上限</b>：超出上限的旧内容进入"待做梦"队列，等待异步提炼</li>
+      <li><b>低信噪比过滤</b>：忽略表情、闲聊等无价值内容，只留有信息量的片段</li>
+      <li><b>做梦后清理</b>：已被提炼进长期记忆的短期内容按策略清理，避免无限膨胀</li>
+    </ul>
+
+    <h3>5.2 长期记忆（多分类文件，参考 Claude Tag）</h3>
+    <p><b>用户场景</b>：Agent 要记住"用户偏好简洁回答""项目用 PostgreSQL 15，升级前须跑 X 脚本""上次因为漏了权限校验踩过坑"。</p>
+    <p><b>解决问题</b>：把碎片信息沉淀为<b>分类清晰、可复用</b>的知识，而非一坨扁平摘要。</p>
+    <p><b>机制</b>：长期记忆由多个<b>分类文件</b>组成，各文件更新节奏不同：</p>
+    <table>
+      <thead><tr><th>长期记忆文件</th><th>内容来源</th><th>作用</th><th>更新频率</th></tr></thead>
+      <tbody>
+        <tr><td><b>偏好记忆</b><br>Preference</td><td>用户的习惯、风格、纠正表达</td><td>记住"你喜欢什么风格 / 怎么沟通"</td><td>每次交互后增量更新</td></tr>
+        <tr><td><b>事实记忆</b><br>Fact / Project</td><td>项目决策、技术约定、里程碑、稳定事实</td><td>记住"我们在做什么、怎么做才对"</td><td>异步做梦整合</td></tr>
+        <tr><td><b>反馈记忆</b><br>Feedback</td><td>用户的否定、修正、边界与禁忌</td><td>记住"什么不能做、上次错在哪"</td><td><b>强制即时记录</b>（不等做梦）</td></tr>
+        <tr><td><b>引用记忆</b><br>Reference</td><td>外部文档链接、API 规范、知识库索引</td><td>知道"去哪里找详细信息"</td><td>按需添加</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip">
+      <div class="title">💡 引用而非背诵</div>
+      对长文档 / 大段讨论，长期记忆只存<b>索引 / 链接</b>到「引用记忆」，需要时再读取原文（可对接知识本 RAG），而非把原文总结硬塞进核心记忆——控制记忆体积、提升命中率。
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ 反馈记忆为什么"强制即时"</div>
+      禁忌 / 纠正类信息若等到做梦才记，可能在下一轮就重复犯错。因此<b>反馈记忆在识别到的当下即时写入</b>，不进"待做梦"队列。
+    </div>
+  </div>
+
+  <!-- 六、异步做梦 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>异步做梦机制（Auto-Dream · 核心）</div>
+    <p><b>用户场景</b>：用户白天和 Agent 聊了很多，晚上 / 空闲时 Agent 自动"消化"，第二天变得更懂用户。</p>
+    <p><b>解决问题</b>：实时总结会占用推理资源、打断对话流畅度；把提炼放到<b>空闲异步</b>做，兼顾实时性与知识沉淀。</p>
+
+    <h3>6.1 触发时机</h3>
+    <ul>
+      <li><b>空闲触发</b>：会话结束后静默 N 分钟无新活动</li>
+      <li><b>定时触发</b>：每日固定时段（类比人类睡眠 REM）批量处理当日短期记忆</li>
+      <li><b>阈值触发</b>：短期记忆缓冲达到容量上限时提前触发</li>
+    </ul>
+
+    <h3>6.2 做梦流程</h3>
+    <div class="flow">
+      <div class="flow-step start">拉取短期记忆<br>（原始日志）</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step dream">LLM 提炼<br>压缩 / 去重 / 抽取</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step dream">分类归档<br>偏好/事实/反馈/引用</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">合并写入<br>长期记忆文件</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step end">清理已消化<br>短期记忆</div>
+    </div>
+    <ul>
+      <li><b>压缩与去重</b>：碎片对话压缩成高密度结构化笔记（Markdown），剔除冗余，抽取可复用的规则 / 决策 / 事实</li>
+      <li><b>分类归档</b>：提炼结果按语义归入偏好 / 事实 / 反馈 / 引用对应文件</li>
+      <li><b>合并策略</b>：同类信息<b>增量合并</b>而非覆盖；与已有条目冲突时保留更新的、标注时间戳</li>
+      <li><b>做梦日志</b>：每次做梦产出一条 Dream Log（处理了哪些、沉淀了什么），后台可查、可追溯</li>
+    </ul>
+
+    <h3>6.3 与人工编辑的防冲突</h3>
+    <ul>
+      <li>用户 / 管理员在后台<b>人工编辑</b>过的记忆条目优先级更高，做梦<b>不静默覆盖</b>人工内容</li>
+      <li>做梦对人工条目只做<b>补充 / 建议</b>，冲突项标记待确认，避免"越改越乱"</li>
+    </ul>
+    <div class="callout key">
+      <div class="title">🔑 知识内化闭环（对标 Claude Tag）</div>
+      感知 → 暂存（短期记忆）→ 触发（空闲 / @ / 关键事件）→ <b>做梦</b>（提炼规则）→ 固化（写长期记忆）→ 应用（下次直接调用，无需重读历史）。
+    </div>
+  </div>
+
+  <!-- 七、读取与注入 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>记忆的读取与注入（按需注入）</div>
+    <p>对话发生时，按以下优先级组装上下文，<b>只注入相关片段</b>，不全量背诵：</p>
+    <table>
+      <thead><tr><th>记忆</th><th>注入策略</th></tr></thead>
+      <tbody>
+        <tr><td><b>soul</b></td><td>必注入，置于系统提示最前</td></tr>
+        <tr><td><b>user</b></td><td>必注入</td></tr>
+        <tr><td><b>短期记忆</b></td><td>注入近期窗口内的会话缓冲</td></tr>
+        <tr><td><b>长期记忆</b>（偏好/事实/反馈）</td><td>按当前问题<b>相关性检索</b>注入 Top-K 片段；反馈记忆（禁忌）优先注入</td></tr>
+        <tr><td><b>引用记忆</b></td><td>默认只注入索引；命中需要时再拉取原文（可走知识本 RAG）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 八、后台记忆菜单 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>Fabric 后台「记忆」菜单</div>
+    <p>在「AI 工厂」侧边导航新增「<b>记忆</b>」菜单，让配置者可视化管理各 Agent 的记忆文件。</p>
+    <div class="mock-menu">
+      <div class="mm-group">AI 工厂</div>
+      <div class="mm-item">Agents</div>
+      <div class="mm-item">Skills</div>
+      <div class="mm-item active">🧠 记忆</div>
+      <div class="mm-item">工具</div>
+      <div class="mm-item">会话</div>
+      <div class="mm-item">自动化任务</div>
+    </div>
+
+    <h3>8.1 列表页（以 Agent 为维度）</h3>
+    <p>列表展示当前空间下的 Agent，点击进入记忆详情。列字段：Agent 名称 / 记忆文件数 / 短期记忆量 / 上次做梦时间 / 操作。</p>
+
+    <h3>8.2 详情页（横向 Tab 切换两大分类）</h3>
+    <p>进入某 Agent 后，用<b>横向 Tab</b> 切换查看 / 管理两类记忆：</p>
+    <ul>
+      <li><b>Tab ①「基础文件」</b>：soul、user 两个文件，支持查看 / 编辑</li>
+      <li><b>Tab ②「用户记忆」</b>：短期记忆（会话缓冲预览 + 清理）+ 长期记忆（偏好 / 事实 / 反馈 / 引用 多个分类文件，支持查看 / 编辑 / 删除）</li>
+    </ul>
+    <div class="callout tip">
+      <div class="title">💡 管理能力（一期）</div>
+      各记忆文件支持<b>查看、编辑、删除</b>；可查看 <b>Dream Log</b>（做梦记录）；可<b>手动触发一次做梦</b>。人工编辑与做梦按第 6.3 节防冲突策略协作。
+    </div>
+  </div>
+
+  <!-- 九、典型场景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span>典型场景串联</div>
+    <div class="scenario-card">
+      <span class="sc-tag">场景 1 · 偏好沉淀</span>
+      <div class="sc-title">用户多次要求"回答简洁点"</div>
+      <div class="sc-desc">短期记忆记录这几次纠正 → 空闲做梦提炼出"用户偏好简洁、要点式回答" → 写入偏好记忆 → 下次对话自动注入，无需再交代。</div>
+    </div>
+    <div class="scenario-card">
+      <span class="sc-tag">场景 2 · 禁忌即时记</span>
+      <div class="sc-title">用户说"以后别用外部 API 示例，我们内网不通"</div>
+      <div class="sc-desc">识别为反馈 / 禁忌 → <b>即时写入反馈记忆</b>（不等做梦）→ 下一轮起优先注入，避免重复犯错。</div>
+    </div>
+    <div class="scenario-card">
+      <span class="sc-tag">场景 3 · 引用而非背诵</span>
+      <div class="sc-title">用户丢来一篇 50 页技术规范</div>
+      <div class="sc-desc">长期记忆只在引用记忆存"规范链接 + 摘要索引" → 用户问到相关问题时按需拉取原文（对接知识本 RAG），不把全文塞进记忆。</div>
+    </div>
+    <div class="scenario-card">
+      <span class="sc-tag">场景 4 · 后台治理</span>
+      <div class="sc-title">管理员发现一条记忆记错了</div>
+      <div class="sc-desc">进入「记忆」菜单 → 选中 Agent → 用户记忆 Tab → 编辑 / 删除对应长期记忆条目；该人工修改优先于后续做梦，不被静默覆盖。</div>
+    </div>
+  </div>
+
+  <!-- 十、一期范围 -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span>一期范围</div>
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 一期要做</h4>
+        <ul>
+          <li>分层记忆架构：基础文件（soul / user）+ 用户记忆（短期 / 长期）</li>
+          <li>长期记忆四类分类文件：偏好 / 事实 / 反馈 / 引用</li>
+          <li>异步做梦：空闲 / 定时 / 阈值触发 + 提炼归档 + Dream Log</li>
+          <li>反馈记忆强制即时记录</li>
+          <li>按需注入（相关性检索 + 引用只存索引）</li>
+          <li>「记忆」菜单：Agent 列表 + 详情横向 Tab（基础文件 / 用户记忆）</li>
+          <li>记忆文件的查看 / 编辑 / 删除 + 手动触发做梦</li>
+          <li>人工编辑 vs 做梦的防冲突策略</li>
+        </ul>
+      </div>
+      <div class="scope-card dont">
+        <h4>❌ 一期不做</h4>
+        <ul>
+          <li>记忆的版本回溯 / 时间线 diff（二期）</li>
+          <li>跨 Agent / 跨用户的记忆共享与继承</li>
+          <li>记忆条目级的细粒度权限与审批流</li>
+          <li>做梦策略的可视化编排（自定义提炼规则）</li>
+          <li>记忆容量计费与配额后台</li>
+          <li>多模态记忆（图片 / 音频记忆）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 十一、权限依赖 -->
+  <div class="section">
+    <div class="section-title"><span class="num">11</span>权限与依赖</div>
+    <ul>
+      <li><b>菜单可见性</b>：「记忆」菜单对具备该空间权限的配置者可见；记忆数据按 Agent + 用户维度隔离</li>
+      <li><b>对模型的依赖</b>：做梦的提炼、注入的相关性检索依赖 LLM + 向量检索能力</li>
+      <li><b>对调度的依赖</b>：定时 / 空闲做梦依赖调度能力（可复用「自动化任务」调度引擎）</li>
+      <li><b>对知识本的依赖</b>：引用记忆的原文拉取可对接知识本 RAG（第 7 节）</li>
+      <li><b>数据安全</b>：记忆含用户敏感信息，须加密存储、访问审计、支持一键清除</li>
+    </ul>
+  </div>
+
+  <!-- 十二、验收 -->
+  <div class="section">
+    <div class="section-title"><span class="num">12</span>交付与验收</div>
+    <ul>
+      <li>「记忆」菜单出现在 AI 工厂下，Agent 列表 → 详情横向 Tab 可正常切换查看基础文件 / 用户记忆</li>
+      <li>基础文件（soul / user）在对话中必注入并生效</li>
+      <li>短期记忆按窗口滚动，超限内容进入待做梦队列</li>
+      <li>异步做梦可被空闲 / 定时 / 阈值触发，产出 Dream Log，长期记忆被正确分类写入</li>
+      <li>反馈 / 禁忌类可即时写入，下一轮对话即生效不再犯</li>
+      <li>引用记忆只存索引，按需拉取原文</li>
+      <li>记忆文件可查看 / 编辑 / 删除；人工编辑不被做梦静默覆盖</li>
+      <li>场景 1~4 可端到端跑通</li>
+    </ul>
+  </div>
+
+  <!-- 十三、二期方向 -->
+  <div class="section">
+    <div class="section-title"><span class="num">13</span>二期方向（不在一期范围）</div>
+    <ul>
+      <li>记忆版本回溯与时间线 diff、一键回滚</li>
+      <li>跨 Agent / 团队级记忆共享与继承</li>
+      <li>做梦提炼规则可视化编排</li>
+      <li>记忆条目级权限、审批与合规流程</li>
+      <li>多模态记忆</li>
+      <li>记忆容量配额与计费</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Fabric · AI 工厂「记忆」能力 v1.0 一期 · 主参考 Claude Tag（分层文件 + 异步做梦 + 按需注入），短期记忆参考 OpenClaw
+  </div>
+
+</div>
+</body>
+</html>
