@@ -255,7 +255,8 @@ function renderList(){
     </div>
     <div class="card"><table>
       <thead><tr>
-        <th style="width:16%">知识本 ID</th>
+        <th style="width:14%">知识本 ID</th>
+        <th>知识本名称</th>
         <th>用户</th>
         <th>Agent 名称</th>
         <th>知识数量</th>
@@ -266,6 +267,7 @@ function renderList(){
         ${rows.map(k=>`
           <tr onclick="openDetail('${k.id}')">
             <td><span class="kb-ico">📚</span><span class="kbid">${k.id}</span></td>
+            <td><span class="kbname">${k.name}</span></td>
             <td><span class="email">${k.user}</span></td>
             <td>${k.agent?k.agent:`<span class="unbound">未绑定</span>`}</td>
             <td>${k.docs.length}</td>
