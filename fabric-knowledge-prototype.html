@@ -56,13 +56,12 @@
   .unbound { color: #94a3b8; font-style: italic; }
 
   .kb-ico { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg,#059669,#10b981); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; margin-right: 10px; vertical-align: middle; }
+  .kbname { font-weight: 600; color: #0f172a; }
   .fico { width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; margin-right: 10px; vertical-align: middle; font-weight: 700; }
   .from { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-weight: 500; }
   .from.book { background: #ecfdf5; color: #047857; }
   .from.cloud { background: #eff6ff; color: #1d4ed8; }
   .from.local { background: #fff7ed; color: #c2410c; }
-  .tag-c { font-size: 11px; padding: 2px 8px; border-radius: 5px; background: #f1f5f9; color: #475569; }
-  .tag-b { font-size: 11px; padding: 2px 8px; border-radius: 5px; background: #ede9fe; color: #6d28d9; }
 
   .tabs { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 4px; width: fit-content; margin-bottom: 16px; }
   .tab { padding: 7px 22px; font-size: 13px; color: #64748b; border-radius: 7px; cursor: pointer; font-weight: 500; }
@@ -98,7 +97,7 @@
   .modal-foot .cnt { font-size: 13px; color: #64748b; }
   .modal-foot .sp { margin-left: auto; }
 
-  .field { margin-bottom: 16px; }
+  .field { margin-bottom: 4px; }
   .field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
   .field input { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 13px; }
 
@@ -139,15 +138,14 @@
 <div class="page-label">
   <span class="badge-num">知</span>
   <span class="badge-title">WrokHub Studio · AI 工厂「知识」高保真原型</span>
-  <span class="badge-desc">知识本维度 · 资料/Wiki 双视图 · 三种添加方式 · C端/B端 · 绑定去 Agent 管理</span>
+  <span class="badge-desc">租户后台 · 知识本维度 · 当前租户下管理 · 资料/Wiki 双视图 · 三种添加方式 · 绑定去 Agent 管理</span>
 </div>
 
 <div class="fabric-app">
   <div class="topbar">
     <div class="logo"><span class="logo-icon">W</span>WrokHub Studio</div>
-    <span class="tenant-select">🏢 网易－效率工程部 ▾</span>
+    <span class="tenant-select">🏢 <span id="tenantName">网易－效率工程部</span> ▾</span>
     <div class="right">
-      <span class="pill" onclick="toggleRole()" style="padding:5px 12px;">👤 当前：<b id="roleTxt" style="margin:0 2px;color:#6d28d9;">C 端用户</b> ▾</span>
       <span class="avatar">青</span>
     </div>
   </div>
@@ -173,25 +171,23 @@
 </div>
 
 <script>
-/* ---------------- data ---------------- */
-const role = { val: "C" }; // C or B
-
-// 列表对象 = 知识本；每个知识本有 id、用户、绑定的 Agent、资料
+/* ---------------- data：当前租户下的知识本（C/B 统一，不区分） ---------------- */
+/* C 端：前台创建 Agent 绑定知识时自动生成，名称默认「Agent 名称的知识本」 */
+/* B 端：后台自行创建并命名 */
 const kbs = [
-  { id:"kb_7f3a21", user:"青远（张振）", scene:"C", agent:"我的研究助手", updated:"2026-07-23 15:08",
+  { id:"KB-1024", name:"我的研究助手的知识本", user:"青远（张振）", agent:"我的研究助手", updated:"2026-07-23 15:08",
     docs:[
       { n:"SKILL_副本.md", ext:"md", c:"#0ea5e9", from:"local", t:"2026-07-23 15:08" },
       { n:"飞书CLI调研&POPO CLI PRD方案.pdf", ext:"pdf", c:"#ef4444", from:"local", t:"2026-07-23 15:02" },
       { n:"开放平台问题测试集", ext:"doc", c:"#2563eb", from:"cloud", t:"2026-07-22 11:40" },
       { n:"Manus AI 研究（19 来源）", ext:"本", c:"#059669", from:"book", t:"2026-07-22 11:30" }
     ] },
-  { id:"kb_9c1b45", user:"青远（张振）", scene:"C", agent:"周报小助手", updated:"2026-07-21 10:20",
+  { id:"KB-1025", name:"周报小助手的知识本", user:"青远（张振）", agent:"周报小助手", updated:"2026-07-21 10:20",
     docs:[
       { n:"周报模板.docx", ext:"doc", c:"#2563eb", from:"local", t:"2026-07-21 10:20" },
       { n:"团队 OKR 说明", ext:"doc", c:"#2563eb", from:"cloud", t:"2026-07-20 09:00" }
     ] },
-  // B 端租户的知识本（另一账号视角，演示用；scene=B）
-  { id:"kb_2e88f0", user:"sangchen@corp.netease.com", scene:"B", agent:"群运维 Agent", updated:"2026-07-19 14:00",
+  { id:"KB-1026", name:"群运维知识库", user:"sangchen@corp.netease.com", agent:null, updated:"2026-07-19 14:00",
     docs:[
       { n:"群运维 SOP.pdf", ext:"pdf", c:"#ef4444", from:"local", t:"2026-07-19 14:00" }
     ] }
@@ -218,7 +214,7 @@ const cloudDocs = [
 ];
 
 /* ---------------- state ---------------- */
-let view = "list";      // list | detail
+let view = "list";
 let curKb = null;
 let detailTab = "mat";
 let forceEmpty = false;
@@ -230,31 +226,24 @@ const modal = document.getElementById("modal");
 
 function render(){ view==="list" ? renderList() : renderDetail(); }
 
-function toggleRole(){
-  role.val = role.val==="C" ? "B" : "C";
-  document.getElementById("roleTxt").textContent = role.val==="C" ? "C 端用户" : "B 端租户";
-  forceEmpty = false; view="list"; render();
-}
-
-/* ---------------- list（知识本维度）---------------- */
+/* ---------------- list（知识本维度 · 当前租户）---------------- */
 function renderList(){
-  const isB = role.val==="B";
-  const rows = kbs.filter(k => isB ? k.scene==="B" : k.scene==="C");
+  const rows = kbs;
   const hasData = rows.length>0 && !forceEmpty;
 
   let body = `
     <div class="main-header">
       <span class="main-title">知识</span>
-      <span class="main-sub">${isB?"B 端 · 独立租户 · 知识本（创建后去 Agent 管理绑定）":"C 端 · 同一 POPO 租户 · 我的知识本"}</span>
-      ${isB?`<button class="btn primary" style="margin-left:auto;" onclick="openCreate()">＋ 创建知识本</button>`:``}
+      <span class="main-sub">当前租户下的知识本</span>
+      <button class="btn primary" style="margin-left:auto;" onclick="openCreate()">＋ 创建知识本</button>
     </div>`;
 
-  if(isB && !hasData){
+  if(!hasData){
     body += `
       <div class="empty">
         <div class="ei">📖</div>
         <div class="et">还没有知识本</div>
-        <div class="ed">B 端租户首次进入列表为空。点击「创建知识本」并上传知识；<br/>之后到 <b>Agent 管理</b> 给业务 Agent 绑定该知识本即可使用。</div>
+        <div class="ed">首次进入列表为空。点击「创建知识本」并命名；<br/>创建后进入详情页添加知识，再到 <b>Agent 管理</b> 给 Agent 绑定即可使用。</div>
         <button class="btn primary" onclick="openCreate()">＋ 创建知识本</button>
       </div>`;
     main.innerHTML = body; return;
@@ -262,10 +251,10 @@ function renderList(){
 
   body += `
     <div class="toolbar">
-      <div class="search-box">🔍 搜索知识本 ID / Agent</div>
-      ${isB?`<span class="pill" onclick="forceEmpty=true;render()">👁 预览空态</span>`:``}
+      <div class="search-box">🔍 搜索知识本 ID / 名称 / Agent</div>
+      <span class="pill" onclick="forceEmpty=true;render()">👁 预览空态</span>
     </div>
-    <div class="callout info">💡 列表对象是<b>知识本</b>。${isB?"每个 B 端用户是一个独立租户，仅展示本租户下知识本；绑定 Agent 在「Agent 管理」完成，本页不绑定。":"C 端个人用户统一在同一个 POPO 租户下，列表内知识本与 Agent 都属该租户；给 Agent 绑定知识时自动生成知识本，此处按知识本维度展示。"}</div>
+    <div class="callout info">💡 这是<b>租户后台</b>，列表对象是<b>知识本</b>，展示<b>当前租户</b>下的全部知识本（C 端个人用户统一在同一 POPO 租户下，样式一致）。给 Agent 绑定知识时自动生成知识本；让 Agent 使用请到「Agent 管理」绑定，本页不绑定。</div>
     <div class="card"><table>
       <thead><tr>
         <th style="width:16%">知识本 ID</th>
@@ -273,17 +262,17 @@ function renderList(){
         <th>Agent 名称</th>
         <th>知识数量</th>
         <th>更新时间</th>
-        ${isB?`<th style="width:14%">操作</th>`:``}
+        <th style="width:14%">操作</th>
       </tr></thead>
       <tbody>
         ${rows.map(k=>`
           <tr onclick="openDetail('${k.id}')">
             <td><span class="kb-ico">📚</span><span class="kbid">${k.id}</span></td>
-            <td>${isB?`<span class="email">${k.user}</span>`:k.user}</td>
+            <td><span class="email">${k.user}</span></td>
             <td>${k.agent?k.agent:`<span class="unbound">未绑定</span>`}</td>
             <td>${k.docs.length}</td>
             <td style="color:#64748b;">${k.updated}</td>
-            ${isB?`<td><span class="op" onclick="event.stopPropagation();openDetail('${k.id}')">查看</span><span class="op-sep">·</span><span class="op danger" onclick="event.stopPropagation();delKb('${k.id}')">删除</span></td>`:``}
+            <td><span class="op" onclick="event.stopPropagation();openDetail('${k.id}')">查看</span><span class="op-sep">·</span><span class="op danger" onclick="event.stopPropagation();delKb('${k.id}')">删除</span></td>
           </tr>`).join("")}
       </tbody>
     </table></div>`;
@@ -304,8 +293,8 @@ function renderDetail(){
     <div class="detail-head">
       <span class="kb-ico" style="width:38px;height:38px;font-size:18px;">📚</span>
       <div>
-        <div class="main-title" style="font-size:19px;">知识本 <span class="kbid" style="font-size:15px;">${curKb.id}</span></div>
-        <div style="font-size:12px;color:#94a3b8;">用户 ${curKb.user} · 绑定 Agent：${curKb.agent?curKb.agent:'<span class="unbound">未绑定（去 Agent 管理绑定）</span>'} · 共 ${list.length} 项知识</div>
+        <div class="main-title" style="font-size:19px;">${curKb.name}</div>
+        <div style="font-size:12px;color:#94a3b8;">知识本 ID <span class="kbid">${curKb.id}</span> · 用户 ${curKb.user} · 绑定 Agent：${curKb.agent?curKb.agent:'<span class="unbound">未绑定（去 Agent 管理绑定）</span>'} · 共 ${list.length} 项知识</div>
       </div>
       <button class="btn primary" style="margin-left:auto;" onclick="openAdd()">＋ 添加知识</button>
     </div>
@@ -316,6 +305,16 @@ function renderDetail(){
     </div>`;
 
   if(detailTab==="mat"){
+    if(list.length===0){
+      body += `
+        <div class="empty">
+          <div class="ei">📄</div>
+          <div class="et">知识本还没有知识</div>
+          <div class="ed">点击「添加知识」，可选择知识本 / 云空间文件 / 上传本地文件，三种来源统一汇入该知识本。</div>
+          <button class="btn primary" onclick="openAdd()">＋ 添加知识</button>
+        </div>`;
+      main.innerHTML = body; return;
+    }
     body += `
       <div class="toolbar">
         <div class="search-box">🔍 搜索资料</div>
@@ -352,29 +351,32 @@ function renderDetail(){
 function toggleWiki(i){ wikiTree[i].open=!wikiTree[i].open; render(); }
 function delMat(i){ if(confirm("确认从知识本移除该资料？")){ curKb.docs.splice(i,1); render(); toast("已删除资料"); } }
 
-/* ---------------- create KB (B端) ---------------- */
+/* ---------------- create KB（仅命名，创建后进详情页添加知识）---------------- */
 function openCreate(){ flow={ step:"name", kbName:"", targetKb:null, way:null, picked:new Set() }; overlay.classList.add("show"); stepName(); }
 function closeModal(){ overlay.classList.remove("show"); }
 
 function stepName(){
   modal.innerHTML = `
-    <div class="modal-head"><span class="mt">📚 创建知识本</span><span class="step">第 1 步 · 命名</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><span class="mt">📚 创建知识本</span><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
       <div class="field"><label>知识本名称</label><input id="kbName" placeholder="如：群运维知识库" value="${flow.kbName}" oninput="flow.kbName=this.value"></div>
-      <div class="callout info">💡 创建后系统生成唯一<b>知识本 ID</b>；接着上传知识。若要让业务 Agent 使用，请到 <b>Agent 管理</b> 绑定。</div>
     </div>
     <div class="modal-foot"><div class="sp"></div>
-      <button class="btn primary" onclick="doCreateKb()">创建并上传知识 →</button>
+      <button class="btn primary" onclick="doCreateKb()">创建</button>
     </div>`;
   setTimeout(()=>{ const el=document.getElementById("kbName"); if(el) el.focus(); },30);
 }
 function doCreateKb(){
-  const id = "kb_" + Math.random().toString(16).slice(2,8);
-  const kb = { id, user:"当前租户成员", scene:"B", agent:null, updated:nowStr(), docs:[] };
-  kbs.unshift(kb); flow.targetKb = id; flow.step=1; showFlow();
+  const nm = (flow.kbName||"").trim() || "未命名知识本";
+  const id = "KB-" + Math.floor(1000 + Math.random()*9000);
+  const kb = { id, name:nm, user:"青远（张振）", agent:null, updated:nowStr(), docs:[] };
+  kbs.unshift(kb);
+  closeModal();
+  toast("已创建知识本 " + id + "，进入详情页添加知识");
+  openDetail(id);
 }
 
-/* ---------------- add flow ---------------- */
+/* ---------------- add flow（详情页添加知识）---------------- */
 function openAdd(){ flow={ step:1, targetKb:curKb.id, way:null, picked:new Set() }; overlay.classList.add("show"); showFlow(); }
 function showFlow(){
   overlay.classList.add("show");

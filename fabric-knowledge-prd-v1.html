@@ -186,21 +186,26 @@
       <table>
         <thead><tr><th style="width:20%">知识本 ID</th><th>用户</th><th>Agent 名称</th><th>知识数量</th><th>更新时间</th></tr></thead>
         <tbody>
-          <tr><td><code>kb_7f3a21</code></td><td>青远（张振）</td><td>我的研究助手</td><td>4</td><td>07-23 15:08</td></tr>
-          <tr><td><code>kb_9c1b45</code></td><td>青远（张振）</td><td>周报小助手</td><td>2</td><td>07-21 10:20</td></tr>
-          <tr><td><code>kb_2e88f0</code></td><td>sangchen@…</td><td><span style="color:#94a3b8;font-style:italic;">未绑定</span></td><td>1</td><td>07-19 14:00</td></tr>
+          <tr><td><code>KB-1024</code></td><td>青远（张振）</td><td>我的研究助手</td><td>4</td><td>07-23 15:08</td></tr>
+          <tr><td><code>KB-1025</code></td><td>青远（张振）</td><td>周报小助手</td><td>2</td><td>07-21 10:20</td></tr>
+          <tr><td><code>KB-1026</code></td><td>sangchen@…</td><td><span style="color:#94a3b8;font-style:italic;">未绑定</span></td><td>1</td><td>07-19 14:00</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>4.2 两种场景（C 端用户 / B 端租户）</h3>
+    <h3>4.2 租户模型与创建流程（不区分 C/B，统一为「当前租户」）</h3>
+    <p>这是<b>租户后台</b>，「知识」列表展示<b>当前租户</b>下的全部知识本，列表页右侧常驻「创建知识本」按钮。<b>C 端与 B 端是同一套能力</b>，差异仅在「租户从哪来」，页面内<b>不区分、样式一致</b>（C 端个人用户统一在同一 POPO 租户下）：</p>
     <table>
-      <thead><tr><th style="width:14%">场景</th><th>进入 / 创建路径</th><th>Agent 名称列</th></tr></thead>
+      <thead><tr><th style="width:16%">形态</th><th>租户来源</th><th>知识本名称与创建方式</th></tr></thead>
       <tbody>
-        <tr><td><b>C 端用户</b></td><td>个人用户无租户；用户创建了多个 Agent，<b>给 Agent 绑定知识时自动生成知识本</b>。进入「知识」即展示<b>我自己的全部知识本</b>（因都是本人创建，<b>不展示创建人</b>）</td><td>展示所绑定的 Agent 名称</td></tr>
-        <tr><td><b>B 端租户</b></td><td><b>首次进入列表为空</b> → 点击「<b>创建知识本</b>」→ 上传知识；知识本创建后<b>先不绑定 Agent</b></td><td>初始<b>未绑定</b>，绑定后回填</td></tr>
+        <tr><td><b>C 端（个人用户）</b></td><td><b>系统默认租户</b>（SaaS 公共租户，用户不感知租户）</td><td>在<b>前台创建 Agent 时只绑定知识、无需创建知识本</b>，系统自动生成知识本，名称默认<b>「Agent 名称的知识本」</b></td></tr>
+        <tr><td><b>B 端（业务客户）</b></td><td><b>客户自建租户</b>（购买 SaaS 后创建，一租户 = 一客户）</td><td>在<b>后台自行「创建知识本」并起名</b>；创建后先不绑定 Agent</td></tr>
       </tbody>
     </table>
+    <div class="callout key">
+      <div class="title">🔑 创建流程（列表页 → 详情页添加）</div>
+      点击列表页「<b>创建知识本</b>」后<b>只需输入知识本名称</b>（无分步、无多余提示文案），点「<b>创建</b>」生成知识本 ID；<b>创建时不加知识</b>，创建后进入<b>详情页再添加知识</b>（三种方式）。让业务 Agent 使用该知识本，请到 <b>Agent 管理</b> 绑定，本页不绑定。
+    </div>
     <div class="callout key">
       <div class="title">🔑 绑定不在知识页</div>
       要让业务 Agent 使用某知识本，需到「<b>Agent 管理 → 给 Agent 绑定知识本</b>」完成，<b>知识页不做绑定</b>。知识页只负责知识本的创建、资料管理与 Wiki。
