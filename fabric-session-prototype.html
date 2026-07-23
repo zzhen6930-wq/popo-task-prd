@@ -86,6 +86,16 @@
   .ftag:hover { border-color: #a5b4fc; }
   .ftag.active { background: #eef2ff; border-color: #6366f1; color: #4338ca; font-weight: 600; }
   .ftag .d { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  /* 事件筛选下拉（多选） */
+  .dd { position: relative; }
+  .dd-btn { cursor: pointer; }
+  .dd-menu { display: none; position: absolute; top: 40px; left: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.1); padding: 6px; min-width: 190px; z-index: 30; }
+  .dd-menu.show { display: block; }
+  .dd-opt { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px; font-size: 13px; color: #475569; cursor: pointer; }
+  .dd-opt:hover { background: #f8fafc; }
+  .dd-opt .ck { width: 14px; color: #4f46e5; font-weight: 700; }
+  .dd-opt .d { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .dd-div { height: 1px; background: #f1f5f9; margin: 4px 2px; }
   .search { border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 10px; font-size: 13px; min-width: 200px; }
   .search:focus { outline: none; border-color: #6366f1; }
 
@@ -114,7 +124,7 @@
   .ev-idle { text-align: center; color: #94a3b8; font-size: 11px; padding: 6px; background: repeating-linear-gradient(45deg,#f8fafc,#f8fafc 8px,#f1f5f9 8px,#f1f5f9 16px); border-bottom: 1px solid #f1f5f9; }
 
   /* 抽屉（内嵌右侧面板） */
-  .drawer { width: 440px; flex-shrink: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; align-self: stretch; display: none; flex-direction: column; max-height: calc(100vh - 260px); }
+  .drawer { width: 35%; flex-shrink: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; align-self: stretch; display: none; flex-direction: column; max-height: calc(100vh - 240px); }
   .drawer.show { display: flex; }
   .dh { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
   .dh-top { display: flex; align-items: center; gap: 8px; }
@@ -222,7 +232,6 @@
           <div class="det-metas" id="dMetas"></div>
         </div>
         <div class="det-sub" id="dSub"></div>
-        <div class="tl" id="dTl"></div>
       </div>
 
       <div class="toolbar">
@@ -350,7 +359,7 @@ function renderList() {
 }
 
 // ============ 状态 ============
-let curSess = null, selType = null, curEvIdx = -1, drView = "render";
+let curSess = null, selTypes = new Set(), curEvIdx = -1, drView = "render";
 
 // ============ 打开详情 ============
 function openSession(key) {
@@ -363,39 +372,34 @@ function openSession(key) {
   document.getElementById('dMetas').innerHTML =
     `<span class="metapill">⏱ ${s.dur}</span><span class="metapill">🎫 ${s.token}</span><span class="metapill">🕐 ${s.ago}</span>`;
   document.getElementById('dSub').innerHTML =
-    `<span class="metapill">🧠 ${s.bot}</span><span class="metapill">${channelChip(s.channel)}</span><span class="metapill">☁ ${s.env}</span><span class="metapill">📚 ${s.kb}</span><span class="metapill" style="font-family:Menlo,monospace;">🆔 ${s.id}</span>`;
-  renderTimeline();
+    `<span class="metapill">🧠 ${s.bot}</span><span class="metapill">${channelChip(s.channel)}</span><span class="metapill">📚 ${s.kb}</span><span class="metapill" style="font-family:Menlo,monospace;">🆔 ${s.id}</span>`;
   renderFilters();
   renderEvents();
   closeDrawer();
 }
 function goList() { document.getElementById('detailView').classList.add('hidden'); document.getElementById('listView').classList.remove('hidden'); }
 
-// 时间线 bar：按事件耗时占比着色
-function renderTimeline() {
-  const evs = curSess.events.filter(e => e.type !== "idle");
-  document.getElementById('dTl').innerHTML = evs.map(e => {
-    const w = Math.max(4, parseDur(e.dur));
-    return `<span style="width:${w}%;background:${TYPES[e.type].color};" title="${TYPES[e.type].name} · ${e.dur||''}"></span>`;
-  }).join('');
-}
-function parseDur(d) {
-  if (!d) return 3;
-  if (d.includes("ms")) return 3;
-  const n = parseFloat(d);
-  return d.includes("s") ? Math.min(20, 5 + n) : 6;
-}
-
-// 事件筛选 chips
+// 事件筛选下拉（多选）
+function ddLabelText() { return selTypes.size === 0 ? "All events" : "已选 " + selTypes.size + " 类"; }
 function renderFilters() {
   const present = [...new Set(curSess.events.filter(e => e.type !== "idle").map(e => e.type))];
-  let html = `<div class="ftag ${selType===null?'active':''}" onclick="pickType(null)">🗂 All events</div>`;
-  present.forEach(t => {
-    html += `<div class="ftag ${selType===t?'active':''}" onclick="pickType('${t}')"><span class="d" style="background:${TYPES[t].color}"></span>${TYPES[t].name}</div>`;
-  });
-  document.getElementById('evFilters').innerHTML = html;
+  const opts = present.map(t =>
+    `<div class="dd-opt" onclick="toggleType(event,'${t}')"><span class="ck">${selTypes.has(t)?'✓':''}</span><span class="d" style="background:${TYPES[t].color}"></span>${TYPES[t].name}</div>`).join('');
+  document.getElementById('evFilters').innerHTML = `
+    <div class="dd">
+      <div class="ftag active dd-btn" onclick="toggleDD(event)">🗂 <span>${ddLabelText()}</span> <span style="margin-left:2px;">▾</span></div>
+      <div class="dd-menu" id="ddMenu">
+        <div class="dd-opt" onclick="clearTypes(event)"><span class="ck">${selTypes.size===0?'✓':''}</span>All events</div>
+        <div class="dd-div"></div>
+        ${opts}
+      </div>
+    </div>`;
 }
-function pickType(t) { selType = t; renderFilters(); renderEvents(); }
+function toggleDD(e) { e && e.stopPropagation(); const m = document.getElementById('ddMenu'); m.classList.toggle('show'); }
+function openDD() { const m = document.getElementById('ddMenu'); if (m) m.classList.add('show'); }
+function toggleType(e, t) { e.stopPropagation(); if (selTypes.has(t)) selTypes.delete(t); else selTypes.add(t); renderFilters(); openDD(); renderEvents(); }
+function clearTypes(e) { e.stopPropagation(); selTypes.clear(); renderFilters(); openDD(); renderEvents(); }
+document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) { const m = document.getElementById('ddMenu'); if (m) m.classList.remove('show'); } });
 
 // 事件流
 function renderEvents() {
@@ -405,10 +409,10 @@ function renderEvents() {
   let html = "";
   curSess.events.forEach((e, i) => {
     if (e.type === "idle") {
-      if (selType === null && !kw && spk === "all") html += `<div class="ev-idle">${e.text}</div>`;
+      if (selTypes.size === 0 && !kw && spk === "all") html += `<div class="ev-idle">${e.text}</div>`;
       return;
     }
-    if (selType && e.type !== selType) return;
+    if (selTypes.size > 0 && !selTypes.has(e.type)) return;
     if (spk === "user" && e.type !== "user") return;
     if (spk === "agent" && e.type !== "agent") return;
     if (kw && !((e.sum||"") + (e.lbl||"")).includes(kw)) return;

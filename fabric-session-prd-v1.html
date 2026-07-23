@@ -202,15 +202,29 @@
     <div class="section-title"><span class="num">6</span>会话详情页改造（事件流）</div>
     <p>详情页由"两条消息"改造为<b>结构化事件流时间线</b>，形态参考图 1/2/3。整体分为：<b>①顶部会话概览</b> → <b>②筛选/搜索工具条</b> → <b>③事件流列表</b> → <b>④右侧详情抽屉</b>。</p>
 
-    <h3>6.1 顶部会话概览</h3>
-    <p>展示会话名、状态、关联 Agent、环境 / 知识库、<b>总耗时</b>、<b>总 Token（输入/输出）</b>、创建相对时间。示意：</p>
+    <h3>6.1 顶部会话概览（会话元信息区）</h3>
+    <p>顶部这一行不是"并列的核心元素"，而是<b>会话元信息区</b>，由<b>一个身份主键 + 若干归属 / 配置标签</b>构成，服务于「<b>定位 + 归因</b>」两件事——排查问题时，光有会话 ID 只能定位"哪一条"，要判断"为什么这样"必须知道它绑定的 Bot / 渠道 / 知识库。字段拆解：</p>
+    <table>
+      <thead><tr><th style="width:16%">元素</th><th style="width:16%">维度</th><th>回答的问题</th><th style="width:22%">性质</th></tr></thead>
+      <tbody>
+        <tr><td><b>会话 ID</b></td><td>身份标识</td><td>这是<b>哪一条</b>会话</td><td>全局唯一主键</td></tr>
+        <tr><td><b>Bot / Agent</b>（深度研究员）</td><td>归属对象</td><td>这条会话由<b>谁</b>来应答</td><td>多对一：一个 Bot 下含多条会话</td></tr>
+        <tr><td><b>渠道类型</b>（workflow）</td><td>来源渠道</td><td>这条会话<b>从哪个入口</b>产生</td><td>分类标签（见第 5 节）</td></tr>
+        <tr><td><b>知识库</b>（事件指挥官资料库）</td><td>运行配置</td><td>这条会话用了<b>哪个知识库</b></td><td>运行时绑定的配置</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip">
+      <div class="title">层级关系</div>
+      <code>租户 → Bot（深度研究员）→ 会话（会话 ID）</code>；渠道 / 知识库是该会话运行时<b>绑定的配置</b>。<b>本期「环境」不在详情页透出</b>，避免信息冗余。
+    </div>
+    <p>此外展示<b>状态</b>、<b>总耗时</b>、<b>总 Token（输入/输出）</b>、创建相对时间。示意：</p>
     <div class="ev-wrap">
       <div class="ev-topbar">
         <span class="ev-pill"><b>测试对话</b></span>
         <span class="ev-pill">闲置的</span>
         <span class="ev-pill">🧠 深度研究员</span>
-        <span class="ev-pill">☁ 环境</span>
         <span class="ev-pill">📚 资料库</span>
+        <span class="ev-pill" style="font-family:monospace;">🆔 a2a7149d…b48c</span>
         <span style="margin-left:auto"></span>
         <span class="ev-pill">⏱ 2分59秒</span>
         <span class="ev-pill">🎫 167k / 4.7k</span>
