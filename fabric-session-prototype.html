@@ -235,13 +235,7 @@
       </div>
 
       <div class="toolbar">
-        <select class="search" id="speaker" style="min-width:120px;" onchange="renderEvents()">
-          <option value="all">👤 全部发言者</option>
-          <option value="user">仅用户</option>
-          <option value="agent">仅 Agent</option>
-        </select>
         <div class="seg" id="evFilters"></div>
-        <input class="search" id="kw" placeholder="🔍 搜索事件内容" oninput="renderEvents()">
         <div class="fspacer" style="margin-left:auto;"></div>
         <button class="btn ghost sm">⧉ 复制</button>
         <button class="btn ghost sm">⬇ 导出</button>
@@ -367,12 +361,12 @@ function openSession(key) {
   document.getElementById('listView').classList.add('hidden');
   document.getElementById('detailView').classList.remove('hidden');
   const s = curSess;
-  document.getElementById('dTitle').textContent = s.title;
+  document.getElementById('dTitle').textContent = s.bot;
   document.getElementById('dSt').textContent = s.status === "active" ? "active" : "闲置的";
   document.getElementById('dMetas').innerHTML =
     `<span class="metapill">⏱ ${s.dur}</span><span class="metapill">🎫 ${s.token}</span><span class="metapill">🕐 ${s.ago}</span>`;
   document.getElementById('dSub').innerHTML =
-    `<span class="metapill">🧠 ${s.bot}</span><span class="metapill">${channelChip(s.channel)}</span><span class="metapill">📚 ${s.kb}</span><span class="metapill" style="font-family:Menlo,monospace;">🆔 ${s.id}</span>`;
+    `<span class="metapill">${channelChip(s.channel)}</span><span class="metapill">📚 ${s.kb}</span><span class="metapill" style="font-family:Menlo,monospace;">🆔 ${s.id}</span>`;
   renderFilters();
   renderEvents();
   closeDrawer();
@@ -404,18 +398,13 @@ document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) { cons
 // 事件流
 function renderEvents() {
   if (!curSess) return;
-  const kw = (document.getElementById('kw').value || "").trim();
-  const spk = document.getElementById('speaker').value;
   let html = "";
   curSess.events.forEach((e, i) => {
     if (e.type === "idle") {
-      if (selTypes.size === 0 && !kw && spk === "all") html += `<div class="ev-idle">${e.text}</div>`;
+      if (selTypes.size === 0) html += `<div class="ev-idle">${e.text}</div>`;
       return;
     }
     if (selTypes.size > 0 && !selTypes.has(e.type)) return;
-    if (spk === "user" && e.type !== "user") return;
-    if (spk === "agent" && e.type !== "agent") return;
-    if (kw && !((e.sum||"") + (e.lbl||"")).includes(kw)) return;
     const T = TYPES[e.type];
     const metric = [];
     if (e.tin) metric.push(`<span class="mtk">🎫 ${e.tin} / ${e.tout}</span>`);
