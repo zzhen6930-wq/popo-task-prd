@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkHub Studio · 资源库 · 高保真交互原型</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #0f172a; font-size: 14px; line-height: 1.6; overflow: hidden; }
+
+  .topbar { height: 56px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 24px; gap: 20px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+  .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+  .tenant-select { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 6px; font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13px; color: #475569; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ec4899); color: #fff; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+
+  .layout { display: flex; height: calc(100% - 56px); }
+  .sidebar { width: 200px; background: #fff; border-right: 1px solid #e5e7eb; padding: 14px 10px; flex-shrink: 0; overflow-y: auto; }
+  .side-group { font-size: 11px; color: #94a3b8; padding: 10px 12px 4px; letter-spacing: .5px; }
+  .side-item { padding: 8px 12px; border-radius: 8px; margin: 2px 0; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .side-item:hover { background: #f8fafc; }
+  .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
+  .main { flex: 1; overflow-y: auto; padding: 22px 26px; position: relative; }
+
+  .page-head { display: flex; align-items: center; margin-bottom: 6px; }
+  .page-head h1 { font-size: 20px; font-weight: 700; }
+  .desc { color: #94a3b8; font-size: 13px; margin-bottom: 16px; }
+
+  .btn { border: none; border-radius: 8px; padding: 8px 15px; font-size: 13px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.primary { background: #4f46e5; color: #fff; }
+  .btn.ghost { background: #fff; border: 1px solid #d1d5db; color: #374151; }
+  .btn.ghost:hover { background: #f8fafc; }
+  .btn.sm { padding: 5px 11px; font-size: 12px; }
+
+  /* 工具条 */
+  .rl-bar { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+  .tabs { display: flex; gap: 18px; }
+  .tab { font-size: 14px; color: #94a3b8; cursor: pointer; padding-bottom: 4px; border-bottom: 2px solid transparent; }
+  .tab:hover { color: #475569; }
+  .tab.active { color: #0f172a; font-weight: 700; border-bottom-color: #ea580c; }
+  .bar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .search { border: 1px solid #d1d5db; border-radius: 8px; padding: 7px 12px; font-size: 13px; min-width: 240px; }
+  .search:focus { outline: none; border-color: #6366f1; }
+
+  /* 筛选下拉 */
+  .dd { position: relative; }
+  .dd-btn { border: 1px solid #d1d5db; border-radius: 8px; padding: 7px 12px; font-size: 13px; color: #475569; cursor: pointer; background: #fff; display: inline-flex; align-items: center; gap: 6px; }
+  .dd-btn.on { border-color: #6366f1; color: #4338ca; background: #eef2ff; }
+  .dd-menu { display: none; position: absolute; top: 40px; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.1); padding: 6px; min-width: 210px; z-index: 30; }
+  .dd-menu.show { display: block; }
+  .dd-opt { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px; font-size: 13px; color: #475569; cursor: pointer; }
+  .dd-opt:hover { background: #f8fafc; }
+  .dd-opt .ck { width: 14px; color: #4f46e5; font-weight: 700; }
+  .dd-div { height: 1px; background: #f1f5f9; margin: 4px 2px; }
+
+  /* 表格 */
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+  th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 12px; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr:last-child td { border-bottom: none; }
+  .fname { display: flex; align-items: center; gap: 10px; }
+  .fico { width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: 700; flex-shrink: 0; }
+  .fname b { font-weight: 500; color: #0f172a; }
+  .star { cursor: pointer; font-size: 15px; margin-left: 2px; }
+  .star.on { color: #f59e0b; }
+  .star.off { color: #cbd5e1; }
+  .src { color: #64748b; }
+  .go { color: #ea580c; cursor: pointer; }
+  .go:hover { text-decoration: underline; }
+  .acts { display: flex; gap: 12px; color: #64748b; }
+  .acts span:hover { color: #4f46e5; }
+  .empty { padding: 60px; text-align: center; color: #94a3b8; }
+
+  /* 预览抽屉 */
+  .mask { position: fixed; inset: 0; background: rgba(15,23,42,.4); display: none; z-index: 50; }
+  .mask.show { display: block; }
+  .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 480px; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,.12); transform: translateX(100%); transition: transform .25s; z-index: 60; display: flex; flex-direction: column; }
+  .drawer.show { transform: translateX(0); }
+  .dh { padding: 16px 18px; border-bottom: 1px solid #e5e7eb; }
+  .dh-top { display: flex; align-items: center; gap: 10px; }
+  .dh-top .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
+  .dh-name { font-weight: 700; font-size: 14px; }
+  .dh-meta { font-size: 12px; color: #94a3b8; margin-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .dh-acts { display: flex; gap: 8px; margin-top: 12px; }
+  .db { padding: 18px; overflow-y: auto; flex: 1; }
+  .pv-img { width: 100%; height: 200px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 46px; color: #fff; }
+  .pv-md { font-size: 13px; color: #334155; }
+  .pv-md h4 { font-size: 14px; margin: 10px 0 6px; }
+  .pv-md table { margin: 8px 0; }
+  .pv-md th, .pv-md td { border: 1px solid #e5e7eb; padding: 6px 9px; }
+  .pv-md ul { padding-left: 20px; }
+  .pv-code { font-family: Menlo, Consolas, monospace; font-size: 12px; white-space: pre-wrap; background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 10px; line-height: 1.7; }
+  .pv-doc { border: 1.5px dashed #e2e8f0; border-radius: 12px; padding: 40px 20px; text-align: center; color: #94a3b8; }
+  .pv-doc .ic { font-size: 40px; margin-bottom: 10px; }
+  .pv-link { border: 1px solid #cffafe; background: #ecfeff; border-radius: 12px; padding: 20px; text-align: center; }
+
+  .toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px); background: #0f172a; color: #fff; padding: 11px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 100; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="logo-icon">W</span>WorkHub Studio</div>
+  <div class="tenant-select">🏢 网易 NoteBook 租户 ▾</div>
+  <div class="topbar-right"><span>AI 工厂</span><div class="avatar">张</div></div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="side-group">AI 工厂</div>
+    <div class="side-item">💬 对话</div>
+    <div class="side-item">🤖 Bots</div>
+    <div class="side-item">🧠 Agents</div>
+    <div class="side-item">👥 Teams</div>
+    <div class="side-item">🧩 Models</div>
+    <div class="side-item">📝 Prompts</div>
+    <div class="side-item">⚙️ Skills</div>
+    <div class="side-item">🧠 记忆</div>
+    <div class="side-item active">📦 资源库</div>
+    <div class="side-item">🗂️ 会话</div>
+    <div class="side-item">⚡ 自动化任务</div>
+  </div>
+
+  <div class="main">
+    <div class="page-head"><h1>📦 资源库</h1></div>
+    <div class="desc">集中管理 Agent 产出的结果交付物，支持收藏、搜索、筛选、预览与下载 · 多端可取</div>
+
+    <div class="rl-bar">
+      <div class="tabs">
+        <div class="tab active" data-tab="all" onclick="switchTab('all')">全部</div>
+        <div class="tab" data-tab="fav" onclick="switchTab('fav')">收藏</div>
+      </div>
+      <div class="bar-right">
+        <div class="dd">
+          <div class="dd-btn" id="filterBtn" onclick="toggleDD(event)">▾ 筛选</div>
+          <div class="dd-menu" id="ddMenu"></div>
+        </div>
+        <input class="search" id="kw" placeholder="🔍 搜索文件名 / 来源" oninput="renderList()">
+      </div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%">文件名</th>
+            <th>来源</th>
+            <th>大小</th>
+            <th>时间</th>
+            <th style="width:16%">操作</th>
+          </tr>
+        </thead>
+        <tbody id="rlBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 预览抽屉 -->
+<div class="mask" id="mask" onclick="closePv()"></div>
+<div class="drawer" id="drawer">
+  <div class="dh">
+    <div class="dh-top">
+      <span class="fico" id="pvIco"></span>
+      <span class="dh-name" id="pvName"></span>
+      <span class="x" onclick="closePv()">×</span>
+    </div>
+    <div class="dh-meta" id="pvMeta"></div>
+    <div class="dh-acts">
+      <button class="btn ghost sm" onclick="toast('开始下载…')" id="pvDl">⬇ 下载</button>
+      <button class="btn ghost sm" onclick="toast('跳转到来源会话 / 任务')">↗ 来源</button>
+      <button class="btn ghost sm" id="pvFav" onclick="favFromPv()"></button>
+    </div>
+  </div>
+  <div class="db" id="pvBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// 类型：扩展名 → 图标色；大类 cat
+const EXT = {
+  md:   { color: "#0ea5e9", cat: "doc" },
+  docx: { color: "#2563eb", cat: "doc" },
+  pdf:  { color: "#dc2626", cat: "doc" },
+  txt:  { color: "#64748b", cat: "doc" },
+  xlsx: { color: "#16a34a", cat: "data" },
+  csv:  { color: "#16a34a", cat: "data" },
+  json: { color: "#0891b2", cat: "data" },
+  html: { color: "#ea580c", cat: "web" },
+  css:  { color: "#0ea5e9", cat: "web" },
+  js:   { color: "#eab308", cat: "web" },
+  py:   { color: "#ca8a04", cat: "code" },
+  sh:   { color: "#334155", cat: "code" },
+  zip:  { color: "#78716c", cat: "code" },
+  png:  { color: "#ec4899", cat: "media" },
+  jpg:  { color: "#ec4899", cat: "media" },
+  svg:  { color: "#8b5cf6", cat: "chart" },
+  mp4:  { color: "#7c3aed", cat: "media" },
+  mp3:  { color: "#7c3aed", cat: "media" },
+  pptx: { color: "#dc2626", cat: "media" },
+  mmd:  { color: "#059669", cat: "chart" },
+  cloud:{ color: "#0891b2", cat: "cloud" }
+};
+const CATS = {
+  doc:   "文档与文字",
+  web:   "网页与应用",
+  data:  "数据与表格",
+  code:  "代码与脚本",
+  media: "多媒体与设计",
+  chart: "图表与架构",
+  cloud: "云空间产物"
+};
+
+let items = [
+  { id: 1, name: "会议纪要.md", ext: "md", src: "深度研究员 · 会议纪要生成", size: "12 KB", time: "2026-07-23 15:08", fav: true,
+    pv: `<div class="pv-md"><h4>📝 项目周会纪要（2026-07-23）</h4><p><b>参会：</b>青远、李四、王五</p><h4>决议</h4><ul><li>资源库一期只收结果交付物</li><li>支持收藏、来源跳转、多端</li></ul><h4>待办</h4><table><tr><th>事项</th><th>负责人</th></tr><tr><td>原型评审</td><td>青远</td></tr></table></div>` },
+  { id: 2, name: "agenthub会议转录原文.docx", ext: "docx", src: "深度研究员 · 转录", size: "48 KB", time: "2026-07-23 15:02", fav: false,
+    pv: `<div class="pv-doc"><div class="ic">📄</div>Word 文档预览<div style="margin-top:6px;font-size:12px;">docx 暂不在线渲染，可下载后用 Word 打开</div></div>` },
+  { id: 3, name: "数据分析结果.xlsx", ext: "xlsx", src: "数据助手 · 报表导出", size: "86 KB", time: "2026-07-23 14:20", fav: false,
+    pv: `<div class="pv-md"><table><tr><th>渠道</th><th>会话数</th><th>Token</th></tr><tr><td>workflow</td><td>128</td><td>2.1M</td></tr><tr><td>智能体机器人</td><td>342</td><td>5.6M</td></tr></table></div>` },
+  { id: 4, name: "项目周报（POPO 文档）", ext: "cloud", src: "周报 Agent · 自动化任务", size: "链接", time: "2026-07-23 09:00", fav: false,
+    pv: `<div class="pv-link"><div style="font-size:34px;">☁️</div><div style="margin:8px 0;color:#0e7490;">POPO 云文档</div><button class="btn primary sm" onclick="toast('在 POPO 中打开')">在 POPO 中打开 ↗</button></div>` },
+  { id: 5, name: "竞品分析报告.pdf", ext: "pdf", src: "深度研究员 · 报告", size: "1.2 MB", time: "2026-07-22 18:40", fav: true,
+    pv: `<div class="pv-doc"><div class="ic">📕</div>PDF 内嵌预览<div style="margin-top:6px;font-size:12px;">（此处内嵌 PDF 渲染，示意）</div></div>` },
+  { id: 6, name: "落地页原型.html", ext: "html", src: "前端助手 · 页面生成", size: "24 KB", time: "2026-07-22 16:10", fav: false,
+    pv: `<div class="pv-doc"><div class="ic">🌐</div>HTML 页面<div style="margin-top:6px;font-size:12px;">可内嵌 iframe 预览或新窗口打开</div><button class="btn primary sm" style="margin-top:10px;" onclick="toast('新窗口打开预览')">打开预览 ↗</button></div>` },
+  { id: 7, name: "系统架构图.svg", ext: "svg", src: "架构助手 · 绘图", size: "8 KB", time: "2026-07-22 11:05", fav: false,
+    pv: `<div class="pv-img" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);">🗺️</div><p style="margin-top:10px;color:#64748b;font-size:12px;">SVG 矢量图，可无损缩放</p>` },
+  { id: 8, name: "宣传海报.png", ext: "png", src: "设计助手 · AI 生图", size: "640 KB", time: "2026-07-21 20:30", fav: false,
+    pv: `<div class="pv-img" style="background:linear-gradient(135deg,#ec4899,#f59e0b);">🖼️</div><p style="margin-top:10px;color:#64748b;font-size:12px;">PNG 图片，1024×1536</p>` },
+  { id: 9, name: "数据清洗.py", ext: "py", src: "数据助手 · 脚本", size: "4 KB", time: "2026-07-21 15:12", fav: false,
+    pv: `<div class="pv-code">import pandas as pd
+
+df = pd.read_csv("raw.csv")
+df = df.dropna().drop_duplicates()
+df.to_csv("clean.csv", index=False)
+print("done", len(df))</div>` },
+  { id: 10, name: "产品介绍.mp4", ext: "mp4", src: "视频助手 · 生成", size: "12 MB", time: "2026-07-21 10:00", fav: false,
+    pv: `<div class="pv-img" style="background:#0f172a;">▶️</div><p style="margin-top:10px;color:#64748b;font-size:12px;">MP4 视频 · 00:38 · 1080p</p>` }
+];
+
+let curTab = "all", selCats = new Set(), curPv = null;
+
+function ficoText(ext) { return ext === "cloud" ? "☁" : ext.slice(0, 3); }
+
+function renderFilters() {
+  const opts = Object.entries(CATS).map(([k, v]) =>
+    `<div class="dd-opt" onclick="toggleCat(event,'${k}')"><span class="ck">${selCats.has(k)?'✓':''}</span>${v}</div>`).join('');
+  document.getElementById('ddMenu').innerHTML =
+    `<div class="dd-opt" onclick="clearCats(event)"><span class="ck">${selCats.size===0?'✓':''}</span>全部类型</div><div class="dd-div"></div>${opts}`;
+  document.getElementById('filterBtn').className = "dd-btn" + (selCats.size ? " on" : "");
+  document.getElementById('filterBtn').textContent = selCats.size ? `▾ 筛选 · ${selCats.size}` : "▾ 筛选";
+}
+function toggleDD(e) { e.stopPropagation(); document.getElementById('ddMenu').classList.toggle('show'); }
+function openDD() { document.getElementById('ddMenu').classList.add('show'); }
+function toggleCat(e, k) { e.stopPropagation(); selCats.has(k) ? selCats.delete(k) : selCats.add(k); renderFilters(); openDD(); renderList(); }
+function clearCats(e) { e.stopPropagation(); selCats.clear(); renderFilters(); openDD(); renderList(); }
+document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) document.getElementById('ddMenu').classList.remove('show'); });
+
+function switchTab(t) {
+  curTab = t;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === t));
+  renderList();
+}
+
+function renderList() {
+  const kw = (document.getElementById('kw').value || "").trim();
+  const rows = items.filter(it => {
+    if (curTab === "fav" && !it.fav) return false;
+    if (selCats.size && !selCats.has(EXT[it.ext].cat)) return false;
+    if (kw && !(it.name + it.src).includes(kw)) return false;
+    return true;
+  });
+  const body = document.getElementById('rlBody');
+  if (!rows.length) { body.innerHTML = `<tr><td colspan="5"><div class="empty">📭 暂无匹配的资源</div></td></tr>`; return; }
+  body.innerHTML = rows.map(it => `
+    <tr onclick="openPv(${it.id})">
+      <td><div class="fname">
+        <span class="fico" style="background:${EXT[it.ext].color}">${ficoText(it.ext)}</span>
+        <b>${it.name}</b>
+        <span class="star ${it.fav?'on':'off'}" onclick="toggleFav(event,${it.id})">${it.fav?'★':'☆'}</span>
+      </div></td>
+      <td class="src">${it.src} <span class="go" onclick="event.stopPropagation();toast('跳转到来源会话 / 任务')">↗</span></td>
+      <td class="src">${it.size}</td>
+      <td class="src">${it.time}</td>
+      <td><div class="acts">
+        <span onclick="event.stopPropagation();openPv(${it.id})">预览</span>
+        <span onclick="event.stopPropagation();toast('开始下载…')">下载</span>
+        <span onclick="event.stopPropagation();toast('已删除（示意）')">⋯</span>
+      </div></td>
+    </tr>`).join('');
+}
+
+function toggleFav(e, id) {
+  e.stopPropagation();
+  const it = items.find(x => x.id === id);
+  it.fav = !it.fav;
+  renderList();
+  toast(it.fav ? "已收藏" : "已取消收藏");
+}
+
+function openPv(id) {
+  curPv = items.find(x => x.id === id);
+  const it = curPv, e = EXT[it.ext];
+  document.getElementById('pvIco').style.background = e.color;
+  document.getElementById('pvIco').textContent = ficoText(it.ext);
+  document.getElementById('pvName').textContent = it.name;
+  document.getElementById('pvMeta').innerHTML =
+    `<span>📂 ${CATS[e.cat]}</span><span>🔗 ${it.src}</span><span>📦 ${it.size}</span><span>🕐 ${it.time}</span>`;
+  document.getElementById('pvBody').innerHTML = it.pv;
+  document.getElementById('pvDl').style.display = it.ext === "cloud" ? "none" : "";
+  syncPvFav();
+  document.getElementById('mask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+}
+function syncPvFav() { document.getElementById('pvFav').textContent = curPv.fav ? "★ 已收藏" : "☆ 收藏"; }
+function favFromPv() { curPv.fav = !curPv.fav; syncPvFav(); renderList(); toast(curPv.fav ? "已收藏" : "已取消收藏"); }
+function closePv() { document.getElementById('mask').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); }
+
+let tt;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1800); }
+
+renderFilters();
+renderList();
+</script>
+</body>
+</html>
