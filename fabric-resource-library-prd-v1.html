@@ -183,7 +183,7 @@
   <!-- 5 资源库页面 -->
   <div class="section">
     <div class="section-title"><span class="num">5</span>资源库页面（列表）</div>
-    <p>在「AI 工厂」下新增「<b>资源库</b>」菜单。页面顶部为 <b>全部 / 收藏</b> 两个视图 Tab + <b>搜索</b> + <b>筛选</b>；列表列为 <b>文件名 / 来源 / 时间 / 操作</b>。形态参考飞书 aily 资源库（仅参考，后台交互以本方案为准）：</p>
+    <p>在「AI 工厂」下新增「<b>资源库</b>」菜单。页面顶部为 <b>全部 / 收藏</b> 两个视图 Tab + <b>搜索</b> + <b>筛选</b>；列表列为 <b>文件名 / 来源 / 创建人 / 大小 / 时间 / 操作</b>。形态参考飞书 aily 资源库（仅参考，后台交互以本方案为准）：</p>
     <div class="mock">
       <div class="mk-bar">
         <span class="mk-tab active">全部</span>
@@ -194,12 +194,12 @@
         </div>
       </div>
       <table>
-        <thead><tr><th style="width:44%">文件名</th><th>来源</th><th style="width:20%">时间</th></tr></thead>
+        <thead><tr><th style="width:32%">文件名</th><th>来源</th><th>创建人</th><th>时间</th><th>操作</th></tr></thead>
         <tbody>
-          <tr><td><span class="fico" style="background:#0ea5e9;">md</span>会议纪要.md <span class="star">★</span></td><td class="src">深度研究员 · 会议纪要生成 <span class="go">↗</span></td><td>2026-07-23 15:08</td></tr>
-          <tr><td><span class="fico" style="background:#2563eb;">W</span>agenthub会议转录原文.docx <span class="star off">☆</span></td><td class="src">深度研究员 · 转录 <span class="go">↗</span></td><td>2026-07-23 15:02</td></tr>
-          <tr><td><span class="fico" style="background:#16a34a;">xls</span>数据分析结果.xlsx <span class="star off">☆</span></td><td class="src">数据助手 · 报表导出 <span class="go">↗</span></td><td>2026-07-23 14:20</td></tr>
-          <tr><td><span class="fico" style="background:#ea580c;">☁</span>项目周报（POPO 文档） <span class="star off">☆</span></td><td class="src">周报 Agent · 自动化任务 <span class="go">↗</span></td><td>2026-07-23 09:00</td></tr>
+          <tr><td><span class="fico" style="background:#0ea5e9;">md</span>会议纪要.md <span class="star">★</span></td><td class="src">深度研究员 · 会议纪要生成</td><td style="font-size:11px;color:#64748b;">hzdingyuqing@…</td><td>07-23 15:08</td><td style="color:#64748b;">📍 定位 · ⬇ 下载 · ★</td></tr>
+          <tr><td><span class="fico" style="background:#2563eb;">doc</span>会议转录原文.docx <span class="star off">☆</span></td><td class="src">深度研究员 · 转录</td><td style="font-size:11px;color:#64748b;">sangchen@…</td><td>07-23 15:02</td><td style="color:#64748b;">📍 定位 · ⬇ 下载 · ☆</td></tr>
+          <tr><td><span class="fico" style="background:#ea580c;">html</span>落地页原型.html <span class="go" style="font-size:11px;border:1px solid #fed7aa;background:#fff7ed;border-radius:4px;padding:0 4px;">↗ 浏览器打开</span></td><td class="src">前端助手 · 页面生成</td><td style="font-size:11px;color:#64748b;">cuiyixian@…</td><td>07-22 16:10</td><td style="color:#64748b;">📍 定位 · ⬇ 下载 · ☆</td></tr>
+          <tr><td><span class="fico" style="background:#0891b2;">☁</span>项目周报（POPO 文档） <span class="go" style="font-size:11px;border:1px solid #fed7aa;background:#fff7ed;border-radius:4px;padding:0 4px;">↗ 浏览器打开</span></td><td class="src">周报 Agent · 自动化任务</td><td style="font-size:11px;color:#64748b;">zhaoxiaoshuai@…</td><td>07-23 09:00</td><td style="color:#64748b;">📍 定位 · ⬇ 下载 · ☆</td></tr>
         </tbody>
       </table>
     </div>
@@ -207,16 +207,18 @@
     <table>
       <thead><tr><th style="width:16%">字段</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>文件名</b></td><td>带<b>类型图标</b> + 文件名；行内含<b>收藏星标</b>（★/☆ 可点击切换）</td></tr>
-        <tr><td><b>来源</b></td><td>产生该产物的<b>会话 / Agent / 自动化任务</b>，带跳转 <span class="src"><span class="go">↗</span></span> 回溯到来源上下文</td></tr>
+        <tr><td><b>文件名</b></td><td>带<b>类型图标</b> + 文件名；已收藏显示 ★ 标记；<b>html / POPO 云文档</b>等直开类型显示「↗ 浏览器打开」标记</td></tr>
+        <tr><td><b>来源</b></td><td>产生该产物的<b>会话 / Agent / 自动化任务</b>；点击<b>跳转到「对话页」并自动锚定该产出物位置</b>（见 6 节）</td></tr>
+        <tr><td><b>创建人</b></td><td>产生该产物的用户，展示<b>用户邮箱</b></td></tr>
+        <tr><td><b>大小</b></td><td>文件大小；云空间产物显示「链接」</td></tr>
         <tr><td><b>时间</b></td><td>入库 / 生成时间，支持按时间排序</td></tr>
-        <tr><td><b>操作</b></td><td>收藏、预览、下载、来源跳转、重命名、删除等（hover / 更多菜单）</td></tr>
+        <tr><td><b>操作</b></td><td>行内直接可操作三项：<b>📍 在任务中定位</b>、<b>⬇ 下载</b>、<b>★ 收藏 / 取消收藏</b></td></tr>
       </tbody>
     </table>
     <h3>5.2 视图 / 搜索 / 筛选</h3>
     <ul>
       <li><b>全部 / 收藏 Tab</b>：全部=所有入库条目；收藏=打星标的条目聚合</li>
-      <li><b>搜索</b>：按文件名 / 来源关键词检索</li>
+      <li><b>搜索</b>：按文件名 / 来源 / 创建人关键词检索</li>
       <li><b>筛选</b>：按<b>文件类型</b>（7 类）、<b>来源</b>、<b>时间范围</b>过滤，可组合</li>
     </ul>
   </div>
@@ -227,11 +229,10 @@
     <table>
       <thead><tr><th style="width:18%">能力</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>收藏</b></td><td>点击星标即时收藏 / 取消，收藏态多端同步</td></tr>
-        <tr><td><b>预览</b></td><td>按类型分别处理：图片直接看、PDF 内嵌预览、md / 代码渲染、音视频播放、云空间产物跳转 POPO</td></tr>
-        <tr><td><b>下载</b></td><td>本地文件类可直接下载原文件；云空间产物跳转到 POPO 下载</td></tr>
-        <tr><td><b>来源跳转</b></td><td>点击来源 ↗ 回到产生该产物的会话 / 任务上下文</td></tr>
-        <tr><td><b>重命名 / 删除</b></td><td>管理条目；删除需二次确认</td></tr>
+        <tr><td><b>收藏</b></td><td>行内点击 ★ 即时收藏 / 取消，收藏态多端同步</td></tr>
+        <tr><td><b>预览（点击行）</b></td><td>点击列表行即预览，采用<b>大预览</b>（居中大弹窗，白纸张式内容区）：图片放大看、md / 代码渲染、docx / pdf 内嵌预览、音视频播放。<b>例外</b>：<b>html、POPO 云文档</b>等不进后台预览，点击<b>直接在浏览器打开</b>原文件</td></tr>
+        <tr><td><b>在任务中定位 📍</b></td><td>点击<b>来源</b>或行内<b>📍 定位</b>，均<b>跳转到「对话页」并自动锚定该产出物在对话中的位置</b>，回到产生上下文</td></tr>
+        <tr><td><b>下载 ⬇</b></td><td>本地文件类可直接下载原文件；云空间产物跳转到 POPO 下载</td></tr>
         <tr><td><b>多端可取</b></td><td>库数据云端统一存储，Web 后台 / 客户端 / 移动端一致访问</td></tr>
       </tbody>
     </table>
@@ -268,9 +269,11 @@
     <ol>
       <li>Agent 产出<b>结果交付物</b>时自动入库，<b>过程产物不入库</b>。</li>
       <li>支持第 4 节列出的<b>全部文件类型</b>正确识别与归类；未知类型兜底不阻断。</li>
-      <li>列表按 <b>文件名 / 来源 / 时间</b> 展示，<b>全部 / 收藏</b> Tab 可切换，收藏可即时 toggle。</li>
+      <li>列表按 <b>文件名 / 来源 / 创建人（邮箱）/ 时间</b> 展示，<b>全部 / 收藏</b> Tab 可切换，收藏可即时 toggle。</li>
+      <li><b>操作三项</b>行内直接可用：<b>📍 在任务中定位 · ⬇ 下载 · ★ 收藏/取消收藏</b>。</li>
       <li><b>搜索 / 筛选</b>（类型 / 来源 / 时间）生效。</li>
-      <li>可<b>预览 / 下载</b>；<b>来源 ↗</b> 能跳回产生该产物的会话 / 任务。</li>
+      <li>点击行<b>大预览</b>；<b>html / POPO 云文档</b>点击<b>直接在浏览器打开</b>，不进后台预览。</li>
+      <li>点击<b>来源 / 定位</b>能<b>跳转「对话页」并锚定该产出物位置</b>。</li>
       <li><b>云空间产物</b>以链接入库，点击跳转 POPO 打开。</li>
       <li>库数据<b>多端一致</b>可取。</li>
     </ol>
