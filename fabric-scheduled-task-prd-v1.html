@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Fabric · AI 工厂「自动化任务」菜单（一期 MVP）· PRD</title>
+<title>WrokHub Studio · AI 工厂「自动化任务」菜单（一期 MVP）· PRD</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -214,20 +214,20 @@
 <div class="container">
 
   <div class="header">
-    <h1>Fabric · AI 工厂「自动化任务」菜单（一期 MVP）</h1>
+    <h1>WrokHub Studio · AI 工厂「自动化任务」菜单（一期 MVP）</h1>
     <div style="opacity:0.92;font-size:13px;">让 B 端租户与 C 端用户都能给 Agent 配置自动化任务，覆盖定时播报、事件响应、外部 WebHook 触发等场景</div>
     <div class="meta">
       <span>📅 2026-06-23</span>
       <span>🏷️ v2.0</span>
       <span>👤 作者：张振</span>
-      <span>🧩 归属：Fabric / AI 工厂</span>
+      <span>🧩 归属：WrokHub Studio / AI 工厂</span>
     </div>
   </div>
 
   <!-- 一、背景 -->
   <div class="section">
     <div class="section-title"><span class="num">1</span>背景与目标</div>
-    <p>Fabric 是面向<b>组织/租户</b>的 Agent 配置平台。当前 Agent 只能在<b>用户对话</b>时被动触发执行，缺少<b>主动 / 自动化触发</b>能力，典型场景跑不通：</p>
+    <p>WrokHub Studio 是面向<b>组织/租户</b>的 Agent 配置平台。当前 Agent 只能在<b>用户对话</b>时被动触发执行，缺少<b>主动 / 自动化触发</b>能力，典型场景跑不通：</p>
     <ul>
       <li>每天 18:00 让 Agent 把"群运维日报"主动推给负责人 → 跑不通（<b>定时触发</b>）</li>
       <li>指定云文档一有变更，就让 Agent 总结变更并通知相关人 → 跑不通（<b>事件触发</b>）</li>
@@ -485,7 +485,7 @@
     <h3>失败重试与告警</h3>
     <ul>
       <li>单次执行失败 → 自动重试 <b>1 次</b>（间隔 1 分钟）</li>
-      <li>重试仍失败 → 记录到执行历史，标红显示，并通过 Fabric 站内消息<b>告警给创建人</b></li>
+      <li>重试仍失败 → 记录到执行历史，标红显示，并通过 WrokHub Studio 站内消息<b>告警给创建人</b></li>
       <li>连续 3 次执行失败 → <b>自动停用</b>该任务，避免持续无效消耗</li>
       <li>命中静默条件 → 记录为「已跳过」，不计入失败</li>
     </ul>
@@ -570,7 +570,7 @@
   </div>
 
   <div class="footer">
-    Fabric · AI 工厂「自动化任务」菜单 v2.0 一期 MVP
+    WrokHub Studio · AI 工厂「自动化任务」菜单 v2.0 一期 MVP
   </div>
 
 </div>
