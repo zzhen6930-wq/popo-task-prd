@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · AI 工厂「资源库」· PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; flex-wrap: wrap; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #ea580c; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 16px 0 8px; padding-left: 10px; border-left: 3px solid #f59e0b; }
+  .section h4 { font-size: 13px; font-weight: 600; color: #475569; margin: 12px 0 6px; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code { background: #fff7ed; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #c2410c; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 10px 0; border-left: 4px solid; font-size: 14px; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout.key { background: #fff7ed; border-color: #f97316; color: #9a3412; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 5px; font-size: 11px; margin-left: 4px; }
+  .tag.amber { background: #fef3c7; color: #b45309; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.gray { background: #f1f5f9; color: #475569; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0; }
+
+  /* 文件类型分类卡 */
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .cat-card { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  .cat-card .cc-head { background: #fff7ed; color: #9a3412; font-weight: 700; font-size: 13px; padding: 9px 14px; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 8px; }
+  .cat-card .cc-body { padding: 10px 14px; font-size: 12.5px; color: #475569; }
+  .cat-card .cc-body b { color: #0f172a; }
+  .cat-card code { font-size: 11px; }
+
+  /* 列表 mock */
+  .mock { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin: 12px 0; background: #fff; }
+  .mock .mk-bar { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+  .mock .mk-tab { font-size: 13px; color: #94a3b8; cursor: default; }
+  .mock .mk-tab.active { color: #0f172a; font-weight: 700; border-bottom: 2px solid #ea580c; padding-bottom: 3px; }
+  .mock .mk-right { margin-left: auto; display: flex; gap: 8px; }
+  .mock .mk-pill { border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 10px; font-size: 12px; color: #64748b; }
+  .mock table { margin: 0; }
+  .mock th { font-size: 12px; }
+  .mock td { border-left: none; border-right: none; }
+  .mock th { border-left: none; border-right: none; }
+  .fico { width: 22px; height: 22px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; margin-right: 8px; vertical-align: middle; }
+  .star { color: #f59e0b; }
+  .star.off { color: #cbd5e1; }
+  .src { color: #64748b; }
+  .src .go { color: #ea580c; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>WorkHub Studio · AI 工厂「资源库」</h1>
+    <div style="opacity:0.92;font-size:13px;">把 Agent 的结果交付物沉淀成可查找、可复用、多端可取的「资源库」，让产出不再随对话消失。</div>
+    <div class="meta">
+      <span>📅 2026-07-23</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：WorkHub Studio / AI 工厂 · 资源库</span>
+    </div>
+  </div>
+
+  <!-- 1 背景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>当前 WorkHub Studio 里，Agent 生成的产出物<b>没有被持久保存</b>——报告、表格、图片、代码、生成的网页等都散落在一次次对话里，导致：</p>
+    <ul>
+      <li><b>找不回</b>：产出物随会话沉底，事后想再用只能翻聊天记录，甚至已丢失</li>
+      <li><b>难复用</b>：无法集中管理、检索、二次编辑或分享</li>
+      <li><b>多端断裂</b>：换个端（Web / 客户端 / 移动）就拿不到之前的产出</li>
+      <li><b>无沉淀</b>：有价值的成品无法收藏、归档，形成不了个人 / 组织资产</li>
+    </ul>
+    <p style="margin-top:10px;"><b>本期目标</b>：新增「<b>资源库</b>」能力——把 Agent 产出的<b>结果交付物</b>自动入库，统一按<b>文件名 / 来源 / 时间</b>管理，支持<b>收藏、搜索、筛选、预览、下载、来源跳转</b>，并<b>多端可取</b>。</p>
+    <div class="callout key">
+      <div class="title">🔑 一句话定位</div>
+      给 Agent 的产出装一个「<b>成品仓库</b>」：只收<b>最终交付物</b>，过程草稿不进；一次生成，处处可取、随手可藏。
+    </div>
+  </div>
+
+  <!-- 2 术语 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>核心概念与术语</div>
+    <table>
+      <thead><tr><th style="width:22%">术语</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>资源库（Library）</b></td><td>集中存放 Agent 结果交付物的空间，以<b>文件 / 云空间链接</b>为条目，支持管理与检索</td></tr>
+        <tr><td><b>结果交付物</b></td><td>Agent 面向用户<b>最终交付</b>的成品（可带走、可使用），<b>入库</b>对象</td></tr>
+        <tr><td><b>过程产物</b></td><td>任务中间态：草稿、临时缓存、调试信息、工具原始返回、被覆盖的旧版本等，<b>不入库</b></td></tr>
+        <tr><td><b>来源（Source）</b></td><td>该交付物由哪个<b>会话 / Agent / 自动化任务</b>产生，记录并可<b>跳转回溯</b></td></tr>
+        <tr><td><b>收藏（Favorite）</b></td><td>用户对条目打星标，聚合到「收藏」视图，便于常用产物快速取用</td></tr>
+        <tr><td><b>云空间产物</b></td><td>以<b>链接</b>形式入库的 POPO 云文档 / 多维表 / 云文件，只存链接与元信息，点击跳转</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3 入库规则 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>入库规则（只收结果交付物）</div>
+    <p>入库的核心边界：<b>只有结果交付物才入库，过程中的产物不入库</b>。判定原则如下：</p>
+    <table>
+      <thead><tr><th style="width:24%">判定维度</th><th>结果交付物（✅ 入库）</th><th>过程产物（🚫 不入库）</th></tr></thead>
+      <tbody>
+        <tr><td>是否最终输出</td><td>任务的最终成品，作为答复交付给用户</td><td>中间步骤生成的临时件</td></tr>
+        <tr><td>是否可带走使用</td><td>用户可下载 / 打开 / 分享 / 二次编辑</td><td>仅供内部推理、调试查看</td></tr>
+        <tr><td>典型举例</td><td>最终报告 PDF、生成的 PPT、交付代码 zip、成图 / 视频、生成的 HTML 应用、POPO 文档链接</td><td>思考草稿、工具原始返回、调试日志、被覆盖的旧版本、临时截图</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip">
+      <div class="title">入库时机与元信息</div>
+      Agent 产出结果交付物时<b>自动入库</b>，记录元信息：<code>文件名</code>、<code>类型</code>、<code>来源（会话/Agent/任务 + 可跳转）</code>、<code>生成时间</code>、<code>大小</code>、<code>存储地址</code>。同一交付物多次迭代时以<b>最新版本</b>为准（历史版本策略后续再议）。
+    </div>
+    <div class="callout warn">
+      <div class="title">判定兜底</div>
+      当无法明确区分时，遵循「<b>宁缺勿滥</b>」——只把明确作为交付答复的产物入库，避免过程噪声污染资源库。
+    </div>
+  </div>
+
+  <!-- 4 文件类型 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>支持入库的文件类型</div>
+    <p>按功能用途分为 <b>6 大本地文件类别 + 1 类云空间产物</b>：</p>
+    <div class="cat-grid">
+      <div class="cat-card">
+        <div class="cc-head">📄 1. 文档与文字处理类</div>
+        <div class="cc-body"><b>Markdown</b> <code>.md</code>、<b>PDF</b> <code>.pdf</code>、<b>Word</b> <code>.docx</code>、<b>纯文本</b> <code>.txt</code>、<b>Typst</b> <code>.typ</code><div style="margin-top:4px;color:#94a3b8;">报告、记录、正式交付</div></div>
+      </div>
+      <div class="cat-card">
+        <div class="cc-head">🌐 2. 网页与交互应用类</div>
+        <div class="cc-body"><b>HTML</b> <code>.html</code>、<b>CSS</b> <code>.css</code>、<b>JavaScript</b> <code>.js</code>、<b>TypeScript</b> <code>.ts</code><div style="margin-top:4px;color:#94a3b8;">动态展示、小型 Web 工具</div></div>
+      </div>
+      <div class="cat-card">
+        <div class="cc-head">📊 3. 数据与电子表格类</div>
+        <div class="cc-body"><b>Excel</b> <code>.xlsx</code> <code>.xls</code>、<b>CSV</b> <code>.csv</code>、<b>JSON</b> <code>.json</code>、<b>XML</b> <code>.xml</code>、<b>SQLite</b> <code>.sqlite</code> <code>.db</code><div style="margin-top:4px;color:#94a3b8;">存储、分析、结构化数据交换</div></div>
+      </div>
+      <div class="cat-card">
+        <div class="cc-head">💻 4. 代码与开发脚本类</div>
+        <div class="cc-body"><b>Python</b> <code>.py</code>、<b>Shell</b> <code>.sh</code>、<b>Java / C++ / Go / Rust</b> 等源码、<b>Dockerfile / YAML</b> <code>.yaml</code> <code>.yml</code>、<b>压缩包</b> <code>.zip</code> <code>.tar.gz</code><div style="margin-top:4px;color:#94a3b8;">自动化工具、分析脚本、完整项目</div></div>
+      </div>
+      <div class="cat-card">
+        <div class="cc-head">🎨 5. 视觉、多媒体与设计类</div>
+        <div class="cc-body"><b>图片</b> <code>.png</code> <code>.jpg</code> <code>.jpeg</code> <code>.webp</code>、<b>矢量图</b> <code>.svg</code>、<b>音频</b> <code>.mp3</code> <code>.wav</code>、<b>视频</b> <code>.mp4</code>、<b>演示文稿</b> <code>.pptx</code><div style="margin-top:4px;color:#94a3b8;">AI 生成图、图表、TTS、视频、幻灯片</div></div>
+      </div>
+      <div class="cat-card">
+        <div class="cc-head">📐 6. 图表与架构设计类</div>
+        <div class="cc-body"><b>Mermaid</b> <code>.mmd</code>、<b>D2 / PlantUML</b> <code>.d2</code> <code>.puml</code><div style="margin-top:4px;color:#94a3b8;">流程图、时序图、甘特图、架构图源码</div></div>
+      </div>
+    </div>
+    <div class="cat-card" style="margin-top:2px;">
+      <div class="cc-head">☁️ 7. 云空间产物（以链接入库）</div>
+      <div class="cc-body">
+        <b>POPO 云文档</b>链接、<b>POPO 多维表 / 电子表格</b>链接、<b>POPO 云文件</b>（PDF / Excel / Word / zip 等）链接
+        <div style="margin-top:4px;color:#94a3b8;">只存链接与元信息，不落本体，点击跳转 POPO 打开</div>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="title">类型识别</div>
+      入库时按扩展名 / MIME 识别类型并归类，列表用<b>类型图标</b>区分；未知类型按「其他文件」兜底保存，不阻断入库。
+    </div>
+  </div>
+
+  <!-- 5 资源库页面 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>资源库页面（列表）</div>
+    <p>在「AI 工厂」下新增「<b>资源库</b>」菜单。页面顶部为 <b>全部 / 收藏</b> 两个视图 Tab + <b>搜索</b> + <b>筛选</b>；列表列为 <b>文件名 / 来源 / 时间 / 操作</b>。形态参考飞书 aily 资源库（仅参考，后台交互以本方案为准）：</p>
+    <div class="mock">
+      <div class="mk-bar">
+        <span class="mk-tab active">全部</span>
+        <span class="mk-tab">收藏</span>
+        <div class="mk-right">
+          <span class="mk-pill">▾ 筛选</span>
+          <span class="mk-pill">🔍 搜索</span>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th style="width:44%">文件名</th><th>来源</th><th style="width:20%">时间</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fico" style="background:#0ea5e9;">md</span>会议纪要.md <span class="star">★</span></td><td class="src">深度研究员 · 会议纪要生成 <span class="go">↗</span></td><td>2026-07-23 15:08</td></tr>
+          <tr><td><span class="fico" style="background:#2563eb;">W</span>agenthub会议转录原文.docx <span class="star off">☆</span></td><td class="src">深度研究员 · 转录 <span class="go">↗</span></td><td>2026-07-23 15:02</td></tr>
+          <tr><td><span class="fico" style="background:#16a34a;">xls</span>数据分析结果.xlsx <span class="star off">☆</span></td><td class="src">数据助手 · 报表导出 <span class="go">↗</span></td><td>2026-07-23 14:20</td></tr>
+          <tr><td><span class="fico" style="background:#ea580c;">☁</span>项目周报（POPO 文档） <span class="star off">☆</span></td><td class="src">周报 Agent · 自动化任务 <span class="go">↗</span></td><td>2026-07-23 09:00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>5.1 字段说明</h3>
+    <table>
+      <thead><tr><th style="width:16%">字段</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>文件名</b></td><td>带<b>类型图标</b> + 文件名；行内含<b>收藏星标</b>（★/☆ 可点击切换）</td></tr>
+        <tr><td><b>来源</b></td><td>产生该产物的<b>会话 / Agent / 自动化任务</b>，带跳转 <span class="src"><span class="go">↗</span></span> 回溯到来源上下文</td></tr>
+        <tr><td><b>时间</b></td><td>入库 / 生成时间，支持按时间排序</td></tr>
+        <tr><td><b>操作</b></td><td>收藏、预览、下载、来源跳转、重命名、删除等（hover / 更多菜单）</td></tr>
+      </tbody>
+    </table>
+    <h3>5.2 视图 / 搜索 / 筛选</h3>
+    <ul>
+      <li><b>全部 / 收藏 Tab</b>：全部=所有入库条目；收藏=打星标的条目聚合</li>
+      <li><b>搜索</b>：按文件名 / 来源关键词检索</li>
+      <li><b>筛选</b>：按<b>文件类型</b>（7 类）、<b>来源</b>、<b>时间范围</b>过滤，可组合</li>
+    </ul>
+  </div>
+
+  <!-- 6 交互能力 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>交互能力</div>
+    <table>
+      <thead><tr><th style="width:18%">能力</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>收藏</b></td><td>点击星标即时收藏 / 取消，收藏态多端同步</td></tr>
+        <tr><td><b>预览</b></td><td>按类型分别处理：图片直接看、PDF 内嵌预览、md / 代码渲染、音视频播放、云空间产物跳转 POPO</td></tr>
+        <tr><td><b>下载</b></td><td>本地文件类可直接下载原文件；云空间产物跳转到 POPO 下载</td></tr>
+        <tr><td><b>来源跳转</b></td><td>点击来源 ↗ 回到产生该产物的会话 / 任务上下文</td></tr>
+        <tr><td><b>重命名 / 删除</b></td><td>管理条目；删除需二次确认</td></tr>
+        <tr><td><b>多端可取</b></td><td>库数据云端统一存储，Web 后台 / 客户端 / 移动端一致访问</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7 边界 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>边界与非目标</div>
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 本期做</h4>
+        <ul>
+          <li>结果交付物自动入库（6 类本地 + 云空间链接）</li>
+          <li>资源库列表：全部 / 收藏、搜索、筛选</li>
+          <li>收藏、预览、下载、来源跳转、重命名 / 删除</li>
+          <li>多端可取</li>
+        </ul>
+      </div>
+      <div class="scope-card dont">
+        <h4>🚫 本期不做</h4>
+        <ul>
+          <li>不做过程产物入库</li>
+          <li>不做版本历史管理（仅留最新版本，后续）</li>
+          <li>不做多人协作 / 权限共享（后续）</li>
+          <li>不做库内二次编辑（预览为主，编辑跳原生工具）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 验收 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>验收标准</div>
+    <ol>
+      <li>Agent 产出<b>结果交付物</b>时自动入库，<b>过程产物不入库</b>。</li>
+      <li>支持第 4 节列出的<b>全部文件类型</b>正确识别与归类；未知类型兜底不阻断。</li>
+      <li>列表按 <b>文件名 / 来源 / 时间</b> 展示，<b>全部 / 收藏</b> Tab 可切换，收藏可即时 toggle。</li>
+      <li><b>搜索 / 筛选</b>（类型 / 来源 / 时间）生效。</li>
+      <li>可<b>预览 / 下载</b>；<b>来源 ↗</b> 能跳回产生该产物的会话 / 任务。</li>
+      <li><b>云空间产物</b>以链接入库，点击跳转 POPO 打开。</li>
+      <li>库数据<b>多端一致</b>可取。</li>
+    </ol>
+  </div>
+
+  <div class="footer">WorkHub Studio · AI 工厂「资源库」· PRD v1.0 · 只收结果交付物 · 多端可取 · 可收藏可检索</div>
+
+</div>
+</body>
+</html>
