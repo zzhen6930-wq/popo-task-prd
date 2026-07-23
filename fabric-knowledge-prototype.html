@@ -245,7 +245,7 @@ function renderList(){
   let body = `
     <div class="main-header">
       <span class="main-title">知识</span>
-      <span class="main-sub">${isB?"B 端租户 · 知识本（创建后去 Agent 管理绑定）":"C 端用户 · 我的知识本"}</span>
+      <span class="main-sub">${isB?"B 端 · 独立租户 · 知识本（创建后去 Agent 管理绑定）":"C 端 · 同一 POPO 租户 · 我的知识本"}</span>
       ${isB?`<button class="btn primary" style="margin-left:auto;" onclick="openCreate()">＋ 创建知识本</button>`:``}
     </div>`;
 
@@ -265,7 +265,7 @@ function renderList(){
       <div class="search-box">🔍 搜索知识本 ID / Agent</div>
       ${isB?`<span class="pill" onclick="forceEmpty=true;render()">👁 预览空态</span>`:``}
     </div>
-    <div class="callout info">💡 列表对象是<b>知识本</b>。${isB?"知识本与 Agent 的绑定在「Agent 管理」中完成，本页不绑定。":"C 端给 Agent 绑定知识时自动生成一个知识本，此处按知识本维度展示。"}</div>
+    <div class="callout info">💡 列表对象是<b>知识本</b>。${isB?"每个 B 端用户是一个独立租户，仅展示本租户下知识本；绑定 Agent 在「Agent 管理」完成，本页不绑定。":"C 端个人用户统一在同一个 POPO 租户下，列表内知识本与 Agent 都属该租户；给 Agent 绑定知识时自动生成知识本，此处按知识本维度展示。"}</div>
     <div class="card"><table>
       <thead><tr>
         <th style="width:16%">知识本 ID</th>

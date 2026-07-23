@@ -108,7 +108,7 @@
       <li><b>检索缺失</b>：多个来源的资料无法统一语义检索，Agent 拿不到相关背景</li>
       <li><b>整理靠人</b>：一堆零散文件缺少结构化组织，用不起来</li>
     </ul>
-    <p style="margin-top:10px;"><b>本期目标</b>：<b>复用平台已有的「知识本」能力</b>补齐知识检索。用户在「知识」菜单下，围绕「<b>用户 + Agent</b>」维度上传多来源资料（知识本 / 云空间 / 本地文件），这些资料<b>底层统一落到一个知识本</b>，从而<b>直接复用知识本现有的知识整理、Wiki 生成、LLM 语义检索能力</b>。</p>
+    <p style="margin-top:10px;"><b>本期目标</b>：<b>复用平台已有的「知识本」能力</b>补齐知识检索。用户在「知识」菜单下以「<b>知识本</b>」为对象上传多来源资料（知识本 / 云空间 / 本地文件），这些资料<b>统一落到一个知识本</b>并分配唯一<b>知识本 ID</b>，从而<b>直接复用知识本现有的知识整理、Wiki 生成、LLM 语义检索能力</b>。绑定 Agent 在「Agent 管理」完成。</p>
     <div class="callout key">
       <div class="title">🔑 一句话定位</div>
       「知识」不是重造轮子，而是给「知识本」换一层<b>面向 Agent 的外衣</b>：用户上传资料 = 系统给他建/复用一个知识本，多来源文件汇入<b>同一个知识本</b>，天然获得统一检索 + Wiki。
@@ -121,7 +121,7 @@
     <table>
       <thead><tr><th style="width:22%">术语</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>知识（Knowledge）</b></td><td>本期新增能力入口，面向「<b>用户 + Agent</b>」维度组织资料；底层实现为一个<b>知识本</b></td></tr>
+        <tr><td><b>知识（Knowledge）</b></td><td>本期新增能力入口，以「<b>知识本</b>」为对象组织资料；每个知识本有唯一 <b>知识本 ID</b>，底层实现即<b>知识本</b></td></tr>
         <tr><td><b>知识本（Notebook）</b></td><td>平台已有能力：可容纳多个知识来源，提供知识整理、<b>Wiki 生成</b>、<b>LLM 语义检索</b></td></tr>
         <tr><td><b>知识来源 / 资料（Source）</b></td><td>知识本内的单个文件条目。本期支持三种添加方式汇入：知识本、云空间、本地文件</td></tr>
         <tr><td><b>资料视图</b></td><td>以文件列表形式展示该 Agent 下所有已添加的知识来源</td></tr>
@@ -176,25 +176,38 @@
   <div class="section">
     <div class="section-title"><span class="num">4</span>页面结构与视图</div>
 
-    <h3>4.1 列表页（用户 + Agent 维度）</h3>
-    <p>「知识」菜单列表页以「<b>用户 + Agent</b>」为维度组织：每一行代表某用户为某 Agent 建立的知识集合。点击进入后，展示该用户给该 Agent 上传的<b>所有知识</b>。</p>
+    <h3>4.1 列表对象 = 知识本</h3>
+    <p><b>列表对象是「知识本」而非 Agent</b>。给 Agent 绑定知识时会生成一个知识本，并分配唯一 <b>知识本 ID</b>，列表即以该知识本 ID 为对象逐行展示。列字段：<b>知识本 ID / 用户 / Agent 名称 / 知识数量 / 更新时间</b>。</p>
     <div class="mock">
       <div class="mk-bar">
-        <span class="mk-tab active">用户 + Agent 维度</span>
+        <span class="mk-tab active">知识本维度</span>
         <div class="mk-right"><span class="mk-pill">🔍 搜索</span></div>
       </div>
       <table>
-        <thead><tr><th style="width:26%">Agent</th><th>创建人</th><th>资料数</th><th>更新时间</th></tr></thead>
+        <thead><tr><th style="width:20%">知识本 ID</th><th>用户</th><th>Agent 名称</th><th>知识数量</th><th>更新时间</th></tr></thead>
         <tbody>
-          <tr><td>深度研究员</td><td style="font-size:11px;color:#64748b;">hzdingyuqing@…</td><td>8</td><td>07-23 15:08</td></tr>
-          <tr><td>群运维 Agent</td><td style="font-size:11px;color:#64748b;">sangchen@…</td><td>9</td><td>07-02 16:47</td></tr>
-          <tr><td>数据助手</td><td style="font-size:11px;color:#64748b;">zhaoxiaoshuai@…</td><td>4</td><td>07-01 14:20</td></tr>
+          <tr><td><code>kb_7f3a21</code></td><td>青远（张振）</td><td>我的研究助手</td><td>4</td><td>07-23 15:08</td></tr>
+          <tr><td><code>kb_9c1b45</code></td><td>青远（张振）</td><td>周报小助手</td><td>2</td><td>07-21 10:20</td></tr>
+          <tr><td><code>kb_2e88f0</code></td><td>sangchen@…</td><td><span style="color:#94a3b8;font-style:italic;">未绑定</span></td><td>1</td><td>07-19 14:00</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>4.2 详情：两个视图（资料 / Wiki）</h3>
-    <p>进入某个 Agent 知识后，顶部为 <b>资料 / Wiki 视图</b> 两个 Tab，右上角为 <b>+ 添加资料</b>（三种方式）。</p>
+    <h3>4.2 两种场景（C 端用户 / B 端租户）</h3>
+    <table>
+      <thead><tr><th style="width:14%">场景</th><th>进入 / 创建路径</th><th>Agent 名称列</th></tr></thead>
+      <tbody>
+        <tr><td><b>C 端用户</b></td><td>个人用户无租户；用户创建了多个 Agent，<b>给 Agent 绑定知识时自动生成知识本</b>。进入「知识」即展示<b>我自己的全部知识本</b>（因都是本人创建，<b>不展示创建人</b>）</td><td>展示所绑定的 Agent 名称</td></tr>
+        <tr><td><b>B 端租户</b></td><td><b>首次进入列表为空</b> → 点击「<b>创建知识本</b>」→ 上传知识；知识本创建后<b>先不绑定 Agent</b></td><td>初始<b>未绑定</b>，绑定后回填</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key">
+      <div class="title">🔑 绑定不在知识页</div>
+      要让业务 Agent 使用某知识本，需到「<b>Agent 管理 → 给 Agent 绑定知识本</b>」完成，<b>知识页不做绑定</b>。知识页只负责知识本的创建、资料管理与 Wiki。
+    </div>
+
+    <h3>4.3 详情：两个视图（资料 / Wiki）</h3>
+    <p>进入某个<b>知识本</b>后，顶部为 <b>资料 / Wiki 视图</b> 两个 Tab，右上角为 <b>+ 添加知识</b>（三种方式）。</p>
 
     <h4>视图一：资料</h4>
     <p>以文件列表展示该 Agent 下所有已添加的知识来源；每条标注<b>来源方式</b>（知识本 / 云空间 / 本地）。支持<b>查看</b>与<b>删除</b>，<b>不支持编辑</b>。</p>
