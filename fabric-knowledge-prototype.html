@@ -2,1069 +2,496 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Fabric · 知识库 · 高保真交互原型</title>
+<title>WrokHub Studio · AI 工厂「知识」· 高保真原型</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: #f5f7fa; color: #0f172a; font-size: 14px; line-height: 1.6; overflow: hidden;
-  }
-  /* 顶栏 */
-  .topbar {
-    height: 56px; background: #fff; border-bottom: 1px solid #e5e7eb;
-    display: flex; align-items: center; padding: 0 24px; gap: 20px; flex-shrink: 0;
-  }
-  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
-  .logo-icon {
-    width: 28px; height: 28px; background: linear-gradient(135deg, #0891b2, #4f46e5);
-    color: #fff; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 14px;
-  }
-  .tenant-select {
-    background: #f1f5f9; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 6px;
-    font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer;
-  }
-  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 13px; color: #475569; }
-  .avatar {
-    width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ec4899);
-    color: #fff; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center;
-  }
-  /* 主区 */
-  .main { display: flex; height: calc(100vh - 56px); }
-  .sidebar { width: 210px; background: #fff; border-right: 1px solid #e5e7eb; padding: 14px 0; overflow-y: auto; flex-shrink: 0; }
-  .sidebar-title {
-    font-size: 11px; color: #94a3b8; padding: 8px 20px 6px; text-transform: uppercase;
-    letter-spacing: 0.6px; font-weight: 700;
-  }
-  .sb-group-head {
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 13px; font-weight: 700; color: #334155; padding: 12px 18px 6px;
-  }
-  .sb-group-head .chev { color: #cbd5e1; font-size: 12px; }
-  .sb-ic { width: 16px; display: inline-flex; justify-content: center; font-size: 13px; }
-  .sidebar-item {
-    display: flex; align-items: center; gap: 10px; padding: 8px 20px; font-size: 13.5px; color: #475569;
-    cursor: pointer; user-select: none; border-left: 3px solid transparent; transition: background 0.12s;
-  }
-  .sidebar-item:hover { background: #f8fafc; }
-  .sidebar-item.active { background: #ecfeff; color: #0e7490; font-weight: 600; border-left-color: #0891b2; }
-  .content { flex: 1; overflow-y: auto; padding: 24px 32px; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #eef2f7; color: #1f2937; padding: 24px 16px 60px; line-height: 1.6; }
 
-  .breadcrumb { font-size: 13px; color: #64748b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .breadcrumb a { color: #0e7490; cursor: pointer; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  .breadcrumb .sep { color: #cbd5e1; }
+  .page-label { max-width: 1400px; margin: 6px auto 10px; display: flex; align-items: center; gap: 10px; }
+  .page-label .badge-num { background: #059669; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .page-label .badge-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+  .page-label .badge-desc { font-size: 13px; color: #64748b; margin-left: 4px; }
 
-  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
-  .page-title { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-  .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .fabric-app { max-width: 1400px; margin: 0 auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 24px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; height: 880px; display: flex; position: relative; }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px;
-    font-size: 13px; font-weight: 500; border: 1px solid; cursor: pointer; transition: all 0.12s; background: #fff;
-  }
-  .btn-primary { background: #0891b2; border-color: #0891b2; color: #fff; }
-  .btn-primary:hover { background: #0e7490; border-color: #0e7490; }
-  .btn-secondary { background: #fff; border-color: #e2e8f0; color: #475569; }
-  .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
-  .btn-danger { background: #fff; border-color: #fecaca; color: #b91c1c; }
-  .btn-danger:hover { background: #fef2f2; }
-  .btn-danger-solid { background: #dc2626; border-color: #dc2626; color: #fff; }
-  .btn-danger-solid:hover { background: #b91c1c; }
-  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .topbar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: #fff; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; padding: 0 24px; z-index: 2; }
+  .topbar .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: #0f172a; }
+  .topbar .logo-icon { width: 22px; height: 22px; background: linear-gradient(135deg,#4f46e5,#7c3aed); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
+  .tenant-select { margin-left: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 12px; font-size: 13px; color: #475569; display: inline-flex; align-items: center; gap: 6px; }
+  .topbar .right { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 13px; color: #475569; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#fb923c,#f472b6); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
 
-  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-  .search-box { position: relative; flex: 1; min-width: 220px; max-width: 300px; }
-  .search-box input {
-    width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #e2e8f0; border-radius: 6px;
-    font-size: 13px; background: #fff; outline: none;
-  }
-  .search-box input:focus { border-color: #0891b2; }
-  .search-box::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; opacity: 0.7; }
-  .filter-select {
-    padding: 7px 28px 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff;
-    font-size: 13px; color: #475569; appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%2364748b' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
-    background-repeat: no-repeat; background-position: right 10px center; outline: none; cursor: pointer;
-  }
-  .toolbar .grow { flex: 1; }
+  .sidebar { width: 200px; background: #fafbfc; border-right: 1px solid #f1f5f9; padding: 70px 12px 12px; overflow-y: auto; }
+  .side-title { font-size: 11px; color: #94a3b8; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .side-item { font-size: 13px; color: #475569; padding: 8px 12px; border-radius: 6px; margin: 1px 0; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .side-item:hover { background: #f1f5f9; }
+  .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
 
-  /* 表格 */
-  .table-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
-  table.data { width: 100%; border-collapse: collapse; }
-  table.data th {
-    text-align: left; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600;
-    padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
-  }
-  table.data td { padding: 14px 16px; font-size: 13px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-  table.data tr:last-child td { border-bottom: none; }
-  table.data tbody tr:hover td { background: #f8fafc; }
-  .kb-name { font-weight: 600; color: #0f172a; cursor: pointer; }
-  .kb-name:hover { color: #0891b2; }
-  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .link-btn { color: #0e7490; cursor: pointer; font-size: 12.5px; }
-  .link-btn:hover { text-decoration: underline; }
-  .link-btn.danger { color: #dc2626; }
+  .main { flex: 1; padding: 70px 28px 24px; overflow-y: auto; background: #f8fafc; position: relative; }
+  .main-header { display: flex; align-items: center; margin-bottom: 18px; }
+  .main-title { font-size: 22px; font-weight: 700; color: #0f172a; }
+  .main-sub { font-size: 13px; color: #94a3b8; margin-left: 12px; }
+  .btn { border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 9px 16px; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.primary { background: #059669; color: #fff; }
+  .btn.primary:hover { background: #047857; }
+  .btn.ghost { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+  .btn.sm { padding: 6px 12px; font-size: 12px; }
 
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-  .tag.green { background: #dcfce7; color: #166534; }
-  .tag.gray { background: #f1f5f9; color: #475569; }
-  .tag.blue { background: #dbeafe; color: #1e40af; }
-  .tag.red { background: #fee2e2; color: #991b1b; }
-  .tag.cyan { background: #cffafe; color: #0e7490; }
-  .tag.amber { background: #fef3c7; color: #92400e; }
-  .tag.purple { background: #ede9fe; color: #6d28d9; }
+  .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .search-box { flex: 1; max-width: 300px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+  .pill { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 
-  /* 弹层通用 */
-  .overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 40; display: none; }
-  .overlay.show { display: block; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+  td { padding: 14px 16px; font-size: 13px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: #f0fdf4; }
+  .kbid { font-family: "JetBrains Mono", Menlo, monospace; font-size: 12px; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 5px; }
+  .email { font-family: "JetBrains Mono", Menlo, monospace; font-size: 11px; color: #64748b; }
+  .op { color: #059669; font-weight: 500; }
+  .op.danger { color: #dc2626; }
+  .op-sep { color: #cbd5e1; margin: 0 6px; }
+  .unbound { color: #94a3b8; font-style: italic; }
 
-  /* 抽屉 */
-  .drawer {
-    position: fixed; top: 0; right: 0; bottom: 0; width: 520px; background: #fff; z-index: 50;
-    box-shadow: -10px 0 32px rgba(15,23,42,0.14); display: flex; flex-direction: column;
-    transform: translateX(100%); transition: transform 0.22s ease;
-  }
-  .drawer.show { transform: translateX(0); }
-  .drawer-header { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; }
-  .drawer-header .title { font-size: 17px; font-weight: 700; }
-  .drawer-header .close { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
-  .drawer-body { flex: 1; padding: 22px 24px; overflow-y: auto; }
-  .drawer-footer { padding: 14px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px; background: #fafbfc; }
+  .kb-ico { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg,#059669,#10b981); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; margin-right: 10px; vertical-align: middle; }
+  .fico { width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; margin-right: 10px; vertical-align: middle; font-weight: 700; }
+  .from { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-weight: 500; }
+  .from.book { background: #ecfdf5; color: #047857; }
+  .from.cloud { background: #eff6ff; color: #1d4ed8; }
+  .from.local { background: #fff7ed; color: #c2410c; }
+  .tag-c { font-size: 11px; padding: 2px 8px; border-radius: 5px; background: #f1f5f9; color: #475569; }
+  .tag-b { font-size: 11px; padding: 2px 8px; border-radius: 5px; background: #ede9fe; color: #6d28d9; }
 
-  /* 弹窗 */
-  .modal {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-46%); width: 620px; max-width: 92vw;
-    background: #fff; border-radius: 14px; z-index: 50; box-shadow: 0 20px 60px rgba(15,23,42,0.2);
-    display: none; flex-direction: column; max-height: 84vh;
-  }
-  .modal.show { display: flex; }
-  .modal-header { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; }
-  .modal-header .title { font-size: 17px; font-weight: 700; }
-  .modal-header .close { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
-  .modal-body { padding: 22px 24px; overflow-y: auto; }
-  .modal-footer { padding: 14px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px; }
-  .modal.sm { width: 420px; }
+  .tabs { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 4px; width: fit-content; margin-bottom: 16px; }
+  .tab { padding: 7px 22px; font-size: 13px; color: #64748b; border-radius: 7px; cursor: pointer; font-weight: 500; }
+  .tab.active { background: #fff; color: #059669; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 
-  /* 表单 */
-  .form-item { margin-bottom: 18px; }
-  .form-label { font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 6px; display: block; }
-  .form-label .req { color: #ef4444; margin-right: 3px; }
-  .form-hint { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-  .form-input, .form-textarea {
-    width: 100%; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 9px 12px;
-    font-size: 13px; color: #334155; font-family: inherit; outline: none;
-  }
-  .form-input:focus, .form-textarea:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,0.1); }
-  .form-textarea { min-height: 76px; resize: vertical; }
+  .detail-back { color: #64748b; font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .detail-head { display: flex; align-items: center; margin-bottom: 16px; }
 
-  /* 上传来源 tab */
-  .src-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-  .src-tab {
-    padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 20px; font-size: 12.5px;
-    color: #475569; cursor: pointer; background: #fff;
-  }
-  .src-tab.active { background: #ecfeff; border-color: #67e8f9; color: #0e7490; font-weight: 600; }
-  .upload-zone {
-    border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 26px; text-align: center;
-    color: #94a3b8; background: #f8fafc; cursor: pointer;
-  }
-  .upload-zone:hover { border-color: #67e8f9; background: #ecfeff; }
-  .upload-zone .big { font-size: 26px; }
-  .doc-chip {
-    display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc;
-    border: 1px solid #e5e7eb; border-radius: 8px; margin-top: 8px; font-size: 13px;
-  }
-  .doc-chip .rm { margin-left: auto; color: #94a3b8; cursor: pointer; }
+  .wiki-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; }
+  .wiki-top { display: flex; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; margin-bottom: 8px; }
+  .wiki-top .ai { font-size: 14px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+  .wnode { padding: 8px 0; display: flex; align-items: center; }
+  .wnode.g { font-size: 14px; font-weight: 700; color: #0f172a; cursor: pointer; border-bottom: 1px solid #f8fafc; }
+  .wnode.leaf { padding-left: 26px; font-size: 13px; color: #475569; }
+  .wnode .cnt { margin-left: auto; color: #94a3b8; font-size: 12px; }
+  .wdot { color: #cbd5e1; margin-right: 8px; }
 
-  /* 多选知识本 */
-  .kb-pick {
-    display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid #e5e7eb;
-    border-radius: 10px; margin-bottom: 10px; cursor: pointer;
-  }
-  .kb-pick:hover { border-color: #67e8f9; background: #f8fafc; }
-  .kb-pick.checked { border-color: #0891b2; background: #ecfeff; }
-  .kb-pick .cbox {
-    width: 18px; height: 18px; border: 1.5px solid #cbd5e1; border-radius: 5px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; margin-top: 1px;
-  }
-  .kb-pick.checked .cbox { background: #0891b2; border-color: #0891b2; }
-  .kb-pick .kp-name { font-weight: 600; }
-  .kb-pick .kp-desc { font-size: 12px; color: #94a3b8; }
+  .empty { background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 60px 24px; text-align: center; }
+  .empty .ei { font-size: 46px; margin-bottom: 12px; }
+  .empty .et { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+  .empty .ed { font-size: 13px; color: #94a3b8; margin-bottom: 18px; }
 
-  /* 详情卡片 */
-  .detail-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px 22px; margin-bottom: 16px; }
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px; }
-  .tab { padding: 10px 18px; font-size: 14px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
-  .tab.active { color: #0e7490; font-weight: 600; border-bottom-color: #0891b2; }
-  .wiki-tree { font-size: 13.5px; }
-  .wiki-group { margin-bottom: 6px; }
-  .wiki-group > .wg-title { font-weight: 700; color: #0f172a; padding: 6px 0; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-  .wiki-group .wg-count { font-size: 11px; color: #94a3b8; }
-  .wiki-node { padding: 5px 0 5px 24px; color: #475569; display: flex; align-items: center; gap: 8px; }
-  .wiki-node::before { content: "•"; color: #0891b2; }
-  .rel-chip { display: inline-block; padding: 2px 8px; margin: 3px; background: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; }
+  .overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.4); z-index: 20; display: none; align-items: center; justify-content: center; }
+  .overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 16px; width: 560px; max-width: 92%; max-height: 82%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .modal-head { padding: 18px 22px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; }
+  .modal-head .mt { font-size: 16px; font-weight: 700; color: #0f172a; display:flex; align-items:center; gap:8px; }
+  .modal-head .step { margin-left: 12px; font-size: 12px; color: #94a3b8; }
+  .modal-head .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .modal-head .x:hover { background: #f1f5f9; }
+  .modal-body { padding: 18px 22px; overflow-y: auto; flex: 1; }
+  .modal-foot { padding: 14px 22px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; background: #fafbfc; }
+  .modal-foot .cnt { font-size: 13px; color: #64748b; }
+  .modal-foot .sp { margin-left: auto; }
 
-  .info-grid { display: grid; grid-template-columns: 120px 1fr; row-gap: 10px; font-size: 13px; }
-  .info-grid .k { color: #94a3b8; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .field input { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 13px; }
 
-  /* C端对话 */
-  .chat-wrap { display: flex; gap: 20px; }
-  .phone {
-    width: 380px; flex-shrink: 0; background: #f1f5f9; border: 8px solid #0f172a; border-radius: 30px;
-    height: 640px; display: flex; flex-direction: column; overflow: hidden;
-  }
-  .phone-top { background: #0891b2; color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
-  .phone-top .pa { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
-  .chat-body { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-  .msg { max-width: 78%; padding: 9px 13px; border-radius: 12px; font-size: 13.5px; line-height: 1.5; }
-  .msg.bot { background: #fff; align-self: flex-start; border-top-left-radius: 3px; }
-  .msg.me { background: #0891b2; color: #fff; align-self: flex-end; border-top-right-radius: 3px; }
-  .chat-input { padding: 10px; background: #fff; display: flex; gap: 8px; border-top: 1px solid #e5e7eb; }
-  .chat-input input { flex: 1; border: 1px solid #e2e8f0; border-radius: 20px; padding: 8px 14px; outline: none; font-size: 13px; }
-  .chat-input button { background: #0891b2; color: #fff; border: none; border-radius: 20px; padding: 0 16px; cursor: pointer; font-size: 13px; }
-  .debug { flex: 1; background: #0f172a; border-radius: 12px; padding: 18px; color: #e2e8f0; font-size: 12.5px; overflow-y: auto; }
-  .debug h4 { color: #67e8f9; font-size: 13px; margin-bottom: 10px; }
-  .debug .step { padding: 8px 10px; background: rgba(255,255,255,0.05); border-left: 2px solid #0891b2; border-radius: 4px; margin-bottom: 8px; }
-  .debug .muted { color: #64748b; }
-  .debug code { color: #fca5a5; }
+  .ways { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .way { border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: all .15s; }
+  .way:hover { border-color: #10b981; background: #f0fdf4; }
+  .way .wi { font-size: 26px; margin-bottom: 8px; }
+  .way .wn { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .way .wd { font-size: 12px; color: #94a3b8; }
 
-  .empty { text-align: center; color: #94a3b8; padding: 40px; font-size: 13px; }
+  .srow { display: flex; align-items: center; padding: 12px 14px; border: 1px solid #eef2f7; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+  .srow:hover { background: #f8fafc; }
+  .srow.on { background: #ecfdf5; border-color: #6ee7b7; }
+  .srow .sic { width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 16px; }
+  .srow .sinfo .snm { font-size: 13px; font-weight: 600; color: #0f172a; }
+  .srow .sinfo .smeta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+  .srow .schk { margin-left: auto; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #cbd5e1; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+  .srow.on .schk { background: #059669; border-color: #059669; }
 
-  /* toast */
-  .toast {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
-    background: #0f172a; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 90;
-    opacity: 0; transition: all 0.3s; display: flex; align-items: center; gap: 8px;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .cloud-search { display: flex; gap: 8px; margin-bottom: 14px; }
+  .cloud-search input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 13px; }
+  .checkbox { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; margin-right: 10px; }
+  .checkbox.on { background: #059669; border-color: #059669; }
+  .upzone { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px 20px; text-align: center; color: #94a3b8; }
+  .upzone .ui { font-size: 34px; margin-bottom: 10px; }
 
-  .callout-strip {
-    background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 10px; padding: 10px 14px;
-    font-size: 12.5px; color: #0e7490; margin-bottom: 14px; display: flex; gap: 8px;
-  }
+  .callout { border-radius: 10px; padding: 10px 14px; font-size: 12.5px; margin: 10px 0; display: flex; gap: 8px; }
+  .callout.info { background: #eff6ff; color: #1e40af; }
+  .callout.warn { background: #fffbeb; color: #b45309; }
 
-  /* Agent 详情 + 知识绑定穿梭框 */
-  .agent-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-  .agent-ava { width: 46px; height: 46px; border-radius: 10px; background: linear-gradient(135deg,#4f46e5,#0891b2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
-  .bind-wrap { display: flex; gap: 16px; min-height: 440px; }
-  .bind-col { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; background: #fff; }
-  .bind-searchbox { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; margin-bottom:10px; }
-  .bind-searchbox:focus { border-color:#0891b2; }
-  /* Agents 列表 */
-  .agents-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-  .agents-toolbar .search-box { flex:0 0 300px; }
-  .agents-toolbar .search-box input { width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; }
-  .agents-toolbar .search-box input:focus { border-color:#0891b2; }
-  .agents-toolbar .tb-icons { margin-left:auto; display:flex; gap:8px; }
-  .agents-table th, .agents-table td { white-space:nowrap; font-size:13px; padding:11px 14px; }
-  .agents-table .col-name .kb-name { font-weight:600; }
-  .agents-table .model-link { color:#2563eb; }
-  .agents-table .col-time { color:#64748b; font-size:12.5px; }
-  .agents-table .col-desc { color:#94a3b8; max-width:120px; overflow:hidden; text-overflow:ellipsis; }
-  .op-ic { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; cursor:pointer; color:#64748b; }
-  .op-ic:hover { background:#f1f5f9; color:#0f172a; }
-  .op-ic.danger:hover { background:#fef2f2; color:#dc2626; }
-  .col-op { display:flex; gap:4px; }
-  /* 分类 / 展示标签 / 管理弹窗 */
-  .cat-cell { display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#334155; }
-  .cat-cell:hover { color:#0891b2; }
-  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
-  .show-tag { display:inline-block; border:1px solid #93c5fd; color:#1d4ed8; padding:1px 8px; border-radius:6px; font-size:12px; }
-  .tag-pick { display:flex; flex-wrap:wrap; gap:8px; }
-  .tag-opt { border:1px solid #e2e8f0; color:#475569; padding:4px 12px; border-radius:14px; font-size:12px; cursor:pointer; user-select:none; }
-  .tag-opt.on { border-color:#0891b2; background:#ecfeff; color:#0e7490; font-weight:600; }
-  .cat-opts { display:flex; flex-wrap:wrap; gap:10px; }
-  .cat-opt { display:inline-flex; align-items:center; gap:6px; border:1px solid #e2e8f0; padding:6px 14px; border-radius:16px; cursor:pointer; font-size:13px; color:#475569; user-select:none; }
-  .cat-opt.on { border-color:#0891b2; background:#ecfeff; color:#0e7490; font-weight:600; }
-  .mng-row { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid #f1f5f9; font-size:13px; }
-  .bind-bar { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#94a3b8; margin-bottom:8px; }
-  .bind-bar .act { color:#0e7490; cursor:pointer; }
-  .bind-bar .act:hover { text-decoration:underline; }
-  .bind-list { flex:1; overflow-y:auto; }
-  .bind-item { display:flex; gap:10px; padding:10px 8px; border-radius:8px; cursor:pointer; align-items:flex-start; }
-  .bind-item:hover { background:#f8fafc; }
-  .bind-cb { width:18px; height:18px; border:1.5px solid #cbd5e1; border-radius:5px; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; }
-  .bind-item.on .bind-cb { background:#0891b2; border-color:#0891b2; }
-  .bind-item .bi-name { font-size:13.5px; font-weight:600; color:#0f172a; }
-  .bind-item .bi-desc { font-size:12px; color:#94a3b8; margin-top:1px; }
-  .sel-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid #f1f5f9; }
-  .sel-item .si-x { margin-left:auto; color:#94a3b8; cursor:pointer; font-size:15px; }
-  .sel-item .si-x:hover { color:#dc2626; }
+  .toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; z-index: 40; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 80%; text-align: center; }
+  .toast.show { opacity: 1; }
+  .prompt-box { width: 100%; min-height: 120px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #334155; font-family: inherit; resize: vertical; line-height: 1.7; }
 </style>
 </head>
 <body>
-<div id="app"></div>
-<div class="overlay" id="overlay" onclick="closeAll()"></div>
-<div class="drawer" id="drawer"></div>
-<div class="modal" id="modal"></div>
-<div class="toast" id="toast"></div>
-<script>
-// ============ 数据 ============
-let agents = [
-  { id: 'ag1', name: '网易POPO-开放平台群运维 Agent', desc: 'POPO 开放平台答疑与运维', model:'deepseek-v4-pro', temp:0.7, maxTokens:'4,096', memory:true, plan:'自动', status:true, creator:'张振', createdAt:'2026-06-16 15:11', updatedBy:'张振', updatedAt:'2026-06-22 14:44', boundKbs: ['kb1', 'kb2'] },
-  { id: 'ag2', name: '财务审核助手', desc: '财税合规咨询', model:'deepseek-v4-flash', temp:0.7, maxTokens:'4,096', memory:false, plan:'自动', status:true, creator:'陈杰', createdAt:'2026-06-17 21:02', updatedBy:'陈杰', updatedAt:'2026-06-18 11:07', boundKbs: ['kb3'] },
-  { id: 'ag3', name: '团队周报 Agent', desc: '周报汇总', model:'deepseek-v4-flash', temp:0.7, maxTokens:'4,096', memory:true, plan:'自动', status:true, creator:'汪晓东', createdAt:'2026-06-24 15:26', updatedBy:'汪晓东', updatedAt:'2026-06-24 19:48', boundKbs: [] },
-];
 
-let kbs = [
-  {
-    id: 'kb1', name: 'POPO 开放平台集成避坑指南', desc: '开放平台接口限制与 Agent 搭建最佳实践',
-    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-28', updatedBy: '张振', updatedAt: '2026-07-02',
-    cat: '开放平台', tags: ['POPO'], visibility: { depts: ['POPO 产品部'], users: [], channels: [] },
-    docs: [
-      { name: '开放平台问题测试集-运维Agent专用', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-1' },
-      { name: '群运维Agent配置方法', type: 'POPO文档', url: 'https://docs.popo.netease.com/lingxi/demo-doc-2' },
-      { name: '开放平台用户问题示例.docx', type: '本地文件', kind: 'file' },
-      { name: '机器人配置截图.png', type: '本地文件', kind: 'image' },
-      { name: '接入演示录屏.mp4', type: '本地文件', kind: 'video' },
-      { name: '开放平台接口规范', type: 'KM文章', url: 'https://km.netease.com/article/demo-123' },
-      { name: '某技术博客参考', type: '网络链接', url: 'https://example.com/tech-blog' },
-    ],
-    wikiTree: {
-      '原文摘要': ['开放平台用户问题示例', '开放平台问题测试集-运维Agent专用', '群运维Agent配置方法'],
-      '人物与事物': ['Echo知识库', 'Fabric平台', 'POPO CLI', 'POPO云空间', 'POPO开放平台'],
-      '术语解释': ['publicVar', 'atUids', 'Open-Access-Token', 'appId/appSecret'],
-      '待解问题': ['发消息接口是否支持流式发送', 'POPO机器人服务发消息的IP溯源', 'grp机器人账号是否可以通过API拉人入群'],
-      '方法与流程': ['自定义机器人 webhook 接入流程'],
-    },
-    facts: {
-      'publicVar': 'publicVar 长度上限为 8000 字符，超出返回 errcode=414。',
-      '引用': '引用回复会强制 @ 原发送者，即便 atUids 为空数组，平台也会自动 @ 被回复人，无法取消。',
-      '字数': 'publicVar 长度上限为 8000 字符，超出返回 errcode=414；发消息接口对单条消息体有大小限制。',
-    }
-  },
-  {
-    id: 'kb2', name: '通用客服 FAQ', desc: '各 Agent 共用的通用问答库',
-    source: 'admin', owner: '张振', wiki: 'done', createdAt: '2026-06-30', updatedBy: '李四', updatedAt: '2026-07-01',
-    cat: '客服', tags: [], visibility: { depts: [], users: [], channels: [] },
-    docs: [ { name: '通用FAQ汇总.md', type: '本地文件' }, { name: '常见问题KM文章', type: 'KM文章' } ],
-    wikiTree: { '原文摘要': ['通用FAQ汇总'], '术语解释': ['工单', 'SLA'], '方法与流程': ['问题上报流程'] },
-    facts: { '工单': '工单默认 SLA 为 24 小时内响应。' }
-  },
-  {
-    id: 'kb3', name: '财税合规知识库', desc: '个税申报、发票合规等',
-    source: 'admin', owner: '李财务', wiki: 'processing', createdAt: '2026-07-01', updatedBy: '李财务', updatedAt: '2026-07-01',
-    cat: '财税', tags: [], visibility: { depts: [], users: [], channels: [] },
-    docs: [ { name: '2026个税政策汇编.pdf', type: '本地文件' } ],
-    wikiTree: {}, facts: {}
-  },
-  {
-    id: 'kb4', name: '我的读书笔记', desc: 'C 端用户自建：产品方法论摘录',
-    source: 'cuser', owner: '王五', wiki: 'done', createdAt: '2026-07-02', updatedBy: '王五', updatedAt: '2026-07-02',
-    cat: null, tags: [], visibility: { depts: [], users: [], channels: [] },
-    docs: [ { name: '《启示录》读书笔记', type: 'POPO文档' }, { name: '某公众号文章', type: '网络链接' } ],
-    wikiTree: { '原文摘要': ['启示录读书笔记'], '人物与事物': ['产品经理'], '术语解释': ['MVP'] },
-    facts: {}
-  },
-  {
-    id: 'kb5', name: '竞品调研合集', desc: 'C 端用户自建：行业竞品资料',
-    source: 'cuser', owner: '赵六', wiki: 'done', createdAt: '2026-06-28', updatedBy: '赵六', updatedAt: '2026-06-29',
-    cat: null, tags: [], visibility: { depts: [], users: [], channels: [] },
-    docs: [ { name: '竞品功能对比表.xls', type: '本地文件' } ],
-    wikiTree: { '原文摘要': ['竞品功能对比'], '待解问题': ['竞品定价策略'] }, facts: {}
-  },
-];
+<div class="page-label">
+  <span class="badge-num">知</span>
+  <span class="badge-title">WrokHub Studio · AI 工厂「知识」高保真原型</span>
+  <span class="badge-desc">知识本维度 · 资料/Wiki 双视图 · 三种添加方式 · C端/B端 · 绑定去 Agent 管理</span>
+</div>
 
-const SOURCE_LABEL = { admin: '配置者创建', cuser: 'C 端用户创建' };
-const WIKI_LABEL = { done: '已生成', processing: '生成中', fail: '失败' };
-const WIKI_CLASS = { done: 'green', processing: 'amber', fail: 'red' };
-// 复用 Skills 的分类 / 展示标签字典（逻辑不变）
-let CATEGORIES = [
-  { name: '开放平台', color: '#6d28d9' }, { name: '客服', color: '#0891b2' },
-  { name: '财税', color: '#ea580c' }, { name: '竞品', color: '#dc2626' },
-];
-let DISPLAY_TAGS = ['POPO', '官方推荐', '内部通用'];
-function catColor(name){ const c = CATEGORIES.find(x=>x.name===name); return c?c.color:'#94a3b8'; }
-
-let state = { view: 'kbList', kbId: null, kbTab: 'docs', srcTab: '云空间', filterSource: 'all', filterCat: 'all', filterTag: 'all', editingKb: null, draftDocs: [], draftTags: [] };
-let chat = { agentId: 'ag1', messages: [{ from: 'bot', text: '你好，我是开放平台群运维 Agent，有什么可以帮你？' }], lastRetrieval: null };
-
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function agentName(id){ const a = agents.find(x=>x.id===id); return a? a.name : '—'; }
-function boundAgentCount(kbId){ return agents.filter(a=>a.boundKbs.includes(kbId)).length; }
-// 资料类型：本地文件（图片/视频/文件）在容器内展示；云文档/KM/网络链接点击打开原链接
-function isLinkDoc(d){ return d.type==='POPO文档' || d.type==='KM文章' || d.type==='网络链接'; }
-function docIcon(d){
-  if(isLinkDoc(d)) return d.type==='KM文章'?'📗': d.type==='网络链接'?'🔗':'📘';
-  if(d.kind==='image') return '🖼️'; if(d.kind==='video') return '🎬'; return '📄';
-}
-
-// ============ 外壳 ============
-function shell(inner){
-  const groups = [
-    { title:'AI 工厂', open:true, items:[
-      ['对话','💬'],['Bots','🤖'],['Agents','🧊'],['Teams','👥'],['Models','🗄️'],
-      ['Prompts','📋'],['Skills','🧩'],['记忆','🧠'],['知识','📚'],['工具','🔧'],['会话','💬'] ] },
-    { title:'接入管理', open:true, items:[ ['应用管理','🗂️'],['Channel','🔗'],['Secret Key','🔑'],['权限管理','🛡️'] ] },
-    { title:'组织管理', open:false, items:[] },
-    { title:'系统设置', open:false, items:[] },
-  ];
-  const sidebar = groups.map(g=>{
-    const head = `<div class="sb-group-head">${g.title}<span class="chev">${g.open?'⌃':'⌄'}</span></div>`;
-    if(!g.open || !g.items.length) return head;
-    const items = g.items.map(([m,icon])=>{
-      let active = (m==='知识' && (state.view==='kbList'||state.view==='kbDetail'))
-        || (m==='Agents' && (state.view==='agents'||state.view==='agentDetail'));
-      let onclick = m==='知识'?"go('kbList')": m==='Agents'?"go('agents')":"toast('该菜单为占位，聚焦知识库流程')";
-      return `<div class="sidebar-item ${active?'active':''}" onclick="${onclick}"><span class="sb-ic">${icon}</span>${m}</div>`;
-    }).join('');
-    return head + items;
-  }).join('');
-  return `
+<div class="fabric-app">
   <div class="topbar">
-    <div class="logo"><span class="logo-icon">F</span>Fabric</div>
-    <div class="tenant-select" onclick="toast('当前租户：POPO')">📓 POPO 租户 ▾</div>
-    <div class="topbar-right">
-      <div class="link-btn" onclick="go('chat')">🔎 C 端对话预览</div>
-      <span>🔔</span><div class="avatar">振</div>
+    <div class="logo"><span class="logo-icon">W</span>WrokHub Studio</div>
+    <span class="tenant-select">🏢 网易－效率工程部 ▾</span>
+    <div class="right">
+      <span class="pill" onclick="toggleRole()" style="padding:5px 12px;">👤 当前：<b id="roleTxt" style="margin:0 2px;color:#6d28d9;">C 端用户</b> ▾</span>
+      <span class="avatar">青</span>
     </div>
   </div>
-  <div class="main">
-    <div class="sidebar">${sidebar}</div>
-    <div class="content">${inner}</div>
-  </div>`;
-}
 
-// ============ 路由 ============
-function go(view, kbId){ state.view = view; if(kbId) state.kbId = kbId; if(view==='kbDetail') state.kbTab='docs'; render(); }
-
-function render(){
-  let inner = '';
-  if(state.view==='kbList') inner = renderKbList();
-  else if(state.view==='kbDetail') inner = renderKbDetail();
-  else if(state.view==='agents') inner = renderAgents();
-  else if(state.view==='agentDetail') inner = renderAgentDetail();
-  else if(state.view==='chat') inner = renderChat();
-  document.getElementById('app').innerHTML = shell(inner);
-}
-
-// ============ 知识本管理后台 ============
-function renderKbList(){
-  let list = kbs.filter(k=> state.filterSource==='all' || k.source===state.filterSource)
-    .filter(k=> state.filterCat==='all' || k.cat===state.filterCat)
-    .filter(k=> state.filterTag==='all' || (k.tags||[]).includes(state.filterTag));
-  let rows = list.map(k=>`
-    <tr>
-      <td><span class="kb-name" onclick="go('kbDetail','${k.id}')">📚 ${esc(k.name)}</span>
-        <div style="font-size:12px;color:#94a3b8">${esc(k.desc)}</div></td>
-      <td>${k.cat
-        ? `<span class="cat-cell" onclick="openSetCategory('${k.id}')"><span class="dot" style="background:${catColor(k.cat)}"></span>${esc(k.cat)}</span>`
-        : `<span class="link-btn" onclick="openSetCategory('${k.id}')">＋ 设置分类</span>`}</td>
-      <td>${(k.tags&&k.tags.length)? k.tags.map(t=>`<span class="show-tag">${esc(t)}</span>`).join(' ') : '<span style="color:#cbd5e1">—</span>'}</td>
-      <td>${esc(k.owner)}</td>
-      <td style="white-space:nowrap">${k.updatedAt||'—'}</td>
-      <td>${k.docs.length} 份</td>
-      <td><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></td>
-      <td>${boundAgentCount(k.id)} 个</td>
-      <td class="row-actions">
-        <span class="link-btn" onclick="go('kbDetail','${k.id}')">查看</span>
-        <span class="link-btn" onclick="openEditKb('${k.id}')">编辑</span>
-        <span class="link-btn" title="可见性配置" onclick="openVisibility('${k.id}')">可见性</span>
-        <span class="link-btn danger" onclick="askDeleteKb('${k.id}')">删除</span>
-      </td>
-    </tr>`).join('');
-  const catOpts = ['<option value="all">分类：全部</option>'].concat(CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${state.filterCat===c.name?'selected':''}>${esc(c.name)}</option>`)).join('');
-  const tagOpts = ['<option value="all">展示标签：全部</option>'].concat(DISPLAY_TAGS.map(t=>`<option value="${esc(t)}" ${state.filterTag===t?'selected':''}>${esc(t)}</option>`)).join('');
-  return `
-  <div class="page-header">
-    <div>
-      <div class="page-title">📚 知识</div>
-      <div class="page-subtitle">Agent 可用的知识库</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-secondary" onclick="openManageCategory()">管理分类</button>
-      <button class="btn btn-secondary" onclick="openManageTag()">管理标签</button>
-      <button class="btn btn-primary" onclick="openCreateKb()">＋ 新建知识本</button>
-    </div>
+  <div class="sidebar">
+    <div class="side-title">AI 工厂</div>
+    <div class="side-item">💬 对话</div>
+    <div class="side-item">🤖 Bots</div>
+    <div class="side-item">🧠 Agents</div>
+    <div class="side-item">👥 Teams</div>
+    <div class="side-item active">📖 知识</div>
+    <div class="side-item">🧩 记忆</div>
+    <div class="side-item">🔧 工具</div>
+    <div class="side-item">💾 资源库</div>
+    <div class="side-item">💬 会话</div>
+    <div class="side-item">⚡ 自动化任务</div>
   </div>
-  <div class="toolbar">
-    <div class="search-box"><input placeholder="搜索知识本名称…" oninput="toast('演示原型，搜索未接后端')"></div>
-    <select class="filter-select" onchange="state.filterCat=this.value;render()">${catOpts}</select>
-    <select class="filter-select" onchange="state.filterTag=this.value;render()">${tagOpts}</select>
-  </div>
-  <div class="table-wrap">
-    <table class="data">
-      <thead><tr><th>知识本</th><th>分类</th><th>展示标签</th><th>创建人</th><th>更新时间</th><th>资料</th><th>Wiki</th><th>被绑定</th><th style="width:190px">操作</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="9" class="empty">暂无知识本</td></tr>'}</tbody>
-    </table>
-  </div>`;
+
+  <div class="main" id="main"></div>
+
+  <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ---------------- data ---------------- */
+const role = { val: "C" }; // C or B
+
+// 列表对象 = 知识本；每个知识本有 id、用户、绑定的 Agent、资料
+const kbs = [
+  { id:"kb_7f3a21", user:"青远（张振）", scene:"C", agent:"我的研究助手", updated:"2026-07-23 15:08",
+    docs:[
+      { n:"SKILL_副本.md", ext:"md", c:"#0ea5e9", from:"local", t:"2026-07-23 15:08" },
+      { n:"飞书CLI调研&POPO CLI PRD方案.pdf", ext:"pdf", c:"#ef4444", from:"local", t:"2026-07-23 15:02" },
+      { n:"开放平台问题测试集", ext:"doc", c:"#2563eb", from:"cloud", t:"2026-07-22 11:40" },
+      { n:"Manus AI 研究（19 来源）", ext:"本", c:"#059669", from:"book", t:"2026-07-22 11:30" }
+    ] },
+  { id:"kb_9c1b45", user:"青远（张振）", scene:"C", agent:"周报小助手", updated:"2026-07-21 10:20",
+    docs:[
+      { n:"周报模板.docx", ext:"doc", c:"#2563eb", from:"local", t:"2026-07-21 10:20" },
+      { n:"团队 OKR 说明", ext:"doc", c:"#2563eb", from:"cloud", t:"2026-07-20 09:00" }
+    ] },
+  // B 端租户的知识本（另一账号视角，演示用；scene=B）
+  { id:"kb_2e88f0", user:"sangchen@corp.netease.com", scene:"B", agent:"群运维 Agent", updated:"2026-07-19 14:00",
+    docs:[
+      { n:"群运维 SOP.pdf", ext:"pdf", c:"#ef4444", from:"local", t:"2026-07-19 14:00" }
+    ] }
+];
+
+const wikiTree = [
+  { g:"原文摘要", cnt:9, open:true, items:["POPO IM Skill 配置文件","开放平台问题测试集","Manus AI 研究","飞书CLI调研&POPO CLI PRD方案.pdf"] },
+  { g:"人物与事物", cnt:7, open:false, items:[] },
+  { g:"术语解释", cnt:17, open:false, items:[] },
+  { g:"待解问题", cnt:19, open:false, items:[] }
+];
+
+const notebooks = [
+  { id:"n1", name:"未命名的笔记本", cnt:0, by:"青远", date:"7月8, 2026" },
+  { id:"n2", name:"The Rise of Manus AI: Evolution of Autonomous Digital Agents", cnt:19, by:"青远", date:"2月2, 2026" },
+  { id:"n3", name:"ClawdBot Agent Gateway Product Architecture Overview", cnt:1, by:"张三", date:"1月27, 2026" },
+  { id:"n4", name:"Deploying Claudebot: Local and VPS Setup Guide", cnt:1, by:"李四", date:"1月26, 2026" }
+];
+const cloudDocs = [
+  { id:"c1", name:"popo-cli需求集合", by:"青远(张振)" },
+  { id:"c2", name:"CLI二期需求", by:"青远(张振)" },
+  { id:"c3", name:"POPO CLI 方案PRD", by:"青远(张振)" },
+  { id:"cf", name:"📁 CLI 项目文档（文件夹 · 12 篇）", by:"青远(张振)", folder:true }
+];
+
+/* ---------------- state ---------------- */
+let view = "list";      // list | detail
+let curKb = null;
+let detailTab = "mat";
+let forceEmpty = false;
+let flow = { step:0, kbName:"", targetKb:null, way:null, picked:new Set() };
+
+const main = document.getElementById("main");
+const overlay = document.getElementById("overlay");
+const modal = document.getElementById("modal");
+
+function render(){ view==="list" ? renderList() : renderDetail(); }
+
+function toggleRole(){
+  role.val = role.val==="C" ? "B" : "C";
+  document.getElementById("roleTxt").textContent = role.val==="C" ? "C 端用户" : "B 端租户";
+  forceEmpty = false; view="list"; render();
 }
 
-// ============ 知识本详情 ============
-function renderKbDetail(){
-  const k = kbs.find(x=>x.id===state.kbId);
-  if(!k) return renderKbList();
-  const docs = k.docs.map((d,i)=>`<div class="doc-chip" style="cursor:pointer" onclick="openDoc('${k.id}',${i})">${docIcon(d)} ${esc(d.name)} <span class="tag gray">${d.type}</span>${isLinkDoc(d)?'<span class="link-btn" style="margin-left:auto">打开原链接 ↗</span>':'<span class="link-btn" style="margin-left:auto">预览</span>'}</div>`).join('') || '<div class="empty">暂无资料</div>';
-  let wikiHtml = '';
-  const keys = Object.keys(k.wikiTree||{});
-  if(k.wiki==='processing') wikiHtml = '<div class="empty">Wiki 生成中，请稍候…</div>';
-  else if(!keys.length) wikiHtml = '<div class="empty">暂无 Wiki</div>';
-  else wikiHtml = `<div class="wiki-tree">` + keys.map(g=>`
-      <div class="wiki-group">
-        <div class="wg-title">✨ ${g} <span class="wg-count">${k.wikiTree[g].length}</span></div>
-        ${k.wikiTree[g].map(n=>`<div class="wiki-node" style="cursor:pointer" onclick="openWikiNode('${k.id}','${esc(g)}','${esc(n)}')">${esc(n)}</div>`).join('')}
-      </div>`).join('') + `
-      <div style="margin-top:14px;font-size:12px;color:#94a3b8">Wiki 间关联（利于关联检索）：</div>
-      <div>${(keys.length?['publicVar','引用回复','IP 溯源','长连接','机器人拉群']:[]).map(r=>`<span class="rel-chip">🔗 ${r}</span>`).join('')}</div>
+/* ---------------- list（知识本维度）---------------- */
+function renderList(){
+  const isB = role.val==="B";
+  const rows = kbs.filter(k => isB ? k.scene==="B" : k.scene==="C");
+  const hasData = rows.length>0 && !forceEmpty;
+
+  let body = `
+    <div class="main-header">
+      <span class="main-title">知识</span>
+      <span class="main-sub">${isB?"B 端租户 · 知识本（创建后去 Agent 管理绑定）":"C 端用户 · 我的知识本"}</span>
+      ${isB?`<button class="btn primary" style="margin-left:auto;" onclick="openCreate()">＋ 创建知识本</button>`:``}
     </div>`;
-  return `
-  <div class="breadcrumb"><a onclick="go('kbList')">知识</a><span class="sep">/</span>${esc(k.name)}</div>
-  <div class="page-header">
-    <div>
-      <div class="page-title">📚 ${esc(k.name)}
-        ${k.source==='cuser'?'<span class="tag purple" style="font-size:12px">C 端用户创建</span>':'<span class="tag cyan" style="font-size:12px">配置者创建</span>'}</div>
-      <div class="page-subtitle">${esc(k.desc)}</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-secondary" onclick="openEditKb('${k.id}')">编辑</button>
-      <button class="btn btn-danger" onclick="askDeleteKb('${k.id}')">删除</button>
-    </div>
-  </div>
-  <div class="detail-card">
-    <div class="info-grid">
-      <div class="k">归属用户</div><div>${esc(k.owner)}</div>
-      <div class="k">分类</div><div>${k.cat?`<span class="cat-cell" onclick="openSetCategory('${k.id}')"><span class="dot" style="background:${catColor(k.cat)}"></span>${esc(k.cat)}</span>`:'<span class="link-btn" onclick="openSetCategory(\''+k.id+'\')">＋ 设置分类</span>'}</div>
-      <div class="k">展示标签</div><div>${(k.tags&&k.tags.length)?k.tags.map(t=>`<span class="show-tag">${esc(t)}</span>`).join(' '):'<span style="color:#cbd5e1">—</span>'}</div>
-      <div class="k">可见性</div><div><span class="link-btn" onclick="openVisibility('${k.id}')">${(k.visibility&&(k.visibility.depts.length||k.visibility.users.length||k.visibility.channels.length))?'已配置 · 点击编辑':'未配置 · 点击设置'}</span></div>
-      <div class="k">Wiki 状态</div><div><span class="tag ${WIKI_CLASS[k.wiki]}">${WIKI_LABEL[k.wiki]}</span></div>
-      <div class="k">被 Agent 绑定</div><div>${boundAgentCount(k.id)} 个（${agents.filter(a=>a.boundKbs.includes(k.id)).map(a=>a.name).join('、')||'暂无'}）</div>
-      <div class="k">创建时间</div><div>${k.createdAt}</div>
-    </div>
-  </div>
-  <div class="tabs">
-    <div class="tab ${state.kbTab==='docs'?'active':''}" onclick="setKbTab('docs')">资料（${k.docs.length}）</div>
-    <div class="tab ${state.kbTab==='wiki'?'active':''}" onclick="setKbTab('wiki')">Wiki 视图</div>
-  </div>
-  ${state.kbTab==='docs'
-    ? `<div style="margin-bottom:12px"><button class="btn btn-primary btn-sm" onclick="openAddDoc('${k.id}')">＋ 添加资料</button></div>${docs}`
-    : wikiHtml}`;
-}
-function setKbTab(t){ state.kbTab=t; render(); }
 
-// 查看资料：链接类打开原链接；本地文件在容器内预览
-function openDoc(kbId, i){
-  const k = kbs.find(x=>x.id===kbId); const d = k.docs[i];
-  if(isLinkDoc(d)){
-    const url = d.url || 'https://docs.popo.netease.com';
-    toast('打开原链接：'+url);
-    window.open(url, '_blank');
-    return;
+  if(isB && !hasData){
+    body += `
+      <div class="empty">
+        <div class="ei">📖</div>
+        <div class="et">还没有知识本</div>
+        <div class="ed">B 端租户首次进入列表为空。点击「创建知识本」并上传知识；<br/>之后到 <b>Agent 管理</b> 给业务 Agent 绑定该知识本即可使用。</div>
+        <button class="btn primary" onclick="openCreate()">＋ 创建知识本</button>
+      </div>`;
+    main.innerHTML = body; return;
   }
-  let viewer = '';
-  if(d.kind==='image'){
-    viewer = `<div style="background:#0f172a;border-radius:10px;height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e2e8f0"><div style="font-size:48px">🖼️</div><div style="margin-top:10px">${esc(d.name)}</div><div style="font-size:12px;color:#64748b;margin-top:4px">图片预览（演示占位）</div></div>`;
-  } else if(d.kind==='video'){
-    viewer = `<div style="background:#0f172a;border-radius:10px;height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e2e8f0;position:relative"><div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:28px">▶️</div><div style="margin-top:12px">${esc(d.name)}</div><div style="font-size:12px;color:#64748b;margin-top:4px">视频播放器（演示占位）</div></div>`;
-  } else {
-    viewer = `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:26px;text-align:center"><div style="font-size:48px">📄</div><div style="margin-top:10px;font-weight:600">${esc(d.name)}</div><div style="font-size:12px;color:#94a3b8;margin-top:4px">本地文件 · 已进入知识本解析</div><button class="btn btn-secondary btn-sm" style="margin-top:14px" onclick="toast('下载（演示）')">⬇️ 下载原文件</button></div>`;
-  }
-  const m = document.getElementById('modal');
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">${docIcon(d)} ${esc(d.name)}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">${viewer}
-      <div style="margin-top:14px;font-size:12px;color:#94a3b8">类型：${d.type} · 本地文件（图片 / 视频 / 文件）在此容器内展示；云文档 / KM / 链接类点击直接打开原链接。</div>
+
+  body += `
+    <div class="toolbar">
+      <div class="search-box">🔍 搜索知识本 ID / Agent</div>
+      ${isB?`<span class="pill" onclick="forceEmpty=true;render()">👁 预览空态</span>`:``}
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAll()">关闭</button></div>`;
-  showModal();
-}
-
-// 查看 Wiki 节点详情
-function openWikiNode(kbId, group, node){
-  const k = kbs.find(x=>x.id===kbId);
-  let body = '';
-  if(k.facts && k.facts[node]) body = esc(k.facts[node]);
-  else body = `「${esc(node)}」的结构化知识摘要（由知识本从资料中自动抽取，演示占位）。`;
-  const related = (k.wikiTree[group]||[]).filter(n=>n!==node).slice(0,4);
-  const m = document.getElementById('modal');
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">✨ ${esc(node)}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">所属分类：${esc(group)}</div>
-      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:14px;line-height:1.7">${body}</div>
-      <div style="margin-top:14px;font-size:12px;color:#94a3b8">关联节点（利于关联检索）：</div>
-      <div>${related.length?related.map(r=>`<span class="rel-chip" style="cursor:pointer" onclick="openWikiNode('${kbId}','${esc(group)}','${esc(r)}')">🔗 ${esc(r)}</span>`).join(''):'<span style="color:#94a3b8;font-size:12px">暂无</span>'}</div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAll()">关闭</button></div>`;
-  showModal();
-}
-
-// ============ 新建 / 编辑知识本 ============
-function openCreateKb(){ state.editingKb=null; state.draftDocs=[]; state.draftWiki={}; state.draftTags=[]; state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('新建知识本'); }
-function openEditKb(id){ const k=kbs.find(x=>x.id===id); state.editingKb=id; state.draftDocs=k.docs.slice(); state.draftWiki=JSON.parse(JSON.stringify(k.wikiTree||{})); state.draftTags=(k.tags||[]).slice(); state.srcTab='云空间'; state.editTab='docs'; openKbDrawer('编辑知识本', k); }
-
-function openKbDrawer(title, k){
-  const d = document.getElementById('drawer');
-  d.innerHTML = `
-    <div class="drawer-header"><span class="title">${title}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="drawer-body">
-      <div class="form-item">
-        <label class="form-label"><span class="req">*</span>知识本名称</label>
-        <input class="form-input" id="kbName" placeholder="如：POPO 开放平台集成避坑指南" value="${k?esc(k.name):''}">
-      </div>
-      <div class="form-item">
-        <label class="form-label">描述</label>
-        <textarea class="form-textarea" id="kbDesc" placeholder="说明该知识本覆盖的领域 / 用途">${k?esc(k.desc):''}</textarea>
-      </div>
-      <div class="form-item">
-        <label class="form-label">展示标签<span class="form-hint" style="display:inline;margin-left:8px">选官方展示标签（复用 Skills 标签字典）</span></label>
-        <div id="tagPick" class="tag-pick">${renderTagPick()}</div>
-      </div>
-      <div class="tabs" style="margin-bottom:14px">
-        <div class="tab ${state.editTab==='docs'?'active':''}" onclick="setEditTab('docs')">资料</div>
-        <div class="tab ${state.editTab==='wiki'?'active':''}" onclick="setEditTab('wiki')">Wiki 视图</div>
-      </div>
-      <div id="tabDocs" style="display:${state.editTab==='docs'?'block':'none'}">
-        <label class="form-label"><span class="req">*</span>资料来源<span class="form-hint" style="display:inline;margin-left:8px">多源上传，上传后自动解析并生成关联 Wiki</span></label>
-        <div class="src-tabs">
-          ${['云空间','本地文件','网络链接','KM 文章'].map(s=>`<div class="src-tab ${state.srcTab===s?'active':''}" onclick="setSrcTab('${s}')">${s}</div>`).join('')}
-        </div>
-        <div class="upload-zone" onclick="addDraftDoc()">
-          <div class="big">⬆️</div>
-          <div>点击从「${state.srcTab==='云空间'?'POPO 云空间':state.srcTab}」添加资料</div>
-          <div style="font-size:11px;margin-top:4px">支持 PDF、DOCX、XLS、CSV、Markdown、PNG、MP4、SRT，及云文档 / KM / 网络链接</div>
-        </div>
-        <div id="draftDocs">${renderDraftDocs()}</div>
-      </div>
-      <div id="tabWiki" style="display:${state.editTab==='wiki'?'block':'none'}">
-        ${state.editingKb
-          ? `<label class="form-label">Wiki 内容<span class="form-hint" style="display:inline;margin-left:8px">资料与 Wiki 可独立删除，互不影响</span></label><div id="draftWiki">${renderDraftWiki()}</div>`
-          : '<div class="empty">保存知识本后将自动解析资料并生成关联 Wiki</div>'}
-      </div>
-    </div>
-    <div class="drawer-footer">
-      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
-      <button class="btn btn-primary" onclick="saveKb()">保存</button>
-    </div>`;
-  showDrawer();
-}
-function setEditTab(t){
-  state.editTab=t;
-  document.getElementById('tabDocs').style.display = t==='docs'?'block':'none';
-  document.getElementById('tabWiki').style.display = t==='wiki'?'block':'none';
-  document.querySelectorAll('.drawer-body .tabs .tab').forEach((el,i)=>{
-    el.classList.toggle('active', (i===0 && t==='docs') || (i===1 && t==='wiki'));
-  });
-}
-function setSrcTab(s){
-  const nm = document.getElementById('kbName'); const ds = document.getElementById('kbDesc');
-  state._tmpName = nm? nm.value : ''; state._tmpDesc = ds? ds.value : '';
-  state.srcTab=s;
-  openKbDrawer(state.editingKb?'编辑知识本':'新建知识本', state.editingKb?kbs.find(x=>x.id===state.editingKb):null);
-  const n2 = document.getElementById('kbName'); const d2 = document.getElementById('kbDesc');
-  if(n2) n2.value = state._tmpName; if(d2) d2.value = state._tmpDesc;
-}
-function renderDraftDocs(){
-  return state.draftDocs.map((d,i)=>`<div class="doc-chip">📄 ${esc(d.name)} <span class="tag gray">${d.type}</span><span class="rm" onclick="renameDraftDoc(${i})" title="重命名">✏️</span><span class="rm" onclick="rmDraftDoc(${i})" title="删除">×</span></div>`).join('');
-}
-function renameDraftDoc(i){
-  const cur = state.draftDocs[i].name;
-  const nv = prompt('重命名资料', cur);
-  if(nv && nv.trim() && nv !== cur){ state.draftDocs[i].name = nv.trim(); document.getElementById('draftDocs').innerHTML = renderDraftDocs(); toast('已重命名'); }
-}
-function addDraftDoc(){
-  const map = {'云空间':['季度规划.docx','项目周报'],'本地文件':['需求说明.pdf','数据表.xls'],'网络链接':['某技术博客','某公众号文章'],'KM 文章':['接口规范KM','FAQ汇总KM']};
-  const pool = map[state.srcTab]; const pick = pool[Math.floor(Math.random()*pool.length)];
-  const typeMap={'云空间':'POPO文档','本地文件':'本地文件','网络链接':'网络链接','KM 文章':'KM文章'};
-  state.draftDocs.push({ name: pick, type: typeMap[state.srcTab] });
-  document.getElementById('draftDocs').innerHTML = renderDraftDocs();
-  toast('已添加资料（演示）');
-}
-function rmDraftDoc(i){ state.draftDocs.splice(i,1); document.getElementById('draftDocs').innerHTML = renderDraftDocs(); }
-
-function renderDraftWiki(){
-  const keys = Object.keys(state.draftWiki||{});
-  if(!keys.length) return '<div style="font-size:12px;color:#94a3b8;padding:8px 0">Wiki 已全部删除 / 暂无 Wiki</div>';
-  return `<div style="text-align:right;margin-bottom:6px"><span class="link-btn danger" onclick="clearDraftWiki()">删除整个 Wiki</span></div>` + keys.map(g=>`
-    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px">✨ ${esc(g)} <span style="font-size:11px;color:#94a3b8">${state.draftWiki[g].length}</span>
-        <span class="link-btn danger" style="margin-left:auto;font-size:12px" onclick="rmWikiGroup('${esc(g)}')">删除该分类</span></div>
-      ${state.draftWiki[g].map((n,ni)=>`<div class="doc-chip" style="padding:5px 10px;margin-top:6px">• ${esc(n)}<span class="rm" onclick="renameWikiNode('${esc(g)}',${ni})" title="重命名">✏️</span><span class="rm" onclick="rmWikiNode('${esc(g)}',${ni})" title="删除">×</span></div>`).join('')}
-    </div>`).join('');
-}
-function rmWikiNode(g, ni){
-  state.draftWiki[g].splice(ni,1);
-  if(!state.draftWiki[g].length) delete state.draftWiki[g];
-  document.getElementById('draftWiki').innerHTML = renderDraftWiki();
-}
-function renameWikiNode(g, ni){
-  const cur = state.draftWiki[g][ni];
-  const nv = prompt('重命名 Wiki 节点', cur);
-  if(nv && nv.trim() && nv !== cur){ state.draftWiki[g][ni] = nv.trim(); document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已重命名'); }
-}
-function rmWikiGroup(g){ delete state.draftWiki[g]; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); }
-function clearDraftWiki(){ state.draftWiki={}; document.getElementById('draftWiki').innerHTML = renderDraftWiki(); toast('已删除整个 Wiki（不影响资料）'); }
-
-function renderTagPick(){
-  return DISPLAY_TAGS.map(t=>{
-    const on = (state.draftTags||[]).includes(t);
-    return `<span class="tag-opt ${on?'on':''}" onclick="toggleTag('${esc(t)}')">${on?'✓ ':''}${esc(t)}</span>`;
-  }).join('');
-}
-function toggleTag(t){
-  state.draftTags = state.draftTags||[];
-  const i = state.draftTags.indexOf(t);
-  if(i>=0) state.draftTags.splice(i,1); else state.draftTags.push(t);
-  const el = document.getElementById('tagPick'); if(el) el.innerHTML = renderTagPick();
-}
-
-// —— 列表点击「分类」→ 设置分类弹窗 ——
-function openSetCategory(id){
-  const k = kbs.find(x=>x.id===id);
-  const m = document.getElementById('modal');
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">设置分类 — ${esc(k.name)}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">选择要绑定到该知识本的分类（单选，可清空）</div>
-      <div class="cat-opts">
-        <span class="cat-opt ${!k.cat?'on':''}" data-cat="" onclick="pickCat('${id}','')">无分类</span>
-        ${CATEGORIES.map(c=>`<span class="cat-opt ${k.cat===c.name?'on':''}" data-cat="${esc(c.name)}" onclick="pickCat('${id}','${esc(c.name)}')"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>`).join('')}
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
-      <button class="btn btn-primary" onclick="closeAll();render();toast('分类已保存')">保存</button>
-    </div>`;
-  m.classList.remove('sm'); showModal();
-}
-function pickCat(id, name){
-  const k = kbs.find(x=>x.id===id); k.cat = name||null;
-  document.querySelectorAll('#modal .cat-opt').forEach(el=> el.classList.toggle('on', (el.getAttribute('data-cat')||'')===(name||'')));
-}
-
-// —— 管理分类 ——
-function openManageCategory(){
-  const m = document.getElementById('modal');
-  const rows = CATEGORIES.map((c,i)=>`<div class="mng-row"><span class="dot" style="background:${c.color}"></span><span style="flex:1">${esc(c.name)}</span><span class="link-btn danger" onclick="rmCategory(${i})">删除</span></div>`).join('') || '<div class="empty">暂无分类</div>';
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">管理分类</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">维护本租户的分类字典（逻辑同 Skills）</div>
-      <div id="mngCatList">${rows}</div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <input class="form-input" id="newCat" placeholder="新增分类名称">
-        <button class="btn btn-secondary" onclick="addCategory()">添加</button>
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-primary" onclick="closeAll();render()">完成</button></div>`;
-  m.classList.remove('sm'); showModal();
-}
-function addCategory(){
-  const v = document.getElementById('newCat').value.trim(); if(!v) return;
-  const palette=['#6d28d9','#0891b2','#ea580c','#dc2626','#16a34a','#2563eb'];
-  CATEGORIES.push({ name:v, color: palette[CATEGORIES.length%palette.length] });
-  openManageCategory(); toast('已添加分类');
-}
-function rmCategory(i){ CATEGORIES.splice(i,1); openManageCategory(); }
-
-// —— 管理标签 ——
-function openManageTag(){
-  const m = document.getElementById('modal');
-  const rows = DISPLAY_TAGS.map((t,i)=>`<div class="mng-row"><span class="show-tag">${esc(t)}</span><span style="flex:1"></span><span class="link-btn danger" onclick="rmTag(${i})">删除</span></div>`).join('') || '<div class="empty">暂无标签</div>';
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">管理展示标签</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">维护官方展示标签字典（逻辑同 Skills）</div>
-      <div id="mngTagList">${rows}</div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <input class="form-input" id="newTag" placeholder="新增展示标签">
-        <button class="btn btn-secondary" onclick="addTag()">添加</button>
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-primary" onclick="closeAll();render()">完成</button></div>`;
-  m.classList.remove('sm'); showModal();
-}
-function addTag(){ const v=document.getElementById('newTag').value.trim(); if(!v) return; if(!DISPLAY_TAGS.includes(v)) DISPLAY_TAGS.push(v); openManageTag(); toast('已添加标签'); }
-function rmTag(i){ DISPLAY_TAGS.splice(i,1); openManageTag(); }
-
-// —— 可见性配置（复用 Skills 逻辑）——
-function openVisibility(id){
-  const k = kbs.find(x=>x.id===id); const v = k.visibility||{depts:[],users:[],channels:[]};
-  const m = document.getElementById('modal');
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">可见性配置 — ${esc(k.name)}</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <div class="form-item"><label class="form-label">部门白名单</label>
-        <input class="form-input" id="visDept" placeholder="选择部门…" value="${esc((v.depts||[]).join('、'))}"></div>
-      <div class="form-item"><label class="form-label">人员白名单（与部门取并集）</label>
-        <input class="form-input" id="visUser" placeholder="搜索用户名或邮箱…" value="${esc((v.users||[]).join('、'))}"></div>
-      <div class="form-item"><label class="form-label">Channel（与部门和人员白名单取交集）</label>
-        <input class="form-input" id="visCh" placeholder="选择 Channel…" value="${esc((v.channels||[]).join('、'))}"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
-      <button class="btn btn-primary" onclick="saveVisibility('${id}')">保存</button>
-    </div>`;
-  m.classList.remove('sm'); showModal();
-}
-function saveVisibility(id){
-  const k = kbs.find(x=>x.id===id);
-  const sp = s => s.split(/[、,，]/).map(x=>x.trim()).filter(Boolean);
-  k.visibility = { depts: sp(document.getElementById('visDept').value), users: sp(document.getElementById('visUser').value), channels: sp(document.getElementById('visCh').value) };
-  closeAll(); render(); toast('可见性已保存');
-}
-
-function saveKb(){
-  const name = document.getElementById('kbName').value.trim();
-  const desc = document.getElementById('kbDesc').value.trim();
-  if(!name){ toast('请填写知识本名称'); return; }
-  if(state.editingKb){
-    const k = kbs.find(x=>x.id===state.editingKb); const wasC = k.source==='cuser';
-    k.name=name; k.desc=desc; k.docs=state.draftDocs.slice();
-    k.wikiTree = JSON.parse(JSON.stringify(state.draftWiki||{}));
-    k.tags = (state.draftTags||[]).slice();
-    k.updatedBy = '张振'; k.updatedAt = '2026-07-02';
-    if(k.wiki==='done' && !Object.keys(k.wikiTree).length){ /* Wiki 被清空，保留状态，详情显示暂无 */ }
-    closeAll(); render();
-    toast(wasC ? '已更新，未通知 C 端用户' : '已保存');
-  } else {
-    if(!state.draftDocs.length){ toast('请至少添加一条资料'); return; }
-    const id = 'kb'+(Date.now()%100000);
-    kbs.unshift({ id, name, desc, source:'admin', owner:'张振', wiki:'processing', createdAt:'2026-07-02', updatedBy:'张振', updatedAt:'2026-07-02', cat:null, tags:(state.draftTags||[]).slice(), visibility:{depts:[],users:[],channels:[]}, docs: state.draftDocs.slice(), wikiTree:{}, facts:{} });
-    closeAll(); go('kbList');
-    toast('知识本已创建，Wiki 生成中');
-    setTimeout(()=>{ const k=kbs.find(x=>x.id===id); if(k){ k.wiki='done'; k.wikiTree={'原文摘要':k.docs.map(d=>d.name),'术语解释':['示例术语']}; if(state.view==='kbList'||state.view==='kbDetail') render(); toast('Wiki 已生成'); } }, 2600);
-  }
-}
-
-// ============ 删除 ============
-function askDeleteKb(id){
-  const k = kbs.find(x=>x.id===id);
-  const isC = k.source==='cuser';
-  const bc = boundAgentCount(id);
-  const m = document.getElementById('modal'); m.classList.add('sm');
-  m.innerHTML = `
-    <div class="modal-header"><span class="title">删除知识本</span><span class="close" onclick="closeAll()">×</span></div>
-    <div class="modal-body">
-      <p>确定删除「<b>${esc(k.name)}</b>」？此操作不可恢复。</p>
-      ${bc? `<div class="callout-strip" style="margin-top:12px">⚠️ 该知识本正被 ${bc} 个 Agent 绑定，删除后将从这些 Agent 的知识库中移除。</div>`:''}
-      ${isC? `<div class="callout-strip" style="margin-top:12px;background:#fef3c7;border-color:#fcd34d;color:#92400e">该知识本由 C 端用户「${esc(k.owner)}」创建，删除后<b>不通知</b>该用户（与 Skills 一致）。</div>`:''}
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeAll()">取消</button>
-      <button class="btn btn-danger-solid" onclick="confirmDeleteKb('${id}')">删除</button>
-    </div>`;
-  showModal();
-}
-function confirmDeleteKb(id){
-  const k = kbs.find(x=>x.id===id); const isC = k.source==='cuser';
-  agents.forEach(a=> a.boundKbs = a.boundKbs.filter(x=>x!==id));
-  kbs = kbs.filter(x=>x.id!==id);
-  closeAll();
-  if(state.view==='kbDetail') go('kbList'); else render();
-  toast(isC ? '已删除，未通知 C 端用户' : '已删除');
-}
-
-// ============ Agent 列表 + 详情 · 知识绑定 ============
-function renderAgents(){
-  const q = (state.agentSearch||'').trim();
-  const list = q ? agents.filter(a=>a.name.includes(q)) : agents;
-  let rows = list.map(a=>`
-    <tr>
-      <td class="col-name"><span class="kb-name" onclick="openAgentDetail('${a.id}')">${esc(a.name)}</span></td>
-      <td><span class="model-link">${esc(a.model)}</span></td>
-      <td>${a.temp}</td>
-      <td>${a.maxTokens}</td>
-      <td><span class="tag ${a.memory?'green':'gray'}">${a.memory?'启用':'关闭'}</span></td>
-      <td>${a.plan}</td>
-      <td><span class="tag ${a.status?'green':'gray'}">${a.status?'启用':'关闭'}</span></td>
-      <td>${esc(a.creator)}</td>
-      <td class="col-time">${a.createdAt}</td>
-      <td>${esc(a.updatedBy)}</td>
-      <td class="col-time">${a.updatedAt}</td>
-      <td class="col-desc">${a.desc?esc(a.desc):'—'}</td>
-      <td class="col-op">
-        <span class="op-ic" title="配置" onclick="openAgentDetail('${a.id}')">📝</span>
-        <span class="op-ic danger" title="删除" onclick="toast('原型仅演示，暂不支持删除 Agent')">🗑️</span>
-      </td>
-    </tr>`).join('');
-  return `
-  <div class="page-header">
-    <div class="page-title" style="font-size:20px">Agents</div>
-    <button class="btn btn-primary" onclick="toast('原型聚焦知识绑定，暂不支持新建 Agent')">＋ 新建 Agent</button>
-  </div>
-  <div class="agents-toolbar">
-    <div class="search-box"><input placeholder="搜索 Agent 名称..." value="${esc(state.agentSearch||'')}" oninput="onAgentSearch(this.value)"></div>
-    <div class="tb-icons"><span class="op-ic">⚙️</span><span class="op-ic">⟳</span><span class="op-ic">⛶</span></div>
-  </div>
-  <div class="table-wrap">
-    <table class="data agents-table">
+    <div class="callout info">💡 列表对象是<b>知识本</b>。${isB?"知识本与 Agent 的绑定在「Agent 管理」中完成，本页不绑定。":"C 端给 Agent 绑定知识时自动生成一个知识本，此处按知识本维度展示。"}</div>
+    <div class="card"><table>
       <thead><tr>
-        <th>名称</th><th>模型</th><th>Temperature</th><th>Max Tokens</th><th>记忆</th>
-        <th>规划模式</th><th>状态</th><th>创建人</th><th>创建时间</th><th>更新人</th><th>更新时间</th><th>描述</th><th>操作</th>
+        <th style="width:16%">知识本 ID</th>
+        <th>用户</th>
+        <th>Agent 名称</th>
+        <th>知识数量</th>
+        <th>更新时间</th>
+        ${isB?`<th style="width:14%">操作</th>`:``}
       </tr></thead>
-      <tbody>${rows||'<tr><td colspan="13" class="empty">无匹配 Agent</td></tr>'}</tbody>
-    </table>
-  </div>`;
-}
-function onAgentSearch(v){ state.agentSearch=v; const tb=document.querySelector('.agents-table tbody'); if(tb) render(); }
-
-let bindDraft = [];
-const AGENT_TABS = ['基础信息','内置工具','Prompt 绑定','Skill 绑定','MCP 绑定','知识绑定'];
-function openAgentDetail(id){
-  const a = agents.find(x=>x.id===id);
-  state.view='agentDetail'; state.agentId=id; state.agentTab='知识绑定'; state.bindSearch='';
-  bindDraft = a.boundKbs.slice();
-  render();
-}
-function setAgentTab(t){ state.agentTab=t; render(); }
-
-function renderAgentDetail(){
-  const a = agents.find(x=>x.id===state.agentId);
-  const tabs = AGENT_TABS.map(t=>`<div class="tab ${state.agentTab===t?'active':''}" onclick="setAgentTab('${t}')">${t}</div>`).join('');
-  let body = '';
-  if(state.agentTab==='知识绑定') body = renderKnowledgeBind();
-  else body = `<div class="empty">「${state.agentTab}」为占位（保持 Fabric 现有配置规范），本原型聚焦「知识绑定」。</div>`;
-  return `
-  <div class="breadcrumb"><a onclick="go('agents')">← 返回 Agents</a></div>
-  <div class="agent-head">
-    <div class="agent-ava">${esc(a.name.slice(0,1))}</div>
-    <div><div class="page-title" style="font-size:20px">${esc(a.name)}</div><div class="page-subtitle">${esc(a.desc)}</div></div>
-  </div>
-  <div class="tabs">${tabs}</div>
-  ${body}`;
+      <tbody>
+        ${rows.map(k=>`
+          <tr onclick="openDetail('${k.id}')">
+            <td><span class="kb-ico">📚</span><span class="kbid">${k.id}</span></td>
+            <td>${isB?`<span class="email">${k.user}</span>`:k.user}</td>
+            <td>${k.agent?k.agent:`<span class="unbound">未绑定</span>`}</td>
+            <td>${k.docs.length}</td>
+            <td style="color:#64748b;">${k.updated}</td>
+            ${isB?`<td><span class="op" onclick="event.stopPropagation();openDetail('${k.id}')">查看</span><span class="op-sep">·</span><span class="op danger" onclick="event.stopPropagation();delKb('${k.id}')">删除</span></td>`:``}
+          </tr>`).join("")}
+      </tbody>
+    </table></div>`;
+  main.innerHTML = body; forceEmpty=false;
 }
 
-function renderKnowledgeBind(){
-  return `
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px">
-    <div class="bind-wrap">
-      <div class="bind-col left">
-        <input class="bind-searchbox" placeholder="请输入" value="${esc(state.bindSearch||'')}" oninput="onBindSearch(this.value)">
-        <div class="bind-bar"><span>共 <b id="bindTotal">${filteredBindKbs().length}</b> 项</span><span class="act" onclick="bindSelectAll()">全选</span></div>
-        <div class="bind-list" id="bindLeft">${renderBindLeft()}</div>
+function openDetail(id){ curKb = kbs.find(k=>k.id===id); view="detail"; detailTab="mat"; render(); }
+function backList(){ view="list"; render(); }
+function switchTab(t){ detailTab=t; render(); }
+function delKb(id){ if(confirm("确认删除该知识本？")){ const i=kbs.findIndex(k=>k.id===id); kbs.splice(i,1); render(); toast("已删除知识本"); } }
+
+/* ---------------- detail ---------------- */
+function renderDetail(){
+  const list = curKb.docs;
+  const fromTxt = { book:"知识本", cloud:"云空间", local:"本地文件" };
+  let body = `
+    <div class="detail-back" onclick="backList()">← 返回知识列表</div>
+    <div class="detail-head">
+      <span class="kb-ico" style="width:38px;height:38px;font-size:18px;">📚</span>
+      <div>
+        <div class="main-title" style="font-size:19px;">知识本 <span class="kbid" style="font-size:15px;">${curKb.id}</span></div>
+        <div style="font-size:12px;color:#94a3b8;">用户 ${curKb.user} · 绑定 Agent：${curKb.agent?curKb.agent:'<span class="unbound">未绑定（去 Agent 管理绑定）</span>'} · 共 ${list.length} 项知识</div>
       </div>
-      <div class="bind-col right">
-        <div class="bind-bar"><span>共 <b id="bindCount">${bindDraft.length}</b> 项</span><span class="act" onclick="bindClear()">清空</span></div>
-        <div class="bind-list" id="bindRight">${renderBindRight()}</div>
-      </div>
+      <button class="btn primary" style="margin-left:auto;" onclick="openAdd()">＋ 添加知识</button>
     </div>
-    <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBind('${state.agentId}')">🖫 保存绑定</button></div>
-  </div>`;
-}
-function filteredBindKbs(){
-  const q = (state.bindSearch||'').trim();
-  return kbs.filter(k=> k.wiki!=='fail' && (!q || k.name.includes(q) || (k.desc||'').includes(q)));
-}
-function renderBindLeft(){
-  const list = filteredBindKbs();
-  if(!list.length) return '<div class="empty">无匹配知识本</div>';
-  return list.map(k=>{
-    const on = bindDraft.includes(k.id);
-    return `<div class="bind-item ${on?'on':''}" onclick="toggleBind('${k.id}')">
-      <div class="bind-cb">${on?'✓':''}</div>
-      <div><div class="bi-name">📚 ${esc(k.name)}${k.wiki==='processing'?' <span class="tag amber" style="font-size:10px">Wiki生成中</span>':''}</div><div class="bi-desc">${esc(k.desc)}</div></div>
+    <div class="callout warn">⚠️ 让 Agent 使用该知识本，请到 <b>Agent 管理 → 给 Agent 绑定知识本</b> 完成，知识页不做绑定。</div>
+    <div class="tabs">
+      <div class="tab ${detailTab==="mat"?"active":""}" onclick="switchTab('mat')">资料</div>
+      <div class="tab ${detailTab==="wiki"?"active":""}" onclick="switchTab('wiki')">Wiki 视图</div>
     </div>`;
-  }).join('');
+
+  if(detailTab==="mat"){
+    body += `
+      <div class="toolbar">
+        <div class="search-box">🔍 搜索资料</div>
+        <span class="pill">▾ 来源方式</span>
+        <span class="pill" style="margin-left:auto;color:#94a3b8;">共 ${list.length} 项 · 仅支持查看 / 删除</span>
+      </div>
+      <div class="card"><table>
+        <thead><tr><th style="width:44%">资料名称</th><th>来源方式</th><th>时间</th><th>操作</th></tr></thead>
+        <tbody>
+          ${list.map((m,i)=>`
+            <tr>
+              <td><span class="fico" style="background:${m.c};">${m.ext}</span>${m.n}</td>
+              <td><span class="from ${m.from}">${fromTxt[m.from]}</span></td>
+              <td style="color:#64748b;">${m.t}</td>
+              <td><span class="op" onclick="event.stopPropagation();toast('预览：${m.n}')">查看</span><span class="op-sep">·</span><span class="op danger" onclick="event.stopPropagation();delMat(${i})">删除</span></td>
+            </tr>`).join("")}
+        </tbody>
+      </table></div>`;
+  } else {
+    body += `
+      <div class="wiki-wrap">
+        <div class="wiki-top">
+          <div class="ai">✦ AI 已生成 Wiki 视图</div>
+          <button class="btn ghost sm" style="margin-left:auto;" onclick="openPrompt()">✎ 编辑结构</button>
+        </div>
+        ${wikiTree.map((w,i)=>`
+          <div class="wnode g" onclick="toggleWiki(${i})">${w.open?"▾":"▸"} ${w.g}<span class="cnt">${w.cnt}</span></div>
+          ${w.open? w.items.map(it=>`<div class="wnode leaf"><span class="wdot">·</span>${it}</div>`).join("") : ""}
+        `).join("")}
+      </div>`;
+  }
+  main.innerHTML = body;
 }
-function renderBindRight(){
-  if(!bindDraft.length) return '<div class="empty">从左侧选择知识本，选中后在此展示</div>';
-  return bindDraft.map(id=>{
-    const k = kbs.find(x=>x.id===id); if(!k) return '';
-    return `<div class="sel-item"><div class="bi-name" style="font-weight:500">${esc(k.name)}</div><span class="si-x" onclick="toggleBind('${id}')">×</span></div>`;
-  }).join('');
+function toggleWiki(i){ wikiTree[i].open=!wikiTree[i].open; render(); }
+function delMat(i){ if(confirm("确认从知识本移除该资料？")){ curKb.docs.splice(i,1); render(); toast("已删除资料"); } }
+
+/* ---------------- create KB (B端) ---------------- */
+function openCreate(){ flow={ step:"name", kbName:"", targetKb:null, way:null, picked:new Set() }; overlay.classList.add("show"); stepName(); }
+function closeModal(){ overlay.classList.remove("show"); }
+
+function stepName(){
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">📚 创建知识本</span><span class="step">第 1 步 · 命名</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <div class="field"><label>知识本名称</label><input id="kbName" placeholder="如：群运维知识库" value="${flow.kbName}" oninput="flow.kbName=this.value"></div>
+      <div class="callout info">💡 创建后系统生成唯一<b>知识本 ID</b>；接着上传知识。若要让业务 Agent 使用，请到 <b>Agent 管理</b> 绑定。</div>
+    </div>
+    <div class="modal-foot"><div class="sp"></div>
+      <button class="btn primary" onclick="doCreateKb()">创建并上传知识 →</button>
+    </div>`;
+  setTimeout(()=>{ const el=document.getElementById("kbName"); if(el) el.focus(); },30);
 }
-function refreshBind(){
-  document.getElementById('bindLeft').innerHTML = renderBindLeft();
-  document.getElementById('bindRight').innerHTML = renderBindRight();
-  document.getElementById('bindCount').textContent = bindDraft.length;
-  const bt = document.getElementById('bindTotal'); if(bt) bt.textContent = filteredBindKbs().length;
-}
-function onBindSearch(v){ state.bindSearch=v; document.getElementById('bindLeft').innerHTML = renderBindLeft(); const bt=document.getElementById('bindTotal'); if(bt) bt.textContent=filteredBindKbs().length; }
-function toggleBind(id){
-  if(bindDraft.includes(id)) bindDraft = bindDraft.filter(x=>x!==id); else bindDraft.push(id);
-  refreshBind();
-}
-function bindSelectAll(){ filteredBindKbs().forEach(k=>{ if(!bindDraft.includes(k.id)) bindDraft.push(k.id); }); refreshBind(); }
-function bindClear(){ bindDraft = []; refreshBind(); }
-function saveBind(agentId){
-  const a = agents.find(x=>x.id===agentId); a.boundKbs = bindDraft.slice();
-  toast('知识绑定已保存'); go('agents');
+function doCreateKb(){
+  const id = "kb_" + Math.random().toString(16).slice(2,8);
+  const kb = { id, user:"当前租户成员", scene:"B", agent:null, updated:nowStr(), docs:[] };
+  kbs.unshift(kb); flow.targetKb = id; flow.step=1; showFlow();
 }
 
-// ============ C 端对话检索演示 ============
-function renderChat(){
-  const a = agents.find(x=>x.id===chat.agentId);
-  const boundNames = a.boundKbs.map(id=>{const k=kbs.find(x=>x.id===id);return k?k.name:'';}).filter(Boolean);
-  const msgs = chat.messages.map(m=>`<div class="msg ${m.from==='me'?'me':'bot'}">${esc(m.text)}</div>`).join('');
-  let dbg = '';
-  if(chat.lastRetrieval){
-    const r = chat.lastRetrieval;
-    dbg = `
-      <div class="step">① 用户提问：<code>${esc(r.q)}</code></div>
-      <div class="step">② Agent Runtime 取绑定知识本 <code>notebook_ids = [${r.ids.join(', ')||'空'}]</code></div>
-      <div class="step">③ 携 <code>notebook_ids</code> <b>只调 1 次</b>知识本检索接口 → 知识本内部合并检索（统一大索引 + <code>notebook_id</code> filter）→ 命中 ${r.hits} 条片段 <span class="muted">（全局 Top-K，Fabric 不做应用层重排）</span></div>
-      <div class="step">④ 片段作为上下文喂给模型生成答案</div>
-      <div class="step">⑤ 输出答案给用户 <span class="muted">（不含引用回链 / 来源信息）</span></div>`;
-  } else {
-    dbg = '<div class="muted">在左侧发送一条提问，这里会展示检索链路。<br><br>试试问：<br>· publicVar 有字数限制吗<br>· 引用回复会 @ 谁</div>';
-  }
-  return `
-  <div class="page-header"><div>
-    <div class="page-title">🔎 C 端对话预览</div>
-    <div class="page-subtitle">模拟 C 端用户与投放的 Agent 对话，观察知识本检索链路（右侧演示面板仅调试用，C 端不可见）</div>
-  </div></div>
-  <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">
-    <span style="font-size:13px;color:#475569">当前 Agent：</span>
-    <select class="filter-select" onchange="switchChatAgent(this.value)">
-      ${agents.map(x=>`<option value="${x.id}" ${x.id===chat.agentId?'selected':''}>${esc(x.name)}</option>`).join('')}
-    </select>
-    <span style="font-size:12px;color:#94a3b8">绑定知识本：${boundNames.join('、')||'未绑定（将走通用作答）'}</span>
-  </div>
-  <div class="chat-wrap">
-    <div class="phone">
-      <div class="phone-top"><div class="pa">🤖</div><div><div style="font-weight:700">${esc(a.name)}</div><div style="font-size:11px;opacity:0.85">在线</div></div></div>
-      <div class="chat-body" id="chatBody">${msgs}</div>
-      <div class="chat-input">
-        <input id="chatInput" placeholder="输入你的问题…" onkeydown="if(event.key==='Enter')sendChat()">
-        <button onclick="sendChat()">发送</button>
+/* ---------------- add flow ---------------- */
+function openAdd(){ flow={ step:1, targetKb:curKb.id, way:null, picked:new Set() }; overlay.classList.add("show"); showFlow(); }
+function showFlow(){
+  overlay.classList.add("show");
+  if(flow.step===1) return stepWay();
+  if(flow.step===2) return stepWayDetail();
+}
+function stepWay(){
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">＋ 添加知识</span><span class="step">选择添加方式 · 汇入知识本 ${flow.targetKb}</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px;">三种来源的文件都会<b>汇入同一个知识本</b>，统一整理、生成 Wiki 并支持 LLM 语义检索。</p>
+      <div class="ways">
+        <div class="way" onclick="chooseWay('book')"><div class="wi">📚</div><div class="wn">选择知识本</div><div class="wd">绑定有权限的知识本</div></div>
+        <div class="way" onclick="chooseWay('cloud')"><div class="wi">☁️</div><div class="wn">选择云空间文件</div><div class="wd">文档 / 文件夹批量</div></div>
+        <div class="way" onclick="chooseWay('local')"><div class="wi">⬆️</div><div class="wn">上传本地文件</div><div class="wd">PDF / Word / PPT…</div></div>
       </div>
     </div>
-    <div class="debug"><h4>🔧 检索链路演示面板</h4>${dbg}</div>
-  </div>`;
+    <div class="modal-foot"><div class="sp"></div><span class="cnt">选择一种方式继续</span></div>`;
 }
-function switchChatAgent(id){ chat.agentId=id; chat.messages=[{from:'bot',text:'你好，我是'+agentName(id)+'，有什么可以帮你？'}]; chat.lastRetrieval=null; render(); }
+function chooseWay(w){ flow.way=w; flow.picked=new Set(); flow.step=2; showFlow(); }
+function stepWayDetail(){
+  if(flow.way==="book") return detailBook();
+  if(flow.way==="cloud") return detailCloud();
+  if(flow.way==="local") return detailLocal();
+}
+function detailBook(){
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">📚 选择知识本</span><span class="step">可多选 · 选中即选中本内全部来源</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      ${notebooks.map(n=>`
+        <div class="srow ${flow.picked.has(n.id)?"on":""}" onclick="tPick('${n.id}')">
+          <div class="sic">📓</div>
+          <div class="sinfo"><div class="snm">${n.name}</div><div class="smeta">${n.cnt} 个来源 · 创建人 ${n.by} · ${n.date}</div></div>
+          <div class="schk">${flow.picked.has(n.id)?"✓":""}</div>
+        </div>`).join("")}
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="flow.step=1;showFlow()">←</button>
+      <span class="cnt" style="margin-left:6px;">已选择 ${flow.picked.size} 个知识本（共 ${sumBook()} 个来源）</span>
+      <div class="sp"></div>
+      <button class="btn primary" style="${flow.picked.size?"":"opacity:.5;pointer-events:none;"}" onclick="doAddBook()">添加（${sumBook()}）</button>
+    </div>`;
+}
+function sumBook(){ let s=0; flow.picked.forEach(id=>{ const n=notebooks.find(x=>x.id===id); s+=n?n.cnt:0; }); return s; }
+function detailCloud(){
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">☁️ 选择云空间文件</span><span class="step">关键字 / 链接搜索 · 多选 · 支持文件夹</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <div class="cloud-search"><input placeholder="输入关键字或粘贴文档链接搜索…" value="cli"><button class="btn primary sm" style="border-radius:8px;">🔍 搜索</button></div>
+      <div style="display:flex;align-items:center;margin-bottom:8px;font-size:13px;cursor:pointer;" onclick="tAll()">
+        <span class="checkbox ${allOn()?"on":""}">${allOn()?"✓":""}</span>全部（${cloudDocs.length}）
+      </div>
+      ${cloudDocs.map(c=>`
+        <div style="display:flex;align-items:center;padding:10px 6px;border-bottom:1px solid #f8fafc;cursor:pointer;" onclick="tPick('${c.id}')">
+          <span class="checkbox ${flow.picked.has(c.id)?"on":""}">${flow.picked.has(c.id)?"✓":""}</span>
+          <span class="fico" style="background:${c.folder?"#f59e0b":"#2563eb"};">${c.folder?"📁":"doc"}</span>
+          <div><div style="font-size:13px;font-weight:600;color:#0f172a;">${c.name}</div><div style="font-size:11px;color:#94a3b8;">POPO文档 · ${c.by}</div></div>
+        </div>`).join("")}
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="flow.step=1;showFlow()">←</button>
+      <div class="sp"></div>
+      <button class="btn primary" style="${flow.picked.size?"":"opacity:.5;pointer-events:none;"}" onclick="doAddCloud()">添加（${flow.picked.size}）</button>
+    </div>`;
+}
+function allOn(){ return flow.picked.size===cloudDocs.length; }
+function tAll(){ if(allOn()) flow.picked=new Set(); else cloudDocs.forEach(c=>flow.picked.add(c.id)); showFlow(); }
+function detailLocal(){
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">⬆️ 上传本地文件</span><span class="step">支持 PDF / Word / PPT / 图片 / 视频 等</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body"><div class="upzone"><div class="ui">⬆️</div><div style="font-weight:600;color:#475569;">点击选择文件，或拖拽到此处</div><div style="font-size:12px;margin-top:6px;">上传后作为一个知识来源写入知识本</div></div></div>
+    <div class="modal-foot"><button class="btn ghost" onclick="flow.step=1;showFlow()">←</button>
+      <div class="sp"></div>
+      <button class="btn primary" onclick="doAddLocal()">模拟上传 1 个文件</button>
+    </div>`;
+}
+function tPick(id){ flow.picked.has(id)?flow.picked.delete(id):flow.picked.add(id); showFlow(); }
 
-function sendChat(){
-  const inp = document.getElementById('chatInput'); const q = inp.value.trim(); if(!q) return;
-  chat.messages.push({ from:'me', text:q });
-  const a = agents.find(x=>x.id===chat.agentId);
-  const ids = a.boundKbs.slice();
-  // 简单关键词命中
-  let answer = '', hits = 0;
-  if(!ids.length){
-    answer = '（该 Agent 未绑定知识本，走模型通用能力）暂时无法从知识库中给出确切依据，建议补充相关知识本。';
-  } else {
-    let matched = null;
-    for(const id of ids){
-      const k = kbs.find(x=>x.id===id); if(!k) continue;
-      for(const key of Object.keys(k.facts)){
-        if(q.includes(key)){ matched = k.facts[key]; hits++; }
-      }
-    }
-    if(matched){ answer = matched; }
-    else { answer = '在已绑定的知识本中未检索到明确依据，以下为通用回答：请提供更具体的问题，或联系管理员补充知识。'; }
-  }
-  chat.lastRetrieval = { q, ids, hits: hits||0 };
-  chat.messages.push({ from:'bot', text: answer });
-  render();
-  setTimeout(()=>{ const b=document.getElementById('chatBody'); if(b) b.scrollTop=b.scrollHeight; },30);
+/* commit */
+function targetKbObj(){ return kbs.find(k=>k.id===flow.targetKb); }
+function nowStr(){ return "2026-07-23 " + new Date().toTimeString().slice(0,5); }
+function doAddBook(){
+  const kb=targetKbObj(); let added=0;
+  flow.picked.forEach(id=>{ const n=notebooks.find(x=>x.id===id); for(let i=0;i<n.cnt;i++){ kb.docs.push({n:`${n.name.slice(0,10)}… 来源${i+1}`, ext:"本", c:"#059669", from:"book", t:nowStr()}); added++; } });
+  finishAdd(added,"知识本来源");
+}
+function doAddCloud(){
+  const kb=targetKbObj(); let added=0;
+  flow.picked.forEach(id=>{ const c=cloudDocs.find(x=>x.id===id); if(c.folder){ for(let i=0;i<12;i++){ kb.docs.push({n:`CLI项目文档-${i+1}`, ext:"doc", c:"#2563eb", from:"cloud", t:nowStr()}); added++; } } else { kb.docs.push({n:c.name, ext:"doc", c:"#2563eb", from:"cloud", t:nowStr()}); added++; } });
+  finishAdd(added,"云空间文档");
+}
+function doAddLocal(){
+  const kb=targetKbObj(); kb.docs.push({n:"本地上传文件.pdf", ext:"pdf", c:"#ef4444", from:"local", t:nowStr()});
+  finishAdd(1,"本地文件");
+}
+function finishAdd(n,label){
+  const kb=targetKbObj(); kb.updated=nowStr();
+  closeModal();
+  toast(`已添加 ${n} 个${label}，汇入知识本 ${kb.id}，正在生成 Wiki…`);
+  openDetail(kb.id);
 }
 
-// ============ 弹层控制 ============
-function showDrawer(){ document.getElementById('overlay').classList.add('show'); document.getElementById('drawer').classList.add('show'); }
-function showModal(){ document.getElementById('overlay').classList.add('show'); document.getElementById('modal').classList.add('show'); }
-function closeAll(){
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('drawer').classList.remove('show');
-  const m = document.getElementById('modal'); m.classList.remove('show'); m.classList.remove('sm');
+/* wiki prompt */
+function openPrompt(){
+  overlay.classList.add("show");
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">✎ 自定义 Wiki 视图结构</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:8px;">默认 Prompt 负责整理目录结构，可自行编辑后重新生成（复用知识本能力）。</p>
+      <textarea class="prompt-box">请帮我重新组织这个知识库的 Wiki 结构，把资源自动归类到以下分组：服务端、前端、策划</textarea>
+    </div>
+    <div class="modal-foot"><div class="sp"></div>
+      <button class="btn ghost" onclick="closeModal()">取消</button>
+      <button class="btn primary" onclick="closeModal();toast('已按新结构重新生成 Wiki 视图')">重新生成视图</button>
+    </div>`;
 }
+
 let toastTimer;
-function toast(msg){
-  const t = document.getElementById('toast'); t.innerHTML = '✓ '+msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2000);
-}
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2800); }
 
 render();
 </script>
