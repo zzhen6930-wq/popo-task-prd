@@ -252,9 +252,7 @@ function renderList(){
   body += `
     <div class="toolbar">
       <div class="search-box">🔍 搜索知识本 ID / 名称 / Agent</div>
-      <span class="pill" onclick="forceEmpty=true;render()">👁 预览空态</span>
     </div>
-    <div class="callout info">💡 这是<b>租户后台</b>，列表对象是<b>知识本</b>，展示<b>当前租户</b>下的全部知识本（C 端个人用户统一在同一 POPO 租户下，样式一致）。给 Agent 绑定知识时自动生成知识本；让 Agent 使用请到「Agent 管理」绑定，本页不绑定。</div>
     <div class="card"><table>
       <thead><tr>
         <th style="width:16%">知识本 ID</th>
@@ -298,7 +296,6 @@ function renderDetail(){
       </div>
       <button class="btn primary" style="margin-left:auto;" onclick="openAdd()">＋ 添加知识</button>
     </div>
-    <div class="callout warn">⚠️ 让 Agent 使用该知识本，请到 <b>Agent 管理 → 给 Agent 绑定知识本</b> 完成，知识页不做绑定。</div>
     <div class="tabs">
       <div class="tab ${detailTab==="mat"?"active":""}" onclick="switchTab('mat')">资料</div>
       <div class="tab ${detailTab==="wiki"?"active":""}" onclick="switchTab('wiki')">Wiki 视图</div>
