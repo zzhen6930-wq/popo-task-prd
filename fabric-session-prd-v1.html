@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Fabric · AI 工厂「会话管理」升级 · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; flex-wrap: wrap; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #0891b2; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 16px 0 8px; padding-left: 10px; border-left: 3px solid #0891b2; }
+  .section h4 { font-size: 13px; font-weight: 600; color: #475569; margin: 12px 0 6px; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #0e7490; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 10px 0; border-left: 4px solid; font-size: 14px; }
+  .callout.tip { background: #ecfeff; border-color: #06b6d4; color: #155e75; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout.key { background: #f0fdfa; border-color: #14b8a6; color: #115e59; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 5px; font-size: 11px; margin-left: 4px; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.cyan { background: #cffafe; color: #0e7490; }
+  .tag.purple { background: #ede9fe; color: #6d28d9; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.red { background: #fee2e2; color: #b91c1c; }
+  .tag.gray { background: #f1f5f9; color: #475569; }
+  .tag.amber { background: #fef3c7; color: #b45309; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0; }
+
+  /* 事件流线框图 */
+  .ev-wrap { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin: 12px 0; }
+  .ev-topbar { background: #f8fafc; border-bottom: 1px solid #e5e7eb; padding: 10px 14px; display: flex; align-items: center; gap: 12px; font-size: 12px; color: #475569; flex-wrap: wrap; }
+  .ev-pill { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 9px; font-size: 12px; }
+  .ev-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .ev-row:last-child { border-bottom: none; }
+  .ev-role { flex-shrink: 0; width: 52px; text-align: center; border-radius: 5px; font-size: 11px; padding: 2px 0; font-weight: 600; }
+  .ev-role.user { background: #fce7f3; color: #be185d; }
+  .ev-role.tool { background: #e0f2fe; color: #0369a1; }
+  .ev-role.agent { background: #ede9fe; color: #6d28d9; }
+  .ev-role.think { background: #f1f5f9; color: #475569; }
+  .ev-role.know { background: #dcfce7; color: #166534; }
+  .ev-role.mcp { background: #fef3c7; color: #b45309; }
+  .ev-role.sys { background: #f1f5f9; color: #64748b; }
+  .ev-role.err { background: #fee2e2; color: #b91c1c; }
+  .ev-body { flex: 1; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev-body .lbl { color: #94a3b8; margin-left: 4px; font-size: 12px; }
+  .ev-metric { flex-shrink: 0; color: #94a3b8; font-size: 12px; display: flex; gap: 12px; }
+  .ev-idle { text-align: center; color: #94a3b8; font-size: 11px; padding: 5px; background: repeating-linear-gradient(45deg,#f8fafc,#f8fafc 8px,#f1f5f9 8px,#f1f5f9 16px); border-bottom: 1px solid #f1f5f9; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .mini-note { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .lgd { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; font-size: 12px; color: #475569; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Fabric · AI 工厂「会话管理」升级</h1>
+    <div style="opacity:0.92;font-size:13px;">把会话从"只留首尾"升级为"全链路可观测"：结构化事件流 + Token / 耗时 / 时间，让每一次对话都能被排查、被度量。</div>
+    <div class="meta">
+      <span>📅 2026-07-23</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：Fabric / AI 工厂 · 会话</span>
+    </div>
+  </div>
+
+  <!-- 1 背景与目标 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>Fabric 后台已有「<b>会话</b>」模块，可按 Bot / 用户 / 时间查询会话列表与详情。但当前实现<b>只记录了用户输入与 Agent 最终输出</b>，中间的模型思考、工具调用、知识检索、报错等<b>过程信息全部缺失</b>，导致：</p>
+    <ul>
+      <li><b>无法排查问题</b>：Agent 回答不对 / 变慢 / 报错时，看不到中间发生了什么，只能靠猜</li>
+      <li><b>无法度量成本与性能</b>：单次会话消耗多少 Token、每一步耗时多久，都无从统计</li>
+      <li><b>无法定位瓶颈</b>：哪一步工具慢、哪次检索没命中、哪里报错重试，没有抓手</li>
+      <li><b>渠道来源不清</b>：无法区分会话来自 workflow 还是智能体机器人，难做分渠道分析</li>
+    </ul>
+    <p style="margin-top:10px;"><b>本期目标</b>：升级会话管理的<b>数据采集与可视化</b>——将<b>模型思考、调用工具、Skills、MCP、知识检索、模型输出、系统信息、报错信息</b>等过程事件<b>结构化记录并回放</b>，并在每个事件上标注<b>消耗 Token、耗时、开始时间</b>；列表页补齐<b>渠道类型</b>与<b>消耗 Token</b>。参考同类 Agent 观测台（Trace / Timeline）的事件流交互形态（见参考图 1/2/3）。</p>
+    <div class="callout key">
+      <div class="title">🔑 一句话定位</div>
+      给会话装上「<b>行车记录仪 + 仪表盘</b>」：完整回放对话每一步的过程，并量化每一步的 Token 与耗时，让排查从"靠猜"变成"看轨迹"。
+    </div>
+  </div>
+
+  <!-- 2 术语 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>核心概念与术语</div>
+    <table>
+      <thead><tr><th style="width:22%">术语</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>会话（Session / Conversation）</b></td><td>一个用户与某个 Bot / Agent 的完整对话，拥有唯一 <code>conversation_id</code>；由若干轮消息构成</td></tr>
+        <tr><td><b>事件（Event）</b></td><td>会话内一次可被记录的最小过程单元，拥有唯一 <code>event_id</code>（如 <code>sevt_…</code>），带类型、开始时间、耗时、Token 等元数据</td></tr>
+        <tr><td><b>事件类型（Event Type）</b></td><td>见第 4 节：用户输入 / 模型思考 / 调用工具 / Skills / MCP / 知识检索 / 模型输出 / 系统信息 / 报错信息</td></tr>
+        <tr><td><b>渠道类型（Channel）</b></td><td>会话的产生来源，本期枚举：<span class="tag cyan">workflow</span><span class="tag purple">智能体机器人</span></td></tr>
+        <tr><td><b>消耗 Token</b></td><td>事件级：该事件的 <b>输入 Token / 输出 Token</b>（如 <code>5.6k / 69</code>）；会话级：全部事件累计的<b>总 Token</b></td></tr>
+        <tr><td><b>耗时（Duration）</b></td><td>单个事件从开始到结束的时长（毫秒 / 秒）；会话级为总时长</td></tr>
+        <tr><td><b>开始时间（Offset）</b></td><td>事件相对<b>会话起点</b>的偏移时间（如 <code>0:00:11</code>），用于还原时间线顺序</td></tr>
+        <tr><td><b>会话空闲（Idle）</b></td><td>相邻事件之间用户无操作的间隔，事件流中以分隔条标注（如"会话空闲 · 31.6 秒"）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3 现状与升级总览 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>现状问题与升级总览</div>
+    <div class="scope-grid">
+      <div class="scope-card dont">
+        <h4>❌ 现状（图 4 / 图 5）</h4>
+        <ul>
+          <li>列表仅有：会话 ID / Bot / 用户 / 消息数 / 状态 / 创建时间 / 最后答复时间 / 响应时长</li>
+          <li>详情仅有 USER / ASSISTANT 两条消息 + 右侧基础会话信息</li>
+          <li>中间过程（思考 / 工具 / 检索 / 报错）<b>完全不可见</b></li>
+          <li>无 Token 统计、无逐步耗时、无渠道区分</li>
+        </ul>
+      </div>
+      <div class="scope-card do">
+        <h4>✅ 升级后（图 1 / 图 2 / 图 3）</h4>
+        <ul>
+          <li>列表新增<b>渠道类型</b>、<b>消耗 Token</b> 两列</li>
+          <li>详情改为<b>结构化事件流</b>：9 类事件按时间线排列</li>
+          <li>每个事件行标注 <b>Token / 耗时 / 开始时间</b></li>
+          <li>支持 <b>events 筛选</b>（默认 All events）+ 搜索</li>
+          <li>点击事件 → <b>右侧抽屉</b>展示完整详情（渲染 / 原始 / Deltas）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="title">范围说明</div>
+      本期聚焦<b>会话列表字段</b>与<b>会话详情事件流</b>两块的采集与展示改造，不改变会话本身的运行机制；埋点采集的实现方案见第 8 节要求。
+    </div>
+  </div>
+
+  <!-- 4 事件模型 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>事件模型（9 类事件）</div>
+    <p>会话详情把整段对话拆解为一串<b>结构化事件</b>，每个事件都带统一的元数据（<code>event_id</code>、类型、开始时间、耗时、输入/输出 Token），并按需携带各自的业务字段。事件类型如下：</p>
+    <table>
+      <thead><tr><th style="width:15%">事件类型</th><th style="width:16%">角色标签</th><th>结构化记录内容</th><th style="width:20%">展示指标</th></tr></thead>
+      <tbody>
+        <tr><td><b>用户输入</b><span class="tag red"> </span></td><td><span class="tag" style="background:#fce7f3;color:#be185d;">用户</span></td><td>用户 query 文本、附件（文件/图片）、可选 <code>tenantId</code> 等入参</td><td>开始时间</td></tr>
+        <tr><td><b>模型思考</b></td><td><span class="tag gray">思考</span></td><td>模型的思考 / 推理过程文本（thinking / reasoning）</td><td>Token（入/出）、耗时、开始时间</td></tr>
+        <tr><td><b>调用工具</b></td><td><span class="tag blue">工具</span></td><td>工具名、输入参数（<code>tool_use</code>）+ 返回结果（<code>tool_result</code>，含来源链接）</td><td>Token、耗时、开始时间</td></tr>
+        <tr><td><b>Skills</b></td><td><span class="tag purple">Skills</span></td><td>技能名、命中的技能指令、输入 / 输出</td><td>Token、耗时、开始时间</td></tr>
+        <tr><td><b>MCP</b></td><td><span class="tag amber">MCP</span></td><td>MCP Server、method、请求参数、返回结果</td><td>Token、耗时、开始时间</td></tr>
+        <tr><td><b>知识检索</b></td><td><span class="tag green">知识</span></td><td>检索 query、命中片段、相关性分数、知识库 / 来源</td><td>Token、耗时、开始时间</td></tr>
+        <tr><td><b>模型输出</b></td><td><span class="tag purple">代理人</span></td><td>Agent 最终回复（支持 Markdown 渲染，如表格 / 列表 / 链接）</td><td>Token、耗时、开始时间</td></tr>
+        <tr><td><b>系统信息</b></td><td><span class="tag gray">系统</span></td><td>系统级事件：会话空闲、上下文压缩 / flush、状态变更、限流等</td><td>耗时、开始时间</td></tr>
+        <tr><td><b>报错信息</b></td><td><span class="tag red">报错</span></td><td>错误码、错误消息、发生阶段、堆栈 / 原始返回，可标记重试</td><td>耗时、开始时间</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <div class="title">采集完整性</div>
+      "调用工具"需成对记录 <code>tool_use</code>（输入）与 <code>tool_result</code>（输出）并归属同一事件组；<b>报错信息</b>必须独立成事件、不得被吞没在正常输出里，以便排查。
+    </div>
+  </div>
+
+  <!-- 5 列表页改动 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>会话列表页改动</div>
+    <h3>5.1 字段调整</h3>
+    <p>在现有列表基础上<b>新增 2 列</b>，其余保留：</p>
+    <table>
+      <thead><tr><th>字段</th><th>状态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>会话 ID</td><td><span class="tag gray">保留</span></td><td><code>conversation_id</code>，点击进详情</td></tr>
+        <tr><td>Bot</td><td><span class="tag gray">保留</span></td><td>关联 Bot / Agent 名称</td></tr>
+        <tr><td><b>渠道类型</b></td><td><span class="tag green">新增</span></td><td>会话来源：<span class="tag cyan">workflow</span> / <span class="tag purple">智能体机器人</span>；支持作为筛选项</td></tr>
+        <tr><td>用户</td><td><span class="tag gray">保留</span></td><td>用户 ID / 邮箱</td></tr>
+        <tr><td>消息数</td><td><span class="tag gray">保留</span></td><td>该会话消息条数</td></tr>
+        <tr><td><b>消耗 Token</b></td><td><span class="tag green">新增</span></td><td>该会话<b>累计总 Token</b>（建议展示总量，hover 可看 输入/输出 拆分）</td></tr>
+        <tr><td>状态</td><td><span class="tag gray">保留</span></td><td>active / 闲置 / 结束 等</td></tr>
+        <tr><td>创建时间 / 最后答复时间 / 响应时长</td><td><span class="tag gray">保留</span></td><td>同现状</td></tr>
+        <tr><td>操作</td><td><span class="tag gray">保留</span></td><td>导出 / 查看详情</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 筛选区</h3>
+    <p>在现有筛选（Bot / 会话 ID / 用户 / 开始时间 / 结束时间）基础上，新增 <b>渠道类型</b> 筛选（全部 / workflow / 智能体机器人）。其余（刷新 / 重置 / 导出 Excel）保持不变。</p>
+  </div>
+
+  <!-- 6 详情页 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>会话详情页改造（事件流）</div>
+    <p>详情页由"两条消息"改造为<b>结构化事件流时间线</b>，形态参考图 1/2/3。整体分为：<b>①顶部会话概览</b> → <b>②筛选/搜索工具条</b> → <b>③事件流列表</b> → <b>④右侧详情抽屉</b>。</p>
+
+    <h3>6.1 顶部会话概览</h3>
+    <p>展示会话名、状态、关联 Agent、环境 / 知识库、<b>总耗时</b>、<b>总 Token（输入/输出）</b>、创建相对时间。示意：</p>
+    <div class="ev-wrap">
+      <div class="ev-topbar">
+        <span class="ev-pill"><b>测试对话</b></span>
+        <span class="ev-pill">闲置的</span>
+        <span class="ev-pill">🧠 深度研究员</span>
+        <span class="ev-pill">☁ 环境</span>
+        <span class="ev-pill">📚 资料库</span>
+        <span style="margin-left:auto"></span>
+        <span class="ev-pill">⏱ 2分59秒</span>
+        <span class="ev-pill">🎫 167k / 4.7k</span>
+        <span class="ev-pill">🕐 15小时前</span>
+      </div>
+      <div class="ev-topbar" style="background:#fff;">
+        <span class="ev-pill">👤 用户 ▾</span>
+        <span class="ev-pill">🗂 所有活动（All events）▾</span>
+        <span class="ev-pill">🔍 搜索</span>
+        <span style="margin-left:auto"></span>
+        <span class="ev-pill">⌨</span>
+        <span class="ev-pill">⧉ 复制</span>
+        <span class="ev-pill">⬇ 导出</span>
+      </div>
+    </div>
+
+    <h3>6.2 事件流列表</h3>
+    <p>按<b>时间线顺序</b>逐行展示事件；每行左侧为<b>角色标签</b>，中间为<b>内容摘要</b>，右侧为 <b>Token（入/出）· 耗时 · 开始时间</b>；相邻事件的空闲以分隔条标注。示意（对应参考图 1）：</p>
+    <div class="ev-wrap">
+      <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">明日杭州天气</span><span class="ev-metric"><span>0:00:09</span></span></div>
+      <div class="ev-row"><span class="ev-role tool">工具</span><span class="ev-body">网页搜索<span class="lbl">杭州明日天气预报 2026-07-23</span></span><span class="ev-metric"><span>🎫 5.6k / 69</span><span>⏱ 827ms</span><span>0:00:11</span></span></div>
+      <div class="ev-row"><span class="ev-role agent">代理人</span><span class="ev-body">根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…</span><span class="ev-metric"><span>🎫 12.2k / 380</span><span>0:00:20</span></span></div>
+      <div class="ev-idle">会话空闲 · 31.6 秒</div>
+      <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">根据这个天气情况，适合去北京游玩吗？</span><span class="ev-metric"><span>0:00:52</span></span></div>
+      <div class="ev-row"><span class="ev-role know">知识</span><span class="ev-body">知识检索<span class="lbl">北京 7/23 天气 · 命中 3 条</span></span><span class="ev-metric"><span>🎫 15.5k / 69</span><span>⏱ 886ms</span><span>0:00:57</span></span></div>
+      <div class="ev-row"><span class="ev-role err">报错</span><span class="ev-body">工具超时 · TOOL_TIMEOUT（已重试 1 次）</span><span class="ev-metric"><span>⏱ 3.0s</span><span>0:01:02</span></span></div>
+      <div class="ev-row"><span class="ev-role agent">代理人</span><span class="ev-body">根据获取的天气数据，我来综合分析明天（7/23）是否适合去北京…</span><span class="ev-metric"><span>🎫 27.7k / 1.7k</span><span>0:01:34</span></span></div>
+    </div>
+    <div style="margin:8px 0;">
+      <span class="lgd"><span class="dot" style="background:#be185d"></span>用户输入</span>
+      <span class="lgd"><span class="dot" style="background:#475569"></span>模型思考</span>
+      <span class="lgd"><span class="dot" style="background:#0369a1"></span>调用工具</span>
+      <span class="lgd"><span class="dot" style="background:#6d28d9"></span>Skills</span>
+      <span class="lgd"><span class="dot" style="background:#b45309"></span>MCP</span>
+      <span class="lgd"><span class="dot" style="background:#166534"></span>知识检索</span>
+      <span class="lgd"><span class="dot" style="background:#6d28d9"></span>模型输出</span>
+      <span class="lgd"><span class="dot" style="background:#64748b"></span>系统信息</span>
+      <span class="lgd"><span class="dot" style="background:#b91c1c"></span>报错信息</span>
+    </div>
+
+    <h3>6.3 Events 筛选（默认 All events）</h3>
+    <p>工具条提供 <b>events 筛选下拉</b>，默认「<b>All events / 所有活动</b>」；可按<b>事件类型多选</b>过滤（如只看「调用工具 + 报错」用于排障，或只看「用户 + 模型输出」还原对话）。可叠加：<b>发言者筛选</b>（用户 / 某 Agent）、<b>关键词搜索</b>。筛选只影响展示，不改变原始记录。</p>
+
+    <h3>6.4 右侧详情抽屉</h3>
+    <p>点击任一事件行，右侧滑出<b>详情抽屉</b>（参考图 2 / 图 3），展示该事件的<b>完整结构化内容</b>：</p>
+    <ul>
+      <li><b>头部</b>：事件类型 + 事件名（如 网络搜索 / 信息）、<code>event_id</code>、开始时间、耗时</li>
+      <li><b>视图切换</b>：<span class="tag cyan">渲染</span>（友好排版，如 Markdown 表格）/ <span class="tag gray">原始</span>（raw payload）/ <span class="tag gray">Deltas</span>（流式增量，模型输出类事件适用）</li>
+      <li><b>调用工具</b>类：分区展示 <code>agent.tool_use</code>（输入查询）与 <code>agent.tool_result</code>（返回结果，含来源链接、可跳转），每段可复制</li>
+      <li><b>模型输出</b>类：展示渲染后的完整回答；<b>报错</b>类：展示错误码、消息、堆栈；<b>知识检索</b>类：展示命中片段与来源</li>
+    </ul>
+    <div class="two">
+      <div class="ev-wrap">
+        <div class="ev-topbar"><span class="ev-pill">Tool · 网络搜索</span><span style="margin-left:auto"></span><span class="ev-pill">渲染</span><span class="ev-pill">原始</span></div>
+        <div class="ev-row"><span class="ev-body"><code>agent.tool_use</code> · 输入查询：「杭州明日天气预报 2026-07-23」</span></div>
+        <div class="ev-row"><span class="ev-body"><code>agent.tool_result</code> · 杭州-天气预报 www.nmc.cn（含来源链接）</span></div>
+        <div class="ev-idle">event_id：sevt_…3EDK21b · 0:00:11 · ⏱ 827ms</div>
+      </div>
+      <div class="ev-wrap">
+        <div class="ev-topbar"><span class="ev-pill">Agent · 信息</span><span style="margin-left:auto"></span><span class="ev-pill">渲染</span><span class="ev-pill">原始</span><span class="ev-pill">Deltas</span></div>
+        <div class="ev-row"><span class="ev-body">代理消息（渲染 Markdown）：杭州明日天气表格 + 温馨提示…</span></div>
+        <div class="ev-idle">event_id：sevt_…3EDK21b · 0:00:20 · ⏱ 7.5s · 🎫 12.2k / 380</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 指标口径 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>指标口径与展示规范</div>
+    <table>
+      <thead><tr><th style="width:20%">指标</th><th>口径定义</th><th style="width:24%">展示格式</th></tr></thead>
+      <tbody>
+        <tr><td><b>Token（事件级）</b></td><td>该事件的输入 Token / 输出 Token</td><td><code>5.6k / 69</code>（入 / 出）</td></tr>
+        <tr><td><b>Token（会话级）</b></td><td>会话内所有事件 Token 累计</td><td>列表列展示总量；详情头 <code>167k / 4.7k</code></td></tr>
+        <tr><td><b>耗时</b></td><td>事件从开始到结束时长；&lt;1s 用毫秒，≥1s 用秒</td><td><code>827ms</code> / <code>7.5s</code> / <code>2分59秒</code></td></tr>
+        <tr><td><b>开始时间</b></td><td>相对会话起点的偏移</td><td><code>0:00:11</code>（时:分:秒）</td></tr>
+        <tr><td><b>会话空闲</b></td><td>相邻事件间隔（用户无操作）</td><td>分隔条「会话空闲 · 31.6 秒」</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip">
+      <div class="title">缺失兜底</div>
+      某类事件不产生 Token（如纯用户输入 / 系统信息）时，Token 位<b>留空不显示</b>，不显示 <code>0</code>，避免误读。
+    </div>
+  </div>
+
+  <!-- 8 采集要求 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>数据采集要求（研发对齐）</div>
+    <ul>
+      <li><b>全过程落库</b>：运行时把 9 类事件按发生顺序写入会话事件表，字段含 <code>event_id</code> / <code>conversation_id</code> / <code>type</code> / <code>role</code> / <code>start_offset</code> / <code>duration</code> / <code>token_in</code> / <code>token_out</code> / <code>payload</code>。</li>
+      <li><b>渠道标记</b>：会话创建时写入 <code>channel</code>（workflow / 智能体机器人），供列表列与筛选使用。</li>
+      <li><b>成对记录</b>：工具 / MCP / Skills 的调用与返回成对入库并可关联为同一事件组。</li>
+      <li><b>报错不吞没</b>：任何阶段异常都单独记为 <code>error</code> 事件，保留错误码与原始返回。</li>
+      <li><b>原始可回放</b>：payload 同时保留 <b>渲染所需结构</b> 与 <b>raw 原文</b>，支撑抽屉「渲染 / 原始 / Deltas」切换。</li>
+      <li><b>Token 汇总</b>：会话级总 Token 由事件级累加得出，保证列表与详情口径一致。</li>
+    </ul>
+  </div>
+
+  <!-- 9 边界 -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span>边界与非目标</div>
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 本期做</h4>
+        <ul>
+          <li>列表新增 渠道类型 / 消耗 Token 两列及筛选</li>
+          <li>详情事件流 + 逐事件 Token/耗时/开始时间</li>
+          <li>events 筛选（默认 All events）+ 搜索</li>
+          <li>右侧详情抽屉 + 渲染/原始/Deltas</li>
+        </ul>
+      </div>
+      <div class="scope-card dont">
+        <h4>🚫 本期不做</h4>
+        <ul>
+          <li>不改会话的运行 / 调度机制本身</li>
+          <li>不做跨会话的聚合报表 / 成本看板（后续）</li>
+          <li>不做实时告警 / 异常自动通知（后续）</li>
+          <li>渠道枚举本期仅 workflow / 智能体机器人</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 验收 -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span>验收标准</div>
+    <ol>
+      <li>列表页可见并可筛选<b>渠道类型</b>，可见<b>消耗 Token</b> 且与详情总量一致。</li>
+      <li>详情页能完整回放一次含<b>工具调用 / 知识检索 / 报错</b>的会话，9 类事件均正确归类。</li>
+      <li>每个事件行正确显示 <b>Token / 耗时 / 开始时间</b>；空闲分隔条正确。</li>
+      <li><b>events 筛选</b>默认 All events，切换后事件流按类型正确过滤。</li>
+      <li>点击事件<b>右侧抽屉</b>展示完整详情，且「渲染 / 原始」可切换、内容可复制。</li>
+      <li>报错事件<b>独立可见</b>，含错误码与原始返回，可用于排查。</li>
+    </ol>
+  </div>
+
+  <div class="footer">Fabric · AI 工厂「会话管理」升级 · PRD v1.0 · 结构化事件流 + Token/耗时/时间可观测</div>
+
+</div>
+</body>
+</html>
