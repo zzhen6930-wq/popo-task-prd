@@ -46,6 +46,8 @@
   }
   .side-item:hover { background: #f8fafc; }
   .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
+  .side-title { font-size: 11px; color: #94a3b8; padding: 12px 12px 4px; letter-spacing: .5px; font-weight: 700; }
+  .side-sep { height: 1px; background: #f1f5f9; margin: 8px 8px; }
 
   .main { flex: 1; overflow-y: auto; padding: 24px 28px; position: relative; }
 
@@ -243,18 +245,25 @@
   <div class="layout">
     <!-- 侧栏 -->
     <div class="sidebar">
-      <div class="side-group">AI 工厂</div>
-      <div class="side-item">💬 对话</div>
+      <div class="side-title">AI 工厂</div>
+      <div class="side-item">🧬 Models</div>
+      <div class="side-item">📝 Prompts</div>
+      <div class="side-item">✨ Skills</div>
+      <div class="side-item">🔧 工具</div>
+      <div class="side-item">🔌 MCP</div>
+      <div class="side-item">📖 知识</div>
+      <div class="side-sep"></div>
+      <div class="side-title">Agent 管理</div>
       <div class="side-item">🤖 Bots</div>
       <div class="side-item">🧠 Agents</div>
-      <div class="side-item">👥 Teams</div>
-      <div class="side-item">🧩 Models</div>
-      <div class="side-item">📝 Prompts</div>
-      <div class="side-item">⚙️ Skills</div>
-      <div class="side-item">📚 知识</div>
-      <div class="side-item">🔧 工具</div>
-      <div class="side-item">🗂️ 会话</div>
+      <div class="side-item">🧩 记忆</div>
+      <div class="side-item">💾 资源库</div>
       <div class="side-item active">⚡ 自动化任务</div>
+      <div class="side-sep"></div>
+      <div class="side-title">运行观察</div>
+      <div class="side-item">💬 对话</div>
+      <div class="side-item">🗂️ 会话</div>
+      <div class="side-item">📊 评测</div>
     </div>
 
     <!-- 主区 -->

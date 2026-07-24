@@ -22,7 +22,8 @@
   .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#fb923c,#f472b6); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
 
   .sidebar { width: 200px; background: #fafbfc; border-right: 1px solid #f1f5f9; padding: 70px 12px 12px; overflow-y: auto; }
-  .side-title { font-size: 11px; color: #94a3b8; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .side-title { font-size: 11px; color: #94a3b8; padding: 12px 12px 4px; letter-spacing: .5px; font-weight: 700; }
+  .side-sep { height: 1px; background: #f1f5f9; margin: 8px 8px; }
   .side-item { font-size: 13px; color: #475569; padding: 8px 12px; border-radius: 6px; margin: 1px 0; cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .side-item:hover { background: #f1f5f9; }
   .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
@@ -152,16 +153,24 @@
 
   <div class="sidebar">
     <div class="side-title">AI 工厂</div>
-    <div class="side-item">💬 对话</div>
+    <div class="side-item">🧬 Models</div>
+    <div class="side-item">📝 Prompts</div>
+    <div class="side-item">✨ Skills</div>
+    <div class="side-item">🔧 工具</div>
+    <div class="side-item">🔌 MCP</div>
+    <div class="side-item active">📖 知识</div>
+    <div class="side-sep"></div>
+    <div class="side-title">Agent 管理</div>
     <div class="side-item">🤖 Bots</div>
     <div class="side-item">🧠 Agents</div>
-    <div class="side-item">👥 Teams</div>
-    <div class="side-item active">📖 知识</div>
     <div class="side-item">🧩 记忆</div>
-    <div class="side-item">🔧 工具</div>
     <div class="side-item">💾 资源库</div>
-    <div class="side-item">💬 会话</div>
     <div class="side-item">⚡ 自动化任务</div>
+    <div class="side-sep"></div>
+    <div class="side-title">运行观察</div>
+    <div class="side-item">💬 对话</div>
+    <div class="side-item">🗂️ 会话</div>
+    <div class="side-item">📊 评测</div>
   </div>
 
   <div class="main" id="main"></div>
