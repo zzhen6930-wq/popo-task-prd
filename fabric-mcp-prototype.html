@@ -42,11 +42,6 @@
   .mcp-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: all .15s; cursor: default; }
   .mcp-card:hover { border-color: #c7d2fe; box-shadow: 0 2px 10px rgba(99,102,241,0.08); }
   .mcp-card { position: relative; }
-  .card-ops { position: absolute; top: 8px; right: 10px; display: none; gap: 6px; }
-  .mcp-card:hover .card-ops { display: inline-flex; }
-  .cop { width: 24px; height: 24px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b; cursor: pointer; }
-  .cop:hover { background: #eef2ff; color: #4f46e5; }
-  .cop.danger:hover { background: #fef2f2; color: #dc2626; }
   .mcp-ico { width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: #f1f5f9; }
   .mcp-info { min-width: 0; }
   .mcp-name { font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -163,10 +158,6 @@ function render(){
             <div class="mcp-name">${m.name}</div>
             <div class="mcp-desc">${m.desc}</div>
           </div>
-          <div class="card-ops">
-            <span class="cop" title="编辑" onclick="openEdit(${i})">✎</span>
-            <span class="cop danger" title="删除" onclick="delMcp(${i})">🗑</span>
-          </div>
         </div>`).join("")}
     </div>`;
 }
@@ -178,16 +169,6 @@ function openAdd(){
   form = { name:"", transport:"STDIO", icon:"🔌", note:"", command:"", url:"", args:[""], envs:[], headers:[] };
   overlay.classList.add("show");
   renderModal();
-}
-function openEdit(i){
-  editIdx = i;
-  const m = mcps[i];
-  form = { name:m.name, transport:m.transport||"STDIO", icon:m.ico, note:m.desc, command:m.command||"", url:m.url||"", args:(m.args&&m.args.length)?m.args.slice():[""], envs:(m.envs||[]).slice(), headers:(m.headers||[]).slice() };
-  overlay.classList.add("show");
-  renderModal();
-}
-function delMcp(i){
-  if(confirm("确认删除 MCP：" + mcps[i].name + "？")){ mcps.splice(i,1); render(); toast("已删除 MCP"); }
 }
 function closeModal(){ overlay.classList.remove("show"); }
 function setField(k,v){ form[k]=v; }
