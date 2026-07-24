@@ -130,27 +130,34 @@
   <!-- 5 添加 MCP -->
   <div class="section">
     <div class="section-title"><span class="num">5</span>添加 MCP（弹窗配置）</div>
-    <p>点击右上角「＋ 添加 MCP」弹出「<b>MCP 配置</b>」弹窗。公共字段 + 随<b>传输类型</b>动态变化的字段：</p>
-    <h3>5.1 公共字段</h3>
+    <p>点击右上角「＋ 添加 MCP」弹出「<b>MCP 配置</b>」弹窗。<b>弹窗按当前租户类型分叉</b>（顶部可切换租户），并遵循<b>用户最小化输入</b>原则——除必须由用户/租户提供的参数外，其余能由平台预填的都由平台预填。</p>
+    <h3>5.1 公共字段（两类租户通用）</h3>
     <table>
       <thead><tr><th style="width:18%">字段</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td><b>服务器名称</b></td><td>MCP 名称，如 <code>My Custom Server</code></td></tr>
-        <tr><td><b>传输类型</b></td><td>下拉选择 <code>STDIO / SSE / HTTP</code>，切换后下方字段联动变化</td></tr>
         <tr><td><b>图标</b></td><td>默认给<b>一个占位图标</b>（默认选中），支持<b>手动上传</b>替换（PNG / JPG，≤ 1 MB，推荐 256×256）；<b>不提供图标候选排</b></td></tr>
-        <tr><td><b>鉴权方式</b></td><td>下拉选择 <code>无鉴权 / OAuth 授权 / API Key / 租户统一凭据</code>——后台<b>仅声明鉴权方式</b>及应用级参数（如 OAuth client_id），<b>不填写终端用户的具体凭据值</b>（见 6.2）</td></tr>
         <tr><td><b>备注（可选）</b></td><td>提供 MCP 文档或说明，告知平台如何及何时使用此 MCP</td></tr>
       </tbody>
     </table>
-    <div class="callout key">
-      <div class="title">🔑 后台不直填凭据</div>
-      添加 MCP 时<b>不再直接填写 Authorization header / 环境变量密钥等具体凭据</b>。具体凭据由终端用户（C 端）或租户管理员（B 端统一凭据）在对应入口提供，绑定到用户/租户维度，避免全体用户共用一份账号。
-    </div>
-    <h3>5.2 传输类型动态字段</h3>
+
+    <h3>5.2 AgentHub 租户（C 端）· 只选鉴权方式</h3>
+    <p>C 端<b>不暴露传输类型与连接参数</b>（由平台预填），仅需选择<b>鉴权方式</b>，凭据强制绑定<b>用户维度</b>：</p>
+    <table>
+      <thead><tr><th style="width:20%">鉴权方式</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>OAuth 授权</b></td><td>后台仅填<b>应用级</b>信息（如 <code>client_id</code>）；用户点「连接」跳授权页各自授权，token 存<b>用户维度</b>。适用 GitHub / Figma / 腾讯文档等有 OAuth 的服务</td></tr>
+        <tr><td><b>用户输入 API Key</b></td><td>后台声明「需 API Key」；用户在<b>前台各自填写自己的 Key</b>（存用户维度）。适用天眼查 / 北大法宝等只发 Key 的服务</td></tr>
+        <tr><td><b>静默授权</b></td><td>针对<b>公司内部应用</b>（POPO 云空间 / 日程 / 任务、KM、易协作等），复用登录态<b>免密、用户无感</b></td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 其他租户（B 端）· 自填传输参数（统一凭据）</h3>
+    <p>B 端<b>不展示「鉴权方式」字段</b>，由租户自行填写 <code>STDIO / SSE / HTTP</code> 三种传输方式的参数——这即是<b>租户统一提供凭据</b>，绑定<b>租户维度</b>，供本部门员工无感调用（平台按员工身份记调用审计）：</p>
     <table>
       <thead><tr><th style="width:14%">传输类型</th><th>专属字段</th></tr></thead>
       <tbody>
-        <tr><td><b>STDIO</b></td><td><b>命令</b>（如 <code>python / node / ./script.sh</code>）、<b>参数</b>（可增删多条）、<b>环境变量</b>（可选，键值对，可增删多条）<br><span style="color:#6b7280">⚠️ STDIO 靠本地进程运行，SaaS（C 端）可用性<b>待研发评估</b>，本期先保留字段</span></td></tr>
+        <tr><td><b>STDIO</b></td><td><b>命令</b>（如 <code>python / node / ./script.sh</code>）、<b>参数</b>（可增删多条）、<b>环境变量</b>（可选，键值对，可增删多条）<br><span style="color:#6b7280">⚠️ STDIO 靠本地进程运行，SaaS 可用性<b>待研发评估</b>，本期先保留字段</span></td></tr>
         <tr><td><b>SSE</b></td><td><b>服务器 URL</b>（如 <code>https://mcp.yourserver.com/sse</code>）、<b>自定义 headers</b>（可选，键值对，可增删多条）</td></tr>
         <tr><td><b>HTTP</b></td><td><b>服务器 URL</b>（如 <code>https://mcp.yourserver.com/mcp</code>）、<b>自定义 headers</b>（可选，键值对，可增删多条）</td></tr>
       </tbody>
@@ -183,7 +190,7 @@
     <table>
       <thead><tr><th style="width:24%">场景</th><th>鉴权</th><th>凭据归属</th></tr></thead>
       <tbody>
-        <tr><td>C 端 / B 端 通用</td><td><b>复用登录态免密</b></td><td>无感，用户/员工无需配置</td></tr>
+        <tr><td>C 端 / B 端 通用</td><td><b>静默授权</b>（复用登录态、免密）</td><td>无感，用户/员工无需配置</td></tr>
       </tbody>
     </table>
 
@@ -192,7 +199,7 @@
       <thead><tr><th style="width:24%">鉴权方式</th><th>交互</th><th>凭据归属</th></tr></thead>
       <tbody>
         <tr><td><b>OAuth 授权</b>（GitHub / Figma / 腾讯文档等有 OAuth 的服务）</td><td>后台配 OAuth 应用信息；用户点<b>「连接」跳授权页</b>同意后回调拿 token</td><td><b>用户维度</b>，各人各自 token</td></tr>
-        <tr><td><b>用户各自填 Key</b>（天眼查 / 北大法宝等只发 API Key 的服务）</td><td>后台声明「需 API Key」；用户在<b>前台填写自己的 Key</b> 后使用</td><td><b>用户维度</b>，各人各自 Key</td></tr>
+        <tr><td><b>用户输入 API Key</b>（天眼查 / 北大法宝等只发 API Key 的服务）</td><td>后台声明「需 API Key」；用户在<b>前台填写自己的 Key</b> 后使用</td><td><b>用户维度</b>，各人各自 Key</td></tr>
       </tbody>
     </table>
 
@@ -204,8 +211,8 @@
       </tbody>
     </table>
     <div class="callout tip">
-      <div class="title">B 端不支持员工各自授权</div>
-      B 端非内部 MCP <b>仅支持「租户统一凭据」</b>一种方式，不提供成员各自授权；C 端则<b>强制用户各自授权 / 各自填 Key</b>。
+      <div class="title">两类租户弹窗分叉</div>
+      <b>C 端（AgentHub）</b>：只选鉴权方式（OAuth 授权 / 用户输入 API Key / 静默授权），<b>不暴露传输参数</b>，凭据绑用户维度、强制各自授权。<b>其他租户（B 端）</b>：<b>不展示鉴权方式</b>，自填 STDIO / SSE / HTTP 传输参数（即租户统一凭据），绑租户维度，<b>不支持员工各自授权</b>。
     </div>
 
     <div class="callout key">
@@ -238,8 +245,9 @@
           <li>右上角添加 MCP，支持 STDIO / SSE / HTTP</li>
           <li>MCP 管理：新增自定义 MCP；自定义 MCP 支持编辑 / 删除，内置 MCP 只读</li>
           <li>单默认图标 + 手动上传替换</li>
-          <li>传输类型 STDIO / SSE / HTTP（STDIO 的 SaaS 可用性待研发评估）</li>
-          <li><b>鉴权分层</b>：后台仅声明鉴权方式、不直填凭据；C 端用户各自 OAuth / 填 Key（用户维度），B 端管理员配租户统一凭据（租户维度 + 员工调用审计），内部工具复用登录态免密</li>
+          <li><b>添加 MCP 弹窗按租户类型分叉</b>（顶部切换租户），用户最小化输入</li>
+          <li><b>C 端（AgentHub）</b>：只选鉴权方式——OAuth 授权 / 用户输入 API Key / 静默授权（内部应用），不暴露传输参数，凭据绑用户维度</li>
+          <li><b>其他租户（B 端）</b>：不展示鉴权方式，自填 STDIO / SSE / HTTP 参数（=租户统一凭据，绑租户维度 + 员工调用审计）；STDIO 的 SaaS 可用性待研发评估</li>
           <li>凭据加密存储、脱敏不回显</li>
           <li>卡片展示 图标 / 名称 / 描述</li>
         </ul>
@@ -263,14 +271,14 @@
       <li>「MCP」菜单以<b>小卡片</b>陈列全部可用 MCP，<b>非列表</b>；右上角有「＋ 添加 MCP」。</li>
       <li>内置 <b>11 个</b> MCP 正确展示：POPO 云空间 / 日程 / 任务、易协作、KM、网易邮箱、GitHub、Figma、CodeMaker、北大法宝、天眼查。</li>
       <li>每张卡片<b>仅展示 图标 / 名称 / 描述</b>，<b>无添加/启用按钮、无声明</b>。</li>
-      <li>添加 MCP 弹窗含公共字段（名称 / 传输类型 / 图标 / 备注），图标支持<b>默认选择 + 上传</b>。</li>
-      <li>传输类型可选 <b>STDIO / SSE / HTTP</b>，切换后<b>动态字段联动</b>：STDIO 出命令/参数/环境变量；SSE、HTTP 出服务器 URL/自定义 headers。</li>
-      <li>参数 / 环境变量 / headers 支持<b>增删多条</b>。</li>
+      <li>添加 MCP 弹窗<b>按当前租户类型分叉</b>（顶部可切换），公共字段（名称 / 图标 / 备注）通用，图标支持<b>默认选择 + 上传</b>。</li>
+      <li><b>C 端（AgentHub）</b>弹窗只出「鉴权方式」下拉：<b>OAuth 授权 / 用户输入 API Key / 静默授权</b>，<b>不暴露传输类型与连接参数</b>；OAuth 仅填应用级 client_id。</li>
+      <li><b>其他租户（B 端）</b>弹窗<b>不展示鉴权方式</b>，出「传输类型」<b>STDIO / SSE / HTTP</b>，切换后动态字段联动：STDIO 出命令/参数/环境变量；SSE、HTTP 出服务器 URL/自定义 headers；参数 / 环境变量 / headers 支持<b>增删多条</b>。</li>
       <li>保存后新 MCP 以卡片加入陈列；支持「保存并添加下一个」。</li>
       <li><b>内置 MCP 只读</b>：不出现编辑 / 删除入口；<b>自定义 MCP</b> 卡片悬浮出现「✎ 编辑 / 🗑 删除」，编辑复用弹窗回填、删除二次确认。</li>
       <li>图标默认给<b>单个占位图标</b>并选中，支持上传替换，<b>无候选图标排</b>。</li>
       <li><b>后台添加 MCP 只声明鉴权方式、不直填终端用户凭据</b>（不再直接填 Authorization header / 环境变量密钥值）。</li>
-      <li>鉴权凭据按维度绑定：<b>C 端</b>非内部工具由用户<b>各自 OAuth 授权 / 各自填 Key</b>（用户维度）；<b>B 端</b>非内部工具由管理员配<b>租户统一凭据</b>（租户维度）且按<b>员工身份记录调用审计</b>；<b>内部工具</b>（POPO/KM/易协作等）复用登录态<b>免密</b>。B 端不支持员工各自授权。</li>
+      <li>鉴权凭据按维度绑定：<b>C 端</b>非内部工具由用户<b>各自 OAuth 授权 / 各自输入 API Key</b>（用户维度）；<b>B 端</b>非内部工具由租户<b>自填传输参数即统一凭据</b>（租户维度）且按<b>员工身份记录调用审计</b>；<b>内部工具</b>（POPO/KM/易协作等）走<b>静默授权</b>免密。B 端不支持员工各自授权。</li>
       <li>所有凭据<b>加密存储、脱敏不回显</b>，删除 MCP / 用户解绑时清除对应凭据，不写日志、不下发前端。</li>
       <li>MCP 归属<b>当前租户</b>隔离；运行时按传输类型建连、按 C/B 维度取凭据鉴权，暴露工具供模型调用。</li>
     </ol>
