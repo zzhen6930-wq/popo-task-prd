@@ -70,8 +70,6 @@
   .icon-box { width: 66px; height: 66px; border: 1.5px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #cbd5e1; flex-shrink: 0; }
   .up-btn { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; gap: 6px; }
   .icon-hint { font-size: 12px; color: #94a3b8; }
-  .callout-modal { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: #4338ca; line-height: 1.6; margin: 4px 0 2px; }
-  .auth-note { font-size: 12px; color: #64748b; background: #f8fafc; border-left: 3px solid #a5b4fc; padding: 7px 10px; border-radius: 4px; line-height: 1.6; }
 
   .kv { display: grid; grid-template-columns: 1fr 1fr 32px; gap: 10px; align-items: center; margin-bottom: 8px; }
   .kv.single { grid-template-columns: 1fr 32px; }
@@ -97,7 +95,10 @@
 <div class="app">
   <div class="topbar">
     <div class="logo"><span class="logo-icon">W</span>WorkHub Studio</div>
-    <span class="tenant-select">🏢 网易－效率工程部 ▾</span>
+    <select class="tenant-select" onchange="switchTenant(this.value)">
+      <option value="C">🏢 AgentHub 租户（C 端）</option>
+      <option value="B">🏢 网易－效率工程部（其他租户）</option>
+    </select>
     <div class="right"><span class="avatar">青</span></div>
   </div>
 
@@ -123,6 +124,8 @@
 </div>
 
 <script>
+let tenantType = "C"; // C = AgentHub 租户；B = 其他租户
+function switchTenant(v){ tenantType = v; render(); }
 /* ---------------- 内置 MCP ---------------- */
 const mcps = [
   { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹" },
@@ -167,8 +170,7 @@ function render(){
 /* ---------------- 添加 MCP ---------------- */
 let editIdx = -1;
 function openAdd(){
-  editIdx = -1;
-  form = { name:"", transport:"STDIO", auth:"OAuth", icon:"🔌", note:"", command:"", url:"", args:[""], oauthClient:"" };
+  form = { name:"", transport:"STDIO", auth:"OAuth 授权", icon:"🔌", note:"", command:"", url:"", args:[""], envs:[], headers:[], oauthClient:"" };
   overlay.classList.add("show");
   renderModal();
 }
@@ -177,25 +179,10 @@ function setField(k,v){ form[k]=v; }
 function setTransport(v){ form.transport=v; renderModal(); }
 
 function renderModal(){
+  const isC = tenantType === "C";
   const t = form.transport;
-  const connect = (t==="STDIO") ? stdioFields() : httpLikeFields(t);
-  const dynamic = connect + authFields();
-  modal.innerHTML = `
-    <div class="modal-head"><span class="mt">${editIdx>=0?"编辑 MCP":"MCP 配置"}</span><span class="x" onclick="closeModal()">×</span></div>
-    <div class="modal-body">
-      <div class="row2">
-        <div class="field"><label>服务器名称</label><input placeholder="e.g., My Custom Server" value="${form.name}" oninput="setField('name',this.value)"></div>
-        <div class="field"><label>传输类型</label>
-          <select onchange="setTransport(this.value)">
-            <option ${t==="STDIO"?"selected":""}>STDIO</option>
-            <option ${t==="SSE"?"selected":""}>SSE</option>
-            <option ${t==="HTTP"?"selected":""}>HTTP</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="callout-modal">🔑 后台仅声明<b>鉴权方式</b>，<b>不填写终端用户的具体凭据</b>（Token / Key）。凭据由 C 端用户各自授权 / 填写，或 B 端管理员配置租户统一凭据，绑定到用户 / 租户维度。</div>
-
+  const head = `
+      <div class="field"><label>服务器名称</label><input placeholder="e.g., My Custom Server" value="${form.name}" oninput="setField('name',this.value)"></div>
       <div class="field">
         <label>图标</label>
         <div class="icon-row">
@@ -206,12 +193,15 @@ function renderModal(){
           </div>
         </div>
       </div>
-
       <div class="field"><label>备注 <span class="opt">（可选）</span></label>
         <textarea placeholder="提供 MCP 文档或说明，以告知平台如何及何时使用此 MCP" oninput="setField('note',this.value)">${form.note}</textarea>
-      </div>
-
-      ${dynamic}
+      </div>`;
+  const body = isC ? cTenantFields() : bTenantFields(t);
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">MCP 配置</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      ${head}
+      ${body}
     </div>
     <div class="modal-foot">
       <span class="save-split">
@@ -219,6 +209,34 @@ function renderModal(){
         <button class="s2" onclick="toast('保存并添加下一个')">▾</button>
       </span>
     </div>`;
+}
+
+/* C 端（AgentHub 租户）：最小化输入，只选鉴权方式 */
+function cTenantFields(){
+  const a = form.auth;
+  const opts = ["OAuth 授权","用户输入 API Key","静默授权"];
+  const oauthApp = a==="OAuth 授权"
+    ? `<div class="field"><label>OAuth 应用信息 <span class="opt">（应用级）</span></label><input placeholder="client_id（如：Iv1.xxx）" value="${form.oauthClient}" oninput="setField('oauthClient',this.value)"></div>` : "";
+  return `
+    <div class="field"><label>鉴权方式</label>
+      <select onchange="setField('auth',this.value);renderModal()">
+        ${opts.map(x=>`<option ${a===x?"selected":""}>${x}</option>`).join("")}
+      </select>
+    </div>
+    ${oauthApp}`;
+}
+
+/* B 端（其他租户）：租户自填 STDIO / SSE / HTTP 参数（统一凭据） */
+function bTenantFields(t){
+  return `
+    <div class="field"><label>传输类型</label>
+      <select onchange="setTransport(this.value)">
+        <option ${t==="STDIO"?"selected":""}>STDIO</option>
+        <option ${t==="SSE"?"selected":""}>SSE</option>
+        <option ${t==="HTTP"?"selected":""}>HTTP</option>
+      </select>
+    </div>
+    ${(t==="STDIO") ? stdioFields() : httpLikeFields(t)}`;
 }
 
 function stdioFields(){
@@ -229,41 +247,38 @@ function stdioFields(){
       ${form.args.map((a,i)=>`<div class="kv single"><input placeholder="输入参数值" value="${a}" oninput="form.args[${i}]=this.value"><span class="del" onclick="delArg(${i})">🗑</span></div>`).join("")}
       <span class="add-line" onclick="addArg()">＋ 添加参数</span>
     </div>
-    <div class="auth-note">⚠️ STDIO 靠本地进程运行，SaaS 可用性待研发评估，本期先保留。</div>`;
+    <div class="field">
+      <label>环境变量 <span class="opt">（可选）</span></label>
+      ${form.envs.map((e,i)=>`<div class="kv"><input placeholder="变量名称" value="${e.k}" oninput="form.envs[${i}].k=this.value"><input placeholder="变量值" value="${e.v}" oninput="form.envs[${i}].v=this.value"><span class="del" onclick="delEnv(${i})">🗑</span></div>`).join("")}
+      <span class="add-line" onclick="addEnv()">＋ 添加环境变量</span>
+    </div>`;
 }
 function httpLikeFields(t){
   const ph = t==="SSE" ? "https://mcp.yourserver.com/sse" : "https://mcp.yourserver.com/mcp";
   return `
-    <div class="field"><label>服务器 URL</label><input placeholder="${ph}" value="${form.url}" oninput="setField('url',this.value)"></div>`;
-}
-function authFields(){
-  const a = form.auth;
-  const map = {
-    "无鉴权":"公开 MCP，无需凭据，直接调用。",
-    "OAuth 授权":"C 端用户点「连接」跳授权页各自授权（token 存用户维度）；后台仅需 OAuth 应用信息。",
-    "API Key":"C 端用户在前台各自填写自己的 API Key（存用户维度）。",
-    "租户统一凭据":"B 端管理员配置一份统一凭据（租户共享），员工无感调用，平台按员工身份记录调用审计。"
-  };
-  const oauthApp = a==="OAuth 授权"
-    ? `<div class="field"><label>OAuth 应用信息 <span class="opt">（应用级，非用户凭据）</span></label><input placeholder="client_id（如：Iv1.xxx）" value="${form.oauthClient}" oninput="setField('oauthClient',this.value)"></div>` : "";
-  return `
-    <div class="field"><label>鉴权方式</label>
-      <select onchange="setField('auth',this.value);renderModal()">
-        ${["无鉴权","OAuth 授权","API Key","租户统一凭据"].map(x=>`<option ${a===x?"selected":""}>${x}</option>`).join("")}
-      </select>
-    </div>
-    ${oauthApp}
-    <div class="auth-note">${map[a]||""}</div>`;
+    <div class="field"><label>服务器 URL</label><input placeholder="${ph}" value="${form.url}" oninput="setField('url',this.value)"></div>
+    <div class="field">
+      <label>自定义 headers <span class="opt">（可选）</span></label>
+      ${form.headers.map((hd,i)=>`<div class="kv"><input placeholder="Header 名称" value="${hd.k}" oninput="form.headers[${i}].k=this.value"><input placeholder="Header 值" value="${hd.v}" oninput="form.headers[${i}].v=this.value"><span class="del" onclick="delHeader(${i})">🗑</span></div>`).join("")}
+      <span class="add-line" onclick="addHeader()">＋ 添加自定义 header</span>
+    </div>`;
 }
 
 function pickIcon(ic){ form.icon=ic; renderModal(); }
 function addArg(){ form.args.push(""); renderModal(); }
 function delArg(i){ form.args.splice(i,1); renderModal(); }
+function addEnv(){ form.envs.push({k:"",v:""}); renderModal(); }
+function delEnv(i){ form.envs.splice(i,1); renderModal(); }
+function addHeader(){ form.headers.push({k:"",v:""}); renderModal(); }
+function delHeader(i){ form.headers.splice(i,1); renderModal(); }
 
 function doSave(){
   const name = (form.name||"").trim() || "自定义 MCP";
-  const desc = form.note.trim() || (form.transport + " · " + form.auth);
-  const rec = { name, ico:form.icon, bg:"#eef2ff", desc, transport:form.transport, auth:form.auth, command:form.command, url:form.url, args:form.args };
+  const isC = tenantType === "C";
+  const desc = form.note.trim() || (isC ? ("C 端 · " + form.auth) : (form.transport + " · 租户统一凭据"));
+  const rec = isC
+    ? { name, ico:form.icon, bg:"#eef2ff", desc, scope:"C", auth:form.auth, oauthClient:form.oauthClient }
+    : { name, ico:form.icon, bg:"#eef2ff", desc, scope:"B", transport:form.transport, command:form.command, url:form.url, args:form.args, envs:form.envs, headers:form.headers };
   mcps.push(rec); toast("已添加 MCP：" + name);
   closeModal();
   render();
