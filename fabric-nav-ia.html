@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkHub Studio · AI 工厂 侧边栏信息架构（重新分类）</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f1f5f9; color: #0f172a; padding: 40px 24px 60px; }
+  .badge-title { display: block; text-align: center; font-size: 13px; color: #64748b; margin-bottom: 6px; }
+  h1 { text-align: center; font-size: 22px; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 28px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 28px; align-items: start; }
+
+  /* 左：真实侧边栏 */
+  .app { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(15,23,42,0.05); }
+  .app-top { height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid #f1f5f9; font-weight: 700; font-size: 15px; }
+  .logo-icon { width: 22px; height: 22px; background: linear-gradient(135deg,#4f46e5,#7c3aed); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
+  .sidebar { padding: 12px 10px 18px; }
+  .grp-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #94a3b8; padding: 14px 10px 6px; text-transform: none; }
+  .grp-label:first-child { padding-top: 4px; }
+  .item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: #334155; cursor: pointer; }
+  .item:hover { background: #f8fafc; }
+  .item.on { background: #eef2ff; color: #4338ca; font-weight: 600; }
+  .divider { height: 1px; background: #f1f5f9; margin: 8px 4px; }
+
+  /* 右：分类说明卡片 */
+  .cards { display: flex; flex-direction: column; gap: 16px; }
+  .cat { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; }
+  .cat h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; }
+  .cat .role { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; display: inline-flex; gap: 6px; align-items: center; }
+  .c1 .dot { background: #6366f1; } .c1 h3 { color:#4338ca; }
+  .c2 .dot { background: #059669; } .c2 h3 { color:#047857; }
+  .c3 .dot { background: #ea580c; } .c3 h3 { color:#c2410c; }
+</style>
+</head>
+<body>
+  <span class="badge-title">WorkHub Studio · 高保真原型</span>
+  <h1>AI 工厂 · 侧边栏信息架构（重新分类）</h1>
+  <div class="sub">按「造原料 → 组装 Agent → 看运行」三段式重新分组</div>
+
+  <div class="wrap">
+    <!-- 侧边栏 -->
+    <div class="app">
+      <div class="app-top"><span class="logo-icon">W</span>WorkHub Studio</div>
+      <div class="sidebar">
+        <div class="grp-label">AI 工厂</div>
+        <div class="item">🧬 Models</div>
+        <div class="item">📝 Prompts</div>
+        <div class="item">✨ Skills</div>
+        <div class="item">🔧 工具</div>
+        <div class="item on">🔌 MCP</div>
+        <div class="item">📖 知识</div>
+
+        <div class="divider"></div>
+        <div class="grp-label">Agent 管理</div>
+        <div class="item">🤖 Bots</div>
+        <div class="item">🧠 Agents</div>
+        <div class="item">🧩 记忆</div>
+        <div class="item">💾 资源库</div>
+
+        <div class="divider"></div>
+        <div class="grp-label">运行观察</div>
+        <div class="item">💬 对话</div>
+        <div class="item">🗂️ 会话</div>
+        <div class="item">📊 评测</div>
+      </div>
+    </div>
+
+    <!-- 分类说明 -->
+    <div class="cards">
+      <div class="cat c1">
+        <h3><span class="dot"></span>AI 工厂</h3>
+        <div class="role">可复用的能力原料 —— 供 Agent 组装调用</div>
+        <div class="chips">
+          <span class="chip">🧬 Models</span>
+          <span class="chip">📝 Prompts</span>
+          <span class="chip">✨ Skills</span>
+          <span class="chip">🔧 工具</span>
+          <span class="chip">🔌 MCP</span>
+          <span class="chip">📖 知识</span>
+        </div>
+      </div>
+
+      <div class="cat c2">
+        <h3><span class="dot"></span>Agent 管理</h3>
+        <div class="role">Agent 的组装、实例与资产</div>
+        <div class="chips">
+          <span class="chip">🤖 Bots</span>
+          <span class="chip">🧠 Agents</span>
+          <span class="chip">🧩 记忆</span>
+          <span class="chip">💾 资源库</span>
+        </div>
+      </div>
+
+      <div class="cat c3">
+        <h3><span class="dot"></span>运行观察</h3>
+        <div class="role">运行入口与事后观察</div>
+        <div class="chips">
+          <span class="chip">💬 对话</span>
+          <span class="chip">🗂️ 会话</span>
+          <span class="chip">📊 评测</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
