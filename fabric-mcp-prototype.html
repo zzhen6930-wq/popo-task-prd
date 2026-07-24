@@ -70,6 +70,8 @@
   .icon-box { width: 66px; height: 66px; border: 1.5px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #cbd5e1; flex-shrink: 0; }
   .up-btn { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; gap: 6px; }
   .icon-hint { font-size: 12px; color: #94a3b8; }
+  .ro { background: #f1f5f9 !important; color: #94a3b8 !important; cursor: not-allowed; }
+  .ro-note { font-size: 12px; color: #64748b; background: #f8fafc; border-left: 3px solid #a5b4fc; padding: 8px 10px; border-radius: 4px; line-height: 1.6; margin-top: 4px; }
 
   .kv { display: grid; grid-template-columns: 1fr 1fr 32px; gap: 10px; align-items: center; margin-bottom: 8px; }
   .kv.single { grid-template-columns: 1fr 32px; }
@@ -170,7 +172,8 @@ function render(){
 /* ---------------- 添加 MCP ---------------- */
 let editIdx = -1;
 function openAdd(){
-  form = { name:"", transport:"STDIO", auth:"OAuth 授权", icon:"🔌", note:"", command:"", url:"", args:[""], envs:[], headers:[], oauthClient:"" };
+  const isC = tenantType === "C";
+  form = { name:"", transport: isC ? "HTTP" : "STDIO", auth:"OAuth 授权", icon:"🔌", note:"", command:"", url:"", args:[""], envs:[], headers:[], oauthClient:"" };
   overlay.classList.add("show");
   renderModal();
 }
@@ -211,19 +214,35 @@ function renderModal(){
     </div>`;
 }
 
-/* C 端（AgentHub 租户）：最小化输入，只选鉴权方式 */
+/* C 端（AgentHub 租户）：管理员选鉴权方式；传输参数由平台预填、置灰只读 */
 function cTenantFields(){
   const a = form.auth;
   const opts = ["OAuth 授权","用户输入 API Key","静默授权"];
   const oauthApp = a==="OAuth 授权"
     ? `<div class="field"><label>OAuth 应用信息 <span class="opt">（应用级）</span></label><input placeholder="client_id（如：Iv1.xxx）" value="${form.oauthClient}" oninput="setField('oauthClient',this.value)"></div>` : "";
+  // 平台预填的传输参数（置灰只读示例）
+  const preset = {
+    transport: form.transport || "HTTP",
+    command: "node",
+    url: "https://mcp.workhub.netease.com/github/mcp"
+  };
+  const t = preset.transport;
+  const connectRO = (t==="STDIO")
+    ? `<div class="field"><label>命令 <span class="opt">（平台预填）</span></label><input value="node" readonly class="ro"></div>
+       <div class="field"><label>参数 <span class="opt">（平台预填）</span></label><input value="server-github" readonly class="ro"></div>`
+    : `<div class="field"><label>服务器 URL <span class="opt">（平台预填）</span></label><input value="${preset.url}" readonly class="ro"></div>`;
   return `
-    <div class="field"><label>鉴权方式</label>
+    <div class="field"><label>鉴权方式 <span class="opt">（管理员选择）</span></label>
       <select onchange="setField('auth',this.value);renderModal()">
         ${opts.map(x=>`<option ${a===x?"selected":""}>${x}</option>`).join("")}
       </select>
     </div>
-    ${oauthApp}`;
+    ${oauthApp}
+    <div class="field"><label>传输类型 <span class="opt">（平台预填）</span></label>
+      <input value="${t}" readonly class="ro">
+    </div>
+    ${connectRO}
+    <div class="ro-note">🔒 传输类型与连接参数由<b>平台预配置</b>，此处只读展示；用户使用时按上方<b>鉴权方式</b>完成授权 / 填写自己的 API Key（不在本页）。</div>`;
 }
 
 /* B 端（其他租户）：租户自填 STDIO / SSE / HTTP 参数（统一凭据） */
