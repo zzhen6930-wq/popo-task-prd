@@ -192,9 +192,9 @@
   .add-menu .mi .arw { margin-left:auto; color:#94a3b8; font-size:11px; }
   /* 二级列表：hover 技能/MCP 时右侧弹出 */
   .add-menu .mi .submenu {
-    position:absolute; right:100%; top:-6px; margin-right:4px; width:260px;
+    position:fixed; width:260px;
     background:#fff; border:1px solid #e5e7eb; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,.12);
-    padding:6px; display:none; max-height:260px; overflow-y:auto; overflow-x:hidden;
+    padding:6px; display:none; max-height:260px; overflow-y:auto; overflow-x:hidden; z-index:60;
   }
   .add-menu .mi:hover .submenu { display:block; }
   .add-menu .submenu .sub-search { width:100%; border:1px solid #e5e7eb; border-radius:8px; padding:7px 10px; font-size:12px; margin-bottom:4px; outline:none; }
@@ -223,6 +223,9 @@
   .dp-cell.edge.single { border-radius:8px; }
   .dp-foot { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #f1f5f9; font-size:13px; color:#64748b; }
   .dp-foot .dp-today { color:#4f46e5; cursor:pointer; }
+  .dp-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#64748b; font-size:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .dp-clear:hover { background:#cbd5e1; }
+  .dp-clear.hidden { display:none; }
 
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
@@ -419,7 +422,7 @@
           <div class="add-menu hidden" id="addMenu">
             <div class="mi"><span class="ic">📎</span>上传文件或图片</div>
             <div class="mi"><span class="ic">📄</span>添加云文档</div>
-            <div class="mi"><span class="ic">🧩</span>技能<span class="arw">›</span>
+            <div class="mi" onmouseenter="posSub(this)"><span class="ic">🧩</span>技能<span class="arw">›</span>
               <div class="submenu" onclick="event.stopPropagation()">
                 <input class="sub-search" placeholder="搜索技能">
                 <div class="si"><span class="em">🖼️</span><div><b>卡片生成</b><span>create-lark-card：根据用户的自然语言诉求生成卡片</span></div></div>
@@ -428,7 +431,7 @@
                 <div class="si"><span class="em">💡</span><div><b>AI 生成技能</b><span>aily-skill-creator：帮助用户创建和更新技能</span></div></div>
               </div>
             </div>
-            <div class="mi"><span class="ic">🔌</span>MCP<span class="arw">›</span>
+            <div class="mi" onmouseenter="posSub(this)"><span class="ic">🔌</span>MCP<span class="arw">›</span>
               <div class="submenu" onclick="event.stopPropagation()">
                 <input class="sub-search" placeholder="搜索 MCP">
                 <div class="si"><span class="em">📁</span><div><b>POPO 云空间</b><span>读写云文档 / 表格 / 多维表 / 文件夹</span></div></div>
@@ -484,7 +487,10 @@
           </div>
           <div class="field" style="position:relative;">
             <label>生效日期区间 <span style="font-weight:400;color:#94a3b8;">(可选，留空表示始终生效)</span></label>
-            <input class="input" id="dateRangeInput" type="text" readonly placeholder="选择生效日期" onclick="toggleDatePicker(event)" style="cursor:pointer;">
+            <div style="position:relative;">
+              <input class="input" id="dateRangeInput" type="text" readonly placeholder="选择生效日期" onclick="toggleDatePicker(event)" style="cursor:pointer;padding-right:34px;">
+              <span class="dp-clear hidden" id="dpClear" onclick="clearDateRange(event)">✕</span>
+            </div>
             <div class="date-pop hidden" id="datePop" onclick="event.stopPropagation()">
               <div class="dp-head">
                 <span class="dp-nav" onclick="dpMove(-12)">«</span>
@@ -676,6 +682,12 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   function closeDrawer(){ document.getElementById('mask').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); }
   function toggleAddMenu(e){ e.stopPropagation(); document.getElementById('addMenu').classList.toggle('hidden'); }
   document.addEventListener('click', function(e){ const m=document.getElementById('addMenu'); if(m && !m.classList.contains('hidden') && !e.target.closest('.desc-box')) m.classList.add('hidden'); });
+  function posSub(mi){
+    const sub = mi.querySelector('.submenu'); if(!sub) return;
+    const r = mi.getBoundingClientRect();
+    sub.style.left = (r.right + 4) + 'px';
+    sub.style.top = (r.top - 6) + 'px';
+  }
 
   /* ===== 生效日期区间选择器 ===== */
   let dpView = new Date(2026,6,1), dpStart=null, dpEnd=null;
@@ -692,8 +704,10 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     const inp=document.getElementById('dateRangeInput');
     if(dpStart&&!dpEnd) inp.value=fmt(dpStart)+' — ';
     else if(dpStart&&dpEnd){ inp.value=fmt(dpStart)+' — '+fmt(dpEnd); document.getElementById('datePop').classList.add('hidden'); }
+    document.getElementById('dpClear').classList.toggle('hidden', !inp.value);
     renderDP();
   }
+  function clearDateRange(e){ e.stopPropagation(); dpStart=null; dpEnd=null; const inp=document.getElementById('dateRangeInput'); inp.value=''; document.getElementById('dpClear').classList.add('hidden'); document.getElementById('datePop').classList.add('hidden'); }
   function renderDP(){
     const y=dpView.getFullYear(), m=dpView.getMonth();
     document.getElementById('dpTitle').textContent=y+'年'+(m+1)+'月';
