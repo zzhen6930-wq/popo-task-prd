@@ -279,6 +279,43 @@
   .filter-bar .flt-reset { color:#4f46e5; font-size:13px; cursor:pointer; }
   .filter-bar .flt-reset:hover { text-decoration:underline; }
 
+  /* 执行历史二级页 */
+  .hist-crumb { font-size:13px; color:#94a3b8; margin-bottom:12px; }
+  .hist-crumb span:first-child { color:#4f46e5; cursor:pointer; }
+  .hist-crumb .sep { margin:0 6px; }
+  .hist-crumb b { color:#0f172a; }
+  .hist-head { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+  .hist-summary { flex:1; display:flex; gap:22px; }
+  .hist-summary .hs { font-size:12px; color:#94a3b8; }
+  .hist-summary .hs b { display:block; font-size:18px; color:#0f172a; font-weight:700; margin-top:2px; }
+  .hist-summary .hs.ok b { color:#059669; } .hist-summary .hs.err b { color:#dc2626; }
+  .hist-body { display:flex; gap:16px; align-items:flex-start; }
+  .hist-left { flex:0 0 340px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+  .hist-filter { display:flex; gap:6px; padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+  .hist-filter .hf { font-size:12px; color:#64748b; padding:3px 10px; border-radius:20px; cursor:pointer; }
+  .hist-filter .hf:hover { background:#f1f5f9; }
+  .hist-filter .hf.active { background:#eef2ff; color:#4338ca; font-weight:600; }
+  .hist-runs { max-height:560px; overflow-y:auto; }
+  .run-item { padding:12px 14px; border-bottom:1px solid #f5f7fa; cursor:pointer; }
+  .run-item:hover { background:#f8fafc; }
+  .run-item.active { background:#eef2ff; border-left:3px solid #6366f1; padding-left:11px; }
+  .run-item .r1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .run-item .r-time { font-size:13px; color:#0f172a; font-weight:600; }
+  .run-item .r2 { font-size:11px; color:#94a3b8; }
+  .hist-right { flex:1; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 22px; min-height:400px; }
+  .hd-title { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .hd-title .t { font-size:16px; font-weight:700; }
+  .hd-meta { display:flex; flex-wrap:wrap; gap:8px 22px; font-size:13px; color:#475569; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f1f5f9; }
+  .hd-meta div span { color:#94a3b8; margin-right:6px; }
+  .hd-sec-label { font-size:13px; font-weight:700; color:#334155; margin:0 0 8px; }
+  .hd-output { background:#f8fafc; border:1px solid #eef0f3; border-radius:10px; padding:14px 16px; font-size:13px; color:#334155; line-height:1.7; white-space:pre-wrap; position:relative; }
+  .hd-output .copy { position:absolute; top:10px; right:10px; font-size:12px; color:#4f46e5; cursor:pointer; }
+  .hd-err { background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; padding:12px 14px; font-size:13px; margin-bottom:16px; }
+  .hd-log { margin-top:16px; }
+  .hd-log .lg-h { font-size:13px; color:#4f46e5; cursor:pointer; }
+  .hd-log ol { margin:8px 0 0 18px; font-size:12px; color:#64748b; line-height:1.9; }
+  .hd-empty { color:#94a3b8; font-size:13px; text-align:center; padding:60px 0; }
+
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
   .code-tab { font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer; color:#64748b; }
@@ -364,6 +401,7 @@
 
     <!-- 主区 -->
     <div class="main">
+      <div id="listHead">
       <div class="page-head">
         <div>
           <h1>⚡ 自动化任务</h1>
@@ -376,6 +414,7 @@
       <div class="tabs">
         <div class="tab active" id="tab-list" onclick="switchTab('list')">任务列表</div>
         <div class="tab" id="tab-chat" onclick="switchTab('chat')">对话创建演示</div>
+      </div>
       </div>
 
       <!-- 列表视图 -->
@@ -459,6 +498,28 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 执行历史（二级页） -->
+      <div id="view-history" class="hidden">
+        <div class="hist-crumb"><span onclick="closeHistory()">⚡ 自动化任务</span> <span class="sep">/</span> <b id="histTaskName"></b></div>
+        <div class="hist-head">
+          <button class="btn ghost sm" onclick="closeHistory()">← 返回</button>
+          <div class="hist-summary" id="histSummary"></div>
+          <button class="btn dark sm" onclick="toast('已触发一次手动执行')">重新执行</button>
+        </div>
+        <div class="hist-body">
+          <div class="hist-left">
+            <div class="hist-filter" id="histFilter">
+              <span class="hf active" data-r="" onclick="filterHist(this,'')">全部</span>
+              <span class="hf" data-r="success" onclick="filterHist(this,'success')">成功</span>
+              <span class="hf" data-r="fail" onclick="filterHist(this,'fail')">失败</span>
+              <span class="hf" data-r="skip" onclick="filterHist(this,'skip')">已跳过</span>
+            </div>
+            <div class="hist-runs" id="histRuns"></div>
+          </div>
+          <div class="hist-right" id="histDetail"></div>
         </div>
       </div>
 
@@ -731,7 +792,7 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
         <td><div class="row-ops">
           <span onclick="openDrawer()">编辑</span>
           <span onclick="toggleTask(${i})">${stateBtn}</span>
-          <span>查看历史</span>
+          <span onclick="openHistory(${i})">查看历史</span>
           <span class="danger" onclick="delTask(${i})">删除</span>
         </div></td>
       </tr>`;
@@ -746,6 +807,88 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     document.getElementById('view-chat').classList.toggle('hidden', v!=='chat');
     document.getElementById('tab-list').classList.toggle('active', v==='list');
     document.getElementById('tab-chat').classList.toggle('active', v==='chat');
+  }
+
+  // ============ 执行历史（二级页） ============
+  const mockRuns = {
+    success:{ output:"【POPO 用户群运维日报 · {date}】\n\n一、今日反馈概览\n- 新增反馈 42 条，较昨日 +8\n- 高优问题 3 条，已同步研发\n\n二、高优问题\n1. 云文档协同偶发丢字（5 人反馈）\n2. 移动端消息推送延迟（3 人反馈）\n3. 搜索结果不准（2 人反馈）\n\n三、待办\n- 研发确认 #1 复现路径\n- 产品评估 #3 优化优先级", err:"", trigFrom:"定时触发" },
+    fail:{ output:"", err:"调用「群运维 Agent」失败：MCP 连接超时（POPO 任务，30s 无响应）。已自动重试 1 次仍失败。", trigFrom:"定时触发" },
+    skip:{ output:"命中「不执行条件」：今日群内无新增消息，本次不执行、不推送。", err:"", trigFrom:"定时触发" }
+  };
+  function genRuns(task){
+    const seed=[
+      ["2026-07-27 18:00:04","success","4.2s"],
+      ["2026-07-26 18:00:03","success","3.8s"],
+      ["2026-07-25 18:00:05","fail","30.1s"],
+      ["2026-07-24 18:00:02","skip","0.4s"],
+      ["2026-07-23 18:00:04","success","4.6s"],
+      ["2026-07-22 18:00:03","success","3.9s"],
+      ["2026-07-21 18:00:06","success","5.1s"],
+      ["2026-07-20 18:00:02","skip","0.3s"],
+    ];
+    return seed.map((s,idx)=>({ id:idx, time:s[0], result:s[1], cost:s[2], from:mockRuns[s[1]].trigFrom }));
+  }
+  let curRuns=[], curFilter="", curTaskIdx=0;
+  function openHistory(i){
+    curTaskIdx=i; const t=tasks[i]; curFilter="";
+    document.getElementById('histTaskName').textContent="执行历史 · "+t.name;
+    document.getElementById('listHead').classList.add('hidden');
+    document.getElementById('view-list').classList.add('hidden');
+    document.getElementById('view-chat').classList.add('hidden');
+    document.getElementById('view-history').classList.remove('hidden');
+    curRuns=genRuns(t);
+    const tot=curRuns.length, ok=curRuns.filter(r=>r.result==='success').length, er=curRuns.filter(r=>r.result==='fail').length, sk=curRuns.filter(r=>r.result==='skip').length;
+    document.getElementById('histSummary').innerHTML=
+      `<div class="hs">总执行<b>${tot}</b></div><div class="hs ok">成功<b>${ok}</b></div><div class="hs err">失败<b>${er}</b></div><div class="hs">已跳过<b>${sk}</b></div><div class="hs">平均耗时<b>4.1s</b></div>`;
+    [...document.querySelectorAll('#histFilter .hf')].forEach(x=>x.classList.toggle('active', x.dataset.r===''));
+    renderRuns(); const first=curRuns[0]; if(first) selectRun(first.id);
+  }
+  function closeHistory(){
+    document.getElementById('view-history').classList.add('hidden');
+    document.getElementById('listHead').classList.remove('hidden');
+    document.getElementById('view-list').classList.remove('hidden');
+  }
+  function filterHist(el,r){ curFilter=r; [...document.querySelectorAll('#histFilter .hf')].forEach(x=>x.classList.remove('active')); el.classList.add('active'); renderRuns(); }
+  function renderRuns(){
+    const list=curRuns.filter(r=>!curFilter||r.result===curFilter);
+    const box=document.getElementById('histRuns');
+    if(!list.length){ box.innerHTML='<div class="hd-empty">暂无记录</div>'; document.getElementById('histDetail').innerHTML='<div class="hd-empty">暂无执行记录</div>'; return; }
+    box.innerHTML=list.map(r=>{
+      const rm=resultMeta[r.result];
+      return `<div class="run-item" id="run-${r.id}" onclick="selectRun(${r.id})">
+        <div class="r1"><span class="r-time">${r.time}</span><span class="badge ${rm[0]}">${rm[1]}</span></div>
+        <div class="r2">${r.from} · 耗时 ${r.cost}</div>
+      </div>`;
+    }).join('');
+    if(!list.find(r=>document.getElementById('run-'+r.id)?.classList.contains('active'))) selectRun(list[0].id);
+  }
+  function selectRun(id){
+    [...document.querySelectorAll('.run-item')].forEach(x=>x.classList.remove('active'));
+    document.getElementById('run-'+id)?.classList.add('active');
+    const r=curRuns.find(x=>x.id===id); if(!r) return;
+    const rm=resultMeta[r.result], d=mockRuns[r.result];
+    const t=tasks[curTaskIdx];
+    let html=`<div class="hd-title"><span class="badge ${rm[0]}">${rm[1]}</span><span class="t">${r.time}</span></div>
+      <div class="hd-meta">
+        <div><span>触发来源</span>${r.from}</div>
+        <div><span>耗时</span>${r.cost}</div>
+        <div><span>关联 Agent</span>${t.agent}</div>
+        <div><span>推送对象</span>@张振</div>
+      </div>`;
+    if(r.result==='fail'){ html+=`<div class="hd-err">❌ ${d.err}</div>`; }
+    const outLabel = r.result==='skip' ? '执行说明' : '任务输出内容';
+    html+=`<div class="hd-sec-label">${outLabel}</div>
+      <div class="hd-output">${d.output ? d.output.replace('{date}', r.time.slice(0,10)) : '（本次无输出内容）'}<span class="copy" onclick="toast('已复制输出内容')">📋 复制</span></div>
+      <div class="hd-log"><span class="lg-h" onclick="this.nextElementSibling.classList.toggle('hidden')">执行日志 ▾</span>
+        <ol class="hidden">
+          <li>18:00:00 触发调度，加载任务配置</li>
+          <li>18:00:01 调用「${t.agent}」，注入指令</li>
+          <li>18:00:0${r.result==='fail'?'2 调用 MCP 工具失败（超时）':'2 拉取数据源，生成正文'}</li>
+          <li>18:00:0${r.result==='fail'?'3 重试 1 次，仍失败，记录告警':'4 校验不执行条件，未命中'}</li>
+          <li>${r.result==='success'?'18:00:04 推送结果给 @张振，标记成功':(r.result==='skip'?'18:00:00 命中不执行条件，跳过':'18:00:31 标记失败')}</li>
+        </ol>
+      </div>`;
+    document.getElementById('histDetail').innerHTML=html;
   }
 
   // ============ 抽屉 ============
