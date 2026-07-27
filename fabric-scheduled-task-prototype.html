@@ -255,6 +255,22 @@
   .fg-addcond, .fg-addgroup { color:#4f46e5; font-size:13px; cursor:pointer; margin-top:8px; display:inline-block; }
   .fg-addcond:hover, .fg-addgroup:hover { text-decoration:underline; }
 
+  /* 指定云文档：搜索下拉 */
+  .doc-pop { position:absolute; left:0; right:0; top:72px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,.14); padding:8px; z-index:30; }
+  .doc-pop.hidden { display:none; }
+  .doc-search { display:flex; align-items:center; gap:6px; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px; margin-bottom:8px; }
+  .doc-search .ds-ic { color:#94a3b8; font-size:13px; }
+  .doc-search input { flex:1; border:none; outline:none; font-size:13px; }
+  .doc-recent-label { font-size:11px; color:#94a3b8; padding:2px 6px 6px; }
+  .doc-list { max-height:240px; overflow-y:auto; }
+  .doc-item { display:flex; align-items:center; gap:8px; padding:8px 8px; border-radius:8px; cursor:pointer; }
+  .doc-item:hover { background:#f1f5f9; }
+  .doc-item .di-ic { font-size:16px; flex-shrink:0; }
+  .doc-item b { font-size:13px; color:#0f172a; font-weight:500; }
+  .doc-item .di-meta { font-size:11px; color:#94a3b8; margin-left:auto; }
+  .doc-item .di-tag { font-size:10px; color:#4338ca; background:#eef2ff; border-radius:4px; padding:1px 5px; margin-left:6px; }
+  .doc-empty { text-align:center; color:#94a3b8; font-size:12px; padding:16px; }
+
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
   .code-tab { font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer; color:#64748b; }
@@ -559,9 +575,20 @@
               </optgroup>
             </select>
           </div>
-          <div class="field hidden" id="sub-doc">
+          <div class="field hidden" id="sub-doc" style="position:relative;">
             <label>指定云文档</label>
-            <select class="select"><option>请选择</option><option>产品需求文档 v3</option><option>周会纪要合集</option></select>
+            <div class="input" id="docTrigger" onclick="toggleDocPop(event)" style="cursor:pointer;display:flex;align-items:center;">
+              <span id="docPicked" style="color:#94a3b8;">请选择云文档</span>
+              <span style="margin-left:auto;color:#94a3b8;">▾</span>
+            </div>
+            <div class="doc-pop hidden" id="docPop" onclick="event.stopPropagation()">
+              <div class="doc-search">
+                <span class="ds-ic">🔍</span>
+                <input id="docSearch" placeholder="搜索文档 / 多维表格" oninput="renderDocs(this.value)">
+              </div>
+              <div class="doc-recent-label">最近编辑</div>
+              <div class="doc-list" id="docList"></div>
+            </div>
           </div>
           <div class="field hidden" id="sub-msg">
             <label>设置筛选条件<span class="req">*</span></label>
@@ -860,6 +887,34 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
       </div>`;
     }).join('');
     wrap.innerHTML = `<div class="fg-groups">${groupsHtml}</div>`;
+  }
+
+  // ===== 指定云文档：最近编辑 + 搜索 =====
+  const recentDocs = [
+    { ic:'📄', name:'产品需求文档 v3', type:'doc', time:'10 分钟前' },
+    { ic:'📊', name:'Q3 运营数据多维表', type:'bitable', time:'1 小时前' },
+    { ic:'📄', name:'周会纪要合集', type:'doc', time:'今天 09:20' },
+    { ic:'📋', name:'需求排期表', type:'sheet', time:'昨天' },
+    { ic:'📊', name:'用户反馈收集多维表', type:'bitable', time:'昨天' },
+    { ic:'📄', name:'MCP 鉴权方案', type:'doc', time:'2 天前' },
+    { ic:'📊', name:'自动化任务清单多维表', type:'bitable', time:'3 天前' }
+  ];
+  const docTypeTag = { doc:'文档', sheet:'表格', bitable:'多维表' };
+  function toggleDocPop(e){ e.stopPropagation(); const p=document.getElementById('docPop'); p.classList.toggle('hidden'); if(!p.classList.contains('hidden')){ document.getElementById('docSearch').value=''; renderDocs(''); document.getElementById('docSearch').focus(); } }
+  document.addEventListener('click', function(e){ const p=document.getElementById('docPop'); if(p && !p.classList.contains('hidden') && !e.target.closest('#sub-doc')) p.classList.add('hidden'); });
+  function renderDocs(kw){
+    kw=(kw||'').trim().toLowerCase();
+    const list = recentDocs.filter(d=>!kw || d.name.toLowerCase().includes(kw));
+    const el = document.getElementById('docList');
+    document.querySelector('.doc-recent-label').textContent = kw ? '搜索结果' : '最近编辑';
+    if(!list.length){ el.innerHTML='<div class="doc-empty">未找到匹配的文档 / 多维表格</div>'; return; }
+    el.innerHTML = list.map(d=>`<div class="doc-item" onclick="pickDoc('${d.name.replace(/'/g,"")}')">
+      <span class="di-ic">${d.ic}</span><b>${d.name}</b><span class="di-tag">${docTypeTag[d.type]}</span><span class="di-meta">${d.time}</span>
+    </div>`).join('');
+  }
+  function pickDoc(name){
+    const t=document.getElementById('docPicked'); t.textContent=name; t.style.color='#0f172a';
+    document.getElementById('docPop').classList.add('hidden');
   }
 
   // ============ WebHook ============
