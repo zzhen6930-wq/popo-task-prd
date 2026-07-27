@@ -271,6 +271,14 @@
   .doc-item .di-tag { font-size:10px; color:#4338ca; background:#eef2ff; border-radius:4px; padding:1px 5px; margin-left:6px; }
   .doc-empty { text-align:center; color:#94a3b8; font-size:12px; padding:16px; }
 
+  /* 任务列表检索栏 */
+  .filter-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .filter-bar .flt { width:auto; min-width:150px; padding:8px 12px; font-size:13px; }
+  .filter-bar select.flt { min-width:150px; padding-right:34px; }
+  .filter-bar #fltName { min-width:220px; }
+  .filter-bar .flt-reset { color:#4f46e5; font-size:13px; cursor:pointer; }
+  .filter-bar .flt-reset:hover { text-decoration:underline; }
+
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
   .code-tab { font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer; color:#64748b; }
@@ -364,7 +372,6 @@
           <button class="btn primary" onclick="openDrawer()">＋ 新建自动化任务</button>
         </div>
       </div>
-      <div class="desc">B 端租户与 C 端用户都可为 Agent 配置自动化任务 · 支持定时 / 事件 / WebHook 三种触发</div>
 
       <div class="tabs">
         <div class="tab active" id="tab-list" onclick="switchTab('list')">任务列表</div>
@@ -373,6 +380,21 @@
 
       <!-- 列表视图 -->
       <div id="view-list">
+        <div class="filter-bar">
+          <input class="input flt" id="fltName" placeholder="🔍 搜索任务名称" oninput="renderTasks()">
+          <select class="select flt" id="fltAgent" onchange="renderTasks()"><option value="">全部关联 Agent</option></select>
+          <select class="select flt" id="fltCreator" onchange="renderTasks()"><option value="">全部创建人</option></select>
+          <select class="select flt" id="fltTrig" onchange="renderTasks()">
+            <option value="">全部触发方式</option><option value="timer">定时</option><option value="event">事件</option><option value="hook">WebHook</option>
+          </select>
+          <select class="select flt" id="fltState" onchange="renderTasks()">
+            <option value="">全部状态</option><option value="on">启用</option><option value="off">停用</option>
+          </select>
+          <select class="select flt" id="fltResult" onchange="renderTasks()">
+            <option value="">全部最近结果</option><option value="success">成功</option><option value="fail">失败</option><option value="skip">已跳过</option>
+          </select>
+          <span class="flt-reset" onclick="resetFilters()">重置</span>
+        </div>
         <div class="card">
           <table>
             <thead>
@@ -685,8 +707,28 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   };
   const resultMeta = { success:["success","成功"], fail:["fail","失败"], skip:["skip","已跳过"] };
 
+  function fillFilterOptions(){
+    const ag=[...new Set(tasks.map(t=>t.agent))], cr=[...new Set(tasks.map(t=>t.creator))];
+    const aSel=document.getElementById('fltAgent'), cSel=document.getElementById('fltCreator');
+    if(aSel.options.length<=1) ag.forEach(a=>aSel.add(new Option(a,a)));
+    if(cSel.options.length<=1) cr.forEach(c=>cSel.add(new Option(c,c)));
+  }
+  function resetFilters(){
+    ['fltName','fltAgent','fltCreator','fltTrig','fltState','fltResult'].forEach(id=>document.getElementById(id).value='');
+    renderTasks();
+  }
   function renderTasks(){
-    document.getElementById('taskBody').innerHTML = tasks.map((t,i)=>{
+    fillFilterOptions();
+    const kw=(document.getElementById('fltName')?.value||'').trim().toLowerCase();
+    const fA=document.getElementById('fltAgent')?.value||'', fC=document.getElementById('fltCreator')?.value||'';
+    const fT=document.getElementById('fltTrig')?.value||'', fS=document.getElementById('fltState')?.value||'', fR=document.getElementById('fltResult')?.value||'';
+    const rows = tasks.map((t,i)=>({t,i})).filter(({t})=>
+      (!kw || t.name.toLowerCase().includes(kw)) &&
+      (!fA || t.agent===fA) && (!fC || t.creator===fC) &&
+      (!fT || t.trig===fT) && (!fS || (fS==='on'?t.on:!t.on)) && (!fR || t.result===fR)
+    );
+    if(!rows.length){ document.getElementById('taskBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:28px;">没有符合条件的任务</td></tr>'; return; }
+    document.getElementById('taskBody').innerHTML = rows.map(({t,i})=>{
       const m = trigMeta[t.trig], r = resultMeta[t.result];
       const stateBtn = t.on ? '停用' : '启用';
       return `<tr>
