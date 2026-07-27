@@ -308,12 +308,16 @@
   .hd-meta { display:flex; flex-wrap:wrap; gap:8px 22px; font-size:13px; color:#475569; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f1f5f9; }
   .hd-meta div span { color:#94a3b8; margin-right:6px; }
   .hd-sec-label { font-size:13px; font-weight:700; color:#334155; margin:0 0 8px; }
-  .hd-output { background:#f8fafc; border:1px solid #eef0f3; border-radius:10px; padding:14px 16px; font-size:13px; color:#334155; line-height:1.7; white-space:pre-wrap; position:relative; }
-  .hd-output .copy { position:absolute; top:10px; right:10px; font-size:12px; color:#4f46e5; cursor:pointer; }
+  .hd-output { background:#f8fafc; border:1px solid #eef0f3; border-radius:10px; padding:14px 16px; font-size:13px; color:#334155; line-height:1.7; white-space:pre-wrap; }
   .hd-err { background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; padding:12px 14px; font-size:13px; margin-bottom:16px; }
-  .hd-log { margin-top:16px; }
-  .hd-log .lg-h { font-size:13px; color:#4f46e5; cursor:pointer; }
-  .hd-log ol { margin:8px 0 0 18px; font-size:12px; color:#64748b; line-height:1.9; }
+  .hd-arts { display:flex; flex-direction:column; gap:8px; }
+  .art-item { display:flex; align-items:center; gap:10px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; }
+  .art-item .art-ic { font-size:18px; }
+  .art-item .art-info { flex:1; }
+  .art-item .art-info b { display:block; font-size:13px; color:#0f172a; font-weight:500; }
+  .art-item .art-info span { font-size:11px; color:#94a3b8; }
+  .art-item .art-dl { font-size:12px; color:#4f46e5; cursor:pointer; }
+  .art-item .art-dl:hover { text-decoration:underline; }
   .hd-empty { color:#94a3b8; font-size:13px; text-align:center; padding:60px 0; }
 
   /* 代码块 tabs */
@@ -507,7 +511,6 @@
         <div class="hist-head">
           <button class="btn ghost sm" onclick="closeHistory()">← 返回</button>
           <div class="hist-summary" id="histSummary"></div>
-          <button class="btn dark sm" onclick="toast('已触发一次手动执行')">重新执行</button>
         </div>
         <div class="hist-body">
           <div class="hist-left">
@@ -839,7 +842,7 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     curRuns=genRuns(t);
     const tot=curRuns.length, ok=curRuns.filter(r=>r.result==='success').length, er=curRuns.filter(r=>r.result==='fail').length, sk=curRuns.filter(r=>r.result==='skip').length;
     document.getElementById('histSummary').innerHTML=
-      `<div class="hs">总执行<b>${tot}</b></div><div class="hs ok">成功<b>${ok}</b></div><div class="hs err">失败<b>${er}</b></div><div class="hs">已跳过<b>${sk}</b></div><div class="hs">平均耗时<b>4.1s</b></div>`;
+      `<div class="hs">总执行<b>${tot}</b></div><div class="hs ok">成功<b>${ok}</b></div><div class="hs err">失败<b>${er}</b></div><div class="hs">已跳过<b>${sk}</b></div>`;
     [...document.querySelectorAll('#histFilter .hf')].forEach(x=>x.classList.toggle('active', x.dataset.r===''));
     renderRuns(); const first=curRuns[0]; if(first) selectRun(first.id);
   }
@@ -878,16 +881,18 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     if(r.result==='fail'){ html+=`<div class="hd-err">❌ ${d.err}</div>`; }
     const outLabel = r.result==='skip' ? '执行说明' : '任务输出内容';
     html+=`<div class="hd-sec-label">${outLabel}</div>
-      <div class="hd-output">${d.output ? d.output.replace('{date}', r.time.slice(0,10)) : '（本次无输出内容）'}<span class="copy" onclick="toast('已复制输出内容')">📋 复制</span></div>
-      <div class="hd-log"><span class="lg-h" onclick="this.nextElementSibling.classList.toggle('hidden')">执行日志 ▾</span>
-        <ol class="hidden">
-          <li>18:00:00 触发调度，加载任务配置</li>
-          <li>18:00:01 调用「${t.agent}」，注入指令</li>
-          <li>18:00:0${r.result==='fail'?'2 调用 MCP 工具失败（超时）':'2 拉取数据源，生成正文'}</li>
-          <li>18:00:0${r.result==='fail'?'3 重试 1 次，仍失败，记录告警':'4 校验不执行条件，未命中'}</li>
-          <li>${r.result==='success'?'18:00:04 推送结果给 @张振，标记成功':(r.result==='skip'?'18:00:00 命中不执行条件，跳过':'18:00:31 标记失败')}</li>
-        </ol>
-      </div>`;
+      <div class="hd-output">${d.output ? d.output.replace('{date}', r.time.slice(0,10)) : '（本次无输出内容）'}</div>`;
+    if(r.result==='success'){
+      const arts=[
+        { ic:'📄', name:'群运维日报_'+r.time.slice(0,10)+'.docx', meta:'文档 · 28 KB' },
+        { ic:'🌐', name:'反馈问题看板.html', meta:'HTML 文件 · 12 KB' },
+        { ic:'📊', name:'高优问题清单.xlsx', meta:'表格 · 9 KB' }
+      ];
+      html+=`<div class="hd-sec-label" style="margin-top:18px;">任务输出产出物</div>
+        <div class="hd-arts">`+
+        arts.map(a=>`<div class="art-item"><span class="art-ic">${a.ic}</span><div class="art-info"><b>${a.name}</b><span>${a.meta}</span></div><span class="art-dl" onclick="toast('开始下载：${a.name}')">下载</span></div>`).join('')
+        +`</div>`;
+    }
     document.getElementById('histDetail').innerHTML=html;
   }
 
