@@ -236,6 +236,25 @@
   .ref-chip .rx { cursor:pointer; color:#818cf8; font-size:12px; line-height:1; padding:0 2px; }
   .ref-chip .rx:hover { color:#4338ca; }
 
+  /* 消息筛选条件（或-组 / 且-条件） */
+  #fgWrap { display:flex; align-items:stretch; gap:8px; }
+  #fgWrap.multi { position:relative; padding-left:26px; }
+  #fgWrap.multi::before { content:"或"; position:absolute; left:0; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; }
+  #fgWrap.multi > .fg-groups { border-left:1.5px solid #e2e8f0; border-radius:8px; padding-left:12px; }
+  .fg-groups { flex:1; display:flex; flex-direction:column; gap:14px; }
+  .fg-group { position:relative; }
+  .fg-group.multi { padding-left:26px; }
+  .fg-group.multi::before { content:"且"; position:absolute; left:0; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; }
+  .fg-group.multi > .fg-conds { border-left:1.5px solid #e2e8f0; border-radius:8px; padding-left:12px; }
+  .fg-conds { display:flex; flex-direction:column; gap:8px; }
+  .fg-cond { display:flex; align-items:center; gap:8px; }
+  .fg-cond .select { flex:0 0 140px; }
+  .fg-cond .input { flex:1; }
+  .fg-cond .del { color:#94a3b8; cursor:pointer; font-size:15px; padding:0 2px; flex-shrink:0; }
+  .fg-cond .del:hover { color:#ef4444; }
+  .fg-addcond, .fg-addgroup { color:#4f46e5; font-size:13px; cursor:pointer; margin-top:8px; display:inline-block; }
+  .fg-addcond:hover, .fg-addgroup:hover { text-decoration:underline; }
+
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
   .code-tab { font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer; color:#64748b; }
@@ -533,7 +552,6 @@
               </optgroup>
               <optgroup label="会议">
                 <option value="meet-end">会议结束</option>
-                <option value="meet-note">AI听记生成</option>
                 <option value="meet-minutes">会议纪要生成</option>
               </optgroup>
               <optgroup label="文档">
@@ -546,20 +564,11 @@
             <select class="select"><option>请选择</option><option>产品需求文档 v3</option><option>周会纪要合集</option></select>
           </div>
           <div class="field hidden" id="sub-msg">
-            <label>筛选条件</label>
+            <label>设置筛选条件<span class="req">*</span></label>
             <div class="filter-pop">
-              <div class="row-inline" style="margin-bottom:10px;">
-                <select class="select" style="flex:0 0 140px" id="msgFilterType" onchange="onMsgFilter()">
-                  <option value="group">指定群组</option>
-                  <option value="sender">指定发送人</option>
-                  <option value="anyKw">含任一关键词</option>
-                  <option value="allKw">含全部关键词</option>
-                  <option value="atme">只接收 @我的消息</option>
-                  <option value="single">单聊</option>
-                </select>
-                <input class="input" id="msgFilterVal" placeholder="选择群组">
-              </div>
-              <div style="display:flex;justify-content:flex-end;gap:8px;">
+              <div id="fgWrap"></div>
+              <div class="fg-addgroup" onclick="addGroup()">＋ 添加条件组</div>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
                 <button class="btn ghost sm">取消</button>
                 <button class="btn dark sm" onclick="toast('筛选条件已保存')">保存</button>
               </div>
@@ -805,12 +814,52 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     const isMsg = v==='msg';
     document.getElementById('sub-doc').classList.toggle('hidden', !isDoc);
     document.getElementById('sub-msg').classList.toggle('hidden', !isMsg);
+    if(isMsg && !filterGroups.length){ filterGroups = [[newCond()]]; renderGroups(); }
   }
-  function onMsgFilter(){
-    const t = document.getElementById('msgFilterType').value;
-    const inp = document.getElementById('msgFilterVal');
-    const map = { group:'选择群组', sender:'选择发送人', anyKw:'输入关键词，逗号分隔', allKw:'输入关键词，逗号分隔', atme:'无需填写', single:'无需填写' };
-    inp.placeholder = map[t]; inp.disabled = (t==='atme'||t==='single');
+
+  // ===== 消息筛选条件：条件组(或) / 条件(且) =====
+  let filterGroups = [];
+  const condTypes = [
+    ['group','指定群组','选择群组'],
+    ['sender','指定发送人','选择发送人'],
+    ['anyKw','含任一关键词','输入关键词，逗号分隔'],
+    ['allKw','含全部关键词','输入关键词，逗号分隔'],
+    ['atme','只接收 @我的消息',''],
+    ['single','单聊','']
+  ];
+  function newCond(){ return { type:'group' }; }
+  function phOf(t){ const c=condTypes.find(x=>x[0]===t); return c?c[2]:''; }
+  function addGroup(){ filterGroups.push([newCond()]); renderGroups(); }
+  function addCond(gi){ filterGroups[gi].push(newCond()); renderGroups(); }
+  function delCond(gi,ci){
+    filterGroups[gi].splice(ci,1);
+    if(filterGroups[gi].length===0) filterGroups.splice(gi,1);
+    if(filterGroups.length===0) filterGroups=[[newCond()]]; // 最少保留一个条件
+    renderGroups();
+  }
+  function setCondType(gi,ci,val){ filterGroups[gi][ci].type=val; renderGroups(); }
+  function renderGroups(){
+    const wrap = document.getElementById('fgWrap');
+    const multiGroup = filterGroups.length>1;
+    wrap.className = multiGroup ? 'multi' : '';
+    const groupsHtml = filterGroups.map((conds,gi)=>{
+      const multiCond = conds.length>1;
+      const condsHtml = conds.map((c,ci)=>{
+        const opts = condTypes.map(t=>`<option value="${t[0]}" ${t[0]===c.type?'selected':''}>${t[1]}</option>`).join('');
+        const noVal = (c.type==='atme'||c.type==='single');
+        const val = noVal ? '<input class="input" placeholder="无需填写" disabled>' : `<input class="input" placeholder="${phOf(c.type)}">`;
+        return `<div class="fg-cond">
+          <select class="select" onchange="setCondType(${gi},${ci},this.value)">${opts}</select>
+          ${val}
+          <span class="del" onclick="delCond(${gi},${ci})">🗑</span>
+        </div>`;
+      }).join('');
+      return `<div class="fg-group ${multiCond?'multi':''}">
+        <div class="fg-conds">${condsHtml}</div>
+        <span class="fg-addcond" onclick="addCond(${gi})">＋ 添加条件</span>
+      </div>`;
+    }).join('');
+    wrap.innerHTML = `<div class="fg-groups">${groupsHtml}</div>`;
   }
 
   // ============ WebHook ============
