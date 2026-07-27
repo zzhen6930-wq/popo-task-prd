@@ -192,9 +192,9 @@
   .add-menu .mi .arw { margin-left:auto; color:#94a3b8; font-size:11px; }
   /* 二级列表：hover 技能/MCP 时右侧弹出 */
   .add-menu .mi .submenu {
-    position:absolute; left:100%; top:-6px; margin-left:4px; width:260px;
+    position:absolute; right:100%; top:-6px; margin-right:4px; width:260px;
     background:#fff; border:1px solid #e5e7eb; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,.12);
-    padding:6px; display:none; max-height:280px; overflow-y:auto;
+    padding:6px; display:none; max-height:260px; overflow-y:auto; overflow-x:hidden;
   }
   .add-menu .mi:hover .submenu { display:block; }
   .add-menu .submenu .sub-search { width:100%; border:1px solid #e5e7eb; border-radius:8px; padding:7px 10px; font-size:12px; margin-bottom:4px; outline:none; }
@@ -203,6 +203,26 @@
   .add-menu .submenu .si .em { font-size:16px; flex-shrink:0; }
   .add-menu .submenu .si b { font-size:13px; color:#0f172a; font-weight:600; display:block; }
   .add-menu .submenu .si span { font-size:11px; color:#94a3b8; display:block; line-height:1.4; }
+
+  /* 日期区间选择器 */
+  .date-pop { position:absolute; top:74px; left:0; width:300px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 10px 30px rgba(15,23,42,.14); padding:14px; z-index:30; }
+  .date-pop.hidden { display:none; }
+  .dp-head { display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:10px; }
+  .dp-head .dp-title { flex:1; text-align:center; font-size:15px; font-weight:700; color:#0f172a; }
+  .dp-head .dp-nav { color:#334155; cursor:pointer; padding:2px 6px; border-radius:6px; font-size:14px; }
+  .dp-head .dp-nav:hover { background:#f1f5f9; }
+  .dp-week { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; color:#94a3b8; margin-bottom:4px; }
+  .dp-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .dp-cell { text-align:center; padding:8px 0; font-size:13px; color:#0f172a; cursor:pointer; border-radius:8px; }
+  .dp-cell.mute { color:#cbd5e1; }
+  .dp-cell:hover { background:#f1f5f9; }
+  .dp-cell.in-range { background:#eef2ff; border-radius:0; }
+  .dp-cell.edge { background:#0f172a; color:#fff; }
+  .dp-cell.edge.start { border-radius:8px 0 0 8px; }
+  .dp-cell.edge.end { border-radius:0 8px 8px 0; }
+  .dp-cell.edge.single { border-radius:8px; }
+  .dp-foot { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #f1f5f9; font-size:13px; color:#64748b; }
+  .dp-foot .dp-today { color:#4f46e5; cursor:pointer; }
 
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
@@ -462,12 +482,23 @@
             <label>触发时间</label>
             <input class="input" type="time" value="16:11">
           </div>
-          <div class="field">
+          <div class="field" style="position:relative;">
             <label>生效日期区间 <span style="font-weight:400;color:#94a3b8;">(可选，留空表示始终生效)</span></label>
-            <div class="row-inline">
-              <input class="input" type="text" placeholder="开始日期" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-              <span style="color:#94a3b8;">—</span>
-              <input class="input" type="text" placeholder="结束日期" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+            <input class="input" id="dateRangeInput" type="text" readonly placeholder="选择生效日期" onclick="toggleDatePicker(event)" style="cursor:pointer;">
+            <div class="date-pop hidden" id="datePop" onclick="event.stopPropagation()">
+              <div class="dp-head">
+                <span class="dp-nav" onclick="dpMove(-12)">«</span>
+                <span class="dp-nav" onclick="dpMove(-1)">‹</span>
+                <span class="dp-title" id="dpTitle"></span>
+                <span class="dp-nav" onclick="dpMove(1)">›</span>
+                <span class="dp-nav" onclick="dpMove(12)">»</span>
+              </div>
+              <div class="dp-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+              <div class="dp-grid" id="dpGrid"></div>
+              <div class="dp-foot">
+                <span id="dpTip">点击选择开始日期</span>
+                <span class="dp-today" onclick="dpToday()">今天</span>
+              </div>
             </div>
           </div>
         </div>
@@ -645,6 +676,42 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   function closeDrawer(){ document.getElementById('mask').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); }
   function toggleAddMenu(e){ e.stopPropagation(); document.getElementById('addMenu').classList.toggle('hidden'); }
   document.addEventListener('click', function(e){ const m=document.getElementById('addMenu'); if(m && !m.classList.contains('hidden') && !e.target.closest('.desc-box')) m.classList.add('hidden'); });
+
+  /* ===== 生效日期区间选择器 ===== */
+  let dpView = new Date(2026,6,1), dpStart=null, dpEnd=null;
+  function toggleDatePicker(e){ e.stopPropagation(); const p=document.getElementById('datePop'); p.classList.toggle('hidden'); if(!p.classList.contains('hidden')) renderDP(); }
+  document.addEventListener('click', function(e){ const p=document.getElementById('datePop'); if(p && !p.classList.contains('hidden') && !e.target.closest('.field') ) p.classList.add('hidden'); });
+  function dpMove(m){ dpView.setMonth(dpView.getMonth()+m); renderDP(); }
+  function dpToday(){ dpView=new Date(); renderDP(); }
+  function fmt(d){ return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'); }
+  function sameDay(a,b){ return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+  function pickDP(y,m,d){
+    const day=new Date(y,m,d);
+    if(!dpStart || (dpStart&&dpEnd)){ dpStart=day; dpEnd=null; }
+    else { if(day<dpStart){ dpEnd=dpStart; dpStart=day; } else dpEnd=day; }
+    const inp=document.getElementById('dateRangeInput');
+    if(dpStart&&!dpEnd) inp.value=fmt(dpStart)+' — ';
+    else if(dpStart&&dpEnd){ inp.value=fmt(dpStart)+' — '+fmt(dpEnd); document.getElementById('datePop').classList.add('hidden'); }
+    renderDP();
+  }
+  function renderDP(){
+    const y=dpView.getFullYear(), m=dpView.getMonth();
+    document.getElementById('dpTitle').textContent=y+'年'+(m+1)+'月';
+    document.getElementById('dpTip').textContent = (dpStart&&!dpEnd)?'点击选择结束日期':'点击选择开始日期';
+    const first=new Date(y,m,1); let off=(first.getDay()+6)%7;
+    const start=new Date(y,m,1-off); let html='';
+    for(let i=0;i<42;i++){
+      const cur=new Date(start); cur.setDate(start.getDate()+i);
+      const mute=cur.getMonth()!==m;
+      const isS=sameDay(cur,dpStart), isE=sameDay(cur,dpEnd);
+      const inRange=dpStart&&dpEnd&&cur>dpStart&&cur<dpEnd;
+      let cls='dp-cell'; if(mute)cls+=' mute';
+      if(inRange)cls+=' in-range';
+      if(isS||isE){ cls+=' edge'; if(dpStart&&dpEnd){ cls+= isS?' start':' end'; } else cls+=' single'; }
+      html+=`<div class="${cls}" onclick="pickDP(${cur.getFullYear()},${cur.getMonth()},${cur.getDate()})">${cur.getDate()}</div>`;
+    }
+    document.getElementById('dpGrid').innerHTML=html;
+  }
   function createTask(){
     const name = document.getElementById('f-name').value.trim() || '未命名自动化任务';
     tasks.unshift({ name, creator:"张振", agent:"群运维 Agent", trig:curTrig, trigText:trigSummary(), next:curTrig==='timer'?'今天 18:00':'—（触发）', result:"success", on:true });
