@@ -531,9 +531,6 @@
               <optgroup label="消息">
                 <option value="msg">用户收到聊天消息</option>
               </optgroup>
-              <optgroup label="日程">
-                <option value="cal">用户日程变更</option>
-              </optgroup>
               <optgroup label="会议">
                 <option value="meet-end">会议结束</option>
                 <option value="meet-note">AI听记生成</option>
@@ -541,12 +538,6 @@
               </optgroup>
               <optgroup label="文档">
                 <option value="doc-change">用户的云文档变更</option>
-                <option value="doc-comment">用户收到云文档评论</option>
-                <option value="doc-at">智能体在云文档评论中被 @</option>
-                <option value="doc-table">用户的多维表格记录变更</option>
-              </optgroup>
-              <optgroup label="邮箱">
-                <option value="mail">用户收到新邮件</option>
               </optgroup>
             </select>
           </div>
@@ -810,7 +801,7 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   // ============ 事件下级条件 ============
   function onEventChange(){
     const v = document.getElementById('eventSel').value;
-    const isDoc = ['doc-change','doc-comment','doc-at','doc-table'].includes(v);
+    const isDoc = v==='doc-change';
     const isMsg = v==='msg';
     document.getElementById('sub-doc').classList.toggle('hidden', !isDoc);
     document.getElementById('sub-msg').classList.toggle('hidden', !isMsg);
