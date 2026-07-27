@@ -227,6 +227,13 @@
   .dp-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#64748b; font-size:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
   .dp-clear:hover { background:#cbd5e1; }
   .dp-clear.hidden { display:none; }
+  /* 描述框内引用 chip */
+  .ref-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .ref-chips:empty { display:none; }
+  .ref-chip { display:inline-flex; align-items:center; gap:4px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; border-radius:6px; padding:3px 6px 3px 8px; font-size:12px; font-weight:600; }
+  .ref-chip .rt { color:#818cf8; font-weight:400; margin-right:2px; }
+  .ref-chip .rx { cursor:pointer; color:#818cf8; font-size:12px; line-height:1; padding:0 2px; }
+  .ref-chip .rx:hover { color:#4338ca; }
 
   /* 代码块 tabs */
   .code-tabs { display:flex; gap:6px; margin-bottom:8px; }
@@ -418,6 +425,7 @@
 
         <div class="field desc-box">
           <label>描述</label>
+          <div class="ref-chips" id="refChips"></div>
           <textarea class="textarea" placeholder="请输入你想完成的任务"></textarea>
           <button class="add-btn" title="添加附件 / 引用" onclick="toggleAddMenu(event)">＋</button>
           <div class="add-menu hidden" id="addMenu">
@@ -426,20 +434,20 @@
             <div class="mi" onmouseenter="posSub(this)"><span class="ic">🧩</span>技能<span class="arw">›</span>
               <div class="submenu" onclick="event.stopPropagation()">
                 <input class="sub-search" placeholder="搜索技能">
-                <div class="si"><span class="em">🖼️</span><div><b>卡片生成</b><span>create-lark-card：根据用户的自然语言诉求生成卡片</span></div></div>
-                <div class="si"><span class="em">🧑‍💼</span><div><b>用户工作画像</b><span>personal-profile-generator：基于用户的多维数据生成画像</span></div></div>
-                <div class="si"><span class="em">🚀</span><div><b>技能调试优化</b><span>skill-checker：用于检查、测试或优化某个技能</span></div></div>
-                <div class="si"><span class="em">💡</span><div><b>AI 生成技能</b><span>aily-skill-creator：帮助用户创建和更新技能</span></div></div>
+                <div class="si" onclick="pickRef('技能','卡片生成')"><span class="em">🖼️</span><div><b>卡片生成</b><span>create-lark-card：根据用户的自然语言诉求生成卡片</span></div></div>
+                <div class="si" onclick="pickRef('技能','用户工作画像')"><span class="em">🧑‍💼</span><div><b>用户工作画像</b><span>personal-profile-generator：基于用户的多维数据生成画像</span></div></div>
+                <div class="si" onclick="pickRef('技能','技能调试优化')"><span class="em">🚀</span><div><b>技能调试优化</b><span>skill-checker：用于检查、测试或优化某个技能</span></div></div>
+                <div class="si" onclick="pickRef('技能','AI 生成技能')"><span class="em">💡</span><div><b>AI 生成技能</b><span>aily-skill-creator：帮助用户创建和更新技能</span></div></div>
               </div>
             </div>
             <div class="mi" onmouseenter="posSub(this)"><span class="ic">🔌</span>MCP<span class="arw">›</span>
               <div class="submenu" onclick="event.stopPropagation()">
                 <input class="sub-search" placeholder="搜索 MCP">
-                <div class="si"><span class="em">📁</span><div><b>POPO 云空间</b><span>读写云文档 / 表格 / 多维表 / 文件夹</span></div></div>
-                <div class="si"><span class="em">📅</span><div><b>POPO 日程</b><span>查询日程、预约会议与会议室</span></div></div>
-                <div class="si"><span class="em">✅</span><div><b>POPO 任务</b><span>创建 / 更新任务与子任务、查询列表</span></div></div>
-                <div class="si"><span class="em">📚</span><div><b>KM 知识管理</b><span>搜索知识、阅读文章</span></div></div>
-                <div class="si"><span class="em">🐙</span><div><b>GitHub</b><span>查询代码、Issue、PR 和仓库信息</span></div></div>
+                <div class="si" onclick="pickRef('MCP','POPO 云空间')"><span class="em">📁</span><div><b>POPO 云空间</b><span>读写云文档 / 表格 / 多维表 / 文件夹</span></div></div>
+                <div class="si" onclick="pickRef('MCP','POPO 日程')"><span class="em">📅</span><div><b>POPO 日程</b><span>查询日程、预约会议与会议室</span></div></div>
+                <div class="si" onclick="pickRef('MCP','POPO 任务')"><span class="em">✅</span><div><b>POPO 任务</b><span>创建 / 更新任务与子任务、查询列表</span></div></div>
+                <div class="si" onclick="pickRef('MCP','KM 知识管理')"><span class="em">📚</span><div><b>KM 知识管理</b><span>搜索知识、阅读文章</span></div></div>
+                <div class="si" onclick="pickRef('MCP','GitHub')"><span class="em">🐙</span><div><b>GitHub</b><span>查询代码、Issue、PR 和仓库信息</span></div></div>
               </div>
             </div>
           </div>
@@ -689,6 +697,18 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     const host = document.getElementById('drawer').getBoundingClientRect();
     sub.style.left = (r.right - host.left + 4) + 'px';
     sub.style.top  = (r.top - host.top - 6) + 'px';
+  }
+  /* 选中技能 / MCP → 插入引用 chip */
+  const refIcon = { '技能':'🧩', 'MCP':'🔌' };
+  function pickRef(type, name){
+    const box = document.getElementById('refChips');
+    if([...box.children].some(c=>c.dataset.name===name)) { document.getElementById('addMenu').classList.add('hidden'); return; }
+    const chip = document.createElement('span');
+    chip.className='ref-chip'; chip.dataset.name=name;
+    chip.innerHTML = `${refIcon[type]||''} <span class="rt">/</span>${name}<span class="rx" onclick="this.parentNode.remove()">✕</span>`;
+    box.appendChild(chip);
+    document.getElementById('addMenu').classList.add('hidden');
+    toast(type+'已引用：'+name);
   }
 
   /* ===== 生效日期区间选择器 ===== */
