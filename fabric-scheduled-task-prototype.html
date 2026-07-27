@@ -480,16 +480,19 @@
         <div id="panel-timer">
           <div class="field">
             <label>执行频率</label>
-            <select class="select" id="freqSel" onchange="onFreqChange()">
-              <option value="once">仅触发一次</option>
-              <option value="min">每隔 N 分钟</option>
-              <option value="hour">每隔 N 小时</option>
-              <option value="workday">每个工作日（周一到周五）</option>
-              <option value="day" selected>每天</option>
-              <option value="week">每周</option>
-              <option value="biweek">每双周</option>
-              <option value="month">每月</option>
-            </select>
+            <div class="row-inline" style="align-items:flex-start;gap:10px;">
+              <select class="select" id="freqSel" onchange="onFreqChange()" style="flex:1;">
+                <option value="once">仅触发一次</option>
+                <option value="min">每隔 N 分钟</option>
+                <option value="hour">每隔 N 小时</option>
+                <option value="workday">每个工作日（周一到周五）</option>
+                <option value="day" selected>每天</option>
+                <option value="week">每周</option>
+                <option value="biweek">每双周</option>
+                <option value="month">每月</option>
+              </select>
+              <div id="freqPick" style="flex:1;"></div>
+            </div>
           </div>
           <div class="field" id="freqExtra">
             <label>触发时间</label>
@@ -715,7 +718,10 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   function syncDescPad(){
     const box = document.getElementById('refChips');
     const ta = document.getElementById('descArea');
-    ta.style.paddingTop = box.children.length ? (box.getBoundingClientRect().height + 12) + 'px' : '';
+    const has = box.children.length > 0;
+    ta.style.paddingTop = has ? (box.getBoundingClientRect().height + 12) + 'px' : '';
+    if(has){ ta.dataset.ph = ta.dataset.ph || ta.placeholder; ta.placeholder = ''; }
+    else if(ta.dataset.ph){ ta.placeholder = ta.dataset.ph; }
   }
 
   /* ===== 生效日期区间选择器 ===== */
@@ -778,23 +784,26 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   function onFreqChange(){
     const v = document.getElementById('freqSel').value;
     const box = document.getElementById('freqExtra');
-    const timeRow = '<div class="row-inline"><input class="input" type="time" value="19:57"></div>';
+    const pick = document.getElementById('freqPick');
+    pick.innerHTML = '';
+    const timeSel = '<label>触发时间</label><input class="input" type="time" value="19:57">';
     if(v==='once'){
-      box.innerHTML = '<div class="row-inline" style="gap:10px;"><input class="input" type="date" style="flex:1;"><input class="input" type="time" value="19:57" style="flex:1;"></div>';
+      pick.innerHTML = '<input class="input" type="date">';
+      box.innerHTML = timeSel;
     } else if(v==='min'){
-      box.innerHTML = '<label>每隔（分钟）<span style="font-weight:400;color:#94a3b8;">（最小 5 分钟）</span></label><input class="input" type="number" min="5" step="5" value="5">';
+      pick.innerHTML = '<input class="input" type="number" min="5" step="5" value="5" placeholder="≥5 分钟">';
+      box.innerHTML = '<label style="color:#94a3b8;font-weight:400;">每隔 5 分钟执行一次（最小 5 分钟）</label>';
     } else if(v==='hour'){
-      box.innerHTML = '<label>每隔（小时）</label><input class="input" type="number" min="1" value="1">';
+      pick.innerHTML = '<input class="input" type="number" min="1" value="1">';
+      box.innerHTML = '<label style="color:#94a3b8;font-weight:400;">每隔 1 小时执行一次</label>';
     } else if(v==='week'||v==='biweek'){
-      box.innerHTML = '<label>星期几 + 触发时间</label>'
-        + '<div class="chip-box" style="margin-bottom:8px;"><span class="chip">周一 <span class="x">✕</span></span><span class="chip-add">＋ 选择星期</span></div>'
-        + timeRow;
+      pick.innerHTML = '<div class="chip-box"><span class="chip">周一 <span class="x">✕</span></span><span class="chip-add">＋</span></div>';
+      box.innerHTML = timeSel;
     } else if(v==='month'){
-      box.innerHTML = '<label>每月日期 + 触发时间</label>'
-        + '<div class="chip-box" style="margin-bottom:8px;"><span class="chip">1 日 <span class="x">✕</span></span><span class="chip-add">＋ 选择日期（含"最后一天"）</span></div>'
-        + timeRow;
+      pick.innerHTML = '<div class="chip-box"><span class="chip">1 日 <span class="x">✕</span></span><span class="chip-add">＋</span></div>';
+      box.innerHTML = timeSel;
     } else { // day / workday
-      box.innerHTML = '<label>触发时间</label>' + timeRow;
+      box.innerHTML = timeSel;
     }
   }
 
