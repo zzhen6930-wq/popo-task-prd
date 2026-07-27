@@ -481,9 +481,9 @@
           <div class="field">
             <label>执行频率</label>
             <select class="select" id="freqSel" onchange="onFreqChange()">
-              <option value="once">仅一次</option>
-              <option value="min">每隔几分钟</option>
-              <option value="hour">每隔几小时</option>
+              <option value="once">仅触发一次</option>
+              <option value="min">每隔 N 分钟</option>
+              <option value="hour">每隔 N 小时</option>
               <option value="workday">每个工作日（周一到周五）</option>
               <option value="day" selected>每天</option>
               <option value="week">每周</option>
@@ -778,12 +778,24 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
   function onFreqChange(){
     const v = document.getElementById('freqSel').value;
     const box = document.getElementById('freqExtra');
-    if(v==='min'){ box.innerHTML = '<label>每隔（分钟）</label><input class="input" type="number" value="30">'; }
-    else if(v==='hour'){ box.innerHTML = '<label>每隔（小时）</label><input class="input" type="number" value="2">'; }
-    else if(v==='once'){ box.innerHTML = '<label>执行时间点</label><input class="input" type="datetime-local">'; }
-    else if(v==='week'||v==='biweek'){ box.innerHTML = '<label>星期几 + 触发时间</label><input class="input" placeholder="如 周一, 09:00">'; }
-    else if(v==='month'){ box.innerHTML = '<label>日期 + 触发时间</label><input class="input" placeholder="如 28 日 / 最后一天, 09:00">'; }
-    else { box.innerHTML = '<label>触发时间</label><input class="input" type="time" value="18:00">'; }
+    const timeRow = '<div class="row-inline"><input class="input" type="time" value="19:57"></div>';
+    if(v==='once'){
+      box.innerHTML = '<div class="row-inline" style="gap:10px;"><input class="input" type="date" style="flex:1;"><input class="input" type="time" value="19:57" style="flex:1;"></div>';
+    } else if(v==='min'){
+      box.innerHTML = '<label>每隔（分钟）<span style="font-weight:400;color:#94a3b8;">（最小 5 分钟）</span></label><input class="input" type="number" min="5" step="5" value="5">';
+    } else if(v==='hour'){
+      box.innerHTML = '<label>每隔（小时）</label><input class="input" type="number" min="1" value="1">';
+    } else if(v==='week'||v==='biweek'){
+      box.innerHTML = '<label>星期几 + 触发时间</label>'
+        + '<div class="chip-box" style="margin-bottom:8px;"><span class="chip">周一 <span class="x">✕</span></span><span class="chip-add">＋ 选择星期</span></div>'
+        + timeRow;
+    } else if(v==='month'){
+      box.innerHTML = '<label>每月日期 + 触发时间</label>'
+        + '<div class="chip-box" style="margin-bottom:8px;"><span class="chip">1 日 <span class="x">✕</span></span><span class="chip-add">＋ 选择日期（含"最后一天"）</span></div>'
+        + timeRow;
+    } else { // day / workday
+      box.innerHTML = '<label>触发时间</label>' + timeRow;
+    }
   }
 
   // ============ 事件下级条件 ============
