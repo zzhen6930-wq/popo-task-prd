@@ -218,7 +218,7 @@
     { type:"dir", label:"people/", prefix:"people/" },
     { type:"dir", label:"decisions/", prefix:"decisions/" },
   ];
-  const kindMeta = { diary:["kind-diary","原始记忆"], topic:["kind-topic","主题记忆"], core:["kind-core","精选记忆"] };
+  const kindMeta = { diary:["kind-diary","每日笔记"], topic:["kind-topic","主题记忆"], core:["kind-core","精选记忆"] };
   const agentTypeMeta = { personal:["pill p2p","个人"], team:["pill group","团队"] };
 
   function fileCount(a){ let n=0; a.sessions.forEach(s=>n+=Object.keys(s.files).length); return n; }
@@ -269,15 +269,15 @@
   function toggleSes(id){ expandedSes = expandedSes===id ? null : id; if(expandedSes && !curFileMap[id]){ const s=curAgent.sessions.find(x=>x.id===id); curFileMap[id]= s.files['curated.md']?'curated.md':Object.keys(s.files)[0]; } renderSesTable(); }
   function renderExpand(s){
     return `<div class="exp-body">
-        <div class="tree"><div class="tree-h">记忆目录 <span class="tree-add" onclick="event.stopPropagation();openNewFile('${s.id}')">＋ 新建</span></div><div class="tree-body">${renderTree(s)}</div></div>
+        <div class="tree"><div class="tree-h">记忆目录</div><div class="tree-body">${renderTree(s)}</div></div>
         <div class="fpane">${renderFile(s)}</div>
       </div>`;
   }
   function renderTree(s){
     const files=s.files, cur=curFileMap[s.id]; let html='';
     treeOrder.forEach(n=>{
-      if(n.type==='file'){ if(files[n.key]){ const km=kindMeta[files[n.key].kind];
-        html+=`<div class="tnode ${cur===n.key?'active':''}" onclick="event.stopPropagation();pickFile('${s.id}','${n.key}')">📄 ${n.label}<span class="kind ${km[0]}">${km[1]}</span></div>`; } }
+      if(n.type==='file'){ if(files[n.key]){
+        html+=`<div class="tnode ${cur===n.key?'active':''}" onclick="event.stopPropagation();pickFile('${s.id}','${n.key}')">📄 ${n.label}</div>`; } }
       else { const children=Object.keys(files).filter(k=>k.startsWith(n.prefix));
         html+=`<div class="tnode dir">📁 ${n.label}<span class="cnt">${children.length}</span></div>`;
         children.forEach(k=>{ html+=`<div class="tnode indent ${cur===k?'active':''}" onclick="event.stopPropagation();pickFile('${s.id}','${k.replace(/'/g,"")}')">📄 ${k.slice(n.prefix.length)}</div>`; });
