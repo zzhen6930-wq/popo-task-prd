@@ -9,7 +9,6 @@
   html, body { height: 100%; }
   body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #0f172a; font-size: 14px; line-height: 1.6; overflow: hidden; }
 
-  /* 顶栏 */
   .topbar { height: 56px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 24px; gap: 20px; flex-shrink: 0; }
   .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
   .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
@@ -17,10 +16,8 @@
   .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13px; color: #475569; }
   .avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ec4899); color: #fff; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
 
-  /* 布局 */
   .layout { display: flex; height: calc(100% - 56px); }
   .sidebar { width: 200px; background: #fff; border-right: 1px solid #e5e7eb; padding: 14px 10px; flex-shrink: 0; overflow-y: auto; }
-  .side-group { font-size: 11px; color: #94a3b8; padding: 10px 12px 4px; letter-spacing: .5px; }
   .side-item { padding: 8px 12px; border-radius: 8px; margin: 2px 0; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; }
   .side-item:hover { background: #f8fafc; }
   .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
@@ -28,7 +25,6 @@
   .side-sep { height: 1px; background: #f1f5f9; margin: 8px 8px; }
   .main { flex: 1; overflow-y: auto; padding: 24px 28px; position: relative; }
 
-  /* 页头 */
   .page-head { display: flex; align-items: center; margin-bottom: 6px; }
   .page-head h1 { font-size: 20px; font-weight: 700; }
   .head-actions { margin-left: auto; display: flex; gap: 10px; }
@@ -40,100 +36,99 @@
   .btn.ghost { background: #fff; border: 1px solid #d1d5db; color: #374151; }
   .btn.ghost:hover { background: #f8fafc; }
   .btn.sm { padding: 5px 12px; font-size: 12px; }
-  .btn.danger { background: #fff; border: 1px solid #fecaca; color: #dc2626; }
-  .btn.danger:hover { background: #fef2f2; }
 
-  /* tab */
+  /* 顶部维度 tab */
   .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px; }
-  .tab { padding: 8px 16px; font-size: 13px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab { padding: 8px 16px; font-size: 13px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; display:flex; align-items:center; gap:6px; }
   .tab:hover { color: #4f46e5; }
   .tab.active { color: #4f46e5; border-bottom-color: #4f46e5; font-weight: 600; }
+  .tab.disabled { color: #cbd5e1; cursor: not-allowed; }
+  .tab .soon { font-size: 10px; background:#f1f5f9; color:#94a3b8; border-radius: 10px; padding: 0 7px; }
 
-  /* card / table */
+  .note { border-radius: 9px; padding: 10px 14px; font-size: 12.5px; margin-bottom: 16px; border-left: 3px solid; }
+  .note.tip { background: #eef2ff; border-color: #6366f1; color: #3730a3; }
+  .note.soon { background: #f8fafc; border-color: #cbd5e1; color: #64748b; }
+
+  /* 搜索栏 */
+  .filter-bar { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .input { border:1px solid #d1d5db; border-radius:8px; padding:8px 12px; font-size:13px; }
+  .input:focus { outline:none; border-color:#6366f1; }
+  .filter-bar .flt { min-width:150px; }
+  #sesSearch { min-width:280px; }
+  .select { border:1px solid #d1d5db; border-radius:8px; padding:8px 30px 8px 12px; font-size:13px; background:#fff; cursor:pointer; }
+
   .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
   th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 12px; }
   tbody tr:hover { background: #f8fafc; }
   tbody tr:last-child td { border-bottom: none; }
-  .agent-cell { display: flex; align-items: center; gap: 10px; }
-  .agent-ava { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; flex-shrink: 0; }
-  .agent-name { font-weight: 600; color: #0f172a; }
-  .agent-desc { font-size: 12px; color: #94a3b8; }
-  .creator-cell { display: flex; align-items: center; gap: 7px; }
-  .creator-ava { width: 24px; height: 24px; border-radius: 50%; background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
-  .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 12px; }
-  .pill.blue { background: #e0e7ff; color: #4338ca; }
-  .pill.purple { background: #ede9fe; color: #6d28d9; }
-  .pill.gray { background: #f1f5f9; color: #64748b; }
-  .link { color: #4f46e5; cursor: pointer; font-size: 13px; }
-  .link:hover { text-decoration: underline; }
+  .ses-cell { display:flex; align-items:center; gap:10px; }
+  .ses-ava { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; flex-shrink:0; }
+  .ses-name { font-weight:600; color:#0f172a; }
+  .ses-id { font-size:11px; color:#94a3b8; font-family:Menlo,monospace; }
+  .pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; }
+  .pill.p2p { background:#e0e7ff; color:#4338ca; }
+  .pill.group { background:#dcfce7; color:#15803d; }
+  .lock { font-size:11px; color:#64748b; }
+  .link { color:#4f46e5; cursor:pointer; font-size:13px; }
+  .link:hover { text-decoration:underline; }
 
-  /* 详情头 */
-  .det-head { display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
-  .det-head .big-ava { width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 25px; color: #fff; flex-shrink: 0; }
-  .det-head h2 { font-size: 17px; color: #0f172a; }
-  .det-head .meta { font-size: 12px; color: #94a3b8; margin-top: 3px; display: flex; gap: 14px; flex-wrap: wrap; }
-  .det-head .spacer { flex: 1; }
+  /* 详情：会话记忆空间 */
+  .det-head { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px 20px; margin-bottom:14px; }
+  .det-head .big-ava { width:50px; height:50px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:25px; color:#fff; flex-shrink:0; }
+  .det-head h2 { font-size:17px; }
+  .det-head .meta { font-size:12px; color:#94a3b8; margin-top:3px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .det-head .spacer { flex:1; }
+  .path-strip { font-family:Menlo,monospace; font-size:11px; color:#64748b; background:#f8fafc; border:1px solid #eef0f3; border-radius:8px; padding:6px 12px; margin-bottom:14px; }
 
-  /* 文件 tab（横向，点击展开） */
-  .ftabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-  .ftab { padding: 7px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; font-size: 13px; color: #475569; cursor: pointer; font-family: Menlo, Consolas, monospace; display: flex; align-items: center; gap: 6px; }
-  .ftab:hover { border-color: #a5b4fc; color: #4f46e5; }
-  .ftab.active { background: #eef2ff; border-color: #6366f1; color: #4338ca; font-weight: 600; }
-  .ftab .fdot { width: 16px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
-  .fgroup { display: inline-flex; align-items: center; font-size: 11px; color: #94a3b8; padding: 0 4px 0 6px; letter-spacing: .5px; }
-  .fgroup::before { content: ""; }
-  .fgroup:not(:first-child) { border-left: 1px solid #e5e7eb; margin-left: 4px; padding-left: 12px; }
+  .mem-body { display:flex; gap:16px; align-items:flex-start; }
+  /* 文件树 */
+  .tree { flex:0 0 300px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+  .tree-h { padding:12px 16px; border-bottom:1px solid #f1f5f9; font-size:12px; color:#94a3b8; font-weight:700; letter-spacing:.5px; display:flex; align-items:center; }
+  .tree-h .lock-tag { margin-left:auto; font-size:11px; color:#15803d; background:#dcfce7; border-radius:10px; padding:1px 8px; font-weight:600; }
+  .tree-body { padding:8px; max-height:600px; overflow-y:auto; }
+  .tnode { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-family:Menlo,Consolas,monospace; color:#334155; }
+  .tnode:hover { background:#f1f5f9; }
+  .tnode.active { background:#eef2ff; color:#4338ca; font-weight:600; }
+  .tnode.dir { color:#475569; font-weight:600; cursor:default; }
+  .tnode.dir:hover { background:transparent; }
+  .tnode .layer { margin-left:auto; font-size:10px; color:#94a3b8; background:#f1f5f9; border-radius:8px; padding:0 6px; font-family:-apple-system; }
+  .tnode.indent { margin-left:18px; }
+  .layer-badge { font-size:10px; border-radius:8px; padding:0 6px; }
 
-  /* 文件内容区 */
-  .fview { margin-top: 14px; }
-  .empty { border: 1.5px dashed #e2e8f0; border-radius: 12px; padding: 46px 20px; text-align: center; color: #94a3b8; font-size: 13px; background: #fafbfc; }
-  .empty .ei { font-size: 30px; margin-bottom: 8px; }
-  .fcard { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
-  .fcard .fc-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #f1f5f9; }
-  .fcard .fc-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; }
-  .fcard .fc-title { font-weight: 700; font-size: 14px; color: #0f172a; }
-  .fcard .fc-path { font-size: 11px; color: #94a3b8; font-family: Menlo, monospace; }
-  .fcard .fc-spacer { flex: 1; }
-  .fcard .fc-body { padding: 16px 18px; }
-  .md-block { font-family: Menlo, Consolas, monospace; font-size: 12.5px; color: #334155; white-space: pre-wrap; line-height: 1.75; }
-  .note { border-radius: 9px; padding: 10px 14px; font-size: 12.5px; margin-bottom: 14px; border-left: 3px solid; }
-  .note.tip { background: #eef2ff; border-color: #6366f1; color: #3730a3; }
+  /* 文件内容 */
+  .fpane { flex:1; }
+  .fcard { background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+  .fc-head { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid #f1f5f9; }
+  .fc-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; color:#fff; }
+  .fc-title { font-weight:700; font-size:14px; }
+  .fc-path { font-size:11px; color:#94a3b8; font-family:Menlo,monospace; }
+  .fc-spacer { flex:1; }
+  .fc-tag { font-size:11px; border-radius:10px; padding:1px 9px; }
+  .tag-l1 { background:#fef3c7; color:#b45309; } .tag-l2 { background:#e0e7ff; color:#4338ca; } .tag-l3 { background:#dcfce7; color:#15803d; }
+  .fc-body { padding:18px; }
+  .md-block { font-family:Menlo,Consolas,monospace; font-size:12.5px; color:#334155; white-space:pre-wrap; line-height:1.8; }
+  .empty { border:1.5px dashed #e2e8f0; border-radius:12px; padding:46px 20px; text-align:center; color:#94a3b8; font-size:13px; background:#fafbfc; }
+  .empty .ei { font-size:30px; margin-bottom:8px; }
 
-  /* 抽屉 */
-  .mask { position: fixed; inset: 0; background: rgba(15,23,42,.4); display: none; z-index: 50; }
-  .mask.show { display: block; }
-  .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 480px; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,.12); transform: translateX(100%); transition: transform .25s; z-index: 60; display: flex; flex-direction: column; }
-  .drawer.show { transform: translateX(0); }
-  .drawer .dh { padding: 18px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; }
-  .drawer .dh h3 { font-size: 15px; color: #0f172a; }
-  .drawer .dh .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
-  .drawer .db { padding: 18px 20px; overflow-y: auto; flex: 1; }
-  .dream-item, .dn-note { border: 1px solid #eef2f7; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
-  .dream-item .di-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .dream-item .di-date { font-weight: 700; font-size: 13px; color: #0f172a; }
-  .dream-item .di-line { font-size: 12.5px; color: #475569; padding: 2px 0; }
-  .dn-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .dn-tab { padding: 5px 11px; border: 1px solid #e2e8f0; border-radius: 7px; font-size: 12px; font-family: Menlo, monospace; cursor: pointer; color: #475569; }
-  .dn-tab.active { background: #eef2ff; border-color: #6366f1; color: #4338ca; font-weight: 600; }
+  /* Dream Log 抽屉 */
+  .mask { position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; z-index:50; }
+  .mask.show { display:block; }
+  .drawer { position:fixed; top:0; right:0; height:100vh; width:480px; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,.12); transform:translateX(100%); transition:transform .25s; z-index:60; display:flex; flex-direction:column; }
+  .drawer.show { transform:translateX(0); }
+  .drawer .dh { padding:18px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; }
+  .drawer .dh h3 { font-size:15px; }
+  .drawer .dh .x { margin-left:auto; cursor:pointer; color:#94a3b8; font-size:20px; }
+  .drawer .db { padding:18px 20px; overflow-y:auto; flex:1; }
+  .dream-item { border:1px solid #eef2f7; border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .dream-item .di-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .dream-item .di-date { font-weight:700; font-size:13px; }
+  .dream-item .di-line { font-size:12.5px; color:#475569; padding:2px 0; }
 
-  /* 编辑弹窗 */
-  .modal-mask { position: fixed; inset: 0; background: rgba(15,23,42,.4); display: none; align-items: center; justify-content: center; z-index: 70; }
-  .modal-mask.show { display: flex; }
-  .modal { width: 560px; max-width: 92vw; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
-  .modal .mh { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; }
-  .modal .mh .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
-  .modal .mb { padding: 18px 20px; }
-  .modal .mf { padding: 14px 20px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 10px; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: #64748b; margin-bottom: 6px; font-weight: 600; }
-  .field textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 12.5px; font-family: Menlo, Consolas, monospace; resize: vertical; line-height: 1.7; }
-  .field textarea:focus { outline: none; border-color: #6366f1; }
-
-  .toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px); background: #0f172a; color: #fff; padding: 11px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 100; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .hidden { display: none !important; }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#0f172a; color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; opacity:0; transition:all .3s; z-index:100; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .hidden { display:none !important; }
 </style>
 </head>
 <body>
@@ -170,28 +165,48 @@
   <div class="main">
     <!-- ========== 列表页 ========== -->
     <div id="listView">
-      <div class="page-head">
-        <div><h1>🧠 记忆</h1></div>
+      <div class="page-head"><div><h1>🧩 记忆</h1></div></div>
+      <div class="desc">记忆分为「会话记忆」和「用户记忆」两个维度，均以 Markdown 文件形式存储。本期实现会话记忆——按会话物理隔离，采用日记(L1) / 主题(L2) / 精选(L3) 三层架构。</div>
+
+      <div class="tabs">
+        <div class="tab active" id="dim-session" onclick="switchDim('session')">💬 会话记忆</div>
+        <div class="tab disabled" id="dim-user" onclick="switchDim('user')">👤 用户记忆 <span class="soon">本期不做</span></div>
       </div>
-      <div class="desc">以 Agent 为维度管理记忆文件 · 基础文件（soul / user）与用户记忆（Project / Feedback / Reference Memory）</div>
-      <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:26%">Agent</th>
-              <th>创建人</th>
-              <th>基础文件</th>
-              <th>用户记忆</th>
-              <th>上次做梦</th>
-              <th style="width:14%">操作</th>
-            </tr>
-          </thead>
-          <tbody id="agentBody"></tbody>
-        </table>
+
+      <!-- 会话记忆维度 -->
+      <div id="dimSession">
+        <div class="note tip">🔒 每个会话（私聊 <code>p2p_&lt;user_id&gt;</code> / 群聊 <code>group_&lt;group_id&gt;</code>）拥有独立记忆空间，存储在 <code>memory/sessions/&lt;session_id&gt;/</code>，不同会话物理隔离、互不串扰。</div>
+        <div class="filter-bar">
+          <input class="input" id="sesSearch" placeholder="🔍 搜索会话名称 / 会话 ID" oninput="renderSessions()">
+          <select class="select flt" id="sesType" onchange="renderSessions()">
+            <option value="">全部会话类型</option><option value="p2p">私聊</option><option value="group">群聊</option>
+          </select>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:30%">会话</th>
+                <th>类型</th>
+                <th>隔离</th>
+                <th>记忆文件</th>
+                <th>上次做梦</th>
+                <th style="width:12%">操作</th>
+              </tr>
+            </thead>
+            <tbody id="sesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 用户记忆维度（本期不做） -->
+      <div id="dimUser" class="hidden">
+        <div class="note soon">👤 用户记忆为<b>跨会话共享</b>的用户维度记忆（同一用户在不同会话中的共性偏好可复用）。本期仅规划，尚未实现——需先解决冲突合并、隐私边界等问题。</div>
+        <div class="empty"><div class="ei">🚧</div>用户记忆维度将在后续版本开放</div>
       </div>
     </div>
 
-    <!-- ========== 详情页 ========== -->
+    <!-- ========== 详情页：会话记忆空间 ========== -->
     <div id="detailView" class="hidden">
       <div style="margin-bottom:14px;"><span class="link" onclick="goList()">← 返回记忆列表</span></div>
       <div class="det-head">
@@ -202,21 +217,17 @@
         </div>
         <div class="spacer"></div>
         <button class="btn ghost" onclick="openDream()">🌙 Dream Log</button>
-        <button class="btn primary" onclick="runDream()">✨ 手动做梦</button>
+        <button class="btn primary" onclick="toast('已触发一次异步做梦')">✨ 手动做梦</button>
       </div>
+      <div class="path-strip" id="pathStrip"></div>
 
-      <div class="tabs">
-        <div class="tab active" data-l1="base" onclick="switchL1('base')">📁 基础文件</div>
-        <div class="tab" data-l1="user" onclick="switchL1('user')">🧠 用户记忆</div>
+      <div class="mem-body">
+        <div class="tree">
+          <div class="tree-h">记忆目录 <span class="lock-tag">🔒 物理隔离</span></div>
+          <div class="tree-body" id="treeBody"></div>
+        </div>
+        <div class="fpane" id="fpane"></div>
       </div>
-
-      <div class="note tip" id="l1note"></div>
-
-      <!-- 文件 tab 行 -->
-      <div class="ftabs" id="ftabs"></div>
-
-      <!-- 文件内容 / 空态 -->
-      <div class="fview" id="fview"></div>
     </div>
   </div>
 </div>
@@ -228,373 +239,177 @@
   <div class="db" id="dreamBody"></div>
 </div>
 
-<!-- 编辑弹窗 -->
-<div class="modal-mask" id="editMask">
-  <div class="modal">
-    <div class="mh"><span id="editTitle">编辑</span><span class="x" onclick="closeEdit()">×</span></div>
-    <div class="mb"><div class="field"><label id="editLabel">文件内容（Markdown）</label><textarea id="editArea" rows="16"></textarea></div></div>
-    <div class="mf"><button class="btn ghost" onclick="closeEdit()">取消</button><button class="btn primary" onclick="saveEdit()">保存</button></div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ================= 数据 =================
-const agents = {
-  a1: {
-    name: "群运维助手", desc: "运维日报 / 群健康巡检", icon: "🛡", color: "#0ea5e9",
-    creator: "张振", lastDream: "今天 03:12",
-    files: {
-      soul: `名字：小维
-邮箱：xiaowei@fabric.ai
-
-性格：
-沉稳老练、注重数据的运维伙伴 🛠
-擅长从一堆群消息里拎出关键异常，给出直击要害的处置建议。
-
-沟通风格：
-简洁、要点式、先结论后细节。`,
-      user: `# USER
-
-## 基础信息
-- 称呼：张振
-- 时区：Asia/Shanghai
-- 语言：中文
-- 城市：北京
-
-## 偏好设置
-- 沟通风格：简洁直接，不喜欢冗余
-- 回复长度：中等，关键信息优先
-- 免打扰：23:00-08:00
-
-## 工作背景
-- 职位：产品经理 @ 互联网公司
-- 当前项目：智能体平台（React + Node.js，5 人团队）
-
-## 重要关系
-- 李四（技术负责人）— 讨论技术方案
-- 王五（直属上级）— 每周五汇报`
+  // ===== 数据：会话记忆 =====
+  const L1="日记 L1", L2="主题 L2", L3="精选 L3";
+  const sessions = [
+    {
+      id:"p2p_user_abc123", type:"p2p", name:"青远（张振）", ava:"🧑", avaColor:"linear-gradient(135deg,#6366f1,#8b5cf6)",
+      lastDream:"今天 03:12", msgCount:326,
+      files:{
+        "profile.md":{ layer:L3, tag:"tag-l3", body:`# 青远（张振） — 私聊会话\n\n## 会话基本信息\n- 会话类型：私聊\n- 用户角色/职位：AI 产品经理\n- 所在团队/部门：协同办公产品线\n\n## 用户画像\n- 沟通风格：直接、要结论\n- 喜欢的呈现方式：结构化、表格\n- 关注的重点领域：Agent 记忆机制、自动化任务\n- 其他习惯：不喜欢 emoji 堆砌\n\n## 会话主题\n- 常讨论的话题：产品需求、原型评审\n- 当前聚焦的项目/问题：记忆机制 V2` },
+        "curated.md":{ layer:L3, tag:"tag-l3", body:`# MEMORY.md\n\n## 精选记忆\n- 用户偏好：不要用 emoji，沟通直接给结论\n- 周报格式：按项目组织，不按时间线\n- 用户身份：AI 产品经理，负责协同办公工具\n\n## 主题索引\n- projects/：\n  - 记忆机制V2.md：本期会话记忆的 PRD 与排期\n- people/：\n  - 李四.md：产品经理，需求梳理\n- decisions/：\n  - v2上线时间.md：定在 9 月 15 日\n\n## 访问边界声明\n- 本文件为 p2p_user_abc123 的隔离记忆\n- 其他会话无法访问此文件内容` },
+        "diary/2026-07-28.md":{ layer:L1, tag:"tag-l1", body:`# 2026-07-28\n\n- 用户询问 v2.0 排期，确定 9 月 15 日上线\n- 用户偏好：喜欢结构化、深入的技术说明\n- [待办] 数据看板需求待评审，下周一对齐\n- [观察] 用户倾向于先调研再决策` },
+        "diary/2026-07-27.md":{ layer:L1, tag:"tag-l1", body:`# 2026-07-27\n\n- 讨论记忆机制分层：日记/主题/精选三层\n- 用户明确：本期只做会话维度记忆\n- [决策] 记忆采用 Markdown 文件存储` },
+        "projects/记忆机制V2.md":{ layer:L2, tag:"tag-l2", body:`# 记忆机制V2\n\n## 项目概况\n- 目标/背景：为 Agent 建立分层、物理隔离的记忆系统\n- 负责人：青远（张振）\n- 当前阶段：原型评审\n- 关键时间节点：9 月 15 日上线\n\n## 关键决策\n- 2026-07-27：本期只做会话维度记忆\n- 2026-07-27：记忆采用 Markdown 文件存储\n\n## 待跟进事项\n- [ ] 数据看板需求评审（李四 / 下周一）\n\n## 重要背景\n- 用户维度记忆留待后续版本` },
+        "people/李四.md":{ layer:L2, tag:"tag-l2", body:`# 李四\n\n## 基本信息\n- 角色/职位：产品经理\n- 所在团队/部门：协同办公产品线\n- 负责的领域/项目：需求梳理与排期\n\n## 沟通偏好\n- 表达风格：详细\n- 喜欢的呈现方式：列表\n\n## 行为模式\n- 关注的重点：需求完整性\n\n## 备注\n- 数据看板需求提出人` },
+        "decisions/v2上线时间.md":{ layer:L2, tag:"tag-l2", body:`# v2 上线时间\n\n## 决策背景\n- v2.0 记忆机制需确定上线窗口\n\n## 决策内容\n- 上线时间定在 2026-09-15（张三拍板）\n\n## 决策影响\n- 排期倒推：8 月底前完成开发\n\n## 相关方\n- 张三（技术负责人）、青远（产品）\n\n## 备注\n- 避开国庆假期` },
+      },
+      dreams:[
+        { date:"2026-07-28 03:12", lines:["处理当日日记 6 条，压缩去重后沉淀 2 条","更新 projects/记忆机制V2.md 待跟进事项","新增 decisions/v2上线时间.md","精选层新增 1 条：周报按项目组织"] },
+        { date:"2026-07-27 03:05", lines:["首次做梦，建立 profile.md 与 curated.md","从日记提炼用户偏好 2 条"] },
+      ]
     },
-    memories: {
-      project: `# PROJECT MEMORY
-> 项目决策、技术约定、稳定事实（每晚做梦整合）
-
-- 定时方案统一采用 Cron，不引入额外调度中间件。
-- 数据库使用 PostgreSQL 15；升级前必须先跑 migration 脚本 X。
-- 运维日报每天 18:00 推送给负责人。`,
-      feedback: `# FEEDBACK MEMORY
-> 否定、修正、边界与禁忌（识别当下即时记录）
-
-- 禁止给外部 API 调用示例 —— 内网不通，需给内网可用方案。
-- 回答避免模糊表述（如「后续处理」），要写具体机制。`,
-      reference: `# REFERENCE MEMORY
-> 外部文档 / 规范 / 知识库索引（只存索引，用时再拉取）
-
-- 《记忆能力 PRD v1》 → docs/记忆能力PRD
-- POPO 机器人发消息 OpenAPI → wiki/robot-openapi`
+    {
+      id:"group_xyz789", type:"group", name:"v2.0 项目核心决策群", ava:"👥", avaColor:"linear-gradient(135deg,#10b981,#059669)",
+      lastDream:"今天 03:20", msgCount:1284,
+      files:{
+        "profile.md":{ layer:L3, tag:"tag-l3", body:`# v2.0 项目核心决策群 — 群聊会话\n\n## 会话基本信息\n- 会话类型：群聊\n- 群类型：项目群\n- 群人数：12\n\n## 群主题\n- 主要讨论方向：v2.0 记忆机制研发\n- 当前聚焦的项目/话题：分层架构与物理隔离\n- 常见问答类型：方案评审、排期对齐\n\n## 群氛围\n- 沟通风格：技术向、直接\n- 信息敏感度：内部\n\n## 群规与约定\n- 决策以群公告为准\n- @全体 仅用于重大变更\n\n## 备注\n- 决策拍板人：张三` },
+        "curated.md":{ layer:L3, tag:"tag-l3", body:`# MEMORY.md\n\n## 精选记忆\n- 群定位：v2.0 项目核心决策群\n- 沟通节奏：快、直接、只说关键信息\n- 张三角色：技术负责人，技术方案最终拍板人\n- 李四角色：产品经理，负责需求梳理和排期\n\n## 主题索引\n- projects/：\n  - v2.0记忆机制.md：架构与排期\n- people/：\n  - 张三.md、李四.md\n- decisions/：\n  - 上线时间.md\n\n## 访问边界声明\n- 本文件为 group_xyz789 的隔离记忆\n- 其他会话无法访问此文件内容` },
+        "diary/2026-07-28.md":{ layer:L1, tag:"tag-l1", body:`# 2026-07-28\n\n- [产品群] 讨论 v2.0 排期，定在 9 月 15 日上线，张三主张提前一周\n- [产品群] 李四提出数据看板需求，待下周评审\n- 待跟进：确认技术方案评审时间\n- [观察] 群沟通节奏快，倾向只说关键信息` },
+        "projects/v2.0记忆机制.md":{ layer:L2, tag:"tag-l2", body:`# v2.0 记忆机制\n\n## 项目概况\n- 目标/背景：分层、物理隔离的会话记忆\n- 负责人：张三（技术）/ 李四（产品）\n- 当前阶段：开发\n- 关键时间节点：9 月 15 日上线\n\n## 关键决策\n- 2026-07-28：上线时间定 9 月 15 日\n\n## 待跟进事项\n- [ ] 数据看板需求评审（李四 / 下周）\n- [ ] 技术方案评审排期（张三）\n\n## 重要背景\n- 会话级物理隔离为核心需求` },
+        "people/张三.md":{ layer:L2, tag:"tag-l2", body:`# 张三\n\n## 基本信息\n- 角色/职位：技术负责人\n- 负责的领域/项目：v2.0 记忆机制技术方案\n\n## 沟通偏好\n- 表达风格：直接、果断\n\n## 行为模式\n- 决策风格：快速拍板\n\n## 备注\n- 技术方案最终拍板人` },
+        "people/李四.md":{ layer:L2, tag:"tag-l2", body:`# 李四\n\n## 基本信息\n- 角色/职位：产品经理\n- 负责的领域/项目：需求梳理和排期\n\n## 沟通偏好\n- 表达风格：详细\n\n## 备注\n- 数据看板需求提出人` },
+        "decisions/上线时间.md":{ layer:L2, tag:"tag-l2", body:`# 上线时间\n\n## 决策内容\n- v2.0 上线时间定在 2026-09-15\n\n## 相关方\n- 张三、李四\n\n## 备注\n- 张三主张提前一周，最终定 9 月 15 日` },
+      },
+      dreams:[
+        { date:"2026-07-28 03:20", lines:["处理群日记 8 条，压缩沉淀 3 条","更新 projects/v2.0记忆机制.md","新增 people/张三.md 画像"] },
+      ]
     },
-    daily: [
-      { date: "2026-07-22", content: `# 2026-07-22 每日笔记
-
-## 09:14 · 需求讨论
-- 确认「记忆」原型改为两级 Tab + 文件点击展开
-
-## 11:30 · 工具调用
-- doc_search 命中《记忆能力 PRD v1》
-
-## 15:48 · 用户明确「记住」
-- 记住：用户记忆三文件命名为 Project / Feedback / Reference Memory` },
-      { date: "2026-07-21", content: `# 2026-07-21 每日笔记
-
-## 10:02 · 偏好
-- 用户多次要求「回答简洁点」
-
-## 16:20 · 禁忌
-- 内网不通，别再给外部 API 示例` },
-      { date: "2026-07-20", content: `# 2026-07-20 每日笔记
-
-## 14:00 · 项目事实
-- 定时方案用 Cron；升级前须跑 migration 脚本 X` }
-    ],
-    dream: [
-      { date: "2026-07-22 03:12", processed: "8 条每日笔记片段", into: ["Project Memory +1：原型两级 Tab 结构", "Feedback Memory +1：避免模糊表述", "回填 user：偏好补充「关键信息优先」"] },
-      { date: "2026-07-21 03:10", processed: "5 条每日笔记片段", into: ["回填 user：沟通风格「简洁直接」", "Feedback Memory +1：内网禁外部 API"] }
-    ]
-  },
-  a2: {
-    name: "文档助手", desc: "云文档变更播报 / 摘要", icon: "📄", color: "#6366f1",
-    creator: "李四", lastDream: "今天 03:15",
-    files: {
-      soul: `名字：小文
-邮箱：xiaowen@fabric.ai
-
-性格：
-严谨、条理清晰的文档管家。
-
-沟通风格：
-结构化、分点、引用出处。`,
-      user: `# USER
-
-## 基础信息
-- 称呼：张振
-- 语言：中文
-
-## 偏好设置
-- 摘要长度：不超过 5 条要点
-- 变更播报：只推关键改动
-
-## 工作背景
-- 关注领域：产品文档、需求评审`
+    {
+      id:"p2p_user_def456", type:"p2p", name:"王五", ava:"🧑", avaColor:"linear-gradient(135deg,#f59e0b,#ef4444)",
+      lastDream:"—（暂未做梦）", msgCount:12,
+      files:{
+        "diary/2026-07-28.md":{ layer:L1, tag:"tag-l1", body:`# 2026-07-28\n\n- 用户首次咨询发布播报配置\n- [待办] 明确 Webhook 回调格式` },
+      },
+      dreams:[]
     },
-    memories: {
-      project: `# PROJECT MEMORY
+  ];
 
-- 需求评审文档统一放在 团队空间/产品/需求池。`,
-      feedback: `# FEEDBACK MEMORY
+  // ===== 目录顺序（PRD 4.1 结构） =====
+  const treeOrder = [
+    { type:"file", key:"profile.md", label:"profile.md", desc:"会话画像" },
+    { type:"file", key:"curated.md", label:"curated.md", desc:"精选记忆+索引" },
+    { type:"dir", label:"diary/", desc:"原始记忆（日记 L1）", prefix:"diary/" },
+    { type:"dir", label:"projects/", desc:"主题层 L2 · 项目", prefix:"projects/" },
+    { type:"dir", label:"people/", desc:"主题层 L2 · 人物", prefix:"people/" },
+    { type:"dir", label:"decisions/", desc:"主题层 L2 · 决策", prefix:"decisions/" },
+  ];
 
-- 摘要不要超过 5 条要点。`,
-      reference: `# REFERENCE MEMORY
+  let curSes=null, curFile=null;
 
-- 《需求池》 → 团队空间/产品/需求池`
-    },
-    daily: [ { date: "2026-07-22", content: `# 2026-07-22 每日笔记
-
-## 10:40 · 文档变更
-- 《需求池》新增 3 条，已生成摘要推送给王五` } ],
-    dream: [ { date: "2026-07-22 03:15", processed: "4 条每日笔记片段", into: ["Project Memory +1：需求池路径固化"] } ]
-  },
-  a3: {
-    name: "个人资讯管家", desc: "每日资讯汇总 / 提醒", icon: "🗞", color: "#0891b2",
-    creator: "王五", lastDream: "昨天 03:08",
-    files: {
-      soul: `名字：小报
-邮箱：xiaobao@fabric.ai
-
-性格：
-热情、简明的早报播报员。
-
-沟通风格：
-早报口吻、emoji 适量。`,
-      user: `# USER
-
-## 基础信息
-- 称呼：张振
-
-## 偏好设置
-- 资讯领域：AI、前端、创业
-- 推送时间：每天 08:30`
-    },
-    memories: {
-      project: `# PROJECT MEMORY
-
-- 暂无`,
-      feedback: `# FEEDBACK MEMORY
-
-- 不要推送带付费墙的链接。`,
-      reference: `# REFERENCE MEMORY
-
-- 暂无`
-    },
-    daily: [ { date: "2026-07-22", content: `# 2026-07-22 每日笔记
-
-## 08:30 · 资讯推送
-- 已推送 AI 早报 6 条` } ],
-    dream: [ { date: "2026-07-21 03:08", processed: "2 条每日笔记片段", into: ["Feedback Memory +1：不推付费墙链接"] } ]
+  // ===== 列表 =====
+  function switchDim(d){
+    if(d==='user'){ toast('用户记忆本期不做，敬请期待'); return; }
+    document.getElementById('dim-session').classList.toggle('active', d==='session');
+    document.getElementById('dimSession').classList.toggle('hidden', d!=='session');
+    document.getElementById('dimUser').classList.toggle('hidden', d==='session');
   }
-};
-
-// 文件定义
-const baseFiles = [
-  { key: "soul", name: "soul.md", path: "memory/soul.md", icon: "🎭", color: "#0ea5e9" },
-  { key: "user", name: "user.md", path: "memory/user.md", icon: "👤", color: "#6366f1" }
-];
-const userFiles = [
-  { key: "daily", name: "每日笔记", path: "memory/YYYY-MM-DD.md", icon: "📝", color: "#0ea5e9", group: "短期记忆" },
-  { key: "project", name: "PROJECT MEMORY", path: "memory/project_memory.md", icon: "📌", color: "#4f46e5", group: "长期记忆" },
-  { key: "feedback", name: "FEEDBACK MEMORY", path: "memory/feedback_memory.md", icon: "🚫", color: "#f43f5e", group: "长期记忆" },
-  { key: "reference", name: "REFERENCE MEMORY", path: "memory/reference_memory.md", icon: "🔗", color: "#8b5cf6", group: "长期记忆" }
-];
-const l1notes = {
-  base: "基础文件是关于「人」本身的稳定画像（智能体人格 + 用户身份与偏好），做梦时克制回填，人工编辑优先、不被静默覆盖。点击文件查看内容。",
-  user: "用户记忆分短期与长期：短期记忆 = 每日笔记（按天落盘的原始对话提炼）；长期记忆 = 做梦沉淀的 Project（项目事实）/ Feedback（禁忌纠正）/ Reference（外部索引）。点击文件查看内容。"
-};
-
-// ================= 状态 =================
-let curAgent = null, curL1 = "base", curFile = null, curDaily = 0, editKey = null;
-
-// ================= 列表 =================
-function renderList() {
-  document.getElementById('agentBody').innerHTML = Object.entries(agents).map(([id, a]) => `
-    <tr>
-      <td><div class="agent-cell">
-        <div class="agent-ava" style="background:${a.color}">${a.icon}</div>
-        <div><div class="agent-name">${a.name}</div><div class="agent-desc">${a.desc}</div></div>
-      </div></td>
-      <td><div class="creator-cell"><div class="creator-ava">${a.creator[0]}</div>${a.creator}</div></td>
-      <td><span class="pill blue">2 个文件</span></td>
-      <td><span class="pill purple">短期 每日笔记 · 长期 3</span></td>
-      <td style="color:#64748b;">🌙 ${a.lastDream}</td>
-      <td><button class="btn ghost sm" onclick="openAgent('${id}')">管理记忆</button></td>
-    </tr>`).join('');
-}
-
-function openAgent(id) {
-  curAgent = id; curL1 = "base"; curFile = null; curDaily = 0;
-  const a = agents[id];
-  document.getElementById('listView').classList.add('hidden');
-  document.getElementById('detailView').classList.remove('hidden');
-  document.getElementById('dAva').textContent = a.icon;
-  document.getElementById('dAva').style.background = a.color;
-  document.getElementById('dName').textContent = a.name;
-  document.getElementById('dMeta').innerHTML =
-    `<span>👤 创建人 ${a.creator}</span><span>📁 基础文件 2</span><span>🧠 用户记忆：短期 每日笔记 ${a.daily.length} 天 + 长期 3</span><span>🌙 上次做梦 ${a.lastDream}</span>`;
-  switchL1("base");
-}
-function goList() {
-  document.getElementById('detailView').classList.add('hidden');
-  document.getElementById('listView').classList.remove('hidden');
-}
-
-// ================= 一级 tab =================
-function switchL1(l1) {
-  curL1 = l1; curFile = null; // 切换后文件默认不展开
-  document.querySelectorAll('.tab[data-l1]').forEach(el => el.classList.toggle('active', el.dataset.l1 === l1));
-  document.getElementById('l1note').textContent = l1notes[l1];
-  renderFtabs();
-  renderFview();
-}
-
-// 文件 tab 行
-function renderFtabs() {
-  const files = curL1 === "base" ? baseFiles : userFiles;
-  let lastGroup = null, html = "";
-  files.forEach(f => {
-    if (f.group && f.group !== lastGroup) { html += `<span class="fgroup">${f.group}</span>`; lastGroup = f.group; }
-    html += `<div class="ftab ${curFile === f.key ? 'active' : ''}" onclick="pickFile('${f.key}')">
-      <span class="fdot" style="background:${f.color}">${f.icon}</span>${f.name}</div>`;
-  });
-  document.getElementById('ftabs').innerHTML = html;
-}
-function pickFile(key) { curFile = key; renderFtabs(); renderFview(); }
-
-// 文件内容 / 空态
-function renderFview() {
-  const box = document.getElementById('fview');
-  if (!curFile) {
-    box.innerHTML = `<div class="empty"><div class="ei">📂</div>请选择上方文件查看内容<div style="margin-top:4px;font-size:12px;">文件默认不展开，点击文件后在此显示</div></div>`;
-    return;
+  function countFiles(s){
+    let l1=0,l2=0,l3=0;
+    Object.values(s.files).forEach(f=>{ if(f.layer===L1)l1++; else if(f.layer===L2)l2++; else l3++; });
+    return {l1,l2,l3,total:l1+l2+l3};
   }
-  const a = agents[curAgent];
-  // 每日笔记（短期记忆）：多天，日期切换
-  if (curL1 === "user" && curFile === "daily") {
-    if (curDaily >= a.daily.length) curDaily = 0;
-    const dnTabs = a.daily.map((d, i) => `<div class="dn-tab ${i === curDaily ? 'active' : ''}" onclick="pickDailyDay(${i})">${d.date}</div>`).join('');
-    const d = a.daily[curDaily];
-    const bytes = new Blob([d.content]).size;
-    box.innerHTML = `
-      <div class="note tip">短期记忆 · 每日笔记：会话上下文压缩前异步触发 <b>memory flush</b>，按天落盘为 <code>memory/YYYY-MM-DD.md</code>；按需检索加载进上下文，也是做梦的原材料。</div>
+  function renderSessions(){
+    const kw=(document.getElementById('sesSearch').value||'').trim().toLowerCase();
+    const ft=document.getElementById('sesType').value;
+    const rows=sessions.filter(s=>
+      (!kw || s.name.toLowerCase().includes(kw) || s.id.toLowerCase().includes(kw)) &&
+      (!ft || s.type===ft));
+    const body=document.getElementById('sesBody');
+    if(!rows.length){ body.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:26px;">没有符合条件的会话</td></tr>'; return; }
+    body.innerHTML=rows.map(s=>{
+      const c=countFiles(s);
+      const typePill = s.type==='p2p' ? '<span class="pill p2p">私聊</span>' : '<span class="pill group">群聊</span>';
+      const fileSummary = c.total ? `共 ${c.total} 个 · <span style="color:#b45309">L1×${c.l1}</span> <span style="color:#4338ca">L2×${c.l2}</span> <span style="color:#15803d">L3×${c.l3}</span>` : '<span style="color:#94a3b8">暂无</span>';
+      return `<tr>
+        <td><div class="ses-cell"><div class="ses-ava" style="background:${s.avaColor}">${s.ava}</div>
+          <div><div class="ses-name">${s.name}</div><div class="ses-id">${s.id}</div></div></div></td>
+        <td>${typePill}</td>
+        <td><span class="lock">🔒 物理隔离</span></td>
+        <td>${fileSummary}</td>
+        <td style="color:#64748b">${s.lastDream}</td>
+        <td><span class="link" onclick="openSession('${s.id}')">查看记忆</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ===== 详情 =====
+  function openSession(id){
+    curSes=sessions.find(s=>s.id===id);
+    document.getElementById('listView').classList.add('hidden');
+    document.getElementById('detailView').classList.remove('hidden');
+    document.getElementById('dAva').style.background=curSes.avaColor;
+    document.getElementById('dAva').textContent=curSes.ava;
+    document.getElementById('dName').textContent=curSes.name;
+    const typeText = curSes.type==='p2p'?'私聊会话':'群聊会话';
+    document.getElementById('dMeta').innerHTML=
+      `<span>${typeText}</span><span>会话 ID：<code>${curSes.id}</code></span><span>消息数：${curSes.msgCount}</span><span>上次做梦：${curSes.lastDream}</span><span class="lock">🔒 物理隔离</span>`;
+    document.getElementById('pathStrip').textContent=`memory/sessions/${curSes.id}/`;
+    // 默认选 curated.md 或首个文件
+    const firstKey = curSes.files['curated.md'] ? 'curated.md' : Object.keys(curSes.files)[0];
+    renderTree(); if(firstKey) selectFile(firstKey);
+  }
+  function goList(){
+    document.getElementById('detailView').classList.add('hidden');
+    document.getElementById('listView').classList.remove('hidden');
+  }
+  function renderTree(){
+    const files=curSes.files; let html='';
+    treeOrder.forEach(n=>{
+      if(n.type==='file'){
+        if(files[n.key]){
+          const f=files[n.key];
+          html+=`<div class="tnode ${curFile===n.key?'active':''}" onclick="selectFile('${n.key}')">📄 ${n.label}<span class="layer">${f.layer}</span></div>`;
+        }
+      } else {
+        const children=Object.keys(files).filter(k=>k.startsWith(n.prefix));
+        html+=`<div class="tnode dir">📁 ${n.label}<span class="layer">${children.length}</span></div>`;
+        children.forEach(k=>{
+          const short=k.slice(n.prefix.length);
+          html+=`<div class="tnode indent ${curFile===k?'active':''}" onclick="selectFile('${k}')">📄 ${short}</div>`;
+        });
+        if(!children.length){ html+=`<div class="tnode indent" style="color:#cbd5e1;cursor:default;">（空）</div>`; }
+      }
+    });
+    document.getElementById('treeBody').innerHTML=html;
+  }
+  function selectFile(key){
+    curFile=key; const f=curSes.files[key];
+    renderTree();
+    const layerCls = f.layer===L1?'tag-l1':(f.layer===L2?'tag-l2':'tag-l3');
+    const iconColor = f.layer===L1?'#f59e0b':(f.layer===L2?'#6366f1':'#10b981');
+    const name=key.includes('/')?key.split('/').pop():key;
+    document.getElementById('fpane').innerHTML=`
       <div class="fcard">
         <div class="fc-head">
-          <div class="fc-icon" style="background:#0ea5e9;">📝</div>
-          <div><div class="fc-title">每日笔记</div><div class="fc-path">memory/ · 共 ${a.daily.length} 天</div></div>
+          <div class="fc-icon" style="background:${iconColor}">📄</div>
+          <div><div class="fc-title">${name}</div><div class="fc-path">memory/sessions/${curSes.id}/${key}</div></div>
           <div class="fc-spacer"></div>
-          <button class="btn ghost sm" onclick="editFile()">✎ 编辑本日</button>
+          <span class="fc-tag ${layerCls}">${f.layer}</span>
         </div>
-        <div class="fc-body">
-          <div class="dn-tabs">${dnTabs}</div>
-          <div class="md-block">${escapeHtml(d.content)}</div>
-          <div class="fc-path" style="margin-top:12px;">memory/${d.date}.md · ${bytes} B</div>
-        </div>
+        <div class="fc-body"><div class="md-block">${escapeHtml(f.body)}</div></div>
       </div>`;
-    return;
   }
-  const files = curL1 === "base" ? baseFiles : userFiles;
-  const f = files.find(x => x.key === curFile);
-  const content = curL1 === "base" ? a.files[curFile] : a.memories[curFile];
-  const bytes = new Blob([content]).size;
-  box.innerHTML = `
-    <div class="fcard">
-      <div class="fc-head">
-        <div class="fc-icon" style="background:${f.color}">${f.icon}</div>
-        <div><div class="fc-title">${f.name}</div><div class="fc-path">${f.path} · ${bytes} B</div></div>
-        <div class="fc-spacer"></div>
-        <button class="btn ghost sm" onclick="editFile()">✎ 编辑</button>
-      </div>
-      <div class="fc-body"><div class="md-block">${escapeHtml(content)}</div></div>
-    </div>`;
-}
-function pickDailyDay(i) { curDaily = i; renderFview(); }
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ================= 编辑 =================
-function editFile() {
-  editKey = curFile;
-  const a = agents[curAgent];
-  if (curL1 === "user" && curFile === "daily") {
-    document.getElementById('editTitle').textContent = "编辑 " + a.daily[curDaily].date + ".md";
-    document.getElementById('editLabel').textContent = "每日笔记内容（Markdown）";
-    document.getElementById('editArea').value = a.daily[curDaily].content;
-    document.getElementById('editMask').classList.add('show');
-    return;
+  // ===== Dream Log =====
+  function openDream(){
+    const d=curSes.dreams;
+    document.getElementById('dreamBody').innerHTML = d.length ? d.map(x=>`
+      <div class="dream-item"><div class="di-top"><span class="di-date">🌙 ${x.date}</span></div>
+      ${x.lines.map(l=>`<div class="di-line">· ${l}</div>`).join('')}</div>`).join('')
+      : '<div class="empty"><div class="ei">🌙</div>该会话暂未做梦</div>';
+    document.getElementById('dreamMask').classList.add('show');
+    document.getElementById('dreamDrawer').classList.add('show');
   }
-  const files = curL1 === "base" ? baseFiles : userFiles;
-  const f = files.find(x => x.key === curFile);
-  document.getElementById('editTitle').textContent = "编辑 " + f.name;
-  document.getElementById('editLabel').textContent = "文件内容（Markdown）";
-  document.getElementById('editArea').value = curL1 === "base" ? a.files[curFile] : a.memories[curFile];
-  document.getElementById('editMask').classList.add('show');
-}
-function saveEdit() {
-  const a = agents[curAgent];
-  const v = document.getElementById('editArea').value;
-  if (curL1 === "user" && editKey === "daily") { a.daily[curDaily].content = v; }
-  else if (curL1 === "base") { a.files[editKey] = v; }
-  else { a.memories[editKey] = v; }
-  closeEdit(); renderFview();
-  toast("已保存 · 人工编辑优先，不被做梦静默覆盖");
-}
-function closeEdit(){ document.getElementById('editMask').classList.remove('show'); }
+  function closeDream(){ document.getElementById('dreamMask').classList.remove('show'); document.getElementById('dreamDrawer').classList.remove('show'); }
 
-// ================= Dream Log =================
-function openDream() {
-  const logs = agents[curAgent].dream || [];
-  document.getElementById('dreamBody').innerHTML = logs.length ? logs.map(l => `
-    <div class="dream-item">
-      <div class="di-top"><span>🌙</span><span class="di-date">${l.date}</span></div>
-      <div class="di-line">处理：<b>${l.processed}</b></div>
-      ${l.into.map(x => `<div class="di-line">· ${x}</div>`).join('')}
-    </div>`).join('') : `<div style="color:#94a3b8;font-size:13px;">暂无做梦记录</div>`;
-  document.getElementById('dreamMask').classList.add('show');
-  document.getElementById('dreamDrawer').classList.add('show');
-}
-function closeDream(){ document.getElementById('dreamMask').classList.remove('show'); document.getElementById('dreamDrawer').classList.remove('show'); }
+  function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
 
-// ================= 手动做梦 =================
-function runDream() {
-  toast("🌙 做梦任务已提交，正在提炼当日每日笔记…");
-  setTimeout(() => {
-    const a = agents[curAgent];
-    a.memories.project += `\n- （做梦新增）确认高保真原型评审通过。`;
-    a.dream.unshift({ date: "刚刚（手动触发）", processed: (a.daily[0] ? a.daily[0].date : "") + " 每日笔记", into: ["Project Memory +1：原型评审通过", "回填 user：近期动态更新"] });
-    a.lastDream = "刚刚";
-    document.getElementById('dMeta').innerHTML =
-      `<span>👤 创建人 ${a.creator}</span><span>📁 基础文件 2</span><span>🧠 用户记忆：短期 每日笔记 ${a.daily.length} 天 + 长期 3</span><span>🌙 上次做梦 ${a.lastDream}</span>`;
-    if (curL1 === "user" && curFile === "project") renderFview();
-    toast("✨ 做梦完成：Project Memory +1，已写入 Dream Log");
-  }, 1400);
-}
-
-// ================= toast =================
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-renderList();
+  renderSessions();
 </script>
 </body>
 </html>
