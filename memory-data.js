@@ -2,7 +2,7 @@
 // kind: diary(原始记忆) / topic(主题记忆) / core(核心记忆)
 const AGENTS = [
   {
-    id:"agent_notebook", name:"NoteBook 助手", desc:"协同办公智能助手", ava:"📓",
+    id:"agent_notebook", name:"NoteBook 助手", desc:"协同办公智能助手", ava:"📓", agentType:"team",
     avaColor:"linear-gradient(135deg,#6366f1,#8b5cf6)", creator:"青远", lastDream:"今天 03:20",
     sessions:[
       {
@@ -42,7 +42,7 @@ const AGENTS = [
     ]
   },
   {
-    id:"agent_publish", name:"发布播报 Agent", desc:"版本发布自动播报", ava:"📢",
+    id:"agent_publish", name:"发布播报 Agent", desc:"版本发布自动播报", ava:"📢", agentType:"personal",
     avaColor:"linear-gradient(135deg,#f59e0b,#ef4444)", creator:"王五", lastDream:"昨天 03:08",
     sessions:[
       {
