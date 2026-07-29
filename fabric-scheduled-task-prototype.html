@@ -231,10 +231,18 @@
   .ref-chips { position:absolute; left:12px; right:12px; top:36px; display:flex; flex-wrap:wrap; gap:6px; pointer-events:none; }
   .ref-chips:empty { display:none; }
   .ref-chips .ref-chip { pointer-events:auto; }
-  .ref-chip { display:inline-flex; align-items:center; gap:4px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; border-radius:6px; padding:2px 6px 2px 8px; font-size:13px; font-weight:600; }
-  .ref-chip .rt { color:#818cf8; font-weight:700; margin-right:1px; }
-  .ref-chip .rx { cursor:pointer; color:#818cf8; font-size:12px; line-height:1; padding:0 2px; }
-  .ref-chip .rx:hover { color:#4338ca; }
+  /* 技能引用：纯蓝色文字，无边框无图标 */
+  .ref-chip { display:inline-flex; align-items:center; gap:2px; color:#4f46e5; font-size:13px; font-weight:600; cursor:default; }
+  .ref-chip .rt { color:#4f46e5; font-weight:600; margin-right:0; }
+  .ref-chip .rx { cursor:pointer; color:#a5b4fc; font-size:11px; line-height:1; padding:0 2px; }
+  .ref-chip .rx:hover { color:#4f46e5; }
+  /* 附件 / MCP 引用：带图标 + 边框，位于 +号上方 */
+  .attach-chips { position:absolute; left:12px; right:12px; bottom:50px; display:flex; flex-wrap:wrap; gap:6px; }
+  .attach-chips:empty { display:none; }
+  .attach-chip { display:inline-flex; align-items:center; gap:4px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; border-radius:6px; padding:2px 6px 2px 8px; font-size:13px; font-weight:600; }
+  .attach-chip .rt { color:#818cf8; font-weight:700; margin-right:1px; }
+  .attach-chip .rx { cursor:pointer; color:#818cf8; font-size:12px; line-height:1; padding:0 2px; }
+  .attach-chip .rx:hover { color:#4338ca; }
 
   /* 消息筛选条件（或-组 / 且-条件） */
   #fgWrap { display:flex; align-items:stretch; gap:8px; }
@@ -547,10 +555,11 @@
           <label>描述</label>
           <textarea class="textarea" id="descArea" placeholder="请输入你想完成的任务"></textarea>
           <div class="ref-chips" id="refChips"></div>
+          <div class="attach-chips" id="attachChips"></div>
           <button class="add-btn" title="添加附件 / 引用" onclick="toggleAddMenu(event)">＋</button>
           <div class="add-menu hidden" id="addMenu">
-            <div class="mi"><span class="ic">📎</span>上传文件或图片</div>
-            <div class="mi"><span class="ic">📄</span>添加云文档</div>
+            <div class="mi" onclick="pickAttach('文件','示例图片.png')"><span class="ic">📎</span>上传文件或图片</div>
+            <div class="mi" onclick="pickAttach('云文档','产品需求文档 v3')"><span class="ic">📄</span>添加云文档</div>
             <div class="mi" onmouseenter="posSub(this)"><span class="ic">🧩</span>技能<span class="arw">›</span>
               <div class="submenu" onclick="event.stopPropagation()">
                 <input class="sub-search" placeholder="搜索技能">
@@ -907,16 +916,28 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
     sub.style.left = (r.right - host.left + 4) + 'px';
     sub.style.top  = (r.top - host.top - 6) + 'px';
   }
-  /* 选中技能 / MCP → 插入引用 chip */
-  const refIcon = { '技能':'🧩', 'MCP':'🔌' };
+  /* 选中技能 → 顶部纯蓝字引用；MCP / 文件 → +号上方带框引用 */
+  const attachIcon = { 'MCP':'🔌', '文件':'📎', '云文档':'📄' };
   function pickRef(type, name){
+    if(type==='MCP'){ pickAttach('MCP', name); return; }
     const box = document.getElementById('refChips');
     if([...box.children].some(c=>c.dataset.name===name)) { document.getElementById('addMenu').classList.add('hidden'); return; }
     const chip = document.createElement('span');
     chip.className='ref-chip'; chip.dataset.name=name;
-    chip.innerHTML = `${refIcon[type]||''} <span class="rt">/</span>${name}<span class="rx" onclick="removeRef(this)">✕</span>`;
+    chip.innerHTML = `<span class="rt">/</span>${name}<span class="rx" onclick="removeRef(this)">✕</span>`;
     box.appendChild(chip);
     syncDescPad();
+    document.getElementById('addMenu').classList.add('hidden');
+  }
+  function pickAttach(type, name){
+    const box = document.getElementById('attachChips');
+    if([...box.children].some(c=>c.dataset.name===name)) { document.getElementById('addMenu').classList.add('hidden'); return; }
+    const chip = document.createElement('span');
+    chip.className='attach-chip'; chip.dataset.name=name;
+    const icon = attachIcon[type]||'';
+    const prefix = type==='MCP' ? '<span class="rt">/</span>' : '';
+    chip.innerHTML = `${icon} ${prefix}${name}<span class="rx" onclick="this.parentNode.remove()">✕</span>`;
+    box.appendChild(chip);
     document.getElementById('addMenu').classList.add('hidden');
   }
   function removeRef(x){ x.parentNode.remove(); syncDescPad(); }
