@@ -52,7 +52,7 @@
   .pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; }
   .pill.p2p { background:#e0e7ff; color:#4338ca; } .pill.group { background:#dcfce7; color:#15803d; }
   .link { color:#4f46e5; cursor:pointer; font-size:13px; } .link:hover { text-decoration:underline; }
-  .det-head { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px 20px; margin-bottom:14px; }
+  .det-head { display:flex; align-items:center; gap:14px; padding:16px 0 6px; margin-bottom:14px; }
   .det-head .big-ava { width:50px; height:50px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:25px; color:#fff; flex-shrink:0; }
   .det-head h2 { font-size:17px; }
   .det-head .meta { font-size:12px; color:#94a3b8; margin-top:3px; display:flex; gap:14px; flex-wrap:wrap; }
@@ -168,7 +168,7 @@
       <div style="margin-bottom:14px;"><span class="link" onclick="toast('返回 Agent 列表')">← 返回 Agent 列表</span></div>
       <div class="det-head">
         <div class="big-ava" id="dAva"></div>
-        <div><h2 id="dName"></h2><div class="meta" id="dMeta"></div></div>
+        <div><h2 id="dName"></h2></div>
       </div>
 
       <div class="cfg-tabs">
@@ -267,7 +267,6 @@
     document.getElementById('dAva').style.background=curAgent.avaColor;
     document.getElementById('dAva').textContent=curAgent.ava;
     document.getElementById('dName').textContent=curAgent.name;
-    document.getElementById('dMeta').innerHTML=`<span>创建人：${curAgent.creator}</span><span>会话数：${curAgent.sessions.length}</span><span>记忆文件：${fileCount(curAgent)} 个</span><span>上次做梦：${curAgent.lastDream}</span>`;
     switchDim('session'); renderSesTable();
   }
   function switchCfg(k, el){
