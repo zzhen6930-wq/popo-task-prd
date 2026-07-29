@@ -211,14 +211,10 @@
 <script>
   let curAgent=null, expandedSes=null, curFileMap={};
   const treeOrder = [
-    { type:"file", key:"profile.md", label:"profile.md" },
-    { type:"file", key:"curated.md", label:"curated.md" },
-    { type:"dir", label:"diary/", prefix:"diary/" },
-    { type:"dir", label:"projects/", prefix:"projects/" },
-    { type:"dir", label:"people/", prefix:"people/" },
-    { type:"dir", label:"decisions/", prefix:"decisions/" },
+    { type:"file", key:"memory.md", label:"memory.md" },
+    { type:"dir", label:"daily/", prefix:"daily/" },
   ];
-  const kindMeta = { diary:["kind-diary","每日笔记"], topic:["kind-topic","主题记忆"], core:["kind-core","精选记忆"] };
+  const kindMeta = { daily:["kind-diary","每日笔记"], longterm:["kind-core","长期记忆"] };
   const agentTypeMeta = { personal:["pill p2p","个人"], team:["pill group","团队"] };
 
   function fileCount(a){ let n=0; a.sessions.forEach(s=>n+=Object.keys(s.files).length); return n; }
@@ -266,7 +262,7 @@
       return row;
     }).join('');
   }
-  function toggleSes(id){ expandedSes = expandedSes===id ? null : id; if(expandedSes && !curFileMap[id]){ const s=curAgent.sessions.find(x=>x.id===id); curFileMap[id]= s.files['curated.md']?'curated.md':Object.keys(s.files)[0]; } renderSesTable(); }
+  function toggleSes(id){ expandedSes = expandedSes===id ? null : id; if(expandedSes && !curFileMap[id]){ const s=curAgent.sessions.find(x=>x.id===id); curFileMap[id]= s.files['memory.md']?'memory.md':Object.keys(s.files)[0]; } renderSesTable(); }
   function renderExpand(s){
     return `<div class="exp-body">
         <div class="tree"><div class="tree-h">记忆目录</div><div class="tree-body">${renderTree(s)}</div></div>
@@ -288,7 +284,7 @@
   function renderFile(s){
     const key=curFileMap[s.id]; if(!key) return '<div class="empty"><div class="ei">📄</div>该会话暂无记忆文件</div>';
     const f=s.files[key], km=kindMeta[f.kind];
-    const iconColor=f.kind==='diary'?'#f59e0b':(f.kind==='topic'?'#6366f1':'#10b981');
+    const iconColor=f.kind==='daily'?'#f59e0b':'#10b981';
     const name=key.includes('/')?key.split('/').pop():key;
     return `<div class="fcard"><div class="fc-head"><div class="fc-icon" style="background:${iconColor}">📄</div>
       <div><div class="fc-title">${name}</div><div class="fc-path">memory/${curAgent.id}/sessions/${s.id}/${key}</div></div>
@@ -302,13 +298,10 @@
   // ===== 记忆文件 增 / 改 / 删 =====
   let editCtx=null; // {sesId, key|null}
   const dirOptions=[
-    {v:"root", label:"根目录（profile.md / curated.md）"},
-    {v:"diary/", label:"diary/（原始记忆）"},
-    {v:"projects/", label:"projects/（主题记忆）"},
-    {v:"people/", label:"people/（主题记忆）"},
-    {v:"decisions/", label:"decisions/（主题记忆）"},
+    {v:"root", label:"根目录（memory.md 长期记忆）"},
+    {v:"daily/", label:"daily/（每日笔记）"},
   ];
-  function kindOfDir(dir){ if(dir==="diary/") return "diary"; if(dir==="root") return "core"; return "topic"; }
+  function kindOfDir(dir){ return dir==="daily/" ? "daily" : "longterm"; }
   function openNewFile(sesId){
     editCtx={sesId, key:null};
     document.getElementById('emTitle').textContent="新建记忆文件";
@@ -355,7 +348,7 @@
     if(!confirm(`确认删除记忆文件「${key}」？该操作不可撤销。`)) return;
     const s=curAgent.sessions.find(x=>x.id===sesId);
     delete s.files[key];
-    if(curFileMap[sesId]===key){ curFileMap[sesId]= s.files['curated.md']?'curated.md':(Object.keys(s.files)[0]||null); }
+    if(curFileMap[sesId]===key){ curFileMap[sesId]= s.files['memory.md']?'memory.md':(Object.keys(s.files)[0]||null); }
     s.updated=nowStr();
     renderSesTable(); toast("已删除");
   }
