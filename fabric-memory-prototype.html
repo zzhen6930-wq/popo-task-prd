@@ -103,6 +103,23 @@
   .drawer .dh .x { margin-left:auto; cursor:pointer; color:#94a3b8; font-size:20px; }
   .drawer .db { padding:18px 20px; overflow-y:auto; flex:1; }
   .dream-item { border:1px solid #eef2f7; border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .cfg-tabs { display:flex; gap:2px; border-bottom:1px solid #e5e7eb; margin:6px 0 18px; }
+  .cfg-tab { padding:10px 18px; font-size:14px; color:#64748b; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .cfg-tab:hover { color:#334155; }
+  .cfg-tab.active { color:#4f46e5; font-weight:600; border-bottom-color:#4f46e5; }
+  .mem-head { display:flex; align-items:center; margin-bottom:14px; }
+  .mem-title { font-size:16px; font-weight:700; color:#0f172a; }
+  .mem-sub { font-size:12.5px; color:#94a3b8; font-weight:400; margin-left:10px; }
+  #rulesDrawer { width:620px; }
+  #rulesDrawer .dh h3 { margin:0; }
+  .rules-sub { font-size:12px; color:#94a3b8; margin-top:3px; }
+  .rules-bar { display:flex; align-items:center; margin-bottom:10px; }
+  .rules-path { font-family:Menlo,Consolas,monospace; font-size:12px; color:#475569; background:#f1f5f9; padding:3px 10px; border-radius:6px; }
+  .rules-bar .btn.sm, .rules-foot .btn.sm { padding:5px 12px; font-size:12px; }
+  .rules-bar { justify-content:space-between; }
+  .rules-text { width:100%; height:calc(100vh - 220px); border:1px solid #e2e8f0; border-radius:10px; padding:14px 16px; font-family:Menlo,Consolas,monospace; font-size:12.5px; line-height:1.75; color:#334155; resize:none; outline:none; background:#fafbfc; }
+  .rules-foot { display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+  .rules-hint { font-size:12px; color:#94a3b8; }
   .dream-item .di-date { font-weight:700; font-size:13px; margin-bottom:6px; }
   .dream-item .di-line { font-size:12.5px; color:#475569; padding:2px 0; }
   .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#0f172a; color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; opacity:0; transition:all .3s; z-index:100; }
@@ -141,48 +158,58 @@
     <div class="side-item">🔧 工具</div><div class="side-item">🔌 MCP</div><div class="side-item">📖 知识</div>
     <div class="side-sep"></div>
     <div class="side-title">Agent 管理</div>
-    <div class="side-item">🤖 Bots</div><div class="side-item">🧠 Agents</div>
-    <div class="side-item active">🧩 记忆</div><div class="side-item">💾 资源库</div><div class="side-item">⚡ 自动化任务</div>
+    <div class="side-item">🤖 Bots</div><div class="side-item active">🧠 Agents</div>
+    <div class="side-item">💾 资源库</div><div class="side-item">⚡ 自动化任务</div>
     <div class="side-sep"></div>
     <div class="side-title">运行观测</div>
     <div class="side-item">💬 对话</div><div class="side-item">🗂️ 会话</div><div class="side-item">📊 评测</div>
   </div>
   <div class="main">
-    <div id="listView">
-      <div class="page-head"><div><h1>🧩 记忆</h1></div></div>
-      <div class="card">
-        <table>
-          <thead><tr><th style="width:30%">智能体</th><th>智能体类型</th><th>创建人</th><th>记忆文件数量</th><th>上次做梦</th><th style="width:12%">操作</th></tr></thead>
-          <tbody id="agentBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="detailView" class="hidden">
-      <div style="margin-bottom:14px;"><span class="link" onclick="goList()">← 返回记忆列表</span></div>
+    <div id="detailView">
+      <div style="margin-bottom:14px;"><span class="link" onclick="toast('返回 Agent 列表')">← 返回 Agent 列表</span></div>
       <div class="det-head">
         <div class="big-ava" id="dAva"></div>
         <div><h2 id="dName"></h2><div class="meta" id="dMeta"></div></div>
-        <div class="spacer"></div>
-        <button class="btn ghost" onclick="openDream()">🌙 Dream Log</button>
-        <button class="btn primary" onclick="toast('已触发一次异步做梦')">✨ 手动做梦</button>
       </div>
-      <div class="tabs">
-        <div class="tab active" id="dim-session" onclick="switchDim('session')">💬 会话记忆</div>
-        <div class="tab disabled" id="dim-user" onclick="switchDim('user')">👤 用户记忆</div>
+
+      <div class="cfg-tabs">
+        <div class="cfg-tab" onclick="switchCfg('base',this)">基础信息</div>
+        <div class="cfg-tab" onclick="switchCfg('tool',this)">内置工具</div>
+        <div class="cfg-tab" onclick="switchCfg('prompt',this)">Prompt绑定</div>
+        <div class="cfg-tab" onclick="switchCfg('skill',this)">Skill绑定</div>
+        <div class="cfg-tab" onclick="switchCfg('mcp',this)">MCP绑定</div>
+        <div class="cfg-tab active" onclick="switchCfg('memory',this)">记忆</div>
       </div>
-      <div id="dimSession">
-        <div class="ses-search"><input id="sesSearch" placeholder="🔍 搜索会话 ID / 来源" oninput="renderSesTable()"></div>
-        <div class="card">
-          <table class="ses-table">
-            <thead><tr><th style="width:40%">会话 ID</th><th>会话来源</th><th>类型</th><th>上次更新时间</th></tr></thead>
-            <tbody id="sesBody"></tbody>
-          </table>
+
+      <div id="cfgOther" class="hidden">
+        <div class="empty"><div class="ei">⚙️</div>该配置项为演示占位，非本次原型重点</div>
+      </div>
+
+      <div id="cfgMemory">
+        <div class="mem-head">
+          <div class="mem-title">💬 会话记忆<span class="mem-sub">采用 md 文件记录，每个会话独立一份记忆</span></div>
+          <div class="spacer"></div>
+          <button class="btn ghost" onclick="openRules()">📜 Memory Rules</button>
+          <button class="btn ghost" onclick="openDream()">🌙 Dream Log</button>
+          <button class="btn primary" onclick="toast('已触发一次异步做梦')">✨ 手动做梦</button>
         </div>
-      </div>
-      <div id="dimUser" class="hidden">
-        <div class="note soon">👤 用户记忆为<b>跨会话共享</b>的用户维度记忆，本期仅规划、尚未实现。</div>
-        <div class="empty"><div class="ei">🚧</div>用户记忆维度将在后续版本开放</div>
+        <div class="tabs">
+          <div class="tab active" id="dim-session" onclick="switchDim('session')">💬 会话记忆</div>
+          <div class="tab disabled" id="dim-user" onclick="switchDim('user')">👤 用户记忆</div>
+        </div>
+        <div id="dimSession">
+          <div class="ses-search"><input id="sesSearch" placeholder="🔍 搜索会话 ID / 来源" oninput="renderSesTable()"></div>
+          <div class="card">
+            <table class="ses-table">
+              <thead><tr><th style="width:40%">会话 ID</th><th>会话来源</th><th>类型</th><th>上次更新时间</th></tr></thead>
+              <tbody id="sesBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="dimUser" class="hidden">
+          <div class="note soon">👤 用户记忆为<b>跨会话共享</b>的用户维度记忆，本期仅规划、尚未实现。</div>
+          <div class="empty"><div class="ei">🚧</div>用户记忆维度将在后续版本开放</div>
+        </div>
       </div>
     </div>
   </div>
@@ -191,6 +218,25 @@
 <div class="drawer" id="dreamDrawer">
   <div class="dh"><h3>🌙 Dream Log · 做梦记录</h3><span class="x" onclick="closeDream()">×</span></div>
   <div class="db" id="dreamBody"></div>
+</div>
+
+<div class="mask" id="rulesMask" onclick="closeRules()"></div>
+<div class="drawer" id="rulesDrawer">
+  <div class="dh">
+    <div><h3>📜 Memory Rules</h3><div class="rules-sub">记忆机制 Prompt · <b>全局生效</b>，每次启动自动加载到上下文</div></div>
+    <span class="x" onclick="closeRules()">×</span>
+  </div>
+  <div class="db">
+    <div class="rules-bar">
+      <span class="rules-path">Memory Rules.md</span>
+      <button class="btn ghost sm" onclick="resetRules()">↺ 恢复默认</button>
+    </div>
+    <textarea id="rulesText" class="rules-text" spellcheck="false"></textarea>
+    <div class="rules-foot">
+      <span class="rules-hint">内容支持修改，将作用于所有会话记忆</span>
+      <button class="btn primary sm" onclick="saveRules()">保存</button>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -218,29 +264,21 @@
   const agentTypeMeta = { personal:["pill p2p","个人"], team:["pill group","团队"] };
 
   function fileCount(a){ let n=0; a.sessions.forEach(s=>n+=Object.keys(s.files).length); return n; }
-  function renderAgents(){
-    document.getElementById('agentBody').innerHTML = AGENTS.map(a=>{
-      const at=agentTypeMeta[a.agentType]||agentTypeMeta.personal;
-      return `<tr><td><div class="agent-cell"><div class="agent-ava" style="background:${a.avaColor}">${a.ava}</div>
-        <div><div class="agent-name">${a.name}</div><div class="agent-desc">${a.desc}</div></div></div></td>
-        <td><span class="${at[0]}">${at[1]}</span></td>
-        <td><div class="creator-cell"><div class="creator-ava">${a.creator[0]}</div>${a.creator}</div></td>
-        <td>${fileCount(a)} 个</td>
-        <td style="color:#64748b">${a.lastDream}</td>
-        <td><span class="link" onclick="openAgent('${a.id}')">查看记忆</span></td></tr>`;
-    }).join('');
-  }
-  function openAgent(id){
-    curAgent=AGENTS.find(a=>a.id===id); expandedSes=null; curFileMap={};
-    document.getElementById('listView').classList.add('hidden');
-    document.getElementById('detailView').classList.remove('hidden');
+  function initAgent(){
+    curAgent=AGENTS[0]; expandedSes=null; curFileMap={};
     document.getElementById('dAva').style.background=curAgent.avaColor;
     document.getElementById('dAva').textContent=curAgent.ava;
     document.getElementById('dName').textContent=curAgent.name;
     document.getElementById('dMeta').innerHTML=`<span>创建人：${curAgent.creator}</span><span>会话数：${curAgent.sessions.length}</span><span>记忆文件：${fileCount(curAgent)} 个</span><span>上次做梦：${curAgent.lastDream}</span>`;
     switchDim('session'); renderSesTable();
   }
-  function goList(){ document.getElementById('detailView').classList.add('hidden'); document.getElementById('listView').classList.remove('hidden'); }
+  function switchCfg(k, el){
+    document.querySelectorAll('.cfg-tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    const isMem = k==='memory';
+    document.getElementById('cfgMemory').classList.toggle('hidden', !isMem);
+    document.getElementById('cfgOther').classList.toggle('hidden', isMem);
+  }
   function switchDim(d){
     if(d==='user'){ toast('用户记忆本期不做，敬请期待'); return; }
     document.getElementById('dim-session').classList.toggle('active', d==='session');
@@ -363,8 +401,54 @@
     document.getElementById('dreamMask').classList.add('show'); document.getElementById('dreamDrawer').classList.add('show');
   }
   function closeDream(){ document.getElementById('dreamMask').classList.remove('show'); document.getElementById('dreamDrawer').classList.remove('show'); }
+
+  /* ===== Memory Rules（全局记忆机制 Prompt，可编辑 + 恢复默认） ===== */
+  const DEFAULT_RULES = `# 记忆
+
+每次醒来都是全新的。文件是你的延续：
+
+- **每日笔记：** \`Memory Rules.md/<session_id>/daily/YYYY-MM-DD.md\`。所发生事情的原始日志。
+- **长期笔记：** \`Memory Rules.md/<session_id>/memory.md\`。沉淀过的认知，像人的长期记忆。
+
+记下重要的事。决策、背景、值得记住的细节。隐私不记，除非被明确要求。
+
+## Memory Rules.md/<session_id>/memory.md - 你的长期记忆
+- 你可以在会话中自由读取、编辑和更新 Memory Rules.md/<session_id>/memory.md
+- 写下重要的事件、想法、决策、判断、教训、错误记录。
+- 沉淀用户的长期偏好。
+- 这是你精心整理的记忆 —— 提炼的精华，而非原始日志。
+
+## 写下来，不要"记在脑子里"
+
+- 记忆有限。想留住什么，写进文件。
+- "脑子里的笔记"活不过一次重启。文件可以。
+- 有人说"记住这个"，更新 Memory Rules.md/<session_id>/memory.md 相关文件。
+- 学到了教训，更新 AGENTS.md、Memory Rules.md/<session_id>/memory.md 或对应的地方。
+- 犯了错，记下来。让下一个你不再重蹈覆辙。
+- 落笔为准，脑记为空。
+
+## 底线
+- 不泄露私人数据。没有例外。
+- 未经确认，不做破坏性操作。
+- 能恢复的优于不能恢复的。trash 优于 rm。`;
+  let rulesContent = DEFAULT_RULES;
+  function openRules(){
+    document.getElementById('rulesText').value = rulesContent;
+    document.getElementById('rulesMask').classList.add('show');
+    document.getElementById('rulesDrawer').classList.add('show');
+  }
+  function closeRules(){ document.getElementById('rulesMask').classList.remove('show'); document.getElementById('rulesDrawer').classList.remove('show'); }
+  function saveRules(){ rulesContent = document.getElementById('rulesText').value; toast('Memory Rules 已保存'); closeRules(); }
+  function resetRules(){
+    if(confirm('确认将 Memory Rules 恢复为默认内容？当前修改将丢失。')){
+      rulesContent = DEFAULT_RULES;
+      document.getElementById('rulesText').value = DEFAULT_RULES;
+      toast('已恢复默认');
+    }
+  }
+
   function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
-  renderAgents();
+  initAgent();
 </script>
 </body>
 </html>
