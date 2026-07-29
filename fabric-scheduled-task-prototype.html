@@ -998,10 +998,10 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
       box.innerHTML = timeSel;
     } else if(v==='min'){
       pick.innerHTML = '<input class="input" type="number" min="5" step="5" value="5" placeholder="≥5 分钟">';
-      box.innerHTML = '<label style="color:#94a3b8;font-weight:400;">每隔 5 分钟执行一次（最小 5 分钟）</label>';
+      box.innerHTML = '';
     } else if(v==='hour'){
       pick.innerHTML = '<input class="input" type="number" min="1" value="1">';
-      box.innerHTML = '<label style="color:#94a3b8;font-weight:400;">每隔 1 小时执行一次</label>';
+      box.innerHTML = '';
     } else if(v==='week'||v==='biweek'){
       pick.innerHTML = '<div class="chip-box"><span class="chip">周一 <span class="x">✕</span></span><span class="chip-add">＋</span></div>';
       box.innerHTML = timeSel;
