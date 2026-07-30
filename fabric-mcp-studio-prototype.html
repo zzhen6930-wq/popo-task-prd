@@ -29,6 +29,12 @@
   .logo-icon{ width:24px; height:24px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
   .env-tag{ margin-left:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:4px 10px; font-size:12px; color:#dc2626; font-weight:700; }
   .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .nav-link:hover{ color:var(--indigo-d); }
+  .txt-act{ font-size:13px; font-weight:600; cursor:pointer; }
+  .txt-act.edit{ color:var(--indigo); }
+  .txt-act.del{ color:var(--danger); margin-left:14px; }
+  .txt-act:hover{ text-decoration:underline; }
   .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
 
   .sidebar{ width:196px; background:#fafbfc; border-right:1px solid var(--line-2); padding:72px 12px 12px; overflow-y:auto; }
@@ -163,22 +169,21 @@
 
 <div class="page-label">
   <span class="b-num">1</span>
-  <span class="b-title">WorkHub 超管平台 · MCP 管理</span>
+  <span class="b-title">Workhub Studio Admin · MCP 管理</span>
   <span class="b-desc">上架内置 MCP（手动 / 导入 json，SSE·HTTP）· 上架时指定鉴权类型 · 分配可使用租户｜不碰凭据、不做账号授权</span>
 </div>
 
 <div class="app">
   <div class="topbar">
-    <div class="logo"><span class="logo-icon">W</span>WorkHub 超管平台</div>
-    <span class="env-tag">🛡 超级管理员</span>
-    <div class="right"><span class="avatar">青</span></div>
+    <div class="logo"><span class="logo-icon">W</span>Workhub Studio Admin</div>
+    <div class="right"><span class="nav-link">🧭 服务导航</span><span class="avatar">张</span></div>
   </div>
 
   <div class="sidebar">
     <div class="side-item">🏢 组织管理</div>
     <div class="side-item">👤 超管列表</div>
     <div class="side-item">🛡 平台管控</div>
-    <div class="side-item sub active">🔌 MCP 管理</div>
+    <div class="side-item active">🔌 MCP 管理</div>
     <div class="side-item">📖 文档管理</div>
   </div>
 
@@ -232,10 +237,10 @@ function render(){
       <span class="main-title">MCP 管理</span>
       <button class="btn primary" style="margin-left:auto;" onclick="openAdd(-1)">＋ 上架 MCP</button>
     </div>
-    <div class="main-sub">上架平台内置 MCP，指定鉴权类型与可使用租户；上架后进入对应租户的 Studio 后台可见。超管平台不持有任何终端凭据。</div>
+    <div class="main-sub"></div>
 
     <div class="toolbar">
-      <div class="search"><span class="ic">🔍</span><input placeholder="搜索 MCP 名称 / 描述" value="${fltName}" oninput="onSearch(this.value)"></div>
+      <div class="search"><span class="ic">🔍</span><input placeholder="搜索 MCP 名称" value="${fltName}" oninput="onSearch(this.value)"></div>
       ${ddAuth()}
       ${(fltName||fltAuth)?`<button class="btn ghost sm" onclick="resetFlt()">重置</button>`:""}
     </div>
@@ -289,8 +294,8 @@ function renderTable(){
         <td><span class="pill gray">${m.transport.toUpperCase()}</span></td>
         <td>${scope}</td>
         <td><div class="row-acts">
-          <span class="icon-btn" title="编辑" onclick="openAdd(${i})">✏️</span>
-          <span class="icon-btn danger" title="下架" onclick="delMcp(${i})">🗑</span>
+          <span class="txt-act edit" onclick="openAdd(${i})">编辑</span>
+          <span class="txt-act del" onclick="delMcp(${i})">删除</span>
         </div></td>
       </tr>`;
     }).join("")}</tbody>
@@ -316,7 +321,7 @@ function renderModal(){
   const isNew=f.idx<0;
   const formBody=`
     <div class="field"><label>服务器名称</label><input class="inp" placeholder="如：GitHub MCP" value="${f.name}" oninput="setF('name',this.value)"></div>
-    <div class="field"><label>备注 <span class="opt">可选</span></label><textarea class="inp" placeholder="说明此 MCP 的用途，便于 Agent 判断何时调用" oninput="setF('note',this.value)">${f.note}</textarea></div>
+    <div class="field"><label>描述 <span class="opt">可选</span></label><textarea class="inp" placeholder="说明此 MCP 的用途，便于 Agent 判断何时调用" oninput="setF('note',this.value)">${f.note}</textarea></div>
     <div class="field"><label>传输类型</label>
       <div class="seg"><button class="${f.transport==='sse'?'on':''}" onclick="setTransport('sse')">SSE</button><button class="${f.transport==='http'?'on':''}" onclick="setTransport('http')">HTTP</button></div>
     </div>
@@ -328,7 +333,7 @@ function renderModal(){
     </div>`;
 
   modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">${isNew?'上架 MCP':'编辑 MCP'}</div><div class="ms">上架内置 MCP · 指定鉴权类型 · 分配可使用租户</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><div><div class="mt">${isNew?'上架 MCP':'编辑 MCP'}</div></div><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
       <div class="field"><label>图标</label>
         <div class="icon-up"><div class="icon-box" style="background:${f.bg}">${f.ico}</div>
