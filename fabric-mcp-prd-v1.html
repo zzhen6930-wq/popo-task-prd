@@ -67,11 +67,11 @@
   <!-- 1 概述 -->
   <div class="section">
     <div class="section-title"><span class="num">1</span>概述与三角色分工</div>
-    <p>MCP（Model Context Protocol）让 Agent 链接外部系统的工具与数据。本机制围绕<b>三个角色</b>协同：超管负责<b>上架与分配</b>，租户负责<b>配货架与绑定 Agent</b>，C 端负责<b>按鉴权类型使用</b>。</p>
+    <p>MCP（Model Context Protocol）让 Agent 调用外部系统的工具与数据。本机制围绕<b>三个角色</b>协同：超管负责<b>上架 MCP 与分配租户</b>，租户负责<b>配置 MCP（含公共账号、打标分类、绑定 Agent）</b>，C 端负责<b>按鉴权类型使用</b>。</p>
     <div class="role-grid">
       <div class="role-card r1"><h4>① Studio 超管</h4><ul>
         <li>上架内置 MCP</li><li>上架时指定鉴权类型</li><li>分配可使用租户</li>
-        <li>不碰凭据、不做链接</li>
+        <li>不碰凭据、不做账号授权</li>
       </ul></div>
       <div class="role-card r2"><h4>② B 端租户后台</h4><ul>
         <li>内置 MCP 可配公共账号</li><li>可自建自定义 MCP</li>
@@ -83,7 +83,7 @@
       </ul></div>
     </div>
     <div class="flow"><b>① 上架 MCP</b> ▶ <b>② 分配租户</b> ▶ <b>③ 租户配货架（含打标）</b> ▶ <b>④ 绑定 Agent</b> ▶ <b>⑤ C 端按鉴权使用</b></div>
-    <div class="callout key"><div class="title">🔑 一句话定位</div><b>超管上架并分货架，租户补公共账号并绑定 Agent，C 端按鉴权类型使用。Agent 是 MCP 生效的唯一载体。</b></div>
+    <div class="callout key"><div class="title">🔑 一句话定位</div><b>超管上架 MCP 并分配租户；租户可配置公共 API Key 并指定 C 端用户使用；C 端用户按照租户配置决定是否需要用自己账号鉴权。</b></div>
   </div>
 
   <!-- 2 术语 -->
@@ -95,9 +95,8 @@
         <tr><td><b>内置 MCP</b></td><td>由 Studio 超管上架并分配给租户；租户不可删除、不可改图标/传输参数，可配公共账号</td></tr>
         <tr><td><b>自定义 MCP</b></td><td>租户后台自建接入；手动配置或粘贴 json</td></tr>
         <tr><td><b>传输类型</b></td><td>仅 <code>SSE</code> / <code>HTTP</code>；不支持 STDIO</td></tr>
-        <tr><td><b>鉴权类型</b></td><td><span class="pill green">POPO 静默</span>（用户自己账号静默授权）/ <span class="pill amber">OAuth 外跳</span>（授权链接账号）/ <span class="pill indigo">自定义 API</span>（配 Headers）；<b>超管上架时指定</b></td></tr>
-        <tr><td><b>公共账号（Headers）</b></td><td>租户为 OAuth / 自定义 API 类 MCP 配的统一凭据。配了→全租户共用；不配→用户各自链接/配置自己账号</td></tr>
-        <tr><td><b>Agent 绑定</b></td><td>MCP 生效的唯一途径；<b>不绑定即视为停用</b>，无独立启停开关</td></tr>
+        <tr><td><b>鉴权类型</b></td><td><span class="pill green">POPO 静默</span>（用户自己账号静默授权）/ <span class="pill amber">OAuth 外跳</span>（外跳浏览器授权绑定账号）/ <span class="pill indigo">自定义 API</span>（配 Headers）；<b>超管上架时指定</b></td></tr>
+        <tr><td><b>公共账号（Headers）</b></td><td>租户为 静默授权 / OAuth / 自定义 API 类 MCP 配的统一凭据。配了→全租户共用；不配→用户各自链接/配置自己账号</td></tr>
       </tbody>
     </table>
   </div>
@@ -119,8 +118,8 @@
     </table>
     <div class="callout tip"><div class="title">导入 json 无需 Headers</div>超管上架不填任何凭据；json 仅含 name / transport / url。凭据由租户或用户在后续环节补。</div>
 
-    <h3>3.2 鉴权类型与「链接」归属</h3>
-    <p><b>超管不做 MCP 链接 / 授权。</b>链接（提供账号）是租户或用户的事。超管只在上架时<b>指定鉴权类型</b>，决定后续由谁、以何种方式提供凭据。</p>
+    <h3>3.2 鉴权类型与账号鉴权归属</h3>
+    <p><b>超管不做 MCP 账号授权。</b>提供账号是租户或用户的事。超管只在上架时<b>指定鉴权类型</b>，决定后续由谁、以何种方式提供凭据。</p>
 
     <h3>3.3 分配与可见性</h3>
     <ul>
@@ -131,7 +130,7 @@
 
   <!-- 4 B端租户 -->
   <div class="section">
-    <div class="section-title"><span class="num">4</span>角色②：B 端租户后台 · 配货架与绑定</div>
+    <div class="section-title"><span class="num">4</span>角色②：B 端租户后台 · 配置 MCP</div>
     <p>租户后台管理本租户 MCP 货架 = <b>内置 MCP（可补公共账号）+ 自定义 MCP</b>，并通过<b>绑定 Agent</b> 使其生效。</p>
 
     <h3>4.1 内置 MCP</h3>
@@ -140,11 +139,11 @@
       <li><b>OAuth 类与自定义 API 类均可配「公共账号」（Headers）</b>：
         <ul>
           <li>配了公共账号 → <b>全租户用户共用该账号</b>（如租户统一提供的合规检查类 MCP 账号）；</li>
-          <li>未配公共账号 → <b>每个用户使用时各自链接 / 配置自己的账号</b>。</li>
+          <li>未配公共账号 → <b>每个用户使用时各自完成账号鉴权 / 配置自己的账号</b>。</li>
         </ul>
       </li>
       <li><b>公共账号 + 展示标签定向分发</b>：租户在 Studio 内置 MCP 配好 Headers 后，通过<b>展示标签</b>定向分发给指定 C 端用户；这些用户在<b>创建 Agent 时即可见该 MCP，添加后免鉴权直用</b>——鉴权已在 Studio 侧完成（如企查查等对外数据类 MCP）。</li>
-      <li>POPO 静默类无需配凭据，用户以自己 POPO 身份静默授权使用。</li>
+      <li>POPO 静默类无需配凭据，用户以自己 POPO 身份静默授权使用（租户未配置公共账号情况下）。</li>
     </ul>
 
     <h3>4.2 自定义 MCP</h3>
@@ -162,7 +161,7 @@
 
     <h3>4.4 绑定 Agent（MCP 生效的唯一途径）</h3>
     <ul>
-      <li>MCP 需<b>绑定到 Agent</b> 才可被调用；<b>不绑定即视为停用</b>，租户后台不设独立启停开关。</li>
+      <li>MCP 需<b>绑定到 Agent</b> 才可被调用。</li>
       <li>Agent 是 MCP 的唯一载体——货架上的 MCP 只有进入某个 Agent 才产生实际使用。</li>
     </ul>
     <div class="callout tip"><div class="title">🏷 AgentHub 租户特例</div>AgentHub 无需在 Studio 后台为 Agent 绑定 MCP。Studio 仅向 AgentHub 提供<b>内置 MCP 和自定义 MCP</b>，<b>如何使用由 AgentHub 应用自行决定（定制能力）</b>。</div>
@@ -180,8 +179,8 @@
         <tr>
           <td><span class="pill green">POPO 静默</span></td>
           <td>用自己账号<b>静默授权</b>直用</td>
-          <td>他人也用<b>自己账号静默授权</b>直用</td>
-          <td>用自己账号静默授权直用（无公共账号概念）</td>
+          <td>他人也用<b>自己账号静默授权</b>直用（谁用谁授权）</td>
+          <td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td>
         </tr>
         <tr>
           <td><span class="pill amber">OAuth 外跳</span></td>
@@ -203,7 +202,7 @@
     <table>
       <thead><tr><th style="width:14%">鉴权类型</th><th>B 端配了公共账号（Headers）</th><th>B 端未配</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill green">POPO 静默</span></td><td colspan="2"><span class="yes">用自己账号静默授权直用</span>（无公共账号概念）</td></tr>
+        <tr><td><span class="pill green">POPO 静默</span></td><td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td><td>用自己账号静默授权直用</td></tr>
         <tr><td><span class="pill amber">OAuth 外跳</span></td><td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td><td>C 端自己外跳授权</td></tr>
         <tr><td><span class="pill indigo">自定义 API</span></td><td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td><td>C 端自己手动输 api key</td></tr>
       </tbody>
@@ -243,7 +242,7 @@
     <div class="section-title"><span class="num">8</span>验收标准（产品逻辑）</div>
     <ol>
       <li>超管可上架内置 MCP（手动/json + 图标），传输仅 SSE/HTTP，<b>上架时手动选鉴权类型</b>，json 无 Headers；可分配全部/指定租户，支持先上架后配。</li>
-      <li>超管<b>不出现任何链接/授权入口</b>。</li>
+      <li>超管<b>不出现任何账号授权入口</b>。</li>
       <li>租户后台内置 MCP <b>不可删/不可改图标/传输</b>；<b>OAuth 与自定义 API 类均可配公共账号</b>，配/不配对应<b>全租户共用 / 用户各自授权</b>；POPO 静默类以用户自己账号静默授权。</li>
       <li>租户可自建自定义 MCP（SSE/HTTP，Headers 可选，可传图标）。</li>
       <li>租户可对<b>全部 MCP</b> 打展示标签与分类，复用现有 Skills 标签/分类逻辑。</li>
