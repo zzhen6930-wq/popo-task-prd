@@ -148,6 +148,7 @@
             <li>可配 <b>Headers（公共账号）</b></li>
             <li>配了 → 全租户共用账号</li>
             <li>不配 → 用户各自链接自己账号</li>
+            <li><b>配 Headers + 展示标签定向分发</b> → 指定 C 端创建 Agent 时可见并<b>免鉴权直用</b></li>
             <li>不可改图标 / 传输参数</li>
           </ul>
         </div>
@@ -199,6 +200,7 @@
             <li><b>OAuth 类</b>：建时点「链接」外跳授权，<b>可跳过</b>；执行时未授权 → 弹授权卡片外跳。</li>
             <li><b>自定义 API 类</b>：建时点「链接」出弹窗输 api key，<b>可跳过</b>；执行时未授权 → 弹卡片输 key。</li>
             <li>分享给他人：OAuth / API 类一律 <b class="no">谁用谁授权</b>（执行时授权卡片），<b>无公共账号</b>。</li>
+            <li><b>例外</b>：若该 MCP 已由租户<b>在 Studio 配好公共账号 + 展示标签分发</b>给本人，则创建 Agent 时<span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成）。</li>
           </ol>
         </div>
         <div class="seqbox">
@@ -216,23 +218,25 @@
         <h3>⑤ C 端使用鉴权矩阵</h3>
         <table>
           <thead><tr>
-            <th style="width:14%">鉴权类型</th>
-            <th style="width:20%">自建 Agent · 创建者</th>
-            <th style="width:22%">自建 Agent · 分享他人</th>
-            <th style="width:22%">用 B 端 Agent（B 配了公共账号）</th>
-            <th style="width:22%">用 B 端 Agent（B 未配）</th>
+            <th style="width:12%">鉴权类型</th>
+            <th style="width:17%">自建 Agent · 创建者</th>
+            <th style="width:17%">自建 Agent · 分享他人</th>
+            <th style="width:19%">租户在 Studio 配公共账号 + 标签分发</th>
+            <th style="width:18%">用 B 端 Agent（B 配了公共账号）</th>
+            <th style="width:17%">用 B 端 Agent（B 未配）</th>
           </tr></thead>
           <tbody>
             <tr>
               <td><span class="pill green">POPO 静默</span></td>
               <td><span class="yes">用自己账号静默授权直用</span></td>
               <td><span class="yes">用自己账号静默授权直用</span></td>
-              <td colspan="2"><span class="yes">用自己账号静默授权直用</span>（无公共账号概念）</td>
+              <td colspan="3"><span class="yes">用自己账号静默授权直用</span>（无公共账号概念）</td>
             </tr>
             <tr>
               <td><span class="pill amber">OAuth 外跳</span></td>
               <td>建时「链接」外跳，可跳过；执行时弹卡片授权</td>
               <td><span class="no">谁用谁授权</span>：执行时授权卡片外跳</td>
+              <td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成）</td>
               <td><span class="yes">无需授权直接用</span>（共用公共账号）</td>
               <td>自己外跳授权</td>
             </tr>
@@ -240,6 +244,7 @@
               <td><span class="pill indigo">自定义 API</span></td>
               <td>建时「链接」出弹窗输 key，可跳过；执行时弹卡片输 key</td>
               <td><span class="no">谁用谁授权</span>：执行时输自己 key</td>
+              <td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成）</td>
               <td><span class="yes">无需授权直接用</span>（共用公共账号）</td>
               <td>自己手动输 api key</td>
             </tr>
@@ -253,7 +258,10 @@
   <div class="card">
     <h3>🎯 三条关键边界（最容易搞混）</h3>
     <div class="keybox" style="margin-bottom:10px;">
-      <b>① 公共账号只在「B 端为其 Agent 配了 Headers」时存在。</b> C 端自建 Agent 分享一律「谁用谁授权」，不存在公共账号。
+      <b>① 公共账号（免 C 端鉴权）有两条来源：</b>
+      <b>(a)</b> 租户在 <b>Studio 内置 MCP 配 Headers + 展示标签定向分发</b> → 指定 C 端创建 Agent 时可见并免鉴权直用（鉴权已在 Studio 完成）；
+      <b>(b)</b> B 端为其已建 Agent 配 Headers → C 端直接用该 Agent 免鉴权。
+      除此之外，C 端自建 Agent 分享一律「谁用谁授权」，不存在公共账号。
     </div>
     <div class="keybox" style="margin-bottom:10px;">
       <b>② MCP 启停 = 是否绑定 Agent。</b> 租户后台不设独立停用开关；未绑 Agent 的 MCP 天然不可用。
