@@ -115,7 +115,7 @@
         <div class="step">
           <h4>② 指定鉴权类型</h4>
           <ul>
-            <li><span class="pill green">POPO 静默</span> 无需连接</li>
+            <li><span class="pill green">POPO 静默</span> 用户自己账号静默授权</li>
             <li><span class="pill amber">OAuth 外跳</span> 授权链接</li>
             <li><span class="pill indigo">自定义 API</span> Headers</li>
             <li>上架时手动选，非自动判定</li>
@@ -194,7 +194,7 @@
         <div class="seqbox">
           <h4>场景 1 · 自己创建 Agent 绑 MCP（可分享给他人）</h4>
           <ol>
-            <li><b>静默类</b>：直接可用；分享后他人也用<b>自己账号</b>静默直用。</li>
+            <li><b>静默类</b>：用自己账号<b>静默授权</b>直用；分享后他人也用<b>自己账号静默授权</b>直用。</li>
             <li><b>OAuth 类</b>：建时点「链接」外跳授权，<b>可跳过</b>；执行时未授权 → 弹授权卡片外跳。</li>
             <li><b>自定义 API 类</b>：建时点「链接」出弹窗输 api key，<b>可跳过</b>；执行时未授权 → 弹卡片输 key。</li>
             <li>分享给他人：OAuth / API 类一律 <b class="no">谁用谁授权</b>（执行时授权卡片），<b>无公共账号</b>。</li>
@@ -224,9 +224,9 @@
           <tbody>
             <tr>
               <td><span class="pill green">POPO 静默</span></td>
-              <td><span class="yes">直接用</span></td>
-              <td><span class="yes">用自己账号静默直用</span></td>
-              <td colspan="2"><span class="yes">直接用</span>（静默无公共账号概念）</td>
+              <td><span class="yes">用自己账号静默授权直用</span></td>
+              <td><span class="yes">用自己账号静默授权直用</span></td>
+              <td colspan="2"><span class="yes">用自己账号静默授权直用</span>（无公共账号概念）</td>
             </tr>
             <tr>
               <td><span class="pill amber">OAuth 外跳</span></td>
