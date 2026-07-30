@@ -453,7 +453,7 @@ function rowBuiltin(m,i){
     <td>${agentCell(m)}</td>
     <td><div class="row-acts">
       <span class="txt-act edit" onclick="openBuiltinEdit(${i})">编辑</span>
-      ${m.tenantHeaders?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'builtin')">定向分发</span>`:``}
+      <span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'builtin')">定向分发</span>
     </div></td>
   </tr>`;
 }
@@ -466,7 +466,7 @@ function rowCustom(m,i){
     <td>${agentCell(m)}</td>
     <td><div class="row-acts">
       <span class="txt-act edit" onclick="openCustom(${i})">编辑</span>
-      ${m.headers&&m.headers.length?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'custom')">定向分发</span>`:``}
+      <span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'custom')">定向分发</span>
       <span class="txt-act del" onclick="delCustom(${i})">删除</span>
     </div></td>
   </tr>`;
