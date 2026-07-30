@@ -95,8 +95,8 @@
         <tr><td><b>内置 MCP</b></td><td>由 Studio 超管上架、并分配给租户的 MCP；租户不可删除，仅可补 Headers</td></tr>
         <tr><td><b>自定义 MCP</b></td><td>租户后台自建接入的 MCP，支持手动配置或粘贴 json</td></tr>
         <tr><td><b>传输类型</b></td><td>本模型仅支持 <code>SSE</code>（服务端推送）/ <code>HTTP</code>（HTTP 流）两种；STDIO 已弃用</td></tr>
-        <tr><td><b>鉴权类型</b></td><td><b>POPO 静默</b>（无需连接）/ <b>OAuth 外跳</b>（点「链接」跳浏览器授权）/ <b>自定义 API</b>（用户或租户配 Headers）；上架时指定</td></tr>
-        <tr><td><b>Headers</b></td><td>即 api key 凭据。租户补 Headers → 全租户共用租户账号；不补 → 每个 C 端用户各自配</td></tr>
+        <tr><td><b>鉴权类型</b></td><td><b>POPO 静默</b>（无需连接）/ <b>OAuth 外跳</b>（授权链接账号）/ <b>自定义 API</b>（配 Headers）；<b>超管上架时手动指定</b></td></tr>
+        <tr><td><b>公共账号（Headers）</b></td><td>即凭据。租户在后台为 OAuth / 自定义 API 类 MCP 配公共账号 → 全租户共用；不配 → 每个用户各自链接 / 配置自己账号</td></tr>
       </tbody>
     </table>
   </div>
@@ -111,6 +111,7 @@
       <thead><tr><th style="width:20%">字段</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td><b>配置方式</b></td><td><b>手动配置</b> 或 <b>导入 json</b> 二选一</td></tr>
+        <tr><td><b>图标</b></td><td>默认占位图标，支持<b>上传替换</b>（PNG / JPG，≤ 1 MB，推荐 256×256）</td></tr>
         <tr><td><b>服务器名称 / 备注</b></td><td>MCP 名称与用途说明</td></tr>
         <tr><td><b>传输类型</b></td><td><code>SSE</code> / <code>HTTP</code> 二选一</td></tr>
         <tr><td><b>服务器 URL</b></td><td>MCP 服务端地址</td></tr>
@@ -123,8 +124,16 @@
       上架时导入的 json <b>不含 Headers</b>——凭据由各租户 / 用户在后续环节补充，超管不持有终端凭据。
     </div>
 
-    <h3>3.2 OAuth 类 MCP 的「链接」</h3>
-    <p>鉴权类型为 <b>OAuth 外跳</b> 的 MCP，卡片上出现「<b>🔗 链接</b>」入口；点击跳浏览器完成应用级 OAuth 授权，授权后标记「已授权」。POPO 静默类无需连接；自定义 API 类的凭据在租户 / 用户侧补。</p>
+    <h3>3.2 鉴权类型与「链接」归属</h3>
+    <p><b>超管平台不做 MCP「链接 / 授权」</b>——链接（提供账号）是<b>租户或用户</b>的事：租户在后台配置公共账号（如某合规检查类 MCP 租户直接提供统一账号），租户不配置时则由<b>用户各自链接自己的账号</b>。超管只负责<b>上架时指定鉴权类型</b>，不持有任何终端凭据。</p>
+    <table>
+      <thead><tr><th style="width:20%">鉴权类型</th><th>含义</th><th>凭据由谁提供</th></tr></thead>
+      <tbody>
+        <tr><td><b>POPO 静默</b></td><td>复用 POPO 身份，无需连接</td><td>无需，开箱即用</td></tr>
+        <tr><td><b>OAuth 外跳</b></td><td>OAuth 授权链接账号</td><td>租户配公共账号 或 用户各自链接</td></tr>
+        <tr><td><b>自定义 API</b></td><td>API Key（Headers）鉴权</td><td>租户配公共账号 或 用户各自配置</td></tr>
+      </tbody>
+    </table>
 
     <h3>3.3 分配与可见性</h3>
     <ul>
@@ -140,15 +149,16 @@
 
     <h3>4.1 内置 MCP（超管分配来）</h3>
     <ul>
-      <li>展示超管上架并分配给本租户的 MCP，<b>不可删除、不可改传输参数</b>。</li>
+      <li>展示超管上架并分配给本租户的 MCP，<b>不可删除、不可改图标、不可改传输参数</b>。</li>
       <li>卡片标注鉴权类型徽标（POPO 静默 / OAuth / 自定义 API）。</li>
-      <li><b>仅「自定义 API」类可补 Headers</b>：
+      <li><b>OAuth 类与自定义 API 类均可配置「公共账号」（Headers）</b>：
         <ul>
-          <li>补了 Headers → <b>全租户用户共用租户账号</b>；</li>
-          <li>不补 Headers → <b>每个 C 端用户使用时各自配置自己的凭据</b>。</li>
+          <li>配了公共账号 → <b>全租户用户共用该账号</b>（如租户统一提供的合规检查类 MCP 账号）；</li>
+          <li>未配公共账号 → <b>每个用户使用时各自链接 / 配置自己的账号</b>。</li>
         </ul>
       </li>
-      <li>POPO 静默类开箱即用；OAuth 类由用户使用时点「链接」外跳授权，无需租户补凭据。</li>
+      <li>POPO 静默类无需凭据，开箱即用。</li>
+      <li><b>停用开关</b>：租户可对任一内置 MCP <b>停用</b>，停用后本租户 Agent 不可选用；可随时重新启用。</li>
     </ul>
 
     <h3>4.2 自定义 MCP（租户自建）</h3>
@@ -212,8 +222,8 @@
       │
 <b>② 分配到租户</b>  内置 MCP 出现在被分配租户后台「内置 MCP」Tab
       │
-<b>③ 租户补凭据</b>  自定义 API 类：补 Headers=共用租户账号 / 不补=用户各自配
-      │      并可自建「自定义 MCP」(sse/http, Headers 可选)
+<b>③ 租户补凭据</b>  OAuth/自定义API 类：配公共账号=全租户共用 / 不配=用户各自链接
+      │      并可自建「自定义 MCP」(sse/http, Headers 可选)，可停用任一内置 MCP
       │
 <b>④ Agent 绑定</b>  B 端 Agent 配置页勾选 / WorkHub 应用自获取
       │
@@ -227,9 +237,8 @@
       <div class="scope-card do">
         <h4>✅ 本期做</h4>
         <ul>
-          <li>超管平台：上架内置 MCP（导入 json）、上架时选鉴权类型、分配可使用租户</li>
-          <li>超管：OAuth 类「链接」外跳授权</li>
-          <li>租户后台：内置 MCP 补 Headers / 自定义 MCP 手动配置或粘贴 json（sse/http）</li>
+          <li>超管平台：上架内置 MCP（导入 json + 上传图标）、上架时选鉴权类型、分配可使用租户</li>
+          <li>租户后台：OAuth / 自定义 API 类配公共账号（Headers）· 自定义 MCP 手动配置或粘贴 json（sse/http）· 每个内置 MCP 可停用 / 启用</li>
           <li>三类鉴权模型：POPO 静默 / OAuth 外跳 / 自定义 API</li>
           <li>Agent 绑定 & C 端使用逻辑（文档说明）</li>
         </ul>
@@ -251,11 +260,11 @@
     <div class="section-title"><span class="num">9</span>验收标准</div>
     <ol>
       <li>超管左侧有「MCP 管理」菜单，卡片陈列已上架 MCP，右上角「＋ 添加 MCP」。</li>
-      <li>添加 MCP 弹窗支持<b>手动配置 / 导入 json</b>，传输仅 <b>SSE / HTTP</b>，<b>上架时手动选鉴权类型</b>（popo/oauth/api），导入 json 无需 Headers。</li>
-      <li>可使用租户支持<b>全部（默认）/ 指定多选</b>；分配后在被分配租户后台可见。</li>
-      <li>OAuth 类 MCP 卡片出现「🔗 链接」，点击外跳授权后标「已授权」。</li>
+      <li>添加 MCP 弹窗支持<b>手动配置 / 导入 json</b>，传输仅 <b>SSE / HTTP</b>，<b>上架时手动选鉴权类型</b>（popo/oauth/api），导入 json 无需 Headers；支持<b>上传图标</b>。</li>
+      <li>可使用租户支持<b>全部（默认）/ 指定多选</b>；可先上架后配置租户；分配后在被分配租户后台可见。</li>
+      <li>超管<b>不做 MCP 链接 / 授权</b>；链接由租户（公共账号）或用户（各自账号）完成。</li>
       <li>租户后台「MCP」分<b>内置 / 自定义</b> 两 Tab。</li>
-      <li>内置 MCP <b>不可删除、不可改传输参数</b>；仅自定义 API 类可补 Headers，补/不补对应<b>共用租户账号 / 用户各自配</b>。</li>
+      <li>内置 MCP <b>不可删除、不可改图标、不可改传输参数</b>；<b>OAuth 与自定义 API 类均可配公共账号（Headers）</b>，配/不配对应<b>全租户共用 / 用户各自链接</b>；每个内置 MCP 可<b>停用 / 启用</b>，停用后本租户 Agent 不可选用。</li>
       <li>自定义 MCP 支持<b>手动配置或粘贴 json</b>，传输 <b>SSE / HTTP</b>，Headers 可不填，可编辑。</li>
       <li>PRD 明确 Agent 绑定（B 端勾选 / WorkHub 自获取）与 C 端使用（静默直用 / OAuth 外跳 / 自定义配凭据）逻辑。</li>
     </ol>

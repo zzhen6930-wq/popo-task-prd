@@ -27,6 +27,7 @@
   .side-item { font-size: 13px; color: #475569; padding: 8px 12px; border-radius: 6px; margin: 1px 0; cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .side-item:hover { background: #f1f5f9; }
   .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
+  .side-item.sub { margin-left: 20px; }
 
   .main { flex: 1; padding: 70px 28px 24px; overflow-y: auto; background: #f8fafc; position: relative; }
   .main-header { display: flex; align-items: center; margin-bottom: 6px; }
@@ -72,6 +73,10 @@
   .field textarea { min-height: 84px; resize: vertical; }
   .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #a5b4fc; background: #fff; }
   .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+  .icon-row { display: flex; align-items: center; gap: 14px; }
+  .icon-box { width: 62px; height: 62px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .up-btn { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .icon-hint { font-size: 12px; color: #94a3b8; margin-top: 6px; }
 
   .seg { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; }
   .seg button { border: none; background: none; padding: 6px 16px; font-size: 13px; font-weight: 600; color: #64748b; border-radius: 6px; cursor: pointer; }
@@ -116,16 +121,11 @@
   </div>
 
   <div class="sidebar">
-    <div class="side-title">平台配置</div>
-    <div class="side-item">🧬 Models</div>
-    <div class="side-item">📝 Prompts</div>
-    <div class="side-item active">🔌 MCP 管理</div>
-    <div class="side-item">🏢 租户管理</div>
-    <div class="side-item">👥 权限</div>
-    <div class="side-sep"></div>
-    <div class="side-title">运行观测</div>
-    <div class="side-item">📊 全局评测</div>
-    <div class="side-item">📈 用量统计</div>
+    <div class="side-item">🏢 组织管理</div>
+    <div class="side-item">👤 超管列表</div>
+    <div class="side-item">🛡 平台管控</div>
+    <div class="side-item sub active">🔌 MCP 管理</div>
+    <div class="side-item">📖 文档管理</div>
   </div>
 
   <div class="main" id="main"></div>
@@ -138,29 +138,30 @@
 /* ================= 数据 ================= */
 const TENANTS = ["网易－效率工程部","AgentHub 租户","网易云音乐","网易游戏","有道","网易严选","网易传媒"];
 
-/* auth: popo(静默,无需连接) / oauth(链接外跳授权) / api(自定义api,租户/用户配) */
+/* auth: popo(静默,无需连接) / oauth(租户或用户链接自己账号) / api(租户或用户配 Headers) */
 const mcps = [
   { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-doc/mcp", scope:"all", tenants:[] },
   { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-cal/mcp", scope:"all", tenants:[] },
   { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-task/mcp", scope:"all", tenants:[] },
   { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/yxc/mcp", scope:"all", tenants:[] },
   { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/km/mcp", scope:"all", tenants:[] },
-  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", transport:"sse",  url:"https://mcp.workhub.netease.com/mail/sse", oauthAuthorized:true, scope:"all", tenants:[] },
-  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/github/mcp", oauthAuthorized:false, scope:"part", tenants:["网易－效率工程部","有道"] },
-  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/figma/mcp", oauthAuthorized:false, scope:"part", tenants:["网易游戏","网易云音乐"] },
+  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", transport:"sse",  url:"https://mcp.workhub.netease.com/mail/sse", scope:"all", tenants:[] },
+  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/github/mcp", scope:"part", tenants:["网易－效率工程部","有道"] },
+  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/figma/mcp", scope:"part", tenants:["网易游戏","网易云音乐"] },
+  { name:"CodeMaker",  ico:"⟨⟩", bg:"#e0f2fe", desc:"调用研发代码生成与分析能力", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/codemaker/mcp", scope:"all", tenants:[] },
   { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/pkulaw/mcp", scope:"part", tenants:["网易－效率工程部"] },
   { name:"天眼查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业、股东和工商风险信息", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/tyc/mcp", scope:"all", tenants:[] }
 ];
 
 const authMeta = {
   popo:  { pill:"green",  label:"POPO 鉴权 · 静默" },
-  oauth: { pill:"amber",  label:"OAuth 鉴权 · 外跳授权" },
+  oauth: { pill:"amber",  label:"OAuth 鉴权" },
   api:   { pill:"indigo", label:"自定义 API" }
 };
 const authDesc = {
   popo:  "基于用户 POPO 身份静默鉴权，无需连接",
-  oauth: "用户使用时点「链接」跳浏览器授权",
-  api:   "由租户 / 用户自行配置 API Key（Headers）"
+  oauth: "租户或用户在各自后台链接自己账号授权",
+  api:   "租户或用户自行配置 API Key（Headers）"
 };
 
 const main = document.getElementById("main");
@@ -186,9 +187,6 @@ function render(){
             <div class="mcp-foot">
               <span class="pill ${meta.pill}">${meta.label}</span>
               <span class="pill gray">${m.transport.toUpperCase()}</span>
-              ${m.auth==="oauth" ? (m.oauthAuthorized
-                  ? `<span class="pill green">已授权</span>`
-                  : `<span class="card-link" onclick="linkOAuth(${i})">🔗 链接</span>`) : ""}
               <span class="card-link" style="margin-left:auto;" onclick="openAdd(${i})">编辑</span>
             </div>
             <div class="scope-tip">📦 ${scopeTxt}</div>
@@ -196,11 +194,6 @@ function render(){
         </div>`;
       }).join("")}
     </div>`;
-}
-
-function linkOAuth(i){
-  toast(`正在跳转浏览器完成「${mcps[i].name}」OAuth 授权…`);
-  setTimeout(()=>{ mcps[i].oauthAuthorized=true; toast(`「${mcps[i].name}」已授权`); render(); }, 900);
 }
 
 /* ================= 添加 / 编辑 MCP ================= */
@@ -239,6 +232,15 @@ function renderModal(){
   modal.innerHTML = `
     <div class="modal-head"><span class="mt">${isNew?"上架 MCP":"编辑 MCP"}</span><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
+      <div class="field"><label>图标</label>
+        <div class="icon-row">
+          <div class="icon-box" style="background:#eef2ff;">${f.ico}</div>
+          <div>
+            <button class="up-btn" onclick="fakeUpload()">⬆ 上传图标</button>
+            <div class="icon-hint">PNG / JPG，≤ 1 MB，推荐 256×256；未上传使用默认图标</div>
+          </div>
+        </div>
+      </div>
       <div style="margin-bottom:16px;"><div class="seg">
         <button class="${f.mode==="form"?"on":""}" onclick="setMode('form')">手动配置</button>
         <button class="${f.mode==="json"?"on":""}" onclick="setMode('json')">导入 json</button>
@@ -278,14 +280,14 @@ function doSave(){
     }catch(e){ toast("json 解析失败，请检查格式"); return; }
   } else { rec.name=f.name.trim()||"自定义 MCP"; rec.desc=f.note.trim(); rec.transport=f.transport; rec.url=f.url.trim(); }
   const base = { ico:f.ico, bg:"#eef2ff", auth:f.auth, scope:f.scope, tenants:f.scope==="all"?[]:[...f.tenants] };
-  if(f.auth==="oauth") base.oauthAuthorized = f.idx>=0 ? (mcps[f.idx].oauthAuthorized||false) : false;
   const full = { ...base, name:rec.name, desc:rec.desc, transport:rec.transport, url:rec.url };
-  if(f.idx>=0){ full.ico=mcps[f.idx].ico; full.bg=mcps[f.idx].bg; mcps[f.idx]=full; } else mcps.push(full);
+  if(f.idx>=0){ full.bg=mcps[f.idx].bg; mcps[f.idx]=full; } else mcps.push(full);
   toast((f.idx>=0?"已保存：":"已上架：") + full.name);
   closeModal(); render();
 }
 
 let toastTimer;
+function fakeUpload(){ toast("选择本地图片上传（PNG/JPG，≤1MB，推荐 256×256）"); }
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
 
 render();

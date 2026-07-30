@@ -60,6 +60,14 @@
   .card-link { margin-left: auto; font-size: 12px; color: #6366f1; font-weight: 600; cursor: pointer; }
   .card-link:hover { text-decoration: underline; }
   .auth-tip { font-size: 11px; color: #94a3b8; margin-top: 6px; line-height: 1.4; }
+  .mcp-card.off { opacity: .6; }
+  .mcp-card.off .mcp-ico { filter: grayscale(1); }
+  .switch { margin-left: auto; position: relative; display: inline-flex; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .switch .sw-track { width: 34px; height: 18px; border-radius: 20px; background: #cbd5e1; transition: .2s; position: relative; }
+  .switch .sw-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: .2s; }
+  .switch input:checked + .sw-track { background: #6366f1; }
+  .switch input:checked + .sw-track::after { transform: translateX(16px); }
 
   .add-card { border: 1.5px dashed #cbd5e1; background: #fbfcfe; display: flex; align-items: center; justify-content: center; color: #6366f1; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 92px; }
   .add-card:hover { border-color: #a5b4fc; background: #f5f3ff; }
@@ -139,20 +147,22 @@
 
 <script>
 /* ================= 数据 ================= */
-/* 内置 MCP：由 Studio 超管上架并分配给本租户；租户只能补 Headers。
-   auth: popo(静默,无需连接) / oauth(链接外跳) / api(自定义api,用户配自己)
-   tenantHeaders: 是否已由租户补了 Headers（补了=用租户账号；不补=每个C端用户配自己） */
+/* 内置 MCP：由 Studio 超管上架并分配给本租户；租户可补 Headers、可停用，不可改图标/传输参数。
+   auth: popo(静默,无需连接,无 Headers) / oauth / api
+   oauth 与 api 类：租户补 Headers=提供公共账号；不补=每个用户各自链接/配置自己账号
+   tenantHeaders: 是否已由租户补 Headers   enabled: 是否在本租户启用 */
 const builtin = [
-  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo" },
-  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo" },
-  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo" },
-  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo" },
-  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo" },
-  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth" },
-  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth" },
-  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth" },
-  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api", tenantHeaders:true },
-  { name:"天眼查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业、股东和工商风险信息", auth:"api" }
+  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo", enabled:true },
+  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo", enabled:true },
+  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo", enabled:true },
+  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo", enabled:true },
+  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo", enabled:true },
+  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", enabled:true },
+  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", enabled:true, tenantHeaders:true, headers:[{k:"Authorization",v:"Bearer ***"}] },
+  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", enabled:false },
+  { name:"CodeMaker",  ico:"⟨⟩", bg:"#e0f2fe", desc:"调用研发代码生成与分析能力", auth:"api", enabled:true },
+  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api", enabled:true, tenantHeaders:true, headers:[{k:"apikey",v:"***"}] },
+  { name:"天眼查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业、股东和工商风险信息", auth:"api", enabled:true }
 ];
 /* 自定义 MCP：租户自建，transport 仅 sse/http */
 const custom = [
@@ -161,7 +171,7 @@ const custom = [
 
 const authMeta = {
   popo:  { pill:"green",  label:"POPO 鉴权 · 静默" },
-  oauth: { pill:"amber",  label:"OAuth 鉴权 · 需授权" },
+  oauth: { pill:"amber",  label:"OAuth 鉴权" },
   api:   { pill:"indigo", label:"自定义 API" }
 };
 
@@ -189,24 +199,26 @@ function builtinView(){
   return `<div class="grid">
     ${builtin.map((m,i)=>{
       const meta = authMeta[m.auth];
+      const canHeaders = m.auth==="oauth" || m.auth==="api";
       let footTip = "";
-      if(m.auth==="api"){
+      if(canHeaders){
         footTip = m.tenantHeaders
-          ? `<div class="auth-tip">✅ 已补 Headers · 全租户用户共用租户账号</div>`
-          : `<div class="auth-tip">⚠️ 未补 Headers · 每个用户需在使用时配置自己的凭据</div>`;
-      } else if(m.auth==="oauth"){
-        footTip = `<div class="auth-tip">用户首次使用时点「链接」跳浏览器完成授权</div>`;
+          ? `<div class="auth-tip">✅ 已配公共账号（Headers）· 全租户用户共用</div>`
+          : `<div class="auth-tip">⚠️ 未配公共账号 · 每个用户使用时各自链接 / 配置自己账号</div>`;
       } else {
         footTip = `<div class="auth-tip">基于当前 POPO 身份静默鉴权，开箱即用</div>`;
       }
-      return `<div class="mcp-card">
+      return `<div class="mcp-card ${m.enabled?"":"off"}">
         <div class="mcp-ico" style="background:${m.bg};">${m.ico}</div>
         <div class="mcp-info">
-          <div class="mcp-name">${m.name}</div>
+          <div class="mcp-name">${m.name}${m.enabled?"":`<span class="pill gray">已停用</span>`}</div>
           <div class="mcp-desc">${m.desc}</div>
           <div class="mcp-foot">
             <span class="pill ${meta.pill}">${meta.label}</span>
-            ${m.auth==="api" ? `<span class="card-link" onclick="openHeaders(${i})">${m.tenantHeaders?"编辑 Headers":"＋ 添加 Headers"}</span>` : ""}
+            ${canHeaders ? `<span class="card-link" onclick="openHeaders(${i})">${m.tenantHeaders?"编辑公共账号":"＋ 配置公共账号"}</span>` : ""}
+            <label class="switch" title="${m.enabled?"停用后本租户 Agent 不可选用":"启用"}">
+              <input type="checkbox" ${m.enabled?"checked":""} onchange="toggleEnable(${i})"><span class="sw-track"></span>
+            </label>
           </div>
           ${footTip}
         </div>
@@ -214,6 +226,7 @@ function builtinView(){
     }).join("")}
   </div>`;
 }
+function toggleEnable(i){ builtin[i].enabled=!builtin[i].enabled; toast(`${builtin[i].name} 已${builtin[i].enabled?"启用":"停用"}`); render(); }
 
 function customView(){
   if(!custom.length) return `<div class="empty">还没有自定义 MCP，点右上角「添加自定义 MCP」创建。</div>`;
@@ -244,12 +257,13 @@ function openHeaders(i){
 }
 function renderHeaders(){
   const m = builtin[hForm.idx];
+  const authTxt = m.auth==="oauth" ? "OAuth 鉴权" : "自定义 API 鉴权";
   modal.innerHTML = `
-    <div class="modal-head"><span class="mt">${m.name} · 配置 Headers</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><span class="mt">${m.name} · 配置公共账号</span><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
-      <div class="ro-note">此 MCP 为<b>自定义 API 鉴权</b>类型。若在此填写租户级凭据（Headers），则<b>全租户用户共用租户账号</b>；若留空，则每个 C 端用户需在使用时各自配置自己的 API Key。</div>
+      <div class="ro-note">此 MCP 为<b>${authTxt}</b>类型。在此填写<b>租户公共账号凭据（Headers）</b>后，<b>全租户用户共用该账号</b>；若留空，则每个用户使用时<b>各自链接 / 配置自己的账号</b>。</div>
       <div class="field" style="margin-top:14px;">
-        <label>Headers <span class="opt">（api key 凭据，可选）</span></label>
+        <label>Headers <span class="opt">（公共账号凭据，可选）</span></label>
         ${hForm.headers.map((hd,i)=>`<div class="kv"><input placeholder="Header 名称，如 Authorization" value="${hd.k}" oninput="hForm.headers[${i}].k=this.value"><input class="mono" placeholder="Header 值，如 Bearer xxx" value="${hd.v}" oninput="hForm.headers[${i}].v=this.value"><span class="del" onclick="hDel(${i})">🗑</span></div>`).join("")}
         <span class="add-line" onclick="hAdd()">＋ 添加 Header</span>
       </div>
@@ -262,14 +276,18 @@ function saveHeaders(){
   const m = builtin[hForm.idx];
   const valid = hForm.headers.filter(h=>h.k.trim());
   m.headers = valid; m.tenantHeaders = valid.length>0;
-  toast(valid.length? `已保存 ${m.name} 的 Headers（全租户共用）` : `已清空 Headers（用户各自配置）`);
+  toast(valid.length? `已保存 ${m.name} 的公共账号（全租户共用）` : `已清空公共账号（用户各自链接 / 配置）`);
   closeModal(); render();
 }
 
 /* ============ 自定义 MCP：手动配置 / 粘贴 json ============ */
 let cForm = { idx:-1, mode:"form", transport:"http", name:"", note:"", url:"", headers:[], json:"" };
 function openCustom(i){
-  if(i>=0){ const m=custom[i]; cForm={ idx:i, mode:"form", transport:m.transport||"http", name:m.name, note:m.desc||"", url:m.url||"", headers:(m.headers?m.headers.map(h=>({...h})):[]), json:"" }; }
+  if(i>=0){ const m=custom[i];
+    const hObj={}; (m.headers||[]).forEach(h=>{ if(h.k) hObj[h.k]=h.v; });
+    const jsonStr = JSON.stringify({ name:m.name, transport:m.transport||"http", url:m.url||"", ...(Object.keys(hObj).length?{headers:hObj}:{}) }, null, 2);
+    cForm={ idx:i, mode:"form", transport:m.transport||"http", name:m.name, note:m.desc||"", url:m.url||"", headers:(m.headers?m.headers.map(h=>({...h})):[]), json:jsonStr };
+  }
   else cForm={ idx:-1, mode:"form", transport:"http", name:"", note:"", url:"", headers:[], json:"" };
   overlay.classList.add("show"); renderCustom();
 }
@@ -307,7 +325,14 @@ function renderCustom(){
       </div></div>
       ${cForm.mode==="form"? formBody : jsonBody}
     </div>
-    <div class="modal-foot"><button class="btn save" onclick="saveCustom()">保存</button></div>`;
+    <div class="modal-foot">
+      ${isNew?"":`<button class="btn ghost" style="color:#ef4444;border-color:#fecaca;margin-right:auto;" onclick="delCustom(${cForm.idx})">删除</button>`}
+      <button class="btn save" onclick="saveCustom()">保存</button>
+    </div>`;
+}
+function delCustom(i){
+  if(!confirm(`确认删除自定义 MCP「${custom[i].name}」？删除后本租户 Agent 将无法调用。`)) return;
+  const n=custom[i].name; custom.splice(i,1); closeModal(); toast("已删除："+n); render();
 }
 function cHAdd(){ cForm.headers.push({k:"",v:""}); renderCustom(); }
 function cHDel(i){ cForm.headers.splice(i,1); renderCustom(); }
