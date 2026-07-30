@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>MCP 产品架构大图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #eef2f7; color: #1f2937; padding: 28px 20px 60px; line-height: 1.6; }
+  .wrap { max-width: 1280px; margin: 0 auto; }
+  .doc-head { margin-bottom: 20px; }
+  .doc-head h1 { font-size: 24px; font-weight: 800; color: #0f172a; }
+  .doc-head p { font-size: 13px; color: #64748b; margin-top: 4px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0 22px; font-size: 12px; color: #475569; }
+  .legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  /* 泳道 */
+  .lane { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(15,23,42,.05); }
+  .lane-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #fff; }
+  .lane-head .rn { background: rgba(255,255,255,.22); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; }
+  .lane-head .rt { font-size: 16px; font-weight: 800; }
+  .lane-head .rd { font-size: 12px; opacity: .9; margin-left: 6px; font-weight: 500; }
+  .lane.super .lane-head { background: linear-gradient(135deg,#dc2626,#f97316); }
+  .lane.tenant .lane-head { background: linear-gradient(135deg,#4f46e5,#7c3aed); }
+  .lane.cend .lane-head { background: linear-gradient(135deg,#0891b2,#0ea5e9); }
+  .lane-body { padding: 18px 20px; }
+
+  .steps { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+  .step { flex: 1; min-width: 190px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; }
+  .step h4 { font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .step ul { padding-left: 16px; font-size: 12px; color: #475569; }
+  .step li { margin-bottom: 3px; }
+  .arrow { display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 22px; padding: 0 8px; flex: 0 0 auto; }
+  .arrow.down { width: 100%; padding: 4px 0; }
+  .tagline { font-size: 12px; color: #64748b; background: #f1f5f9; border-radius: 8px; padding: 8px 12px; margin-top: 12px; }
+  .tagline b { color: #334155; }
+
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; display: inline-block; }
+  .pill.green { background: #dcfce7; color: #16a34a; }
+  .pill.amber { background: #fef3c7; color: #b45309; }
+  .pill.indigo { background: #ede9fe; color: #6d28d9; }
+  .pill.gray { background: #f1f5f9; color: #64748b; }
+  .pill.red { background: #fee2e2; color: #dc2626; }
+
+  /* 全局纵向流转 */
+  .flowbar { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; font-weight: 700; color: #6366f1; margin: 2px 0 14px; flex-wrap: wrap; }
+  .flowbar span { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 20px; padding: 5px 14px; }
+  .flowbar .sep { background: none; border: none; color: #94a3b8; padding: 0; }
+
+  /* 鉴权矩阵 */
+  .matrix { margin-top: 16px; }
+  .matrix h3 { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
+  th, td { border: 1px solid #e5e7eb; padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 700; color: #475569; }
+  td b { color: #0f172a; }
+  .yes { color: #16a34a; font-weight: 700; }
+  .no { color: #dc2626; font-weight: 700; }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+  .card h3 { font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
+
+  .keybox { border-left: 4px solid #6366f1; background: #eef2ff; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #3730a3; }
+  .keybox b { color: #4338ca; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .seqbox { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; background: #fbfcfe; }
+  .seqbox h4 { font-size: 13px; font-weight: 800; color: #0891b2; margin-bottom: 8px; }
+  .seqbox ol { padding-left: 18px; font-size: 12px; color: #475569; }
+  .seqbox li { margin-bottom: 4px; }
+  @media(max-width:820px){ .two{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="doc-head">
+    <h1>WorkHub · MCP 产品架构大图</h1>
+    <p>三角色协同：Studio 超管上架分配 → B 端租户配货架 → C 端按鉴权使用；Agent 是 MCP 生效的唯一载体。</p>
+  </div>
+
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:#f97316;"></span>角色1 Studio 超管</span>
+    <span class="lg"><span class="dot" style="background:#7c3aed;"></span>角色2 B 端租户后台</span>
+    <span class="lg"><span class="dot" style="background:#0ea5e9;"></span>角色3 C 端用户</span>
+    <span class="lg"><span class="pill green">POPO 静默</span></span>
+    <span class="lg"><span class="pill amber">OAuth 外跳</span></span>
+    <span class="lg"><span class="pill indigo">自定义 API</span></span>
+  </div>
+
+  <div class="flowbar">
+    <span>① 上架 MCP</span><span class="sep">▶</span>
+    <span>② 分配租户</span><span class="sep">▶</span>
+    <span>③ 租户配货架</span><span class="sep">▶</span>
+    <span>④ 绑定 Agent</span><span class="sep">▶</span>
+    <span>⑤ C 端按鉴权使用</span>
+  </div>
+
+  <!-- 角色1 超管 -->
+  <div class="lane super">
+    <div class="lane-head"><span class="rn">1</span><span class="rt">Studio 超管</span><span class="rd">上架内置 MCP · 定鉴权类型 · 分配租户｜不碰凭据、不做链接</span></div>
+    <div class="lane-body">
+      <div class="steps">
+        <div class="step">
+          <h4>① 上架内置 MCP</h4>
+          <ul>
+            <li>配置方式：手动 / 导入 json</li>
+            <li>传输：<b>SSE / HTTP</b>（无 STDIO）</li>
+            <li>上传图标 · 名称 · 备注</li>
+            <li>json <b>无需 Headers</b></li>
+          </ul>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <h4>② 指定鉴权类型</h4>
+          <ul>
+            <li><span class="pill green">POPO 静默</span> 无需连接</li>
+            <li><span class="pill amber">OAuth 外跳</span> 授权链接</li>
+            <li><span class="pill indigo">自定义 API</span> Headers</li>
+            <li>上架时手动选，非自动判定</li>
+          </ul>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <h4>③ 分配可使用租户</h4>
+          <ul>
+            <li>全部租户（默认）/ 指定多选</li>
+            <li>可先上架、后配租户</li>
+            <li>分配后进对应租户货架</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tagline">🔒 <b>超管边界</b>：只上架 + 分配，<b>不持有任何终端凭据</b>；链接 / 授权是租户或用户的事。</div>
+    </div>
+  </div>
+
+  <div class="flowbar" style="margin:-4px 0 12px;"><span class="sep" style="font-size:20px;">▼ 分配到被授权租户</span></div>
+
+  <!-- 角色2 B端租户 -->
+  <div class="lane tenant">
+    <div class="lane-head"><span class="rn">2</span><span class="rt">B 端租户后台</span><span class="rd">配公共账号 · 自定义 MCP · 打标分类 · 绑定 Agent｜AgentHub 也是一个大租户</span></div>
+    <div class="lane-body">
+      <div class="steps">
+        <div class="step">
+          <h4>③a 内置 MCP</h4>
+          <ul>
+            <li>可配 <b>Headers（公共账号）</b></li>
+            <li>配了 → 全租户共用账号</li>
+            <li>不配 → 用户各自链接自己账号</li>
+            <li>不可改图标 / 传输参数</li>
+          </ul>
+        </div>
+        <div class="arrow">＋</div>
+        <div class="step">
+          <h4>③b 自定义 MCP</h4>
+          <ul>
+            <li>手动配置 / 粘贴 json</li>
+            <li>传输 SSE / HTTP</li>
+            <li><b>必传图标</b> · Headers 可选</li>
+          </ul>
+        </div>
+        <div class="arrow">＋</div>
+        <div class="step">
+          <h4>③c 展示标签 + 分类</h4>
+          <ul>
+            <li>对<b>全部 MCP</b> 打标（同 Skills）</li>
+            <li>官方「展示标签」+「分类」</li>
+            <li>后台只提供打标能力</li>
+            <li>展示策略由前端应用定制</li>
+          </ul>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step" style="border-color:#c7d2fe;background:#f5f3ff;">
+          <h4>④ 绑定到 Agent</h4>
+          <ul>
+            <li><b>MCP 靠绑 Agent 生效</b></li>
+            <li>不绑定 = 停用（无独立开关）</li>
+            <li>Agent 是 MCP 的唯一载体</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tagline">📦 <b>货架 = 内置（可补公共账号）+ 自定义</b>；<b>启停不设开关</b>——是否绑定 Agent 即决定该 MCP 是否可用。</div>
+    </div>
+  </div>
+
+  <div class="flowbar" style="margin:-4px 0 12px;"><span class="sep" style="font-size:20px;">▼ Agent 携带已绑定 MCP 交付 C 端</span></div>
+
+  <!-- 角色3 C端 -->
+  <div class="lane cend">
+    <div class="lane-head"><span class="rn">3</span><span class="rt">C 端用户</span><span class="rd">场景1 自建 Agent（可分享）· 场景2 直接用 B 端 Agent</span></div>
+    <div class="lane-body">
+      <div class="two">
+        <div class="seqbox">
+          <h4>场景 1 · 自己创建 Agent 绑 MCP（可分享给他人）</h4>
+          <ol>
+            <li><b>静默类</b>：直接可用；分享后他人也用<b>自己账号</b>静默直用。</li>
+            <li><b>OAuth 类</b>：建时点「链接」外跳授权，<b>可跳过</b>；执行时未授权 → 弹授权卡片外跳。</li>
+            <li><b>自定义 API 类</b>：建时点「链接」出弹窗输 api key，<b>可跳过</b>；执行时未授权 → 弹卡片输 key。</li>
+            <li>分享给他人：OAuth / API 类一律 <b class="no">谁用谁授权</b>（执行时授权卡片），<b>无公共账号</b>。</li>
+          </ol>
+        </div>
+        <div class="seqbox">
+          <h4>场景 2 · 直接使用 B 端已建好的 Agent</h4>
+          <ol>
+            <li>Agent 由 B 端租户创建并已绑定 MCP。</li>
+            <li>B 端<b>配了 Headers（公共账号）</b> → C 端<span class="yes">无需授权直接用</span>。</li>
+            <li>B 端<b>未配</b> → C 端<b>自己授权</b>：OAuth 外跳 / 输 api key。</li>
+            <li>授权逻辑同场景1，只是发生在使用 B 端 Agent 时。</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="matrix">
+        <h3>⑤ C 端使用鉴权矩阵</h3>
+        <table>
+          <thead><tr>
+            <th style="width:14%">鉴权类型</th>
+            <th style="width:20%">自建 Agent · 创建者</th>
+            <th style="width:22%">自建 Agent · 分享他人</th>
+            <th style="width:22%">用 B 端 Agent（B 配了公共账号）</th>
+            <th style="width:22%">用 B 端 Agent（B 未配）</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="pill green">POPO 静默</span></td>
+              <td><span class="yes">直接用</span></td>
+              <td><span class="yes">用自己账号静默直用</span></td>
+              <td colspan="2"><span class="yes">直接用</span>（静默无公共账号概念）</td>
+            </tr>
+            <tr>
+              <td><span class="pill amber">OAuth 外跳</span></td>
+              <td>建时「链接」外跳，可跳过；执行时弹卡片授权</td>
+              <td><span class="no">谁用谁授权</span>：执行时授权卡片外跳</td>
+              <td><span class="yes">无需授权直接用</span>（共用公共账号）</td>
+              <td>自己外跳授权</td>
+            </tr>
+            <tr>
+              <td><span class="pill indigo">自定义 API</span></td>
+              <td>建时「链接」出弹窗输 key，可跳过；执行时弹卡片输 key</td>
+              <td><span class="no">谁用谁授权</span>：执行时输自己 key</td>
+              <td><span class="yes">无需授权直接用</span>（共用公共账号）</td>
+              <td>自己手动输 api key</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 关键边界 -->
+  <div class="card">
+    <h3>🎯 三条关键边界（最容易搞混）</h3>
+    <div class="keybox" style="margin-bottom:10px;">
+      <b>① 公共账号只在「B 端为其 Agent 配了 Headers」时存在。</b> C 端自建 Agent 分享一律「谁用谁授权」，不存在公共账号。
+    </div>
+    <div class="keybox" style="margin-bottom:10px;">
+      <b>② MCP 启停 = 是否绑定 Agent。</b> 租户后台不设独立停用开关；未绑 Agent 的 MCP 天然不可用。
+    </div>
+    <div class="keybox">
+      <b>③ 授权时机双通道。</b> 创建时「链接」可授权也可跳过；跳过后在 <b>Agent 执行任务时</b> 通过授权卡片补授权（外跳 / 输 key）。
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
