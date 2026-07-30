@@ -419,7 +419,7 @@ function renderTable(list){
       <th style="width:${isB?'32%':'34%'}">MCP</th>
       <th style="width:12%">鉴权类型</th>
       <th style="width:15%">分类</th>
-      <th style="width:19%">${isB?'共用账号 / 分发':'Headers'}</th>
+      <th style="width:19%">${isB?'定向分发':'Headers'}</th>
       <th style="width:10%">绑定 Agent</th>
       <th style="width:12%;text-align:right;">操作</th>
     </tr></thead>
@@ -435,15 +435,16 @@ function catCell(m,i){ const c=catById(m.cat)||catById('c_gen');
   </span>`;
 }
 function agentCell(m){ return m.boundAgents>0 ? `<span class="pill blue">${m.boundAgents} 个</span>` : `<span class="pill gray">未绑定</span>`; }
-function distSummary(m){ const dn=(m.distDepts||[]).length, un=(m.distUsers||[]).length; if(!dn&&!un) return `<span style="font-size:11px;color:var(--mut);margin-top:4px;display:block;">未分发</span>`; const parts=[]; if(dn)parts.push(`${dn} 个部门`); if(un)parts.push(`${un} 人`); return `<span style="font-size:11px;color:var(--sub);margin-top:4px;display:block;">分发给 ${parts.join(" · ")} · 免鉴权</span>`; }
+function distSummary(m){
+  const names=[...(m.distDepts||[]),...(m.distUsers||[])];
+  if(!names.length) return `<span style="font-size:12px;color:var(--mut);">未分发</span>`;
+  const show=names.slice(0,3).map(n=>`<span class="tag-chip">${n}</span>`).join("");
+  return `<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">${show}${names.length>3?`<span class="pill gray">...</span>`:""}</div>`;
+}
 
 function rowBuiltin(m,i){
   const meta=authMeta[m.auth];
-  const canHeaders = m.auth==="oauth"||m.auth==="api";
-  let acct;
-  if(!canHeaders){ acct=`<span class="pill green">静默 · 无需</span>`; }
-  else if(m.tenantHeaders){ acct=`<span class="pill green">已配共用账号</span>${distSummary(m)}`; }
-  else { acct=`<span class="pill amber">未配 · 用户自授权</span>`; }
+  const acct = m.tenantHeaders ? distSummary(m) : `<span style="font-size:12px;color:var(--mut);">用户自授权</span>`;
   return `<tr>
     <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name}</div><div class="dz">${m.desc}</div></div></div></td>
     <td><span class="pill ${meta.pill}">${meta.label}</span></td>
@@ -452,7 +453,7 @@ function rowBuiltin(m,i){
     <td>${agentCell(m)}</td>
     <td><div class="row-acts">
       <span class="txt-act edit" onclick="openBuiltinEdit(${i})">编辑</span>
-      ${canHeaders&&m.tenantHeaders?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'builtin')">定向分发</span>`:``}
+      ${m.tenantHeaders?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'builtin')">定向分发</span>`:``}
     </div></td>
   </tr>`;
 }
@@ -481,7 +482,9 @@ function openBuiltinEdit(i){
 function renderBuiltinEdit(){
   const m=builtin[bForm.idx];
   const meta=authMeta[m.auth];
-  const canHeaders = m.auth==="oauth"||m.auth==="api";
+  const hintTxt = m.auth==="popo"
+    ? "POPO 静默类默认用户以自己 POPO 身份静默授权；如需全员共用统一账号，可在此配置 Headers（配置即表示提供公共账号）。"
+    : "填写后，被<b>定向分发</b>的部门 / 人员共用该账号免鉴权直用；留空则每个用户使用时各自完成账号鉴权。";
   modal.className="modal wide";
   modal.innerHTML=`
     <div class="modal-head"><div><div class="mt">编辑 MCP</div></div><span class="x" onclick="closeModal()">×</span></div>
@@ -493,16 +496,14 @@ function renderBuiltinEdit(){
       <div class="field"><label>服务器名称</label><input class="inp ro" value="${m.name}" disabled></div>
       <div class="field"><label>描述</label><textarea class="inp ro" disabled>${m.desc}</textarea></div>
       <div class="field"><label>鉴权类型</label><div><span class="pill ${meta.pill}">${meta.label}</span></div></div>
-      ${canHeaders?`
-      <div class="field"><label>Headers <span class="opt">填写即表示该 MCP 提供共用授权账号</span></label>
-        <div class="note info" style="margin-bottom:10px;">填写后，被<b>定向分发</b>的部门 / 人员共用该账号免鉴权直用；留空则每个用户使用时各自完成账号鉴权。</div>
+      <div class="field"><label>Headers <span class="opt">填写即表示该 MCP 提供公共账号</span></label>
+        <div class="note info" style="margin-bottom:10px;">${hintTxt}</div>
         ${bForm.headers.map((hd,i)=>`<div class="kv">
           <input class="inp" placeholder="Header 名称，如 Authorization" value="${hd.k}" oninput="bForm.headers[${i}].k=this.value">
           <input class="inp mono" placeholder="Header 值，如 Bearer xxx" value="${hd.v}" oninput="bForm.headers[${i}].v=this.value">
           <span class="del" onclick="bHDel(${i})">🗑</span></div>`).join("")}
         <span class="add-line" onclick="bHAdd()">＋ 添加 Header</span>
-      </div>`:`
-      <div class="field"><label>Headers</label><div class="note info">POPO 静默类无需配置账号，用户以自己 POPO 身份静默授权使用。</div></div>`}
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn ghost" onclick="closeModal()">取消</button>
