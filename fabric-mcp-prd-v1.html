@@ -143,6 +143,7 @@
           <li>未配公共账号 → <b>每个用户使用时各自链接 / 配置自己的账号</b>。</li>
         </ul>
       </li>
+      <li><b>公共账号 + 展示标签定向分发</b>：租户在 Studio 内置 MCP 配好 Headers 后，通过<b>展示标签</b>定向分发给指定 C 端用户；这些用户在<b>创建 Agent 时即可见该 MCP，添加后免鉴权直用</b>——鉴权已在 Studio 侧完成（如企查查等对外数据类 MCP）。</li>
       <li>POPO 静默类无需配凭据，用户以自己 POPO 身份静默授权使用。</li>
     </ul>
 
@@ -174,33 +175,37 @@
 
     <h3>5.1 场景 1：自己创建 Agent 绑 MCP（可分享给他人）</h3>
     <table>
-      <thead><tr><th style="width:14%">鉴权类型</th><th>创建者本人</th><th>Agent 分享给他人后</th></tr></thead>
+      <thead><tr><th style="width:12%">鉴权类型</th><th style="width:26%">创建者本人</th><th style="width:26%">Agent 分享给他人后</th><th style="width:24%">租户在 Studio 配公共账号 + 标签分发</th></tr></thead>
       <tbody>
         <tr>
           <td><span class="pill green">POPO 静默</span></td>
           <td>用自己账号<b>静默授权</b>直用</td>
           <td>他人也用<b>自己账号静默授权</b>直用</td>
+          <td>用自己账号静默授权直用（无公共账号概念）</td>
         </tr>
         <tr>
           <td><span class="pill amber">OAuth 外跳</span></td>
           <td>创建时点「链接」外跳授权，<b>可跳过</b>；跳过后在 Agent 执行任务发现未授权时，弹 MCP 授权卡片外跳授权</td>
           <td><span class="no">谁用谁授权</span>：他人只能在<b>执行任务时</b>通过授权卡片外跳授权，<b>无公共账号</b></td>
+          <td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td>
         </tr>
         <tr>
           <td><span class="pill indigo">自定义 API</span></td>
           <td>创建时点「链接」出配置弹窗输 api key，<b>可跳过</b>；跳过后执行任务未授权时，弹卡片输 api key 授权</td>
           <td><span class="no">谁用谁授权</span>：他人只能在<b>执行任务时</b>通过卡片输自己的 api key，<b>无公共账号</b></td>
+          <td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td>
         </tr>
       </tbody>
     </table>
+    <p><b>免鉴权分发路径</b>：租户在 Studio 内置 MCP 配好 Headers 并用展示标签分发后，被分发的 C 端用户在创建 Agent 时可见该 MCP，添加即免鉴权直用，无需以自己账号授权。</p>
 
     <h3>5.2 场景 2：直接使用 B 端已创建好的 Agent</h3>
     <table>
       <thead><tr><th style="width:14%">鉴权类型</th><th>B 端配了公共账号（Headers）</th><th>B 端未配</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill green">POPO 静默</span></td><td colspan="2"><span class="yes">用自己账号静默授权直用</span>（静默无公共账号概念）</td></tr>
-        <tr><td><span class="pill amber">OAuth 外跳</span></td><td><span class="yes">无需授权直接用</span>（共用公共账号）</td><td>C 端自己外跳授权</td></tr>
-        <tr><td><span class="pill indigo">自定义 API</span></td><td><span class="yes">无需授权直接用</span>（共用公共账号）</td><td>C 端自己手动输 api key</td></tr>
+        <tr><td><span class="pill green">POPO 静默</span></td><td colspan="2"><span class="yes">用自己账号静默授权直用</span>（无公共账号概念）</td></tr>
+        <tr><td><span class="pill amber">OAuth 外跳</span></td><td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td><td>C 端自己外跳授权</td></tr>
+        <tr><td><span class="pill indigo">自定义 API</span></td><td><span class="yes">免鉴权直用</span>（鉴权已在 Studio 完成，共用公共账号）</td><td>C 端自己手动输 api key</td></tr>
       </tbody>
     </table>
     <p>未配公共账号时，C 端自行授权的逻辑与场景 1 一致，只是发生在使用 B 端 Agent 时。</p>
@@ -209,7 +214,7 @@
   <!-- 6 关键边界 -->
   <div class="section">
     <div class="section-title"><span class="num">6</span>三条关键产品边界</div>
-    <div class="callout key" style="margin-bottom:10px;"><b>① 公共账号只在「B 端为其 Agent 配了 Headers」时存在。</b> C 端自建 Agent 分享一律「谁用谁授权」，不存在公共账号。</div>
+    <div class="callout key" style="margin-bottom:10px;"><b>① 公共账号（免 C 端鉴权）有两条来源：</b>(a) 租户在 <b>Studio 内置 MCP 配 Headers + 展示标签定向分发</b> → 指定 C 端创建 Agent 时可见并免鉴权直用（鉴权已在 Studio 完成）；(b) B 端为其已建 Agent 配 Headers → C 端直接用该 Agent 免鉴权。除此之外，C 端自建 Agent 分享一律「谁用谁授权」，不存在公共账号。</div>
     <div class="callout key" style="margin-bottom:10px;"><b>② MCP 启停 = 是否绑定 Agent。</b> 租户后台不设独立停用开关；未绑 Agent 的 MCP 天然不可用。</div>
     <div class="callout key"><b>③ 授权时机双通道。</b> 创建时「链接」可授权也可跳过；跳过后在 <b>Agent 执行任务时</b> 通过授权卡片补授权（OAuth 外跳 / 输 api key）。POPO 静默类始终以用户自己账号静默授权。</div>
   </div>
@@ -243,7 +248,7 @@
       <li>租户可自建自定义 MCP（SSE/HTTP，Headers 可选，可传图标）。</li>
       <li>租户可对<b>全部 MCP</b> 打展示标签与分类，复用现有 Skills 标签/分类逻辑。</li>
       <li>MCP <b>必须绑定 Agent 才生效</b>，未绑定视为停用，无独立开关。</li>
-      <li>C 端场景1：静默直用；OAuth/API 类创建时可授权可跳过，跳过后执行时授权卡片补授权；<b>分享他人一律谁用谁授权，无公共账号</b>。</li>
+      <li>C 端场景1：静默直用；OAuth/API 类创建时可授权可跳过，跳过后执行时授权卡片补授权；<b>分享他人一律谁用谁授权，无公共账号</b>；<b>但若租户在 Studio 配 Headers + 标签分发给该用户，则创建 Agent 时免鉴权直用</b>。</li>
       <li>C 端场景2：B 端配了公共账号则直用，未配则自行授权。</li>
       <li>AgentHub 特例：Studio 提供内置+自定义 MCP，不在 Studio 绑定 Agent，使用由 AgentHub 定制。</li>
     </ol>
