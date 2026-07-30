@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio 超管 · MCP 管理 · 高保真原型</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #eef2f7; color: #1f2937; padding: 24px 16px 60px; line-height: 1.6; }
+
+  .page-label { max-width: 1400px; margin: 6px auto 10px; display: flex; align-items: center; gap: 10px; }
+  .page-label .badge-num { background: #6366f1; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .page-label .badge-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+  .page-label .badge-desc { font-size: 13px; color: #64748b; margin-left: 4px; }
+
+  .app { max-width: 1400px; margin: 0 auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 24px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; height: 880px; display: flex; position: relative; }
+
+  .topbar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: #fff; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; padding: 0 24px; z-index: 2; }
+  .topbar .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: #0f172a; }
+  .topbar .logo-icon { width: 22px; height: 22px; background: linear-gradient(135deg,#4f46e5,#7c3aed); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
+  .super-tag { margin-left: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 5px 12px; font-size: 13px; color: #dc2626; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .topbar .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#fb923c,#f472b6); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
+
+  .sidebar { width: 200px; background: #fafbfc; border-right: 1px solid #f1f5f9; padding: 70px 12px 12px; overflow-y: auto; }
+  .side-title { font-size: 11px; color: #94a3b8; padding: 12px 12px 4px; letter-spacing: .5px; font-weight: 700; }
+  .side-sep { height: 1px; background: #f1f5f9; margin: 8px 8px; }
+  .side-item { font-size: 13px; color: #475569; padding: 8px 12px; border-radius: 6px; margin: 1px 0; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .side-item:hover { background: #f1f5f9; }
+  .side-item.active { background: #ede9fe; color: #6d28d9; font-weight: 600; }
+
+  .main { flex: 1; padding: 70px 28px 24px; overflow-y: auto; background: #f8fafc; position: relative; }
+  .main-header { display: flex; align-items: center; margin-bottom: 6px; }
+  .main-title { font-size: 22px; font-weight: 700; color: #0f172a; }
+  .main-sub { font-size: 13px; color: #94a3b8; margin-bottom: 18px; }
+  .btn { border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 9px 16px; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.primary { background: #6366f1; color: #fff; }
+  .btn.primary:hover { background: #4f46e5; }
+  .btn.ghost { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .mcp-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; transition: all .15s; position: relative; }
+  .mcp-card:hover { border-color: #c7d2fe; box-shadow: 0 2px 10px rgba(99,102,241,0.08); }
+  .mcp-ico { width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: #f1f5f9; }
+  .mcp-info { min-width: 0; flex: 1; }
+  .mcp-name { font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mcp-desc { font-size: 12px; color: #94a3b8; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45; }
+  .mcp-foot { margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .pill.gray { background: #f1f5f9; color: #64748b; }
+  .pill.green { background: #dcfce7; color: #16a34a; }
+  .pill.amber { background: #fef3c7; color: #b45309; }
+  .pill.indigo { background: #ede9fe; color: #6d28d9; }
+  .card-link { font-size: 12px; color: #6366f1; font-weight: 600; cursor: pointer; }
+  .card-link:hover { text-decoration: underline; }
+  .scope-tip { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+
+  /* modal */
+  .overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.4); z-index: 20; display: none; align-items: center; justify-content: center; }
+  .overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 16px; width: 640px; max-width: 94%; max-height: 90%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .modal-head { padding: 18px 22px; display: flex; align-items: center; }
+  .modal-head .mt { font-size: 18px; font-weight: 700; color: #0f172a; }
+  .modal-head .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 22px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .modal-head .x:hover { background: #f1f5f9; }
+  .modal-body { padding: 4px 22px 18px; overflow-y: auto; flex: 1; }
+  .modal-foot { padding: 14px 22px; display: flex; align-items: center; justify-content: flex-end; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .field label .opt { color: #94a3b8; font-weight: 400; }
+  .field input, .field select, .field textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family: inherit; background: #f8fafc; }
+  .field textarea { min-height: 84px; resize: vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #a5b4fc; background: #fff; }
+  .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+
+  .seg { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; }
+  .seg button { border: none; background: none; padding: 6px 16px; font-size: 13px; font-weight: 600; color: #64748b; border-radius: 6px; cursor: pointer; }
+  .seg button.on { background: #fff; color: #6d28d9; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .ro-note { font-size: 12px; color: #64748b; background: #f8fafc; border-left: 3px solid #a5b4fc; padding: 8px 10px; border-radius: 6px; line-height: 1.6; }
+
+  /* 鉴权类型选择卡 */
+  .auth-opts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .auth-opt { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px; cursor: pointer; font-size: 12px; }
+  .auth-opt:hover { border-color: #c7d2fe; }
+  .auth-opt.on { border-color: #6366f1; background: #f5f3ff; }
+  .auth-opt .ao-t { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 5px; }
+  .auth-opt .ao-d { color: #94a3b8; margin-top: 3px; line-height: 1.4; }
+
+  /* 租户多选 */
+  .radio-row { display: flex; gap: 18px; margin-bottom: 8px; }
+  .radio-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; }
+  .tenant-list { border: 1px solid #e2e8f0; border-radius: 10px; max-height: 160px; overflow-y: auto; background: #fff; }
+  .tenant-list .tl-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+  .tenant-list .tl-item:last-child { border-bottom: none; }
+  .tenant-list .tl-item:hover { background: #f8fafc; }
+
+  .btn.save { background: #6366f1; color: #fff; padding: 9px 22px; font-weight: 700; }
+  .toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; z-index: 40; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="badge-num">S</span>
+  <span class="badge-title">WorkHub Studio 超管 · MCP 管理 高保真原型</span>
+  <span class="badge-desc">上架内置 MCP · 导入 json（sse/http）· 上架时选鉴权类型 · 分配可使用租户</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><span class="logo-icon">W</span>WorkHub Studio</div>
+    <span class="super-tag">🛡 超级管理员</span>
+    <div class="right"><span class="avatar">青</span></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="side-title">平台配置</div>
+    <div class="side-item">🧬 Models</div>
+    <div class="side-item">📝 Prompts</div>
+    <div class="side-item active">🔌 MCP 管理</div>
+    <div class="side-item">🏢 租户管理</div>
+    <div class="side-item">👥 权限</div>
+    <div class="side-sep"></div>
+    <div class="side-title">运行观测</div>
+    <div class="side-item">📊 全局评测</div>
+    <div class="side-item">📈 用量统计</div>
+  </div>
+
+  <div class="main" id="main"></div>
+
+  <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ================= 数据 ================= */
+const TENANTS = ["网易－效率工程部","AgentHub 租户","网易云音乐","网易游戏","有道","网易严选","网易传媒"];
+
+/* auth: popo(静默,无需连接) / oauth(链接外跳授权) / api(自定义api,租户/用户配) */
+const mcps = [
+  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-doc/mcp", scope:"all", tenants:[] },
+  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-cal/mcp", scope:"all", tenants:[] },
+  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-task/mcp", scope:"all", tenants:[] },
+  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/yxc/mcp", scope:"all", tenants:[] },
+  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/km/mcp", scope:"all", tenants:[] },
+  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", transport:"sse",  url:"https://mcp.workhub.netease.com/mail/sse", oauthAuthorized:true, scope:"all", tenants:[] },
+  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/github/mcp", oauthAuthorized:false, scope:"part", tenants:["网易－效率工程部","有道"] },
+  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/figma/mcp", oauthAuthorized:false, scope:"part", tenants:["网易游戏","网易云音乐"] },
+  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/pkulaw/mcp", scope:"part", tenants:["网易－效率工程部"] },
+  { name:"天眼查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业、股东和工商风险信息", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/tyc/mcp", scope:"all", tenants:[] }
+];
+
+const authMeta = {
+  popo:  { pill:"green",  label:"POPO 鉴权 · 静默" },
+  oauth: { pill:"amber",  label:"OAuth 鉴权 · 外跳授权" },
+  api:   { pill:"indigo", label:"自定义 API" }
+};
+const authDesc = {
+  popo:  "基于用户 POPO 身份静默鉴权，无需连接",
+  oauth: "用户使用时点「链接」跳浏览器授权",
+  api:   "由租户 / 用户自行配置 API Key（Headers）"
+};
+
+const main = document.getElementById("main");
+const overlay = document.getElementById("overlay");
+const modal = document.getElementById("modal");
+
+function render(){
+  main.innerHTML = `
+    <div class="main-header">
+      <span class="main-title">MCP 管理</span>
+      <button class="btn primary" style="margin-left:auto;" onclick="openAdd(-1)">＋ 添加 MCP</button>
+    </div>
+    <div class="main-sub">上架平台内置 MCP，配置鉴权类型与可使用租户；上架后在各租户后台可见并可补充凭据</div>
+    <div class="grid">
+      ${mcps.map((m,i)=>{
+        const meta = authMeta[m.auth];
+        const scopeTxt = m.scope==="all" ? "全部租户可用" : `${m.tenants.length} 个租户可用`;
+        return `<div class="mcp-card">
+          <div class="mcp-ico" style="background:${m.bg};">${m.ico}</div>
+          <div class="mcp-info">
+            <div class="mcp-name">${m.name}</div>
+            <div class="mcp-desc">${m.desc}</div>
+            <div class="mcp-foot">
+              <span class="pill ${meta.pill}">${meta.label}</span>
+              <span class="pill gray">${m.transport.toUpperCase()}</span>
+              ${m.auth==="oauth" ? (m.oauthAuthorized
+                  ? `<span class="pill green">已授权</span>`
+                  : `<span class="card-link" onclick="linkOAuth(${i})">🔗 链接</span>`) : ""}
+              <span class="card-link" style="margin-left:auto;" onclick="openAdd(${i})">编辑</span>
+            </div>
+            <div class="scope-tip">📦 ${scopeTxt}</div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+}
+
+function linkOAuth(i){
+  toast(`正在跳转浏览器完成「${mcps[i].name}」OAuth 授权…`);
+  setTimeout(()=>{ mcps[i].oauthAuthorized=true; toast(`「${mcps[i].name}」已授权`); render(); }, 900);
+}
+
+/* ================= 添加 / 编辑 MCP ================= */
+let f = {};
+function openAdd(idx){
+  if(idx>=0){ const m=mcps[idx]; f={ idx, mode:"form", name:m.name, ico:m.ico, note:m.desc, auth:m.auth, transport:m.transport, url:m.url, json:"", scope:m.scope, tenants:[...m.tenants] }; }
+  else f={ idx:-1, mode:"form", name:"", ico:"🔌", note:"", auth:"popo", transport:"http", url:"", json:"", scope:"all", tenants:[] };
+  overlay.classList.add("show"); renderModal();
+}
+function closeModal(){ overlay.classList.remove("show"); }
+function setF(k,v){ f[k]=v; }
+function setAuth(a){ f.auth=a; renderModal(); }
+function setMode(m){ f.mode=m; renderModal(); }
+function setTransport(t){ f.transport=t; renderModal(); }
+function setScope(s){ f.scope=s; renderModal(); }
+function toggleTenant(t){ const i=f.tenants.indexOf(t); if(i>=0) f.tenants.splice(i,1); else f.tenants.push(t); renderModal(); }
+
+function renderModal(){
+  const isNew = f.idx<0;
+  const formBody = `
+      <div class="field"><label>服务器名称</label><input placeholder="e.g., GitHub MCP" value="${f.name}" oninput="setF('name',this.value)"></div>
+      <div class="field"><label>备注 <span class="opt">（可选）</span></label><textarea placeholder="说明此 MCP 的用途，便于 Agent 判断何时调用" oninput="setF('note',this.value)">${f.note}</textarea></div>
+      <div class="field"><label>传输类型</label>
+        <div class="seg">
+          <button class="${f.transport==="sse"?"on":""}" onclick="setTransport('sse')">SSE</button>
+          <button class="${f.transport==="http"?"on":""}" onclick="setTransport('http')">HTTP</button>
+        </div>
+      </div>
+      <div class="field"><label>服务器 URL</label><input class="mono" placeholder="${f.transport==='sse'?'https://mcp.yourserver.com/sse':'https://mcp.yourserver.com/mcp'}" value="${f.url}" oninput="setF('url',this.value)"></div>`;
+  const jsonBody = `
+      <div class="ro-note">粘贴标准 MCP 配置 json，支持 <b>sse / http</b>。<b>无需填写 Headers</b>——凭据由各租户 / 用户在后台补充。</div>
+      <div class="field" style="margin-top:14px;"><label>配置 json</label>
+        <textarea class="mono" style="min-height:170px;" placeholder='{\n  "name": "GitHub MCP",\n  "transport": "http",\n  "url": "https://mcp.yourserver.com/mcp"\n}' oninput="setF('json',this.value)">${f.json}</textarea>
+      </div>`;
+
+  modal.innerHTML = `
+    <div class="modal-head"><span class="mt">${isNew?"上架 MCP":"编辑 MCP"}</span><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;"><div class="seg">
+        <button class="${f.mode==="form"?"on":""}" onclick="setMode('form')">手动配置</button>
+        <button class="${f.mode==="json"?"on":""}" onclick="setMode('json')">导入 json</button>
+      </div></div>
+      ${f.mode==="form"? formBody : jsonBody}
+
+      <div class="field">
+        <label>鉴权类型 <span class="opt">（上架时指定）</span></label>
+        <div class="auth-opts">
+          ${["popo","oauth","api"].map(a=>`
+            <div class="auth-opt ${f.auth===a?"on":""}" onclick="setAuth('${a}')">
+              <div class="ao-t">${a==="popo"?"🔒 POPO":a==="oauth"?"🔗 OAuth":"🔑 自定义 API"}</div>
+              <div class="ao-d">${authDesc[a]}</div>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="field">
+        <label>可使用租户</label>
+        <div class="radio-row">
+          <label onclick="setScope('all')"><input type="radio" name="scope" ${f.scope==="all"?"checked":""}> 全部租户（默认）</label>
+          <label onclick="setScope('part')"><input type="radio" name="scope" ${f.scope==="part"?"checked":""}> 指定租户</label>
+        </div>
+        ${f.scope==="part" ? `<div class="tenant-list">
+          ${TENANTS.map(t=>`<label class="tl-item" onclick="toggleTenant('${t}')"><input type="checkbox" ${f.tenants.includes(t)?"checked":""}> ${t}</label>`).join("")}
+        </div>` : ""}
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn save" onclick="doSave()">${isNew?"上架":"保存"}</button></div>`;
+}
+
+function doSave(){
+  let rec = { idx:f.idx };
+  if(f.mode==="json"){
+    try{ const o=JSON.parse(f.json||"{}");
+      rec.name=o.name||"自定义 MCP"; rec.desc=o.note||o.url||""; rec.transport=(o.transport||"http").toLowerCase(); rec.url=o.url||"";
+    }catch(e){ toast("json 解析失败，请检查格式"); return; }
+  } else { rec.name=f.name.trim()||"自定义 MCP"; rec.desc=f.note.trim(); rec.transport=f.transport; rec.url=f.url.trim(); }
+  const base = { ico:f.ico, bg:"#eef2ff", auth:f.auth, scope:f.scope, tenants:f.scope==="all"?[]:[...f.tenants] };
+  if(f.auth==="oauth") base.oauthAuthorized = f.idx>=0 ? (mcps[f.idx].oauthAuthorized||false) : false;
+  const full = { ...base, name:rec.name, desc:rec.desc, transport:rec.transport, url:rec.url };
+  if(f.idx>=0){ full.ico=mcps[f.idx].ico; full.bg=mcps[f.idx].bg; mcps[f.idx]=full; } else mcps.push(full);
+  toast((f.idx>=0?"已保存：":"已上架：") + full.name);
+  closeModal(); render();
+}
+
+let toastTimer;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
+
+render();
+</script>
+</body>
+</html>
