@@ -32,6 +32,12 @@
   .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
   .tenant-switch{ display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--txt); background:#fff; border:1px solid var(--line); border-radius:8px; padding:6px 11px; cursor:pointer; font-weight:600; }
   .tenant-switch:hover{ border-color:#c7d2fe; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .nav-link:hover{ color:var(--indigo-d); }
+  .txt-act{ font-size:13px; font-weight:600; cursor:pointer; }
+  .txt-act.edit{ color:var(--indigo); }
+  .txt-act.del{ color:var(--danger); margin-left:14px; }
+  .txt-act:hover{ text-decoration:underline; }
   .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
 
   /* sidebar */
@@ -201,6 +207,39 @@
   .checkbox.on{ background:var(--indigo); border-color:var(--indigo); }
 
   /* toast */
+  /* 列内分类可点击 */
+  .cat-cell{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+  .cat-cell .cat-tag{ color:var(--mut); font-size:13px; opacity:0; transition:.12s; }
+  .table tbody tr:hover .cat-cell .cat-tag{ opacity:1; }
+  .cat-cell:hover .cat-tag{ color:var(--indigo-d); }
+  /* 设置分类弹窗选项 */
+  .cat-pick{ display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:20px; font-size:13px; font-weight:600; color:var(--txt); border:1px solid var(--line); cursor:pointer; transition:.12s; }
+  .cat-pick:hover{ border-color:#c7d2fe; }
+  .cat-pick.on{ border-color:var(--indigo); background:#f5f3ff; color:#4338ca; }
+  /* 只读表单项 */
+  .inp.ro,.icon-box.ro{ background:var(--bg); color:var(--sub); cursor:not-allowed; }
+  textarea.inp.ro{ resize:none; }
+  .up-btn:disabled{ opacity:.5; cursor:not-allowed; }
+  /* 选人组件 picker */
+  .picker{ display:grid; grid-template-columns:1fr 1fr; gap:0; padding:0; }
+  .pk-left{ border-right:1px solid var(--line-2); padding:16px 18px; max-height:420px; overflow-y:auto; }
+  .pk-right{ padding:16px 18px; max-height:420px; display:flex; flex-direction:column; }
+  .picker-search{ position:relative; margin-bottom:12px; }
+  .picker-search input{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 12px 9px 34px; font-size:13px; background:#fff; }
+  .picker-search input:focus{ outline:none; border-color:#a5b4fc; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+  .picker-search .ic{ position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--mut); font-size:14px; }
+  .pk-item{ display:flex; align-items:center; gap:10px; padding:9px 6px; border-radius:8px; cursor:pointer; }
+  .pk-item:hover{ background:var(--bg); }
+  .dept-ico{ width:26px; height:26px; border-radius:50%; background:#2563eb; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .pk-name{ font-size:13.5px; color:var(--ink); font-weight:500; }
+  .pk-sub{ display:block; font-size:11.5px; color:var(--mut); }
+  .pk-tabs{ display:flex; gap:0; border:1px solid var(--line); border-radius:9px; overflow:hidden; margin-bottom:12px; }
+  .pk-tab{ flex:1; text-align:center; padding:8px; font-size:13px; font-weight:700; color:var(--sub); cursor:pointer; }
+  .pk-tab.on{ background:#eef2ff; color:var(--indigo-d); }
+  .pk-chosen{ flex:1; overflow-y:auto; }
+  .chosen-item{ display:flex; align-items:center; gap:10px; padding:9px 4px; }
+  .chosen-item .rm{ margin-left:auto; color:var(--mut); font-size:16px; cursor:pointer; padding:0 4px; }
+  .chosen-item .rm:hover{ color:var(--danger); }
   .toast{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%) translateY(8px); background:var(--ink); color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; z-index:60; opacity:0; transition:.24s; pointer-events:none; box-shadow:var(--shadow-md); }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
@@ -209,17 +248,17 @@
 
 <div class="page-label">
   <span class="b-num">2</span>
-  <span class="b-title">WorkHub Studio 后台 · MCP 管理</span>
-  <span class="b-desc">租户配置 · 内置 MCP 配公共账号 + 展示标签分发｜自定义 MCP｜打标分类｜绑定 Agent 使用</span>
+  <span class="b-title">Workhub Studio · MCP</span>
+  <span class="b-desc">租户配置 · 内置 MCP 配 Headers（共用账号）+ 定向分发｜自定义 MCP｜列内配置分类｜绑定 Agent 使用</span>
 </div>
 
 <div class="app">
   <div class="topbar">
-    <div class="logo"><span class="logo-icon">W</span>WorkHub Studio</div>
-    <span class="env-tag">Studio 后台</span>
+    <div class="logo"><span class="logo-icon">W</span>Workhub Studio</div>
     <div class="right">
       <span class="tenant-switch">🏢 网易－效率工程部 <span style="color:var(--mut);font-size:10px;">▾</span></span>
-      <span class="avatar">青</span>
+      <span class="nav-link">🧭 服务导航</span>
+      <span class="avatar">张</span>
     </div>
   </div>
 
@@ -263,49 +302,51 @@ const categories = [
   { id:"c_legal", name:"法务",   color:"#dc2626" },
   { id:"c_dev",   name:"研发",   color:"#10b981" }
 ];
-// 展示标签（官方，供分发/展示）
-const tags = [
-  { id:"t_ux",   name:"用户体验中心" },
-  { id:"t_oa",   name:"OA" },
-  { id:"t_ec",   name:"易协作" },
-  { id:"t_adm",  name:"行政" },
-  { id:"t_fin",  name:"财务部" },
-  { id:"t_law",  name:"法务部" },
-  { id:"t_pop",  name:"POPO" }
+// 部门树（定向分发用，同选人组件）
+const depts = [
+  { id:"d_fin", name:"财务部" }, { id:"d_hr", name:"人力资源部" }, { id:"d_adm", name:"行政部" },
+  { id:"d_ir", name:"投资者关系部" }, { id:"d_dev", name:"企业发展部" }, { id:"d_exec", name:"执行办公室" },
+  { id:"d_biz", name:"综合业务部" }, { id:"d_law", name:"法务部" }, { id:"d_pur", name:"商务采购部" },
+  { id:"d_audit", name:"内审部" }, { id:"d_agri", name:"农业事业部" }
+];
+const users = [
+  { id:"u1", name:"张振", mail:"zhangzhen@corp", dept:"财务部" },
+  { id:"u2", name:"朱弈", mail:"zhuyi@corp", dept:"财务部" },
+  { id:"u3", name:"李扬", mail:"liyang@corp", dept:"内审部" },
+  { id:"u4", name:"傅云辰", mail:"fuyunchen@corp", dept:"内审部" },
+  { id:"u5", name:"施羽婷", mail:"shiyt@corp", dept:"法务部" },
+  { id:"u6", name:"林锦珊", mail:"linjs@corp", dept:"财务部" }
 ];
 
-/* 内置 MCP：超管上架分配。auth=鉴权类型；tenantHeaders=是否配公共账号；
-   distTags=公共账号已分发的展示标签（免鉴权直用）；boundAgents=已绑定 Agent 数；
-   cat=分类id；showTags=展示标签id[] */
+/* 内置 MCP：超管上架分配。auth=鉴权类型；tenantHeaders=是否配 Headers（共用账号）；
+   distDepts/distUsers=定向分发目标；boundAgents=已绑定 Agent 数；cat=分类id */
 const builtin = [
-  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo", cat:"c_office", showTags:["t_oa","t_pop"], boundAgents:6 },
-  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo", cat:"c_office", showTags:["t_oa"], boundAgents:3 },
-  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo", cat:"c_office", showTags:["t_oa"], boundAgents:2 },
-  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo", cat:"c_office", showTags:["t_ec"], boundAgents:1 },
-  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo", cat:"c_gen", showTags:["t_ux"], boundAgents:4 },
-  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", cat:"c_office", showTags:["t_oa"], boundAgents:2, tenantHeaders:true, headers:[{k:"Authorization",v:"Bearer ***"}], distTags:["t_oa"] },
-  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", cat:"c_dev", showTags:[], boundAgents:1 },
-  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", cat:"c_dev", showTags:["t_ux"], boundAgents:0 },
-  { name:"CodeMaker",  ico:"⟨⟩", bg:"#e0f2fe", desc:"调用研发代码生成与分析能力", auth:"api", cat:"c_dev", showTags:[], boundAgents:2 },
-  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api", cat:"c_legal", showTags:["t_law"], boundAgents:1, tenantHeaders:true, headers:[{k:"apikey",v:"***"}], distTags:["t_law"] },
-  { name:"企查查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业工商、股东、风险与关系图谱", auth:"api", cat:"c_data", showTags:["t_fin"], boundAgents:3, tenantHeaders:true, headers:[{k:"Token",v:"***"}], distTags:["t_fin","t_law"] }
+  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo", cat:"c_office", boundAgents:6, distDepts:[], distUsers:[] },
+  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo", cat:"c_office", boundAgents:3, distDepts:[], distUsers:[] },
+  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo", cat:"c_office", boundAgents:2, distDepts:[], distUsers:[] },
+  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo", cat:"c_office", boundAgents:1, distDepts:[], distUsers:[] },
+  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo", cat:"c_gen", boundAgents:4, distDepts:[], distUsers:[] },
+  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", cat:"c_office", boundAgents:2, tenantHeaders:true, headers:[{k:"Authorization",v:"Bearer ***"}], distDepts:["行政部"], distUsers:[] },
+  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", cat:"c_dev", boundAgents:1, distDepts:[], distUsers:[] },
+  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", cat:"c_dev", boundAgents:0, distDepts:[], distUsers:[] },
+  { name:"CodeMaker",  ico:"⟨⟩", bg:"#e0f2fe", desc:"调用研发代码生成与分析能力", auth:"api", cat:"c_dev", boundAgents:2, distDepts:[], distUsers:[] },
+  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api", cat:"c_legal", boundAgents:1, tenantHeaders:true, headers:[{k:"apikey",v:"***"}], distDepts:["法务部"], distUsers:[] },
+  { name:"企查查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业工商、股东、风险与关系图谱", auth:"api", cat:"c_data", boundAgents:3, tenantHeaders:true, headers:[{k:"Token",v:"***"}], distDepts:["财务部","法务部"], distUsers:["张振"] }
 ];
 // 自定义 MCP
 const custom = [
-  { name:"内部 CRM MCP", ico:"🔌", bg:"#eef2ff", desc:"对接部门内部 CRM 的客户与订单数据", transport:"http", url:"https://mcp.crm.internal/mcp", headers:[{k:"Authorization",v:"Bearer ***"}], cat:"c_data", showTags:["t_fin"], boundAgents:1 }
+  { name:"内部 CRM MCP", ico:"🔌", bg:"#eef2ff", desc:"对接部门内部 CRM 的客户与订单数据", transport:"http", url:"https://mcp.crm.internal/mcp", headers:[{k:"Authorization",v:"Bearer ***"}], cat:"c_data", boundAgents:1, distDepts:[], distUsers:[] }
 ];
 
 /* ============ 状态 ============ */
 let tab = "builtin";
 let fltName = "";
 let fltCat = "c_all";
-let fltTag = "";        // 展示标签筛选，空=全部
 const main = document.getElementById("main");
 const overlay = document.getElementById("overlay");
 const modal = document.getElementById("modal");
 
 const catById = id => categories.find(c=>c.id===id);
-const tagById = id => tags.find(t=>t.id===id);
 
 /* ============ 顶层渲染 ============ */
 function render(){
@@ -315,11 +356,9 @@ function render(){
       <span class="main-title">MCP</span>
       <div style="margin-left:auto;display:flex;gap:8px;">
         <button class="btn ghost" onclick="openMngCat()">🎨 管理分类</button>
-        <button class="btn ghost" onclick="openMngTag()">🏷 管理展示标签</button>
         ${tab==="custom" ? `<button class="btn primary" onclick="openCustom(-1)">＋ 添加自定义 MCP</button>` : ""}
       </div>
     </div>
-    <div class="main-sub">管理本租户可用的 MCP：内置 MCP 可配公共账号并按展示标签分发，自定义 MCP 手动接入；MCP 需绑定 Agent 后被调用。</div>
 
     <div class="tabs">
       <div class="tab ${tab==='builtin'?'active':''}" onclick="switchTab('builtin')">内置 MCP</div>
@@ -327,10 +366,9 @@ function render(){
     </div>
 
     <div class="toolbar">
-      <div class="search"><span class="ic">🔍</span><input placeholder="搜索 MCP 名称 / 描述" value="${fltName}" oninput="onSearch(this.value)"></div>
+      <div class="search"><span class="ic">🔍</span><input placeholder="搜索 MCP 名称" value="${fltName}" oninput="onSearch(this.value)"></div>
       ${ddCategory()}
-      ${ddTag()}
-      ${(fltName||fltCat!=='c_all'||fltTag) ? `<button class="btn ghost sm" onclick="resetFlt()">重置</button>` : ""}
+      ${(fltName||fltCat!=='c_all') ? `<button class="btn ghost sm" onclick="resetFlt()">重置</button>` : ""}
     </div>
 
     ${renderTable(list)}
@@ -338,7 +376,7 @@ function render(){
 }
 function switchTab(t){ tab=t; render(); }
 function onSearch(v){ fltName=v; render(); }
-function resetFlt(){ fltName=""; fltCat="c_all"; fltTag=""; render(); }
+function resetFlt(){ fltName=""; fltCat="c_all"; render(); }
 
 /* ---- 自定义下拉：分类 ---- */
 function ddCategory(){
@@ -360,22 +398,6 @@ function ddCategory(){
 }
 function pickCat(id){ fltCat=id; closeDD(); render(); }
 
-/* ---- 自定义下拉：展示标签 ---- */
-function ddTag(){
-  const cur = fltTag ? tagById(fltTag) : null;
-  return `<div class="dd" id="ddTag">
-    <div class="dd-btn" onclick="toggleDD('ddTag',event)">
-      <span class="cur ${cur?'':'ph'}">${cur?cur.name:'全部展示标签'}</span>
-      <span class="caret">▼</span>
-    </div>
-    <div class="dd-menu">
-      <div class="dd-opt ${!fltTag?'sel':''}" onclick="pickTag('')">全部展示标签<span class="ck">✓</span></div>
-      ${tags.map(t=>`<div class="dd-opt ${t.id===fltTag?'sel':''}" onclick="pickTag('${t.id}')">${t.name}<span class="ck">✓</span></div>`).join("")}
-    </div>
-  </div>`;
-}
-function pickTag(id){ fltTag=id; closeDD(); render(); }
-
 function toggleDD(id,e){ e.stopPropagation(); const el=document.getElementById(id); const menu=el.querySelector('.dd-menu'); const btn=el.querySelector('.dd-btn'); const open=menu.classList.contains('show'); closeDD(); if(!open){ menu.classList.add('show'); btn.classList.add('on'); } }
 function closeDD(){ document.querySelectorAll('.dd-menu.show').forEach(m=>m.classList.remove('show')); document.querySelectorAll('.dd-btn.on').forEach(b=>b.classList.remove('on')); }
 document.addEventListener('click', closeDD);
@@ -383,9 +405,8 @@ document.addEventListener('click', closeDD);
 /* ============ 表格 ============ */
 function filtered(list){
   return list.filter(m=>{
-    if(fltName){ const q=fltName.toLowerCase(); if(!(m.name.toLowerCase().includes(q)||(m.desc||"").toLowerCase().includes(q))) return false; }
+    if(fltName){ const q=fltName.toLowerCase(); if(!m.name.toLowerCase().includes(q)) return false; }
     if(fltCat!=='c_all' && m.cat!==fltCat) return false;
-    if(fltTag && !(m.showTags||[]).includes(fltTag)) return false;
     return true;
   });
 }
@@ -395,46 +416,43 @@ function renderTable(list){
   const isB = tab==='builtin';
   return `<table class="table">
     <thead><tr>
-      <th style="width:${isB?'30%':'34%'}">MCP</th>
-      <th style="width:11%">鉴权类型</th>
-      <th style="width:12%">分类</th>
-      <th style="width:16%">展示标签</th>
-      <th style="width:15%">${isB?'公共账号 / 分发':'公共账号'}</th>
-      <th style="width:8%">绑定 Agent</th>
-      <th style="width:8%;text-align:right;">操作</th>
+      <th style="width:${isB?'32%':'34%'}">MCP</th>
+      <th style="width:12%">鉴权类型</th>
+      <th style="width:15%">分类</th>
+      <th style="width:19%">${isB?'共用账号 / 分发':'Headers'}</th>
+      <th style="width:10%">绑定 Agent</th>
+      <th style="width:12%;text-align:right;">操作</th>
     </tr></thead>
     <tbody>
       ${rows.map(m=>{ const i=list.indexOf(m); return isB?rowBuiltin(m,i):rowCustom(m,i); }).join("")}
     </tbody>
   </table>`;
 }
-function tagCell(m){
-  const ids=m.showTags||[];
-  if(!ids.length) return `<span style="color:var(--mut);font-size:12px;">—</span>`;
-  return ids.slice(0,2).map(id=>`<span class="tag-chip">${(tagById(id)||{}).name||id}</span>`).join("") + (ids.length>2?`<span class="pill gray">+${ids.length-2}</span>`:"");
+function catCell(m,i){ const c=catById(m.cat)||catById('c_gen');
+  return `<span class="cat-cell" onclick="openCatMcp(${i},'${tab}')" title="点击设置分类">
+    <span class="cat-chip" style="background:${c.color}1a;color:${c.color};"><span class="dd-dot" style="background:${c.color}"></span>${c.name}</span>
+    <span class="cat-tag" title="设置分类">🏷</span>
+  </span>`;
 }
-function catCell(m){ const c=catById(m.cat)||catById('c_gen'); return `<span class="cat-chip" style="background:${c.color}1a;color:${c.color};"><span class="dd-dot" style="background:${c.color}"></span>${c.name}</span>`; }
 function agentCell(m){ return m.boundAgents>0 ? `<span class="pill blue">${m.boundAgents} 个</span>` : `<span class="pill gray">未绑定</span>`; }
+function distSummary(m){ const dn=(m.distDepts||[]).length, un=(m.distUsers||[]).length; if(!dn&&!un) return `<span style="font-size:11px;color:var(--mut);margin-top:4px;display:block;">未分发</span>`; const parts=[]; if(dn)parts.push(`${dn} 个部门`); if(un)parts.push(`${un} 人`); return `<span style="font-size:11px;color:var(--sub);margin-top:4px;display:block;">分发给 ${parts.join(" · ")} · 免鉴权</span>`; }
 
 function rowBuiltin(m,i){
   const meta=authMeta[m.auth];
   const canHeaders = m.auth==="oauth"||m.auth==="api";
   let acct;
   if(!canHeaders){ acct=`<span class="pill green">静默 · 无需</span>`; }
-  else if(m.tenantHeaders){
-    const dn=(m.distTags||[]).length;
-    acct=`<span class="pill green">已配公共账号</span>${dn?`<div style="font-size:11px;color:var(--sub);margin-top:4px;">分发给 ${dn} 个标签 · 免鉴权</div>`:`<div style="font-size:11px;color:var(--mut);margin-top:4px;">未分发</div>`}`;
-  } else { acct=`<span class="pill amber">未配 · 用户自授权</span>`; }
+  else if(m.tenantHeaders){ acct=`<span class="pill green">已配共用账号</span>${distSummary(m)}`; }
+  else { acct=`<span class="pill amber">未配 · 用户自授权</span>`; }
   return `<tr>
     <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name}</div><div class="dz">${m.desc}</div></div></div></td>
     <td><span class="pill ${meta.pill}">${meta.label}</span></td>
-    <td>${catCell(m)}</td>
-    <td>${tagCell(m)}</td>
+    <td>${catCell(m,i)}</td>
     <td>${acct}</td>
     <td>${agentCell(m)}</td>
     <td><div class="row-acts">
-      <span class="icon-btn" title="打标签 / 分类" onclick="openTagMcp(${i},'builtin')">🏷</span>
-      ${canHeaders?`<span class="icon-btn" title="配公共账号 / 分发" onclick="openHeaders(${i})">🔑</span>`:``}
+      <span class="txt-act edit" onclick="openBuiltinEdit(${i})">编辑</span>
+      ${canHeaders&&m.tenantHeaders?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'builtin')">定向分发</span>`:``}
     </div></td>
   </tr>`;
 }
@@ -442,69 +460,107 @@ function rowCustom(m,i){
   return `<tr>
     <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name}</div><div class="dz">${m.desc||m.url}</div></div></div></td>
     <td><span class="pill gray">${(m.transport||'http').toUpperCase()}</span></td>
-    <td>${catCell(m)}</td>
-    <td>${tagCell(m)}</td>
-    <td>${m.headers&&m.headers.length?`<span class="pill green">已配公共账号</span>`:`<span class="pill gray">无</span>`}</td>
+    <td>${catCell(m,i)}</td>
+    <td>${m.headers&&m.headers.length?`<span class="pill green">已配共用账号</span>`:`<span class="pill gray">无</span>`}</td>
     <td>${agentCell(m)}</td>
     <td><div class="row-acts">
-      <span class="icon-btn" title="打标签 / 分类" onclick="openTagMcp(${i},'custom')">🏷</span>
-      <span class="icon-btn" title="编辑" onclick="openCustom(${i})">✏️</span>
-      <span class="icon-btn danger" title="删除" onclick="delCustom(${i})">🗑</span>
+      <span class="txt-act edit" onclick="openCustom(${i})">编辑</span>
+      ${m.headers&&m.headers.length?`<span class="txt-act edit" style="margin-left:14px;" onclick="openDist(${i},'custom')">定向分发</span>`:``}
+      <span class="txt-act del" onclick="delCustom(${i})">删除</span>
     </div></td>
   </tr>`;
 }
 
-/* ============ 弹窗：内置 MCP 公共账号 + 标签分发 ============ */
-let hForm={ idx:-1, headers:[], dist:[] };
-function openHeaders(i){
+/* ============ 弹窗：内置 MCP 编辑（样式同超管，不可编辑项置灰，仅 Headers 可改） ============ */
+let bForm={ idx:-1, headers:[] };
+function openBuiltinEdit(i){
   const m=builtin[i];
-  hForm={ idx:i, headers:(m.headers?m.headers.map(h=>({...h})):[{k:"",v:""}]), dist:[...(m.distTags||[])] };
-  showModal(); renderHeaders();
+  bForm={ idx:i, headers:(m.headers?m.headers.map(h=>({...h})):[{k:"",v:""}]) };
+  showModal(); renderBuiltinEdit();
 }
-function renderHeaders(){
-  const m=builtin[hForm.idx];
-  const authTxt = m.auth==="oauth"?"OAuth 外跳":"自定义 API";
+function renderBuiltinEdit(){
+  const m=builtin[bForm.idx];
+  const meta=authMeta[m.auth];
+  const canHeaders = m.auth==="oauth"||m.auth==="api";
   modal.className="modal wide";
   modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">${m.name} · 公共账号与分发</div><div class="ms">${authTxt} 鉴权 · 配置租户公共账号后，可按展示标签定向分发给 C 端用户免鉴权直用</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><div><div class="mt">编辑 MCP</div></div><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
-      <div class="field">
-        <label>公共账号（Headers）<span class="opt">凭据，可选</span></label>
-        <div class="note info" style="margin-bottom:10px;">填写后，被分发用户 <b>共用该账号免鉴权</b>；留空则每个用户使用时各自完成账号鉴权。</div>
-        ${hForm.headers.map((hd,i)=>`<div class="kv">
-          <input class="inp" placeholder="Header 名称，如 Authorization" value="${hd.k}" oninput="hForm.headers[${i}].k=this.value">
-          <input class="inp mono" placeholder="Header 值，如 Bearer xxx" value="${hd.v}" oninput="hForm.headers[${i}].v=this.value">
-          <span class="del" onclick="hDel(${i})">🗑</span></div>`).join("")}
-        <span class="add-line" onclick="hAdd()">＋ 添加 Header</span>
+      <div class="field"><label>图标</label>
+        <div class="icon-up"><div class="icon-box ro" style="background:${m.bg}">${m.ico}</div>
+          <div><button class="up-btn" disabled>⬆ 上传图标</button><div class="hint">内置 MCP 图标由超管上架时设定，不可修改</div></div></div>
       </div>
-
-      <div class="field" style="margin-bottom:6px;">
-        <label>按展示标签定向分发 <span class="opt">配了公共账号才生效</span></label>
-        <div class="note ok" style="margin-bottom:10px;">勾选的展示标签下的 C 端用户，在创建 Agent 时可见该 MCP，添加后<b>免鉴权直用</b>（鉴权已在 Studio 完成）。</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${tags.map(t=>`<label class="user-item" style="border:1px solid ${hForm.dist.includes(t.id)?'#a5b4fc':'var(--line)'};border-radius:9px;padding:8px 12px;cursor:pointer;flex:0 0 auto;" onclick="toggleDist('${t.id}')">
-            <span class="checkbox ${hForm.dist.includes(t.id)?'on':''}">${hForm.dist.includes(t.id)?'✓':''}</span>
-            <span style="font-size:13px;font-weight:600;color:var(--ink);">${t.name}</span>
-          </label>`).join("")}
-        </div>
-      </div>
+      <div class="field"><label>服务器名称</label><input class="inp ro" value="${m.name}" disabled></div>
+      <div class="field"><label>描述</label><textarea class="inp ro" disabled>${m.desc}</textarea></div>
+      <div class="field"><label>鉴权类型</label><div><span class="pill ${meta.pill}">${meta.label}</span></div></div>
+      ${canHeaders?`
+      <div class="field"><label>Headers <span class="opt">填写即表示该 MCP 提供共用授权账号</span></label>
+        <div class="note info" style="margin-bottom:10px;">填写后，被<b>定向分发</b>的部门 / 人员共用该账号免鉴权直用；留空则每个用户使用时各自完成账号鉴权。</div>
+        ${bForm.headers.map((hd,i)=>`<div class="kv">
+          <input class="inp" placeholder="Header 名称，如 Authorization" value="${hd.k}" oninput="bForm.headers[${i}].k=this.value">
+          <input class="inp mono" placeholder="Header 值，如 Bearer xxx" value="${hd.v}" oninput="bForm.headers[${i}].v=this.value">
+          <span class="del" onclick="bHDel(${i})">🗑</span></div>`).join("")}
+        <span class="add-line" onclick="bHAdd()">＋ 添加 Header</span>
+      </div>`:`
+      <div class="field"><label>Headers</label><div class="note info">POPO 静默类无需配置账号，用户以自己 POPO 身份静默授权使用。</div></div>`}
     </div>
     <div class="modal-foot">
       <button class="btn ghost" onclick="closeModal()">取消</button>
-      <button class="btn primary" onclick="saveHeaders()">保存</button>
+      <button class="btn primary" onclick="saveBuiltinEdit()">保存</button>
     </div>`;
 }
-function hAdd(){ hForm.headers.push({k:"",v:""}); renderHeaders(); }
-function hDel(i){ hForm.headers.splice(i,1); if(!hForm.headers.length) hForm.headers.push({k:"",v:""}); renderHeaders(); }
-function toggleDist(id){ const i=hForm.dist.indexOf(id); if(i>=0)hForm.dist.splice(i,1); else hForm.dist.push(id); renderHeaders(); }
-function saveHeaders(){
-  const m=builtin[hForm.idx];
-  const valid=hForm.headers.filter(h=>h.k.trim());
+function bHAdd(){ bForm.headers.push({k:"",v:""}); renderBuiltinEdit(); }
+function bHDel(i){ bForm.headers.splice(i,1); if(!bForm.headers.length) bForm.headers.push({k:"",v:""}); renderBuiltinEdit(); }
+function saveBuiltinEdit(){
+  const m=builtin[bForm.idx];
+  const valid=bForm.headers.filter(h=>h.k.trim());
   m.headers=valid; m.tenantHeaders=valid.length>0;
-  m.distTags = valid.length? hForm.dist : [];
-  toast(valid.length?`已保存公共账号${m.distTags.length?` · 分发给 ${m.distTags.length} 个标签`:''}`:"已清空公共账号");
+  if(!valid.length){ m.distDepts=[]; m.distUsers=[]; }
+  toast(valid.length?"已保存 Headers（共用账号）":"已清空 Headers");
   closeModal(); render();
 }
+
+/* ============ 弹窗：定向分发（选择部门 / 人员） ============ */
+let dForm={ idx:-1, type:"builtin", tab:"dept", depts:[], usersSel:[], q:"" };
+function openDist(i,type){
+  const m=(type==='builtin'?builtin:custom)[i];
+  dForm={ idx:i, type, tab:"dept", depts:[...(m.distDepts||[])], usersSel:[...(m.distUsers||[])], q:"" };
+  showModal(); renderDist();
+}
+function renderDist(){
+  modal.className="modal wide";
+  const q=dForm.q.trim().toLowerCase();
+  const uList=users.filter(u=>!q||u.name.toLowerCase().includes(q)||u.mail.toLowerCase().includes(q));
+  const allDept = dForm.depts.length===depts.length;
+  const left = `
+    <div class="picker-search"><span class="ic">🔍</span><input placeholder="请输入人员姓名或邮箱" value="${dForm.q}" oninput="dForm.q=this.value;renderDist()"></div>
+    ${!q?`
+    <label class="pk-item" onclick="toggleAllDept()"><span class="checkbox ${allDept?'on':''}">${allDept?'✓':''}</span><span class="pk-name" style="font-weight:700;">全部部门</span></label>
+    ${depts.map(d=>`<label class="pk-item" onclick="toggleDept('${d.name}')"><span class="checkbox ${dForm.depts.includes(d.name)?'on':''}">${dForm.depts.includes(d.name)?'✓':''}</span><span class="dept-ico">🏢</span><span class="pk-name">${d.name}</span></label>`).join("")}
+    `:`
+    ${uList.length?uList.map(u=>`<label class="pk-item" onclick="toggleUser('${u.name}')"><span class="checkbox ${dForm.usersSel.includes(u.name)?'on':''}">${dForm.usersSel.includes(u.name)?'✓':''}</span><span class="u-ava" style="background:#6366f1">${u.name[0]}</span><span><span class="pk-name">${u.name}</span><span class="pk-sub">${u.mail} · ${u.dept}</span></span></label>`).join(""):`<div class="empty" style="padding:30px 0;border:none;">无匹配人员</div>`}
+    `}`;
+  const chosen = dForm.tab==="dept"
+    ? (dForm.depts.length?dForm.depts.map(n=>`<div class="chosen-item"><span class="dept-ico">🏢</span><span class="pk-name">${n}</span><span class="rm" onclick="toggleDept('${n}')">×</span></div>`).join(""):`<div class="empty" style="border:none;padding:40px 0;">暂无部门</div>`)
+    : (dForm.usersSel.length?dForm.usersSel.map(n=>`<div class="chosen-item"><span class="u-ava" style="background:#6366f1">${n[0]}</span><span class="pk-name">${n}</span><span class="rm" onclick="toggleUser('${n}')">×</span></div>`).join(""):`<div class="empty" style="border:none;padding:40px 0;">暂无人员</div>`);
+  modal.innerHTML=`
+    <div class="modal-head"><div><div class="mt">定向分发</div><div class="ms">选择部门 / 人员，被选中者创建 Agent 时可见该 MCP 并免鉴权直用（共用已配账号）</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body picker">
+      <div class="pk-left">${left}</div>
+      <div class="pk-right">
+        <div class="pk-tabs">
+          <div class="pk-tab ${dForm.tab==='dept'?'on':''}" onclick="dForm.tab='dept';renderDist()">已选部门(${dForm.depts.length})</div>
+          <div class="pk-tab ${dForm.tab==='user'?'on':''}" onclick="dForm.tab='user';renderDist()">已选人员(${dForm.usersSel.length})</div>
+        </div>
+        <div class="pk-chosen">${chosen}</div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveDist()">确定</button></div>`;
+}
+function toggleDept(n){ const i=dForm.depts.indexOf(n); if(i>=0)dForm.depts.splice(i,1); else dForm.depts.push(n); renderDist(); }
+function toggleAllDept(){ dForm.depts = dForm.depts.length===depts.length ? [] : depts.map(d=>d.name); renderDist(); }
+function toggleUser(n){ const i=dForm.usersSel.indexOf(n); if(i>=0)dForm.usersSel.splice(i,1); else dForm.usersSel.push(n); renderDist(); }
+function saveDist(){ const m=(dForm.type==='builtin'?builtin:custom)[dForm.idx]; m.distDepts=[...dForm.depts]; m.distUsers=[...dForm.usersSel]; const total=m.distDepts.length+m.distUsers.length; toast(total?`已分发给 ${m.distDepts.length} 个部门 · ${m.distUsers.length} 人`:"已清空分发范围"); closeModal(); render(); }
 
 /* ============ 弹窗：自定义 MCP ============ */
 let cForm={ idx:-1, mode:"form", transport:"http", name:"", note:"", url:"", headers:[], json:"", ico:"🔌", bg:"#eef2ff" };
@@ -528,7 +584,7 @@ function renderCustom(){
         <div class="hint">未上传使用默认图标</div></div></div>
     </div>
     <div class="field"><label>服务器名称</label><input class="inp" placeholder="如：内部 CRM MCP" value="${cForm.name}" oninput="cForm.name=this.value"></div>
-    <div class="field"><label>备注 <span class="opt">可选</span></label><textarea class="inp" placeholder="说明用途，便于 Agent 判断何时调用" oninput="cForm.note=this.value">${cForm.note}</textarea></div>
+    <div class="field"><label>描述 <span class="opt">可选</span></label><textarea class="inp" placeholder="说明用途，便于 Agent 判断何时调用" oninput="cForm.note=this.value">${cForm.note}</textarea></div>
     <div class="field"><label>传输类型</label>
       <div class="seg">
         <button class="${cForm.transport==='sse'?'on':''}" onclick="cSetTransport('sse')">SSE</button>
@@ -536,17 +592,17 @@ function renderCustom(){
       </div>
     </div>
     <div class="field"><label>服务器 URL</label><input class="inp mono" placeholder="${cForm.transport==='sse'?'https://mcp.yourserver.com/sse':'https://mcp.yourserver.com/mcp'}" value="${cForm.url}" oninput="cForm.url=this.value"></div>
-    <div class="field"><label>公共账号（Headers）<span class="opt">可选，可不填</span></label>
+    <div class="field"><label>Headers <span class="opt">可行，填写即表示该 MCP 提供共用授权账号</span></label>
       ${cForm.headers.map((hd,i)=>`<div class="kv"><input class="inp" placeholder="Header 名称" value="${hd.k}" oninput="cForm.headers[${i}].k=this.value"><input class="inp mono" placeholder="Header 值" value="${hd.v}" oninput="cForm.headers[${i}].v=this.value"><span class="del" onclick="cHDel(${i})">🗑</span></div>`).join("")}
       <span class="add-line" onclick="cHAdd()">＋ 添加 Header</span>
     </div>`;
   const jsonBody=`
-    <div class="note info" style="margin-bottom:12px;">粘贴标准 MCP 配置 json，支持 <b>sse / http</b>，Headers 可不填。</div>
+    <div class="note info" style="margin-bottom:12px;">粘贴标准 MCP 配置 json，支持 <b>sse / http</b>，Headers 可不填，填写即表示该 MCP 提供共用授权账号。</div>
     <div class="field"><label>配置 json</label>
       <textarea class="inp mono" style="min-height:210px;" placeholder='{\n  "name": "内部 CRM MCP",\n  "transport": "http",\n  "url": "https://mcp.crm.internal/mcp",\n  "headers": { "Authorization": "Bearer xxx" }\n}' oninput="cForm.json=this.value">${cForm.json}</textarea>
     </div>`;
   modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">${isNew?'添加自定义 MCP':'编辑自定义 MCP'}</div><div class="ms">手动接入 SSE / HTTP 远端 MCP 服务</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><div><div class="mt">${isNew?'添加自定义 MCP':'编辑自定义 MCP'}</div></div><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
       <div style="margin-bottom:16px;"><div class="seg">
         <button class="${cForm.mode==='form'?'on':''}" onclick="cSetMode('form')">手动配置</button>
@@ -564,74 +620,51 @@ function cHAdd(){ cForm.headers.push({k:"",v:""}); renderCustom(); }
 function cHDel(i){ cForm.headers.splice(i,1); renderCustom(); }
 function saveCustom(){
   let rec;
+  const keep = cForm.idx>=0?custom[cForm.idx]:{cat:"c_gen",boundAgents:0,distDepts:[],distUsers:[]};
   if(cForm.mode==='json'){
     try{ const o=JSON.parse(cForm.json||"{}"); const hs=o.headers?Object.entries(o.headers).map(([k,v])=>({k,v:String(v)})):[];
-      rec={ name:o.name||"自定义 MCP", ico:cForm.ico, bg:cForm.bg, desc:o.note||o.url||"", transport:(o.transport||"http").toLowerCase(), url:o.url||"", headers:hs, cat:cForm.idx>=0?custom[cForm.idx].cat:"c_gen", showTags:cForm.idx>=0?custom[cForm.idx].showTags:[], boundAgents:cForm.idx>=0?custom[cForm.idx].boundAgents:0 };
+      rec={ name:o.name||"自定义 MCP", ico:cForm.ico, bg:cForm.bg, desc:o.note||o.url||"", transport:(o.transport||"http").toLowerCase(), url:o.url||"", headers:hs, cat:keep.cat, boundAgents:keep.boundAgents, distDepts:keep.distDepts, distUsers:keep.distUsers };
     }catch(e){ toast("json 解析失败，请检查格式"); return; }
   } else {
-    rec={ name:cForm.name.trim()||"自定义 MCP", ico:cForm.ico, bg:cForm.bg, desc:cForm.note.trim(), transport:cForm.transport, url:cForm.url.trim(), headers:cForm.headers.filter(h=>h.k.trim()), cat:cForm.idx>=0?custom[cForm.idx].cat:"c_gen", showTags:cForm.idx>=0?custom[cForm.idx].showTags:[], boundAgents:cForm.idx>=0?custom[cForm.idx].boundAgents:0 };
+    rec={ name:cForm.name.trim()||"自定义 MCP", ico:cForm.ico, bg:cForm.bg, desc:cForm.note.trim(), transport:cForm.transport, url:cForm.url.trim(), headers:cForm.headers.filter(h=>h.k.trim()), cat:keep.cat, boundAgents:keep.boundAgents, distDepts:keep.distDepts, distUsers:keep.distUsers };
   }
   if(cForm.idx>=0) custom[cForm.idx]=rec; else custom.push(rec);
   toast("已保存自定义 MCP："+rec.name); closeModal(); render();
 }
 function delCustom(i){ if(!confirm(`确认删除自定义 MCP「${custom[i].name}」？删除后本租户 Agent 将无法调用。`))return; const n=custom[i].name; custom.splice(i,1); closeModal(); toast("已删除："+n); render(); }
 
-/* ============ 弹窗：给某 MCP 打标签 + 分类 ============ */
-let tForm={ idx:-1, type:"builtin", cat:"", picked:[] };
-function openTagMcp(i,type){
+/* ============ 弹窗：设置分类（列内点击触发，单选） ============ */
+let tForm={ idx:-1, type:"builtin", cat:"" };
+function openCatMcp(i,type){
   const m=(type==='builtin'?builtin:custom)[i];
-  tForm={ idx:i, type, cat:m.cat, picked:[...(m.showTags||[])] };
-  showModal(); renderTagMcp();
+  tForm={ idx:i, type, cat:m.cat };
+  showModal(); renderCatMcp();
 }
-function renderTagMcp(){
+function renderCatMcp(){
   const m=(tForm.type==='builtin'?builtin:custom)[tForm.idx];
   modal.className="modal";
   modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">${m.name} · 分类与展示标签</div><div class="ms">设置分类（单选）与展示标签（多选），复用官方分类 / 标签</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><div><div class="mt">设置分类 — ${m.name}</div><div class="ms">选择要绑定到该 MCP 的分类</div></div><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
-      <div class="field"><label>分类 <span class="opt">单选</span></label>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${categories.filter(c=>!c.fixed).map(c=>`<span class="cat-chip" style="cursor:pointer;padding:7px 12px;background:${tForm.cat===c.id?c.color+'22':'#fff'};color:${c.color};border:1px solid ${tForm.cat===c.id?c.color:'var(--line)'};" onclick="tForm.cat='${c.id}';renderTagMcp()"><span class="dd-dot" style="background:${c.color}"></span>${c.name}</span>`).join("")}
-        </div>
-      </div>
-      <div class="field"><label>展示标签 <span class="opt">多选</span></label>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${tags.map(t=>`<label class="user-item" style="border:1px solid ${tForm.picked.includes(t.id)?'#a5b4fc':'var(--line)'};border-radius:9px;padding:7px 12px;cursor:pointer;flex:0 0 auto;" onclick="toggleTagPick('${t.id}')">
-            <span class="checkbox ${tForm.picked.includes(t.id)?'on':''}">${tForm.picked.includes(t.id)?'✓':''}</span>
-            <span style="font-size:13px;font-weight:600;color:var(--ink);">${t.name}</span></label>`).join("")}
-        </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 18px;padding:6px 2px;">
+        ${categories.filter(c=>!c.fixed).map(c=>`<span class="cat-pick ${tForm.cat===c.id?'on':''}" onclick="tForm.cat='${c.id}';renderCatMcp()"><span class="dd-dot" style="background:${c.color}"></span>${c.name}</span>`).join("")}
       </div>
     </div>
-    <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveTagMcp()">保存</button></div>`;
+    <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveCatMcp()">保存</button></div>`;
 }
-function toggleTagPick(id){ const i=tForm.picked.indexOf(id); if(i>=0)tForm.picked.splice(i,1); else tForm.picked.push(id); renderTagMcp(); }
-function saveTagMcp(){ const m=(tForm.type==='builtin'?builtin:custom)[tForm.idx]; m.cat=tForm.cat; m.showTags=[...tForm.picked]; toast("已更新分类与展示标签"); closeModal(); render(); }
+function saveCatMcp(){ const m=(tForm.type==='builtin'?builtin:custom)[tForm.idx]; m.cat=tForm.cat; toast("已更新分类"); closeModal(); render(); }
 
 /* ============ 弹窗：管理分类 ============ */
 function openMngCat(){
   showModal(); modal.className="modal";
   modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">管理分类</div><div class="ms">创建和管理 MCP 分类（复用当前展示标签 / 分类逻辑）</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-head"><div><div class="mt">管理分类</div><div class="ms">创建和管理 MCP 分类（复用当前分类逻辑）</div></div><span class="x" onclick="closeModal()">×</span></div>
     <div class="modal-body">
       <div class="mng-add" onclick="toast('新增分类（示意）')">＋ 添加分类</div>
       ${categories.filter(c=>!c.fixed).map(c=>`<div class="mng-row">
         <span class="dd-dot" style="width:12px;height:12px;background:${c.color}"></span>
         <span class="nm">${c.name}</span>
         <span class="acts"><span class="icon-btn" onclick="toast('编辑分类（示意）')">✏️</span><span class="icon-btn danger" onclick="toast('删除分类（示意）')">🗑</span></span>
-      </div>`).join("")}
-    </div>
-    <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`;
-}
-/* ============ 弹窗：管理展示标签 ============ */
-function openMngTag(){
-  showModal(); modal.className="modal";
-  modal.innerHTML=`
-    <div class="modal-head"><div><div class="mt">管理展示标签</div><div class="ms">创建和管理官方展示标签，打标 MCP 时只能选官方标签</div></div><span class="x" onclick="closeModal()">×</span></div>
-    <div class="modal-body">
-      <div class="mng-add" onclick="toast('新增标签（示意）')">＋ 添加标签</div>
-      ${tags.map(t=>`<div class="mng-row">
-        <span class="nm">${t.name}</span> <span class="pill line">官方</span>
-        <span class="acts"><span class="icon-btn" onclick="toast('编辑标签（示意）')">✏️</span><span class="icon-btn danger" onclick="toast('删除标签（示意）')">🗑</span></span>
       </div>`).join("")}
     </div>
     <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`;
