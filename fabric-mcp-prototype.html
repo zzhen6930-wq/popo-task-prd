@@ -335,7 +335,7 @@ const builtin = [
 ];
 // 自定义 MCP
 const custom = [
-  { name:"内部 CRM MCP", ico:"🔌", bg:"#eef2ff", desc:"对接部门内部 CRM 的客户与订单数据", transport:"http", url:"https://mcp.crm.internal/mcp", headers:[{k:"Authorization",v:"Bearer ***"}], cat:"c_data", boundAgents:1, distDepts:[], distUsers:[] }
+  { name:"内部 CRM MCP", ico:"🔌", bg:"#eef2ff", desc:"对接部门内部 CRM 的客户与订单数据", transport:"http", url:"https://mcp.crm.internal/mcp", headers:[{k:"Authorization",v:"Bearer ***"}], auth:"api", cat:"c_data", boundAgents:1, distDepts:[], distUsers:[] }
 ];
 
 /* ============ 状态 ============ */
@@ -458,9 +458,10 @@ function rowBuiltin(m,i){
   </tr>`;
 }
 function rowCustom(m,i){
+  const meta=authMeta[m.auth]||authMeta.api;
   return `<tr>
-    <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name}</div><div class="dz">${m.desc||m.url}</div></div></div></td>
-    <td><span class="pill gray">${(m.transport||'http').toUpperCase()}</span></td>
+    <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name} <span class="pill gray" style="font-size:11px;">${(m.transport||'http').toUpperCase()}</span></div><div class="dz">${m.desc||m.url}</div></div></div></td>
+    <td><span class="pill ${meta.pill}">${meta.label}</span></td>
     <td>${catCell(m,i)}</td>
     <td>${m.headers&&m.headers.length?`<span class="pill green">已配共用账号</span>`:`<span class="pill gray">无</span>`}</td>
     <td>${agentCell(m)}</td>
@@ -619,6 +620,12 @@ function renderCustom(){
 }
 function cHAdd(){ cForm.headers.push({k:"",v:""}); renderCustom(); }
 function cHDel(i){ cForm.headers.splice(i,1); renderCustom(); }
+function detectAuth(rec){
+  const url=(rec.url||"").toLowerCase();
+  if(url.includes("popo")||url.includes("netease")) return "popo";
+  if(rec.headers&&rec.headers.length) return "api";
+  return "oauth";
+}
 function saveCustom(){
   let rec;
   const keep = cForm.idx>=0?custom[cForm.idx]:{cat:"c_gen",boundAgents:0,distDepts:[],distUsers:[]};
@@ -630,7 +637,8 @@ function saveCustom(){
     rec={ name:cForm.name.trim()||"自定义 MCP", ico:cForm.ico, bg:cForm.bg, desc:cForm.note.trim(), transport:cForm.transport, url:cForm.url.trim(), headers:cForm.headers.filter(h=>h.k.trim()), cat:keep.cat, boundAgents:keep.boundAgents, distDepts:keep.distDepts, distUsers:keep.distUsers };
   }
   if(cForm.idx>=0) custom[cForm.idx]=rec; else custom.push(rec);
-  toast("已保存自定义 MCP："+rec.name); closeModal(); render();
+  rec.auth=detectAuth(rec);
+  toast(`已保存，自动检测鉴权类型：${authMeta[rec.auth].label}`); closeModal(); render();
 }
 function delCustom(i){ if(!confirm(`确认删除自定义 MCP「${custom[i].name}」？删除后本租户 Agent 将无法调用。`))return; const n=custom[i].name; custom.splice(i,1); closeModal(); toast("已删除："+n); render(); }
 
