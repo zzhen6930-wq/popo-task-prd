@@ -70,6 +70,8 @@
   .ses-row .caret { color:#94a3b8; transition:transform .2s; display:inline-block; }
   .ses-row.active .caret { transform:rotate(90deg); color:#4f46e5; }
   .ses-id-txt { font-family:Menlo,monospace; font-weight:600; }
+  .row-act { color:#6366f1; cursor:pointer; font-size:13px; margin-right:12px; white-space:nowrap; }
+  .row-act:hover { text-decoration:underline; }
   .expand-row td { padding:0; border-bottom:1px solid #f1f5f9; background:#fbfcfe; }
   .expand-inner { padding:16px 18px; }
   .exp-note { font-size:12px; color:#15803d; background:#dcfce7; border-radius:8px; padding:5px 12px; display:inline-block; margin-bottom:12px; }
@@ -193,13 +195,11 @@
           <div class="ses-bar">
             <div class="ses-search"><input id="sesSearch" placeholder="🔍 搜索会话 ID / 来源" oninput="renderSesTable()"></div>
             <div class="spacer"></div>
-            <button class="btn ghost" onclick="openRules()">📜 Memory Rules</button>
-            <button class="btn ghost" onclick="openDream()">🌙 Dream Log</button>
-            <button class="btn primary" onclick="toast('已触发一次异步做梦')">✨ 手动做梦</button>
+            <button class="btn primary" onclick="openRules()">📜 Memory Rules</button>
           </div>
           <div class="card">
             <table class="ses-table">
-              <thead><tr><th style="width:40%">会话 ID</th><th>会话来源</th><th>类型</th><th>上次更新时间</th></tr></thead>
+              <thead><tr><th style="width:36%">会话 ID</th><th>会话来源</th><th>类型</th><th>上次更新时间</th><th style="width:180px">操作</th></tr></thead>
               <tbody id="sesBody"></tbody>
             </table>
           </div>
@@ -214,7 +214,7 @@
 </div>
 <div class="mask" id="dreamMask" onclick="closeDream()"></div>
 <div class="drawer" id="dreamDrawer">
-  <div class="dh"><h3>🌙 Dream Log · 做梦记录</h3><span class="x" onclick="closeDream()">×</span></div>
+  <div class="dh"><h3 id="dreamTitle">🌙 Memory Log</h3><span class="x" onclick="closeDream()">×</span></div>
   <div class="db" id="dreamBody"></div>
 </div>
 
@@ -286,14 +286,18 @@
     const kw=(document.getElementById('sesSearch').value||'').trim().toLowerCase();
     const list=curAgent.sessions.filter(s=>!kw || s.id.toLowerCase().includes(kw) || s.source.toLowerCase().includes(kw));
     const body=document.getElementById('sesBody');
-    if(!list.length){ body.innerHTML='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:26px;">无匹配会话</td></tr>'; return; }
+    if(!list.length){ body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:26px;">无匹配会话</td></tr>'; return; }
     body.innerHTML=list.map(s=>{
       const pill = s.type==='p2p'?'<span class="pill p2p">私聊</span>':'<span class="pill group">群聊</span>';
       const isOpen = expandedSes===s.id;
       let row=`<tr class="ses-row ${isOpen?'active':''}" onclick="toggleSes('${s.id}')">
         <td><span class="caret">▸</span> <span class="ses-id-txt">${s.id}</span></td>
-        <td>${s.source}</td><td>${pill}</td><td style="color:#64748b">${s.updated}</td></tr>`;
-      if(isOpen) row+=`<tr class="expand-row"><td colspan="4"><div class="expand-inner">${renderExpand(s)}</div></td></tr>`;
+        <td>${s.source}</td><td>${pill}</td><td style="color:#64748b">${s.updated}</td>
+        <td onclick="event.stopPropagation()" style="white-space:nowrap">
+          <a class="row-act" onclick="openDream('${s.id}')">Memory Log</a>
+          <a class="row-act" onclick="toast('已触发一次提炼记忆')">提炼记忆</a>
+        </td></tr>`;
+      if(isOpen) row+=`<tr class="expand-row"><td colspan="5"><div class="expand-inner">${renderExpand(s)}</div></td></tr>`;
       return row;
     }).join('');
   }
@@ -390,11 +394,13 @@
   function nowStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
 
   function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function openDream(){
-    const d=curAgent.dreams;
+  function openDream(sesId){
+    let d=curAgent.dreams;
+    if(sesId) d=d.filter(x=>x.session===sesId);
+    document.getElementById('dreamTitle').textContent = sesId ? `🌙 Memory Log · ${sesId}` : '🌙 Memory Log';
     document.getElementById('dreamBody').innerHTML = d.length ? d.map(x=>`
       <div class="dream-item"><div class="di-date">🌙 ${x.date} · ${x.session}</div>
-      ${x.lines.map(l=>`<div class="di-line">· ${l}</div>`).join('')}</div>`).join('') : '<div class="empty"><div class="ei">🌙</div>暂无做梦记录</div>';
+      ${x.lines.map(l=>`<div class="di-line">· ${l}</div>`).join('')}</div>`).join('') : '<div class="empty"><div class="ei">🌙</div>暂无 Memory Log 记录</div>';
     document.getElementById('dreamMask').classList.add('show'); document.getElementById('dreamDrawer').classList.add('show');
   }
   function closeDream(){ document.getElementById('dreamMask').classList.remove('show'); document.getElementById('dreamDrawer').classList.remove('show'); }
