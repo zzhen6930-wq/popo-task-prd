@@ -347,14 +347,6 @@ function renderModal(){
       </div></div>
       ${f.mode==='form'?formBody:jsonBody}
 
-      <div class="field"><label>鉴权类型 <span class="opt">上架时手动指定</span></label>
-        <div class="auth-opts">
-          ${['popo','oauth','api'].map(a=>`<div class="auth-opt ${f.auth===a?'on':''}" onclick="setAuth('${a}')">
-            <div class="ao-t">${a==='popo'?'🔒 POPO 静默':a==='oauth'?'🔗 OAuth 外跳':'🔑 自定义 API'}</div>
-            <div class="ao-d">${authDesc[a]}</div></div>`).join("")}
-        </div>
-      </div>
-
       <div class="field"><label>可使用租户</label>
         <div class="radio-row">
           <div class="radio-opt ${f.scope==='all'?'on':''}" onclick="setScope('all')"><span class="radio-dot"></span>全部租户（默认）</div>
