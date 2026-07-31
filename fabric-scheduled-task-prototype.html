@@ -422,7 +422,7 @@
         </div>
       </div>
 
-      <div class="tabs">
+      <div class="tabs" style="display:none;">
         <div class="tab active" id="tab-list" onclick="switchTab('list')">任务列表</div>
         <div class="tab" id="tab-chat" onclick="switchTab('chat')">对话创建演示</div>
       </div>
@@ -431,7 +431,7 @@
       <!-- 列表视图 -->
       <div id="view-list">
         <div class="filter-bar">
-          <input class="input flt" id="fltName" placeholder="🔍 搜索任务名称 / 关联 Agent / 创建人" oninput="renderTasks()">
+          <input class="input flt" id="fltName" placeholder="🔍 搜索任务名称 / 执行 Agent / 创建人" oninput="renderTasks()">
           <select class="select flt" id="fltTrig" onchange="renderTasks()">
             <option value="">全部触发方式</option><option value="timer">定时</option><option value="event">事件</option><option value="hook">WebHook</option>
           </select>
@@ -449,7 +449,7 @@
               <tr>
                 <th style="width:22%">任务名称</th>
                 <th>创建人</th>
-                <th>关联 Agent</th>
+                <th>执行 Agent</th>
                 <th>触发方式</th>
                 <th>下次执行</th>
                 <th>最近结果</th>
@@ -882,7 +882,7 @@ SECRET=<span class="s">'&lt;your_webhook_secret&gt;'</span>
       <div class="hd-meta">
         <div><span>触发来源</span>${r.from}</div>
         <div><span>耗时</span>${r.cost}</div>
-        <div><span>关联 Agent</span>${t.agent}</div>
+        <div><span>执行 Agent</span>${t.agent}</div>
         <div><span>推送对象</span>@张振</div>
       </div>`;
     if(r.result==='fail'){ html+=`<div class="hd-err">❌ ${d.err}</div>`; }
