@@ -170,7 +170,7 @@
 <div class="page-label">
   <span class="b-num">1</span>
   <span class="b-title">Workhub Studio Admin · MCP 管理</span>
-  <span class="b-desc">上架内置 MCP（手动 / 导入 json，SSE·HTTP）· 上架时指定鉴权类型 · 分配可使用租户｜不碰凭据、不做账号授权</span>
+  <span class="b-desc">上架内置 MCP（手动 / 导入 json，SSE·HTTP）· 上架时自动检测鉴权类型 · 分配可使用租户｜不碰凭据、不做账号授权</span>
 </div>
 
 <div class="app">
@@ -198,9 +198,9 @@
 const TENANTS = ["网易－效率工程部","AgentHub 租户","网易云音乐","网易游戏","有道","网易严选","网易传媒"];
 
 const authMeta = {
-  popo:  { pill:"green",  label:"POPO 静默" },
-  oauth: { pill:"amber",  label:"OAuth 外跳" },
-  api:   { pill:"indigo", label:"自定义 API" }
+  popo:  { pill:"green",  label:"静默授权" },
+  oauth: { pill:"amber",  label:"OAuth连接" },
+  api:   { pill:"indigo", label:"自定义API Key" }
 };
 const authDesc = {
   popo:  "用户以自己 POPO 身份静默授权，无需连接",
