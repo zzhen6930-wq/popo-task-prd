@@ -159,6 +159,7 @@
     <ul>
       <li>手动配置或粘贴 json，传输 <code>SSE</code> / <code>HTTP</code>。</li>
       <li>可上传图标；Headers 可选（可不填）。</li>
+      <li><b>鉴权类型自动检测</b>：点击「保存」时，系统检测该 MCP Server，自动判断属于三类鉴权中哪一类（规则同超管上架，见 3.2），反显在列表「鉴权类型」字段，字段值 <span class="pill green">静默授权</span> / <span class="pill amber">OAuth连接</span> / <span class="pill indigo">自定义API Key</span>；无需人工选择。</li>
     </ul>
     <div class="callout warn"><div class="title">仅 SSE / HTTP</div>不支持 STDIO；自定义 MCP 只接入 SSE / HTTP 远端服务。</div>
 
