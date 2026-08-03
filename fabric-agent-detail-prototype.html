@@ -187,7 +187,9 @@
   /* 列表页 */
   .list-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
   .list-title{ font-size:22px; font-weight:800; color:var(--ink); }
-  .list-tools{ margin-bottom:14px; }
+  .list-tools{ margin-bottom:14px; display:flex; gap:12px; align-items:center; }
+  .src-filter{ border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:13px; color:var(--txt); font-family:inherit; background:#fff; cursor:pointer; }
+  .src-filter:focus{ outline:none; border-color:#c7d2fe; }
   .search-inp{ width:320px; border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:13px; color:var(--txt); font-family:inherit; }
   .search-inp:focus{ outline:none; border-color:#c7d2fe; }
   .list-card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }
@@ -226,6 +228,29 @@
   .rule-opt .so-t{ font-size:14px; font-weight:800; color:var(--ink); }
   .rule-opt .so-d{ font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5; }
 
+  /* 选择人员弹窗 */
+  .ppl-modal{ width:760px; }
+  .ppl-body{ display:flex; height:440px; }
+  .ppl-left{ flex:1; border-right:1px solid var(--line-2); padding:16px; overflow-y:auto; }
+  .ppl-right{ flex:1; padding:16px; display:flex; flex-direction:column; }
+  .ppl-search{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13px; margin-bottom:14px; font-family:inherit; }
+  .ppl-search:focus{ outline:none; border-color:#c7d2fe; }
+  .ppl-dept{ display:flex; align-items:center; gap:10px; padding:9px 6px; font-size:14px; color:var(--ink); cursor:pointer; border-radius:8px; }
+  .ppl-dept:hover{ background:#f1f5f9; }
+  .ppl-dept.root{ font-weight:700; }
+  .ppl-dept .di{ width:26px; height:26px; border-radius:50%; background:#2563eb; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:13px; }
+  .ppl-dept .arw{ color:var(--mut); font-size:10px; width:10px; }
+  .ppl-tabs{ display:flex; gap:8px; margin-bottom:14px; }
+  .ppl-tab{ flex:1; text-align:center; padding:8px; font-size:13px; font-weight:700; color:var(--sub); border:1px solid var(--line); border-radius:9px; cursor:pointer; }
+  .ppl-tab.on{ color:#2563eb; border-color:#2563eb; background:#eff6ff; }
+  .ppl-selected{ flex:1; display:flex; flex-direction:column; gap:8px; overflow-y:auto; }
+  .ppl-empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--mut); font-size:13px; gap:10px; }
+  .sel-chip{ display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#f8fafc; border-radius:8px; font-size:13px; }
+  .sel-chip .rm{ color:var(--mut); cursor:pointer; }
+  .ppl-foot-row{ display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--txt); padding-top:12px; border-top:1px solid var(--line-2); margin-top:8px; }
+  .switch-off{ width:36px; height:20px; border-radius:20px; background:#e2e8f0; position:relative; }
+  .switch-off::after{ content:""; position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:2px; left:2px; }
+
 </style>
 </head>
 <body>
@@ -239,7 +264,7 @@
 <div class="app">
   <div class="topbar">
     <div class="tb-brand"><span class="bi">W</span>WrokHub Studio</div>
-    <div class="tenant-sel">📁 网易 NoteBook 租户 <span class="caret">▾</span></div>
+    <div class="tenant-sel">📁 AgentHub <span class="caret">▾</span></div>
     <div class="right">
       <span class="nav-link">AI 工厂</span>
       <span class="avatar">张</span>
@@ -275,7 +300,16 @@
         <button class="btn primary" onclick="alert('新建 Agent（原型占位）')">＋ 新建 Agent</button>
       </div>
       <div class="list-tools">
-        <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 来源 / 创建人" oninput="renderList()">
+        <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 创建人" oninput="renderList()">
+        <select class="src-filter" id="agSrc" onchange="renderList()">
+          <option value="">全部来源</option>
+          <option value="AgentHub">AgentHub</option>
+          <option value="Workhub Studio">Workhub Studio</option>
+          <option value="Claude Code">Claude Code</option>
+          <option value="Hermes">Hermes</option>
+          <option value="OpenClaw">OpenClaw</option>
+          <option value="Codex">Codex</option>
+        </select>
       </div>
       <div class="list-card">
         <table class="table list-table">
@@ -336,7 +370,7 @@
         <div class="opt-line on" onclick="pickScope('self')">
           <span class="rd"></span>
           <div class="ol-main"><span class="ol-t">指定成员或部门</span><span class="ol-d">范围内成员可搜索、私聊、使用并将 Agent 加入群聊</span></div>
-          <div class="ol-side"><span class="tag-chip">效率工程部</span><span class="tag-chip">产品体验中心</span><span class="tag-chip">张振</span><span class="add-chip" onclick="event.stopPropagation()">＋ 选择范围</span></div>
+          <div class="ol-side"><span class="add-chip" onclick="event.stopPropagation();openPeople()">＋ 选择人员</span></div>
         </div>
         <div class="opt-line" onclick="pickScope('part')">
           <span class="rd"></span>
@@ -474,6 +508,29 @@
   </div>
 </div>
 
+<!-- 选择人员 -->
+<div class="overlay" id="peopleOverlay">
+  <div class="modal ppl-modal">
+    <div class="modal-head"><div class="mt">选择人员</div><span class="x" onclick="closePeople()">×</span></div>
+    <div class="ppl-body">
+      <div class="ppl-left">
+        <input class="ppl-search" placeholder="🔍 请输入人员姓名或邮箱">
+        <label class="ppl-dept root"><input type="checkbox" onchange="toggleAllDept(this)"> 全部部门</label>
+        <div id="deptList"></div>
+      </div>
+      <div class="ppl-right">
+        <div class="ppl-tabs">
+          <span class="ppl-tab on" data-t="dept" onclick="pplTab('dept',this)">已选部门(<span id="cntDept">0</span>)</span>
+          <span class="ppl-tab" data-t="user" onclick="pplTab('user',this)">已选人员(<span id="cntUser">0</span>)</span>
+        </div>
+        <div class="ppl-selected" id="pplSelected"></div>
+        <div class="ppl-foot-row"><span>部门内人员筛选 <span style="color:var(--mut)">ⓘ</span></span><span class="switch-off"></span></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closePeople()">取消</button><button class="btn primary" onclick="applyPeople()">确定</button></div>
+  </div>
+</div>
+
 <script>
 function switchTab(p,el){
   document.querySelectorAll('#dTabs .tab').forEach(t=>t.classList.remove('on'));
@@ -498,7 +555,8 @@ let curAgent=agents[0];
 
 function renderList(){
   const q=(document.getElementById('agSearch').value||"").toLowerCase();
-  const rows=agents.filter(a=>!q||a.name.toLowerCase().includes(q)||a.src.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q));
+  const sf=document.getElementById('agSrc').value;
+  const rows=agents.filter(a=>(!q||a.name.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q))&&(!sf||a.src===sf));
   document.getElementById('agRows').innerHTML=rows.map(a=>`
     <tr onclick="openDetail(${a.id})">
       <td><span class="ag-name">${a.name}</span></td>
@@ -585,6 +643,29 @@ let customStart=null, customEnd=null;
 
 /* ===== 使用范围 ===== */
 function pickScope(v){ scopeVal=v; const lines=document.querySelectorAll('#pane-scope .opt-line'); lines[0].classList.toggle('on',v==='self'); lines[1].classList.toggle('on',v==='part'); }
+
+/* 选择人员弹窗 */
+const depts=["财务部","人力资源部","行政部","投资者关系部","企业发展部","执行办公室","综合业务部","法务部","商务采购部","内审部","农业事业部"];
+let selDepts=[], selUsers=["张振","朱弈","李扬","傅云辰","施羽婷","陈杰","汪晓东","张大力"], pplCur="dept";
+function renderDeptList(){
+  document.getElementById('deptList').innerHTML=depts.map((d,i)=>`
+    <label class="ppl-dept"><span class="arw">▶</span><input type="checkbox" ${selDepts.includes(d)?'checked':''} onchange="toggleDept('${d}',this)"><span class="di">🏢</span>${d}</label>`).join("");
+}
+function toggleDept(d,el){ if(el.checked){ if(!selDepts.includes(d))selDepts.push(d); } else selDepts=selDepts.filter(x=>x!==d); syncPpl(); }
+function toggleAllDept(el){ selDepts=el.checked?[...depts]:[]; renderDeptList(); syncPpl(); }
+function pplTab(t,el){ pplCur=t; document.querySelectorAll('.ppl-tab').forEach(x=>x.classList.remove('on')); el.classList.add('on'); renderSelected(); }
+function renderSelected(){
+  const list=pplCur==='dept'?selDepts:selUsers;
+  const box=document.getElementById('pplSelected');
+  if(!list.length){ box.innerHTML=`<div class="ppl-empty"><div style="font-size:40px">📁</div>暂无${pplCur==='dept'?'部门':'人员'}</div>`; return; }
+  box.innerHTML=list.map(x=>`<div class="sel-chip">${x}<span class="rm" onclick="rmSel('${x}')">×</span></div>`).join("");
+}
+function rmSel(x){ if(pplCur==='dept') selDepts=selDepts.filter(v=>v!==x); else selUsers=selUsers.filter(v=>v!==x); syncPpl(); renderDeptList(); }
+function syncPpl(){ document.getElementById('cntDept').textContent=selDepts.length; document.getElementById('cntUser').textContent=selUsers.length; renderSelected(); }
+function openPeople(){ renderDeptList(); syncPpl(); document.getElementById('peopleOverlay').classList.add('on'); }
+function closePeople(){ document.getElementById('peopleOverlay').classList.remove('on'); }
+function applyPeople(){ closePeople(); }
+document.getElementById('peopleOverlay').addEventListener('click',e=>{ if(e.target.id==='peopleOverlay') closePeople(); });
 function renderGroups(){
   document.getElementById('groupRows').innerHTML=groups.map((g,i)=>`
     <tr>
