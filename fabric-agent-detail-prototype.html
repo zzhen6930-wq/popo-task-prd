@@ -145,14 +145,32 @@
   .dot{ stroke:#fff; stroke-width:2; }
   .dot-lb{ font-size:10px; font-weight:700; }
 
-  /* 日期选择器 */
-  .date-row{ display:flex; align-items:flex-end; gap:12px; }
-  .dl{ font-size:12px; color:var(--sub); display:block; margin-bottom:5px; }
-  .date-inp{ border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:13px; color:var(--txt); font-family:inherit; }
-  .date-sep{ color:var(--mut); padding-bottom:9px; }
-  .date-quick{ display:flex; gap:8px; margin-top:14px; }
-  .date-quick span{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:7px; padding:5px 12px; cursor:pointer; font-weight:700; }
-  .date-quick span:hover{ background:#e0e7ff; }
+  /* 日历选择器 */
+  .cal-modal{ width:360px; }
+  .cal-range{ font-size:13px; color:var(--txt); margin-bottom:14px; min-height:20px; }
+  .cal-range b{ color:var(--indigo-d); }
+  .cal-range .ph{ color:var(--mut); }
+  .cal-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:10px; }
+  .cal-title{ font-size:15px; font-weight:800; color:var(--ink); min-width:110px; text-align:center; }
+  .cal-arrow{ width:34px; height:34px; border:1px solid var(--line); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--txt); }
+  .cal-arrow:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .cal-week{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+  .cal-week span{ text-align:center; font-size:12px; color:var(--mut); padding:6px 0; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px 0; }
+  .cal-cell{ height:40px; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--ink); cursor:pointer; position:relative; }
+  .cal-cell.mute{ color:var(--mut); }
+  .cal-cell:hover .cd{ background:var(--line-2); }
+  .cd{ width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
+  .cal-cell.in-range{ background:#eef2ff; }
+  .cal-cell.range-start{ background:linear-gradient(90deg,transparent 50%,#eef2ff 50%); }
+  .cal-cell.range-end{ background:linear-gradient(90deg,#eef2ff 50%,transparent 50%); }
+  .cal-cell.range-start.range-end{ background:transparent; }
+  .cal-cell.endpoint .cd{ background:var(--ink); color:#fff; font-weight:700; }
+  .cal-cell.disabled{ color:#cbd5e1; cursor:not-allowed; }
+  .cal-cell.disabled:hover .cd{ background:transparent; }
+  .cal-quick{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .cal-quick span{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:7px; padding:5px 12px; cursor:pointer; font-weight:700; }
+  .cal-quick span:hover{ background:#e0e7ff; }
 
   /* modal */
   .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:50; }
@@ -338,21 +356,25 @@
 </div>
 
 <div class="overlay" id="dateOverlay">
-  <div class="modal" style="width:400px;">
+  <div class="modal cal-modal">
     <div class="modal-head"><div class="mt">自定义时间范围</div><span class="x" onclick="closeDate()">×</span></div>
     <div class="modal-body">
-      <div class="date-row">
-        <div><label class="dl">开始日期</label><input type="date" id="dStart" class="date-inp" value="2026-06-15"></div>
-        <span class="date-sep">→</span>
-        <div><label class="dl">结束日期</label><input type="date" id="dEnd" class="date-inp" value="2026-07-29"></div>
+      <div class="cal-range" id="calRange"></div>
+      <div class="cal-nav">
+        <span class="cal-arrow" onclick="calMove(-1)">‹</span>
+        <span class="cal-title" id="calTitle"></span>
+        <span class="cal-arrow" onclick="calMove(1)">›</span>
       </div>
-      <div class="date-quick">
-        <span onclick="quickRange(14)">近 14 天</span>
-        <span onclick="quickRange(30)">近 30 天</span>
-        <span onclick="quickRange(90)">近 90 天</span>
+      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-quick">
+        <span onclick="calQuick(7)">近 7 天</span>
+        <span onclick="calQuick(14)">近 14 天</span>
+        <span onclick="calQuick(30)">近 30 天</span>
+        <span onclick="calQuick(90)">近 90 天</span>
       </div>
     </div>
-    <div class="modal-foot"><button class="btn ghost" onclick="closeDate()">取消</button><button class="btn primary" onclick="applyDate()">确定</button></div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeDate()">取消</button><button class="btn primary" onclick="applyCal()">确定</button></div>
   </div>
 </div>
 
@@ -505,15 +527,55 @@ function renderChart(){
   </svg>`;
 }
 
-/* ===== 自定义日期 ===== */
-function openDate(){ document.getElementById('dateOverlay').classList.add('on'); }
+/* ===== 自定义日期（日历） ===== */
+let calY=2026, calM=6;              // 显示月（0-based month）
+let selStart=null, selEnd=null;     // Date
+function openDate(){ calY=END.getFullYear(); calM=END.getMonth(); selStart=null; selEnd=null; renderCal(); document.getElementById('dateOverlay').classList.add('on'); }
 function closeDate(){ document.getElementById('dateOverlay').classList.remove('on'); if(document.getElementById('rangeSel').value==='custom' && !customStart){ document.getElementById('rangeSel').value='7d'; onRangeChange(); } }
-function quickRange(days){ const e=new Date(END); const s=new Date(END); s.setDate(END.getDate()-days+1); document.getElementById('dStart').value=fmtY(s); document.getElementById('dEnd').value=fmtY(e); }
-function applyDate(){
-  const s=new Date(document.getElementById('dStart').value), e=new Date(document.getElementById('dEnd').value);
-  const days=Math.max(1, Math.round((e-s)/86400000)+1);
-  customStart=s; customEnd=e; rangeDays=days;
-  document.getElementById('rangeLabel').textContent = `${document.getElementById('dStart').value} 至 ${document.getElementById('dEnd').value}（${days} 天）`;
+function calMove(step){ calM+=step; if(calM<0){ calM=11; calY--; } if(calM>11){ calM=0; calY++; } renderCal(); }
+function sameDay(a,b){ return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function pickDay(y,m,d){
+  const dt=new Date(y,m,d);
+  if(dt>END) return;                                   // 不可选未来
+  if(!selStart || (selStart&&selEnd)){ selStart=dt; selEnd=null; }
+  else { if(dt<selStart){ selEnd=selStart; selStart=dt; } else selEnd=dt; }
+  renderCal();
+}
+function renderCal(){
+  document.getElementById('calTitle').textContent=`${calY}年${calM+1}月`;
+  const first=new Date(calY,calM,1);
+  let lead=(first.getDay()+6)%7;                        // 周一起始
+  const daysInMon=new Date(calY,calM+1,0).getDate();
+  const prevDays=new Date(calY,calM,0).getDate();
+  let cells="";
+  for(let i=0;i<42;i++){
+    let y=calY,m=calM,d,mute=false;
+    if(i<lead){ d=prevDays-lead+1+i; m=calM-1; mute=true; if(m<0){m=11;y--;} }
+    else if(i<lead+daysInMon){ d=i-lead+1; }
+    else { d=i-lead-daysInMon+1; m=calM+1; mute=true; if(m>11){m=0;y++;} }
+    const dt=new Date(y,m,d);
+    const future=dt>END;
+    const isStart=sameDay(dt,selStart), isEnd=sameDay(dt,selEnd);
+    const inRange=selStart&&selEnd&&dt>selStart&&dt<selEnd;
+    let cls="cal-cell"; if(mute)cls+=" mute"; if(future)cls+=" disabled";
+    if(inRange)cls+=" in-range";
+    if(isStart&&selEnd)cls+=" range-start"; if(isEnd&&selStart)cls+=" range-end";
+    if(isStart||isEnd)cls+=" endpoint";
+    cells+=`<div class="${cls}" ${future?'':`onclick="pickDay(${y},${m},${d})"`}><span class="cd">${d}</span></div>`;
+  }
+  document.getElementById('calGrid').innerHTML=cells;
+  const rg=document.getElementById('calRange');
+  if(!selStart) rg.innerHTML=`<span class="ph">请选择开始日期</span>`;
+  else if(!selEnd) rg.innerHTML=`<b>${fmtY(selStart)}</b> <span class="ph">→ 请选择结束日期</span>`;
+  else { const days=Math.round((selEnd-selStart)/86400000)+1; rg.innerHTML=`<b>${fmtY(selStart)}</b> → <b>${fmtY(selEnd)}</b> · 共 ${days} 天`; }
+}
+function calQuick(days){ const e=new Date(END); const s=new Date(END); s.setDate(END.getDate()-days+1); selStart=s; selEnd=e; calY=e.getFullYear(); calM=e.getMonth(); renderCal(); }
+function applyCal(){
+  if(!selStart){ return; }
+  if(!selEnd) selEnd=selStart;
+  const days=Math.round((selEnd-selStart)/86400000)+1;
+  customStart=selStart; customEnd=selEnd; rangeDays=days;
+  document.getElementById('rangeLabel').textContent=`${fmtY(selStart)} 至 ${fmtY(selEnd)}（${days} 天）`;
   document.getElementById('dateOverlay').classList.remove('on');
   renderUsage();
 }
