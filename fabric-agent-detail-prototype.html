@@ -172,8 +172,29 @@
   .cal-quick span{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:7px; padding:5px 12px; cursor:pointer; font-weight:700; }
   .cal-quick span:hover{ background:#e0e7ff; }
 
-  /* modal */
-  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:50; }
+  /* 列表页 */
+  .list-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .list-title{ font-size:22px; font-weight:800; color:var(--ink); }
+  .list-tools{ margin-bottom:14px; }
+  .search-inp{ width:320px; border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:13px; color:var(--txt); font-family:inherit; }
+  .search-inp:focus{ outline:none; border-color:#c7d2fe; }
+  .list-card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .list-table td{ padding:14px; }
+  .list-table tbody tr{ cursor:pointer; }
+  .ag-name{ font-weight:700; color:var(--ink); font-size:13.5px; }
+  .model-tag{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:6px; padding:2px 8px; font-family:"JetBrains Mono",Menlo,monospace; }
+  .src-tag{ font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .src-agenthub{ background:#dbeafe; color:#1d4ed8; }
+  .src-studio{ background:#ede9fe; color:#6d28d9; }
+  .src-ext{ background:#fef3c7; color:#b45309; }
+  .mem-on{ background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 8px; border-radius:20px; font-weight:700; }
+  .mem-off{ color:var(--mut); font-size:12px; }
+  .st-on{ background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .st-off{ background:#f1f5f9; color:#64748b; font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .muted-cell{ color:var(--mut); }
+  .time-cell{ font-size:12px; color:var(--sub); }
+
+
   .overlay.on{ display:flex; }
   .modal{ background:#fff; border-radius:16px; width:440px; box-shadow:var(--shadow-lg); overflow:hidden; }
   .modal-head{ padding:18px 22px; border-bottom:1px solid var(--line-2); display:flex; justify-content:space-between; align-items:center; }
@@ -194,8 +215,8 @@
 
 <div class="page-label">
   <span class="b-num">A</span>
-  <span class="b-title">Agent 详情 · 4 Tab</span>
-  <span class="b-desc">配置 / 记忆（已有）· 使用范围 / 用量统计（本次新增）</span>
+  <span class="b-title">Agents 列表 + 详情</span>
+  <span class="b-desc">列表（含来源）→ 点击进入详情；外部连接智能体隐藏配置/记忆、用量仅概览</span>
 </div>
 
 <div class="app">
@@ -208,21 +229,52 @@
   </div>
 
   <div class="body-wrap">
-    <div class="back">← 返回 Agents</div>
-    <div class="agent-head">
-      <div class="agent-ico">云</div>
-      <div>
-        <div class="agent-name">云空间-运维 agent</div>
-        <div class="agent-desc">云空间-运维 agent · 拥有者：张振</div>
+
+    <!-- ===== 列表页 ===== -->
+    <div id="view-list">
+      <div class="list-head">
+        <div class="list-title">Agents</div>
+        <button class="btn primary" onclick="alert('新建 Agent（原型占位）')">＋ 新建 Agent</button>
+      </div>
+      <div class="list-tools">
+        <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 来源 / 创建人" oninput="renderList()">
+      </div>
+      <div class="list-card">
+        <table class="table list-table">
+          <thead><tr>
+            <th style="width:16%">名称</th>
+            <th style="width:12%">模型</th>
+            <th style="width:12%">来源</th>
+            <th style="width:7%">记忆</th>
+            <th style="width:7%">状态</th>
+            <th style="width:8%">创建人</th>
+            <th style="width:12%">创建时间</th>
+            <th style="width:8%">更新人</th>
+            <th style="width:12%">更新时间</th>
+          </tr></thead>
+          <tbody id="agRows"></tbody>
+        </table>
       </div>
     </div>
 
-    <div class="tabs">
+    <!-- ===== 详情页 ===== -->
+    <div id="view-detail" style="display:none;">
+    <div class="back" onclick="backToList()">← 返回 Agents</div>
+    <div class="agent-head">
+      <div class="agent-ico" id="dIco">云</div>
+      <div>
+        <div class="agent-name" id="dName">云空间-运维 agent</div>
+        <div class="agent-desc" id="dDesc">云空间-运维 agent · 拥有者：张振</div>
+      </div>
+    </div>
+
+    <div class="tabs" id="dTabs">
       <div class="tab" data-p="config" onclick="switchTab('config',this)">配置</div>
       <div class="tab" data-p="memory" onclick="switchTab('memory',this)">记忆</div>
-      <div class="tab on" data-p="scope" onclick="switchTab('scope',this)">使用范围<span class="dot">NEW</span></div>
-      <div class="tab" data-p="usage" onclick="switchTab('usage',this)">用量统计<span class="dot">NEW</span></div>
+      <div class="tab on" data-p="scope" onclick="switchTab('scope',this)">使用范围</div>
+      <div class="tab" data-p="usage" onclick="switchTab('usage',this)">用量统计</div>
     </div>
+
 
     <!-- PANES INSERTED HERE -->
 
@@ -280,6 +332,7 @@
       <div class="stat-grid" id="statGrid"></div>
 
       <!-- 扣除规则 -->
+      <div id="usageDetail">
       <div class="card rule-card">
         <div class="rule-left">
           <div class="rule-ico">💳</div>
@@ -331,7 +384,10 @@
         </div>
         <div class="chart" id="chart"></div>
       </div>
+      </div><!-- /usageDetail -->
     </div>
+
+    </div><!-- /view-detail -->
 
 
 
@@ -380,11 +436,63 @@
 
 <script>
 function switchTab(p,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('#dTabs .tab').forEach(t=>t.classList.remove('on'));
   el.classList.add('on');
   document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
   document.getElementById('pane-'+p).classList.add('on');
 }
+
+/* ===== Agent 列表 ===== */
+const agents=[
+  { id:1, name:"云空间-运维 agent", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"云", extName:"" },
+  { id:2, name:"Echo Agent-icare", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"E", extName:"" },
+  { id:3, name:"Echo Agent-网易KM", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"E", extName:"" },
+  { id:4, name:"我的有道龙虾", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"🦞", extName:"OpenClaw" },
+  { id:5, name:"研发助理 CC", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"🤖", extName:"Claude Code" },
+  { id:6, name:"Hermes 分析体", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"🪽", extName:"Hermes" },
+  { id:7, name:"Codex 编码体", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"⌨️", extName:"Codex" },
+  { id:8, name:"HR 智能问答", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"H", extName:"" }
+];
+const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
+let curAgent=agents[0];
+
+function renderList(){
+  const q=(document.getElementById('agSearch').value||"").toLowerCase();
+  const rows=agents.filter(a=>!q||a.name.toLowerCase().includes(q)||a.src.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q));
+  document.getElementById('agRows').innerHTML=rows.map(a=>`
+    <tr onclick="openDetail(${a.id})">
+      <td><span class="ag-name">${a.name}</span></td>
+      <td>${a.model==='-'?'<span class="muted-cell">-</span>':`<span class="model-tag">${a.model}</span>`}</td>
+      <td><span class="src-tag ${srcClass[a.srcType]}">${a.src}</span></td>
+      <td>${a.model==='-'&&a.srcType==='ext'?'<span class="muted-cell">-</span>':(a.mem?'<span class="mem-on">开启</span>':'<span class="mem-off">关闭</span>')}</td>
+      <td>${a.status==='on'?'<span class="st-on">启用</span>':'<span class="st-off">停用</span>'}</td>
+      <td>${a.owner}</td>
+      <td class="time-cell">${a.ct}</td>
+      <td>${a.uu}</td>
+      <td class="time-cell">${a.ut}</td>
+    </tr>`).join("");
+}
+function backToList(){ document.getElementById('view-detail').style.display='none'; document.getElementById('view-list').style.display='block'; }
+function openDetail(id){
+  curAgent=agents.find(a=>a.id===id);
+  document.getElementById('view-list').style.display='none';
+  document.getElementById('view-detail').style.display='block';
+  // 头部
+  document.getElementById('dIco').textContent=curAgent.ico;
+  document.getElementById('dName').textContent=curAgent.name;
+  const srcTxt=curAgent.srcType==='ext'?`外部连接 · ${curAgent.extName}`:curAgent.src;
+  document.getElementById('dDesc').textContent=`${srcTxt} · 拥有者：${curAgent.owner}`;
+  // Tab 可见性
+  const ext=curAgent.srcType==='ext';
+  const tabs=document.querySelectorAll('#dTabs .tab');
+  tabs.forEach(t=>{ const p=t.dataset.p; const hide=ext&&(p==='config'||p==='memory'); t.style.display=hide?'none':''; });
+  document.getElementById('usageDetail').style.display=ext?'none':'';
+  // 默认落到「使用范围」
+  const scopeTab=[...tabs].find(t=>t.dataset.p==='scope');
+  switchTab('scope',scopeTab);
+  renderUsage();
+}
+
 
 /* ===== 数据 ===== */
 let scopeVal="part";
@@ -593,7 +701,7 @@ document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id=
 /* init */
 /* init */
 document.getElementById('rangeLabel').textContent="近 7 天";
-renderGroups(); renderUsage();
+renderList(); renderGroups(); renderUsage();
 </script>
 </body>
 </html>
