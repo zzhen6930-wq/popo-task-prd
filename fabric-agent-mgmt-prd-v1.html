@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · Agent 管理能力增强 · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1120px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; flex-wrap: wrap; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #6366f1; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 18px 0 8px; padding-left: 10px; border-left: 3px solid #6366f1; }
+  .section h4 { font-size: 14px; font-weight: 700; color: #334155; margin: 14px 0 6px; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code { background: #eef2ff; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #4338ca; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  .yes { color: #16a34a; font-weight: 700; }
+  .no { color: #dc2626; font-weight: 700; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+  .pill.green { background: #dcfce7; color: #16a34a; }
+  .pill.amber { background: #fef3c7; color: #b45309; }
+  .pill.indigo { background: #ede9fe; color: #6d28d9; }
+  .pill.blue { background: #dbeafe; color: #1d4ed8; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 10px 0; border-left: 4px solid; font-size: 14px; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.key { background: #eef2ff; border-color: #6366f1; color: #3730a3; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .tabs-demo { display: flex; gap: 4px; margin: 12px 0; border-bottom: 2px solid #f1f5f9; }
+  .tabs-demo span { padding: 8px 16px; font-size: 13px; font-weight: 700; color: #64748b; }
+  .tabs-demo span.on { color: #6366f1; border-bottom: 2px solid #6366f1; margin-bottom: -2px; }
+  .tabs-demo span.new::after { content: "NEW"; font-size: 9px; background: #ef4444; color: #fff; border-radius: 4px; padding: 1px 4px; margin-left: 4px; vertical-align: top; }
+  .flow { background: #0f172a; color: #cbd5e1; border-radius: 10px; padding: 14px 18px; font-family: "JetBrains Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.9; margin: 10px 0; }
+  .flow b { color: #a5b4fc; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; } .scope-card.do h4 { color: #047857; margin: 0 0 8px; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; } .scope-card.dont h4 { color: #b91c1c; margin: 0 0 8px; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin: 12px 0; }
+  .stat-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; text-align: center; background: #fafbff; }
+  .stat-card .lb { font-size: 11px; color: #94a3b8; }
+  .stat-card .vl { font-size: 15px; font-weight: 800; color: #4338ca; margin-top: 4px; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>WorkHub Studio · Agent 管理能力增强</h1>
+    <div style="opacity:0.92;font-size:13px;">Agent 详情页由「单一配置」升级为「配置 / 记忆 / 使用范围 / 用量统计」四 Tab；新增使用范围与用量统计两大管理维度，补齐后台侧的分发管控与成本可视。</div>
+    <div class="meta">
+      <span>📅 2026-08-03</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：WorkHub Studio · Agents 模块</span>
+    </div>
+  </div>
+
+  <!-- 1 背景与目标 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>当前 Agent 详情页仅承载<b>能力配置</b>（基础信息、内置工具、Prompt / Skill / MCP 绑定），缺少<b>管理维度</b>：管理员无法在 Agent 视角查看「谁能用、进了哪些群、如何回复」，也无法查看「用了多少 Token、多少会话 / 任务、成本从谁扣」。本次在 Agent 详情页补齐两块管理能力——<b>使用范围</b> 与 <b>用量统计</b>。</p>
+    <h4>目标</h4>
+    <ul>
+      <li>Agent 详情页顶部改为 <b>4 个 Tab</b>：配置、记忆、使用范围、用量统计。</li>
+      <li><b>使用范围</b>：在 Agent 维度管理可使用人 / 部门、查看已加入群组及各群回复方式。</li>
+      <li><b>用量统计</b>：在 Agent 维度呈现用量概览、Token 扣除规则（可改）、额度与趋势。</li>
+    </ul>
+    <div class="callout key"><div class="title">🔑 一句话定位</div><b>「配置」管能力，「使用范围」管分发，「用量统计」管成本。</b>三者合起来构成 Agent 在 Studio 后台的完整生命周期管理视图。</div>
+  </div>
+
+  <!-- 2 页面布局 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>页面布局调整（Tab 化）</div>
+    <p>进入 Agent 详情页后，顶部由原横排字段区改为 <b>Tab 导航</b>，共 4 个 Tab，默认停留「配置」。</p>
+    <div class="tabs-demo">
+      <span class="on">配置</span><span>记忆</span><span class="new">使用范围</span><span class="new">用量统计</span>
+    </div>
+    <table>
+      <thead><tr><th style="width:14%">Tab</th><th style="width:14%">状态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>配置</b></td><td>已有</td><td>承载原有 <b>基础信息、内置工具、Prompt 绑定、Skill 绑定、MCP 绑定</b>，逻辑不变，仅归入此 Tab。</td></tr>
+        <tr><td><b>记忆</b></td><td>已有</td><td>将现有<b>记忆模块</b>整体移入此 Tab，逻辑不变，仅调整入口位置。</td></tr>
+        <tr><td><b>使用范围</b></td><td><span class="pill green">新增</span></td><td>Agent 维度的分发管控，详见第 3 节。</td></tr>
+        <tr><td><b>用量统计</b></td><td><span class="pill green">新增</span></td><td>Agent 维度的用量与成本，详见第 4 节。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip"><div class="title">说明</div>「配置」「记忆」为已有逻辑，本节只做布局归位；「使用范围」「用量统计」为本次新增，是本 PRD 重点。</div>
+  </div>
+
+  <!-- 3 使用范围 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>使用范围（新增）</div>
+    <p>管理员在 Agent 维度查看并管理<b>谁能发现、私聊、使用这个 Agent</b>，以及<b>该 Agent 已加入哪些群、在各群的回复方式</b>。C 端使用范围页是「用户自助」视角，本 Tab 是<b>后台管理视角</b>——面向管理员，强调集中查看与治理，而非本人自服务。</p>
+
+    <h3>3.1 可使用范围</h3>
+    <table>
+      <thead><tr><th style="width:22%">选项</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td><b>仅自己</b></td><td>仅 Agent 拥有者可搜索、私聊、在 WorkHub 中使用；加入群聊后群成员可在群内与其对话。</td></tr>
+        <tr><td><b>指定成员或部门</b></td><td>范围内成员可搜索、私聊、使用并将该 Agent 加入群聊。管理员可<b>选择 / 增删</b>成员与部门（支持部门树多选）。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><div class="title">后台视角差异</div>C 端是拥有者本人调整自己 Agent 的范围；后台是<b>管理员对本组织下任一 Agent</b> 进行范围查看与调整，用于统一治理（如收敛越界分发、批量授予部门）。</div>
+
+    <h3>3.2 已加入的群聊</h3>
+    <p>列出该 Agent 当前所在的全部群聊，管理员可查看并<b>按群设置回复方式</b>。</p>
+    <table>
+      <thead><tr><th style="width:22%">字段</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>群名称</td><td>Agent 所在群聊名称。</td></tr>
+        <tr><td>上下文隔离</td><td>提示「会话上下文与其他私聊、群聊隔离」（已有能力，只读展示）。</td></tr>
+        <tr><td><b>回复方式</b></td><td>每群独立设置：<span class="pill blue">智能回复</span>（Agent 自主判断是否应答）/ <span class="pill amber">仅 @ 时回复</span>（被 @ 才应答）。可在此直接切换。</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li><b>查看</b>：Agent 进了哪些群、每群的回复策略一目了然。</li>
+      <li><b>管理</b>：管理员可直接修改各群回复方式；<b>将 Agent 添加进新群仍需前往对应群操作</b>（本 Tab 仅做查看与回复方式治理，不承担「拉 Agent 进群」入口）。</li>
+    </ul>
+    <div class="callout warn"><div class="title">边界</div>「已加入的群聊」<b>不提供在此新增群聊</b>的入口；添加请前往目标群设置。本 Tab 聚焦已入群的集中查看与回复策略调整。</div>
+  </div>
+
+  <!-- 4 用量统计 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>用量统计（新增）</div>
+    <p>在 Agent 维度呈现该 Agent 的 Token 消耗、会话 / 任务量、影响面与近期趋势，并管理 Token 扣除规则。用于成本可视与配额治理。</p>
+
+    <h3>4.1 用量概览</h3>
+    <p>顶部支持<b>时间范围选择</b>（如本月 / 近 7 天 / 自定义），下列指标随所选范围联动统计。</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="lb">总用量（Token）</div><div class="vl">60.0K</div></div>
+      <div class="stat-card"><div class="lb">总会话数</div><div class="vl">47</div></div>
+      <div class="stat-card"><div class="lb">总任务数</div><div class="vl">89</div></div>
+      <div class="stat-card"><div class="lb">用户数</div><div class="vl">23</div></div>
+      <div class="stat-card"><div class="lb">加入群组数</div><div class="vl">3</div></div>
+    </div>
+    <table>
+      <thead><tr><th style="width:22%">指标</th><th>口径</th></tr></thead>
+      <tbody>
+        <tr><td>总用量（Token）</td><td>时间范围内该 Agent 累计消耗的 Token。</td></tr>
+        <tr><td>总会话数</td><td>时间范围内该 Agent 参与的会话数。</td></tr>
+        <tr><td>总任务数</td><td>时间范围内该 Agent 执行的任务数。</td></tr>
+        <tr><td>用户数</td><td>时间范围内使用过该 Agent 的去重用户数（影响面）。</td></tr>
+        <tr><td>加入群组数</td><td>该 Agent 当前所在的群组数量（与「使用范围 · 已加入的群聊」一致）。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 Token 扣除规则</h3>
+    <p>展示当前规则并支持<b>修改</b>。规则决定该 Agent 产生的 Token 从谁的额度扣。<b>二选一</b>，不区分账号来源（组织申请账号或员工个人账号，配置时选定的即为「我的额度」对应账号）。</p>
+    <table>
+      <thead><tr><th style="width:24%">规则</th><th>扣除逻辑</th><th style="width:26%">额度卡展示主体</th></tr></thead>
+      <tbody>
+        <tr><td><b>统一从我的额度扣除</b></td><td>所有人使用该 Agent 产生的 Token，<b>统一从 Agent 创建时配置的账号额度扣除</b>（无论谁用）。</td><td>展示<b>该配置账号 / 拥有者</b>的额度。</td></tr>
+        <tr><td><b>从提问人的额度扣除</b></td><td>每次对话产生的 Token，从<b>发起本次对话的用户额度</b>扣除（谁用扣谁）。</td><td>展示<b>提问人 / 使用者维度</b>的额度归属。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><div class="title">规则可查看可修改</div>后台展示当前规则并提供「修改」入口，管理员可在两种规则间切换。切换即时生效于后续对话，不追溯历史消耗。</div>
+
+    <h3>4.3 额度（AIGW Token 额度）</h3>
+    <p>展示<b>已使用 / 剩余额度 / 本月总额度</b>三项，并以进度条呈现使用占比与同步时间。额度<b>主体随扣除规则自适应</b>（见 4.2）：</p>
+    <ul>
+      <li>规则为「统一从我的额度扣除」→ 展示 <b>Agent 拥有者 / 所配账号</b> 的本月额度。</li>
+      <li>规则为「从提问人的额度扣除」→ 展示<b>使用者维度</b>的额度归属口径。</li>
+    </ul>
+    <table>
+      <thead><tr><th style="width:24%">字段</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>已使用</td><td>本月已消耗的 Token。</td></tr>
+        <tr><td>剩余额度</td><td>本月剩余可用 Token。</td></tr>
+        <tr><td>本月总额度</td><td>本月账号可用于公司 AI 工具的共享总额度。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.4 趋势分析</h3>
+    <p>以柱状 / 折线图呈现近期趋势，支持在两个维度间切换（默认近 7 天）：</p>
+    <ul>
+      <li><b>Token 消耗趋势</b>：横轴日期，纵轴 Token 数。</li>
+      <li><b>任务数量趋势</b>：横轴日期，纵轴任务数量。</li>
+    </ul>
+  </div>
+
+  <!-- 5 范围与非目标 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>范围与非目标</div>
+    <div class="scope-grid">
+      <div class="scope-card do"><h4>✅ 本期做</h4><ul>
+        <li>Agent 详情页 4 Tab 布局（配置 / 记忆 / 使用范围 / 用量统计）。</li>
+        <li>使用范围：可使用范围（仅自己 / 指定成员或部门）+ 已加入群聊查看与回复方式管理。</li>
+        <li>用量统计：概览指标（时间范围可选）、Token 扣除规则（可改）、额度卡（自适应）、趋势分析。</li>
+      </ul></div>
+      <div class="scope-card dont"><h4>🚫 本期不做</h4><ul>
+        <li>不改动「配置」「记忆」既有逻辑，仅做布局归位。</li>
+        <li>「已加入的群聊」不提供拉 Agent 进群入口。</li>
+        <li>扣除规则切换不追溯历史消耗。</li>
+        <li>不新增账号来源（组织 / 个人）的区分维度。</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="footer">WorkHub Studio · Agent 管理能力增强 · PRD v1.0 · 配置 / 记忆 / 使用范围 / 用量统计</div>
+
+</div>
+</body>
+</html>
+
+
+
