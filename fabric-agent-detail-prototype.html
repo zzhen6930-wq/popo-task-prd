@@ -79,21 +79,30 @@
   .ph-box{ border:1.5px dashed #cbd5e1; border-radius:12px; padding:40px; text-align:center; color:var(--mut); font-size:13px; background:#fafbfc; }
   .ph-box .big{ font-size:15px; font-weight:700; color:var(--sub); margin-bottom:6px; }
 
-  /* 使用范围 */
-  .scope-opts{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .scope-opt{ border:1.5px solid var(--line); border-radius:12px; padding:16px; cursor:pointer; display:flex; gap:12px; transition:.15s; background:#fff; }
-  .scope-opt:hover{ border-color:#c7d2fe; }
-  .scope-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
-  .scope-opt .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 18px; margin-top:2px; position:relative; }
-  .scope-opt.on .radio{ border-color:var(--indigo); }
-  .scope-opt.on .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
-  .so-t{ font-size:14px; font-weight:800; color:var(--ink); }
-  .so-d{ font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5; }
-  .chips{ margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
-  .tag-chip{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:3px 9px; font-size:12px; color:var(--txt); }
-  .add-chip{ color:var(--indigo-d); font-size:12px; font-weight:700; padding:3px 6px; cursor:pointer; }
-  .grp-ico{ width:34px; height:34px; border-radius:9px; background:#fff7ed; color:#f59e0b; display:inline-flex; align-items:center; justify-content:center; font-size:15px; margin-right:10px; vertical-align:middle; }
-  .reply-dd{ border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
+  /* 使用范围 — 后台紧凑风 */
+  .row-block{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; background:#fff; }
+  .rb-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+  .rb-t{ font-size:14px; font-weight:800; color:var(--ink); }
+  .rb-s{ font-size:12px; color:var(--mut); margin-top:2px; }
+  .count-badge{ font-size:11px; background:#eef2ff; color:var(--indigo-d); border-radius:20px; padding:1px 8px; font-weight:700; margin-left:4px; vertical-align:middle; }
+
+  .opt-line{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px; cursor:pointer; transition:.12s; }
+  .opt-line:hover{ background:var(--line-2); }
+  .opt-line.on{ background:#f5f3ff; }
+  .opt-line .rd{ width:16px; height:16px; border-radius:50%; border:2px solid var(--mut); flex:0 0 16px; position:relative; }
+  .opt-line.on .rd{ border-color:var(--indigo); }
+  .opt-line.on .rd::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+  .ol-main{ flex:0 0 auto; display:flex; align-items:baseline; gap:10px; }
+  .ol-t{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .ol-d{ font-size:12px; color:var(--sub); }
+  .ol-side{ margin-left:auto; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .tag-chip{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:2px 9px; font-size:12px; color:var(--txt); }
+  .add-chip{ color:var(--indigo-d); font-size:12px; font-weight:700; padding:2px 6px; cursor:pointer; }
+  .add-chip:hover{ text-decoration:underline; }
+
+  .table.compact td{ padding:10px 14px; }
+  .grp-dot{ margin-right:8px; font-size:14px; opacity:.85; }
+  .reply-dd{ border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:12.5px; font-weight:600; color:var(--txt); background:#fff; cursor:pointer; }
 
   /* 用量统计 */
   .usage-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -145,6 +154,8 @@
   .rule-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
   .rule-opt .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 18px; margin-top:2px; position:relative; }
   .rule-opt.on .radio{ border-color:var(--indigo); } .rule-opt.on .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+  .rule-opt .so-t{ font-size:14px; font-weight:800; color:var(--ink); }
+  .rule-opt .so-d{ font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5; }
 
 </style>
 </head>
@@ -196,26 +207,27 @@
 
     <!-- 使用范围 -->
     <div class="pane on" id="pane-scope">
-      <div class="sec-title">可使用范围</div>
-      <div class="sec-sub">管理谁可以发现、私聊和使用这个 Agent（管理后台视角，可对本组织下任一 Agent 统一治理）。</div>
-      <div class="scope-opts">
-        <div class="scope-opt" onclick="pickScope('self')">
-          <div class="radio"></div>
-          <div><div class="so-t">仅自己</div><div class="so-d">只有拥有者能搜索、私聊和在 WorkHub 中使用；加入群聊后群成员可在群内与它对话。</div></div>
+      <div class="row-block">
+        <div class="rb-head">
+          <div><div class="rb-t">可使用范围</div><div class="rb-s">管理谁可以发现、私聊和使用该 Agent。</div></div>
         </div>
-        <div class="scope-opt on" onclick="pickScope('part')">
-          <div class="radio"></div>
-          <div><div class="so-t">指定成员或部门</div><div class="so-d">范围内的成员可搜索、私聊、使用并将 Agent 加入群聊。</div>
-            <div class="chips"><span class="tag-chip">效率工程部</span><span class="tag-chip">产品体验中心</span><span class="tag-chip">张振</span><span class="add-chip">＋ 选择范围</span></div>
-          </div>
+        <div class="opt-line on" onclick="pickScope('self')">
+          <span class="rd"></span>
+          <div class="ol-main"><span class="ol-t">指定成员或部门</span><span class="ol-d">范围内成员可搜索、私聊、使用并将 Agent 加入群聊</span></div>
+          <div class="ol-side"><span class="tag-chip">效率工程部</span><span class="tag-chip">产品体验中心</span><span class="tag-chip">张振</span><span class="add-chip" onclick="event.stopPropagation()">＋ 选择范围</span></div>
+        </div>
+        <div class="opt-line" onclick="pickScope('part')">
+          <span class="rd"></span>
+          <div class="ol-main"><span class="ol-t">仅自己</span><span class="ol-d">仅拥有者可搜索、私聊、使用；加入群聊后群成员可在群内对话</span></div>
         </div>
       </div>
 
-      <div class="sec-title" style="margin-top:24px;">已加入的群聊</div>
-      <div class="sec-sub">查看该 Agent 所在的群，并按群设置回复方式。将 Agent 加入新群请前往对应群设置。</div>
-      <div class="card" style="padding:0;">
-        <table class="table">
-          <thead><tr><th style="width:34%">群聊</th><th style="width:30%">上下文</th><th style="width:24%">回复方式</th><th></th></tr></thead>
+      <div class="row-block">
+        <div class="rb-head">
+          <div><div class="rb-t">已加入的群聊 <span class="count-badge">3</span></div><div class="rb-s">按群设置回复方式；加入新群请前往对应群设置。</div></div>
+        </div>
+        <table class="table compact">
+          <thead><tr><th style="width:40%">群聊</th><th style="width:36%">上下文</th><th style="width:24%">回复方式</th></tr></thead>
           <tbody id="groupRows"></tbody>
         </table>
       </div>
@@ -347,17 +359,16 @@ const trend={
 };
 
 /* ===== 使用范围 ===== */
-function pickScope(v){ scopeVal=v; document.querySelectorAll('.scope-opt').forEach((o,i)=>o.classList.toggle('on',(v==='self'?i===0:i===1))); }
+function pickScope(v){ scopeVal=v; const lines=document.querySelectorAll('#pane-scope .opt-line'); lines[0].classList.toggle('on',v==='self'); lines[1].classList.toggle('on',v==='part'); }
 function renderGroups(){
   document.getElementById('groupRows').innerHTML=groups.map((g,i)=>`
     <tr>
-      <td><span class="grp-ico">👥</span><b>${g.name}</b></td>
+      <td><span class="grp-dot">👥</span><b>${g.name}</b></td>
       <td style="font-size:12px;color:var(--mut);">会话上下文与其他私聊、群聊隔离</td>
       <td><select class="reply-dd" onchange="groups[${i}].reply=this.value">
         <option ${g.reply==='智能回复'?'selected':''}>智能回复</option>
         <option ${g.reply==='仅 @ 时回复'?'selected':''}>仅 @ 时回复</option>
       </select></td>
-      <td></td>
     </tr>`).join("");
 }
 
