@@ -135,11 +135,24 @@
   .seg-btn{ font-size:12px; font-weight:700; color:var(--sub); padding:5px 12px; border:1px solid var(--line); cursor:pointer; }
   .seg-btn:first-of-type{ border-radius:8px 0 0 8px; } .seg-btn:last-of-type{ border-radius:0 8px 8px 0; border-left:none; }
   .seg-btn.on{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
-  .chart{ display:flex; align-items:flex-end; gap:18px; height:230px; padding:10px 6px 0; }
-  .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; height:100%; }
-  .bar-val{ font-size:12px; font-weight:700; color:var(--sub); }
-  .bar{ width:60%; max-width:56px; border-radius:8px 8px 0 0; transition:.3s; }
-  .bar-x{ font-size:11px; color:var(--mut); }
+  .range-label{ font-size:12px; color:var(--mut); margin-left:10px; }
+  .chart{ width:100%; height:250px; }
+  .chart svg{ width:100%; height:100%; overflow:visible; display:block; }
+  .gl{ stroke:var(--line-2); stroke-width:1; }
+  .axis-x{ font-size:10px; fill:var(--mut); }
+  .axis-y{ font-size:10px; fill:var(--mut); }
+  .line-path{ fill:none; stroke-width:2.5; stroke-linejoin:round; stroke-linecap:round; }
+  .dot{ stroke:#fff; stroke-width:2; }
+  .dot-lb{ font-size:10px; font-weight:700; }
+
+  /* 日期选择器 */
+  .date-row{ display:flex; align-items:flex-end; gap:12px; }
+  .dl{ font-size:12px; color:var(--sub); display:block; margin-bottom:5px; }
+  .date-inp{ border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:13px; color:var(--txt); font-family:inherit; }
+  .date-sep{ color:var(--mut); padding-bottom:9px; }
+  .date-quick{ display:flex; gap:8px; margin-top:14px; }
+  .date-quick span{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:7px; padding:5px 12px; cursor:pointer; font-weight:700; }
+  .date-quick span:hover{ background:#e0e7ff; }
 
   /* modal */
   .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:50; }
@@ -238,11 +251,12 @@
       <div class="usage-topbar">
         <div class="sec-title" style="margin:0;">用量概览</div>
         <div class="range-dd">
-          <select id="rangeSel" onchange="renderUsage()">
-            <option value="month">本月</option>
+          <select id="rangeSel" onchange="onRangeChange()">
             <option value="7d">近 7 天</option>
+            <option value="month">本月</option>
             <option value="custom">自定义…</option>
           </select>
+          <span id="rangeLabel" class="range-label"></span>
         </div>
       </div>
       <div class="stat-grid" id="statGrid"></div>
@@ -291,11 +305,10 @@
       <!-- 趋势 -->
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div class="card-t" id="trendTitle">每日 Token 消耗</div>
+          <div><div class="card-t" id="trendTitle">Token 消耗趋势</div><div class="card-s" id="trendSub" style="margin-bottom:0;"></div></div>
           <div class="trend-seg">
             <span class="seg-btn on" data-k="token" onclick="switchTrend('token',this)">Token</span>
             <span class="seg-btn" data-k="task" onclick="switchTrend('task',this)">任务数</span>
-            <span style="font-size:11px;color:var(--mut);margin-left:8px;">最近 7 天</span>
           </div>
         </div>
         <div class="chart" id="chart"></div>
@@ -321,6 +334,25 @@
       </div>
     </div>
     <div class="modal-foot"><button class="btn ghost" onclick="closeRule()">取消</button><button class="btn primary" onclick="saveRule()">保存</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="dateOverlay">
+  <div class="modal" style="width:400px;">
+    <div class="modal-head"><div class="mt">自定义时间范围</div><span class="x" onclick="closeDate()">×</span></div>
+    <div class="modal-body">
+      <div class="date-row">
+        <div><label class="dl">开始日期</label><input type="date" id="dStart" class="date-inp" value="2026-06-15"></div>
+        <span class="date-sep">→</span>
+        <div><label class="dl">结束日期</label><input type="date" id="dEnd" class="date-inp" value="2026-07-29"></div>
+      </div>
+      <div class="date-quick">
+        <span onclick="quickRange(14)">近 14 天</span>
+        <span onclick="quickRange(30)">近 30 天</span>
+        <span onclick="quickRange(90)">近 90 天</span>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeDate()">取消</button><button class="btn primary" onclick="applyDate()">确定</button></div>
   </div>
 </div>
 
@@ -353,10 +385,28 @@ const users=[
   { name:"傅云辰", dep:"产品体验中心", tok:7300, sess:11, task:14, av:"傅" },
   { name:"施羽婷", dep:"综合业务部", tok:4300, sess:7, task:13, av:"施" }
 ];
-const trend={
-  token:[["7/23","5.2K",5200],["7/24","6.8K",6800],["7/25","7.1K",7100],["7/26","8.6K",8600],["7/27","9.8K",9800],["7/28","10.7K",10700],["7/29","11.8K",11800]],
-  task:[["7/23","4",4],["7/24","6",6],["7/25","5",5],["7/26","8",8],["7/27","7",7],["7/28","9",9],["7/29","8",8]]
-};
+
+/* 按结束日回溯 N 天生成日序列（伪随机稳定） */
+const END=new Date(2026,6,29);
+function fmtMD(d){ return (d.getMonth()+1)+"/"+d.getDate(); }
+function fmtY(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function seriesFor(days){
+  const arr=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(END); d.setDate(END.getDate()-i);
+    const seed=(d.getDate()*7+d.getMonth()*13)%17;
+    const tok=4200+seed*620+(days-i)*40;
+    const task=3+((seed+d.getDate())%9);
+    arr.push({ d, x:fmtMD(d), tok, task });
+  }
+  return arr;
+}
+function kfmt(n){ return n>=1000?(n/1000).toFixed(1)+"K":String(n); }
+
+/* 当前范围状态 */
+let rangeDays=7;                 // 7 | 本月天数 | 自定义天数
+let customStart=null, customEnd=null;
+
 
 /* ===== 使用范围 ===== */
 function pickScope(v){ scopeVal=v; const lines=document.querySelectorAll('#pane-scope .opt-line'); lines[0].classList.toggle('on',v==='self'); lines[1].classList.toggle('on',v==='part'); }
@@ -373,13 +423,24 @@ function renderGroups(){
 }
 
 /* ===== 用量统计 ===== */
+let curSeries=[];
+function onRangeChange(){
+  const v=document.getElementById('rangeSel').value;
+  if(v==='custom'){ openDate(); return; }
+  rangeDays = v==='7d' ? 7 : 31;
+  document.getElementById('rangeLabel').textContent = v==='7d' ? "近 7 天" : "本月（7/1 - 7/29）";
+  renderUsage();
+}
 function renderUsage(){
-  const d=rangeData[document.getElementById('rangeSel').value];
+  curSeries=seriesFor(rangeDays);
+  const totTok=curSeries.reduce((s,d)=>s+d.tok,0);
+  const totTask=curSeries.reduce((s,d)=>s+d.task,0);
+  const sess=Math.round(totTask*0.55);
+  const usersN=Math.min(23, 8+Math.round(rangeDays/3));
   document.getElementById('statGrid').innerHTML=[
-    ["总用量（Token）",d.token],["总会话数",d.sess],["总任务数",d.task],["用户数",d.users],["加入群组数",d.groups]
+    ["总用量（Token）",kfmt(totTok)],["总会话数",sess],["总任务数",totTask],["用户数",usersN],["加入群组数",3]
   ].map(([lb,vl])=>`<div class="stat-card"><div class="lb">${lb}</div><div class="vl">${vl}</div></div>`).join("");
-  renderRule();
-  renderDetail();
+  renderRule(); renderDetail(); renderChart();
 }
 function renderRule(){
   const mine=rule==='mine';
@@ -413,12 +474,50 @@ function renderDetail(){
 }
 function switchTrend(k,el){ trendKey=k; document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderChart(); }
 function renderChart(){
-  const data=trend[trendKey]; const max=Math.max(...data.map(d=>d[2]));
-  const color=trendKey==='token'?'#7aa5f0':'#6ee7b7';
-  document.getElementById('trendTitle').textContent= trendKey==='token'?"每日 Token 消耗":"每日任务数";
-  document.getElementById('chart').innerHTML=data.map(([x,lb,v])=>`
-    <div class="bar-col"><div class="bar-val">${lb}</div><div class="bar" style="height:${v/max*160}px;background:${color};"></div><div class="bar-x">${x}</div></div>`).join("");
+  const isTok=trendKey==='token';
+  const color=isTok?'#6366f1':'#10b981';
+  document.getElementById('trendTitle').textContent= isTok?"Token 消耗趋势":"任务数量趋势";
+  document.getElementById('trendSub').textContent= isTok?"横轴日期 · 纵轴 Token 数":"横轴日期 · 纵轴任务数量";
+  const data=curSeries.map(d=>({ x:d.x, v:isTok?d.tok:d.task }));
+  const W=1000, H=230, padL=48, padR=16, padT=16, padB=28;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const max=Math.max(...data.map(d=>d.v))*1.1, min=0;
+  const n=data.length;
+  const X=i=> padL + (n<=1?iw/2:iw*i/(n-1));
+  const Y=v=> padT + ih*(1-(v-min)/(max-min||1));
+  // y 网格 4 档
+  let grid="", yl="";
+  for(let g=0;g<=4;g++){ const yy=padT+ih*g/4; const val=max*(1-g/4); grid+=`<line class="gl" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`; yl+=`<text class="axis-y" x="${padL-8}" y="${yy+3}" text-anchor="end">${kfmt(Math.round(val))}</text>`; }
+  // x 标签：点多时抽稀
+  const step=Math.ceil(n/8);
+  let xl=""; data.forEach((d,i)=>{ if(i%step===0||i===n-1) xl+=`<text class="axis-x" x="${X(i)}" y="${H-8}" text-anchor="middle">${d.x}</text>`; });
+  // 折线 + 面积
+  const line=data.map((d,i)=>`${i?'L':'M'}${X(i)},${Y(d.v)}`).join(" ");
+  const area=`M${X(0)},${padT+ih} `+data.map((d,i)=>`L${X(i)},${Y(d.v)}`).join(" ")+` L${X(n-1)},${padT+ih} Z`;
+  // 点：点少时全画，点多只画端点
+  let dots=""; data.forEach((d,i)=>{ const show = n<=14 || i===0 || i===n-1 || d.v===Math.max(...data.map(p=>p.v)); if(show){ dots+=`<circle class="dot" cx="${X(i)}" cy="${Y(d.v)}" r="3.5" fill="${color}"/>`; if(n<=14) dots+=`<text class="dot-lb" x="${X(i)}" y="${Y(d.v)-9}" text-anchor="middle" fill="${color}">${kfmt(d.v)}</text>`; } });
+  document.getElementById('chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.18"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${grid}${yl}
+    <path d="${area}" fill="url(#ag)"/>
+    <path class="line-path" d="${line}" stroke="${color}"/>
+    ${dots}${xl}
+  </svg>`;
 }
+
+/* ===== 自定义日期 ===== */
+function openDate(){ document.getElementById('dateOverlay').classList.add('on'); }
+function closeDate(){ document.getElementById('dateOverlay').classList.remove('on'); if(document.getElementById('rangeSel').value==='custom' && !customStart){ document.getElementById('rangeSel').value='7d'; onRangeChange(); } }
+function quickRange(days){ const e=new Date(END); const s=new Date(END); s.setDate(END.getDate()-days+1); document.getElementById('dStart').value=fmtY(s); document.getElementById('dEnd').value=fmtY(e); }
+function applyDate(){
+  const s=new Date(document.getElementById('dStart').value), e=new Date(document.getElementById('dEnd').value);
+  const days=Math.max(1, Math.round((e-s)/86400000)+1);
+  customStart=s; customEnd=e; rangeDays=days;
+  document.getElementById('rangeLabel').textContent = `${document.getElementById('dStart').value} 至 ${document.getElementById('dEnd').value}（${days} 天）`;
+  document.getElementById('dateOverlay').classList.remove('on');
+  renderUsage();
+}
+document.getElementById('dateOverlay').addEventListener('click',e=>{ if(e.target.id==='dateOverlay') closeDate(); });
 
 /* ===== 扣除规则弹窗 ===== */
 let ruleTmp=rule;
@@ -430,7 +529,9 @@ function saveRule(){ rule=ruleTmp; renderUsage(); closeRule(); }
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeRule(); });
 
 /* init */
-renderGroups(); renderUsage(); renderChart();
+/* init */
+document.getElementById('rangeLabel').textContent="近 7 天";
+renderGroups(); renderUsage();
 </script>
 </body>
 </html>
