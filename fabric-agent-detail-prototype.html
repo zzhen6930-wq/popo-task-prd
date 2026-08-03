@@ -704,20 +704,17 @@ function renderRule(){
     ? "所有人使用此 Agent 产生的 Token，统一从你配置的账号额度中扣除。"
     : "每次对话产生的 Token，从发起本次对话的用户额度中扣除。";
   document.getElementById('ruleCur').textContent= mine?"统一从我的额度扣除":"从提问人的额度扣除";
-  document.getElementById('quotaTitle').textContent= mine?"账号 AIGW Token 额度（拥有者）":"AIGW Token 额度（按使用者归属）";
-  document.getElementById('quotaSub').textContent= mine
-    ? "统一扣除账号本月可用于公司 AI 工具的共享额度。"
-    : "谁用扣谁，下方额度为拥有者账号视图；各用户实际扣除见「按用户明细」。";
+  document.getElementById('quotaTitle').textContent="账号 AIGW Token 额度";
+  document.getElementById('quotaSub').textContent="拥有者账号本月可用于公司 AI 工具的共享额度。";
 }
+function owner(){ return (typeof curAgent!=='undefined'&&curAgent)?curAgent.owner:"张振"; }
 function renderDetail(){
   const mine=rule==='mine';
-  document.getElementById('detailSub').textContent= mine
-    ? "统一从账号扣除，但按用户拆分展示各自消耗，便于识别高消耗用户。"
-    : "谁用扣谁，逐用户展示各自消耗与扣除归属。";
+  document.getElementById('detailSub').textContent="";
   const max=Math.max(...users.map(u=>u.tok)); const total=users.reduce((s,u)=>s+u.tok,0);
   document.getElementById('detailRows').innerHTML=users.map(u=>{
     const pct=(u.tok/total*100).toFixed(1);
-    const attr= mine?`<span class="pill gray">拥有者账号</span>`:`<span class="pill indigo">${u.name} 本人</span>`;
+    const attr= mine?`<span class="pill gray">${owner()}</span>`:`<span class="pill indigo">${u.name}</span>`;
     return `<tr>
       <td><div class="u-cell"><span class="u-av">${u.av}</span><div><div class="u-name">${u.name}</div><div class="u-dep">${u.dep}</div></div></div></td>
       <td><b>${u.tok.toLocaleString()}</b></td>
@@ -733,7 +730,7 @@ function renderChart(){
   const isTok=trendKey==='token';
   const color=isTok?'#6366f1':'#10b981';
   document.getElementById('trendTitle').textContent= isTok?"Token 消耗趋势":"任务数量趋势";
-  document.getElementById('trendSub').textContent= isTok?"横轴日期 · 纵轴 Token 数":"横轴日期 · 纵轴任务数量";
+  document.getElementById('trendSub').textContent="";
   const data=curSeries.map(d=>({ x:d.x, v:isTok?d.tok:d.task }));
   const W=1000, H=230, padL=48, padR=16, padT=16, padB=28;
   const iw=W-padL-padR, ih=H-padT-padB;
