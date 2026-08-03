@@ -22,7 +22,17 @@
   .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
   .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
 
-  .app{ max-width:1200px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:900px; position:relative; }
+  .app{ max-width:1320px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:900px; position:relative; }
+
+  .main-row{ display:flex; align-items:stretch; }
+  .sidebar{ width:210px; flex:0 0 210px; border-right:1px solid var(--line-2); padding:16px 12px; background:#fafbfc; }
+  .side-brand{ display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; color:var(--ink); padding:4px 10px 14px; }
+  .side-brand .bi{ width:26px; height:26px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:800; }
+  .side-group{ font-size:11px; font-weight:800; color:var(--mut); letter-spacing:.5px; padding:14px 12px 6px; }
+  .side-item{ display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:2px; }
+  .side-item:hover{ background:#f1f5f9; }
+  .side-item.on{ background:#ede9fe; color:var(--indigo-d); font-weight:700; }
+  .side-item .ci{ font-size:15px; width:18px; text-align:center; }
 
   .topbar{ height:58px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 22px; }
   .logo{ display:flex; align-items:center; gap:9px; font-size:16px; font-weight:800; color:var(--ink); }
@@ -32,7 +42,7 @@
   .nav-link:hover{ color:var(--indigo-d); }
   .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
 
-  .body-wrap{ padding:20px 30px 40px; }
+  .body-wrap{ flex:1; min-width:0; padding:20px 30px 40px; }
   .back{ font-size:13px; color:var(--sub); cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-bottom:14px; }
   .back:hover{ color:var(--indigo-d); }
 
@@ -193,8 +203,13 @@
   .st-off{ background:#f1f5f9; color:#64748b; font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
   .muted-cell{ color:var(--mut); }
   .time-cell{ font-size:12px; color:var(--sub); }
+  .op-cell{ white-space:nowrap; }
+  .op-btn{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:14px; margin-right:6px; }
+  .op-btn.edit{ color:var(--indigo-d); } .op-btn.edit:hover{ background:#eef2ff; }
+  .op-btn.del{ color:#dc2626; } .op-btn.del:hover{ background:#fef2f2; }
 
 
+  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:80; }
   .overlay.on{ display:flex; }
   .modal{ background:#fff; border-radius:16px; width:440px; box-shadow:var(--shadow-lg); overflow:hidden; }
   .modal-head{ padding:18px 22px; border-bottom:1px solid var(--line-2); display:flex; justify-content:space-between; align-items:center; }
@@ -228,6 +243,27 @@
     </div>
   </div>
 
+  <div class="main-row">
+  <aside class="sidebar">
+    <div class="side-brand"><span class="bi">W</span>WrokHub Studio</div>
+    <div class="side-group">AI 工厂</div>
+    <div class="side-item"><span class="ci">🧬</span>Models</div>
+    <div class="side-item"><span class="ci">📝</span>Prompts</div>
+    <div class="side-item"><span class="ci">✨</span>Skills</div>
+    <div class="side-item"><span class="ci">🔧</span>工具</div>
+    <div class="side-item"><span class="ci">🔌</span>MCP</div>
+    <div class="side-item"><span class="ci">📖</span>知识</div>
+    <div class="side-group">Agent 管理</div>
+    <div class="side-item"><span class="ci">🧁</span>Bots</div>
+    <div class="side-item on"><span class="ci">🧠</span>Agents</div>
+    <div class="side-item"><span class="ci">💾</span>资源库</div>
+    <div class="side-item"><span class="ci">⚡</span>自动化任务</div>
+    <div class="side-group">运行观测</div>
+    <div class="side-item"><span class="ci">💬</span>对话</div>
+    <div class="side-item"><span class="ci">📒</span>会话</div>
+    <div class="side-item"><span class="ci">📊</span>评测</div>
+  </aside>
+
   <div class="body-wrap">
 
     <!-- ===== 列表页 ===== -->
@@ -242,15 +278,16 @@
       <div class="list-card">
         <table class="table list-table">
           <thead><tr>
-            <th style="width:16%">名称</th>
-            <th style="width:12%">模型</th>
-            <th style="width:12%">来源</th>
-            <th style="width:7%">记忆</th>
-            <th style="width:7%">状态</th>
-            <th style="width:8%">创建人</th>
-            <th style="width:12%">创建时间</th>
-            <th style="width:8%">更新人</th>
-            <th style="width:12%">更新时间</th>
+            <th style="width:15%">名称</th>
+            <th style="width:11%">模型</th>
+            <th style="width:11%">来源</th>
+            <th style="width:6%">记忆</th>
+            <th style="width:6%">状态</th>
+            <th style="width:7%">创建人</th>
+            <th style="width:11%">创建时间</th>
+            <th style="width:7%">更新人</th>
+            <th style="width:11%">更新时间</th>
+            <th style="width:8%">操作</th>
           </tr></thead>
           <tbody id="agRows"></tbody>
         </table>
@@ -391,7 +428,8 @@
 
 
 
-  </div>
+  </div><!-- /body-wrap -->
+  </div><!-- /main-row -->
 </div>
 
 <div class="overlay" id="overlay">
@@ -470,9 +508,14 @@ function renderList(){
       <td class="time-cell">${a.ct}</td>
       <td>${a.uu}</td>
       <td class="time-cell">${a.ut}</td>
+      <td class="op-cell" onclick="event.stopPropagation()">
+        <span class="op-btn edit" title="编辑" onclick="alert('编辑：${a.name}（原型占位）')">✎</span>
+        <span class="op-btn del" title="删除" onclick="delAgent(${a.id})">🗑</span>
+      </td>
     </tr>`).join("");
 }
 function backToList(){ document.getElementById('view-detail').style.display='none'; document.getElementById('view-list').style.display='block'; }
+function delAgent(id){ const a=agents.find(x=>x.id===id); if(confirm('确认删除「'+a.name+'」？')){ const i=agents.indexOf(a); agents.splice(i,1); renderList(); } }
 function openDetail(id){
   curAgent=agents.find(a=>a.id===id);
   document.getElementById('view-list').style.display='none';
