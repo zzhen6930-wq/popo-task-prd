@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · Agent 详情 · 高保真原型</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e5e7eb; --line-2:#f1f5f9; --bg:#f8fafc; --bg-2:#eef2f7;
+    --ok:#16a34a; --warn:#b45309; --danger:#ef4444; --blue:#2563eb;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.08);
+    --shadow-lg:0 20px 60px rgba(15,23,42,.22);
+    --r:10px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg-2); color:var(--txt); padding:24px 16px 60px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+  .page-label{ max-width:1200px; margin:6px auto 12px; display:flex; align-items:center; gap:10px; }
+  .page-label .b-num{ background:#dc2626; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
+  .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
+
+  .app{ max-width:1200px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:900px; position:relative; }
+
+  .topbar{ height:58px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 22px; }
+  .logo{ display:flex; align-items:center; gap:9px; font-size:16px; font-weight:800; color:var(--ink); }
+  .logo-icon{ width:24px; height:24px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+  .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .nav-link:hover{ color:var(--indigo-d); }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+
+  .body-wrap{ padding:20px 30px 40px; }
+  .back{ font-size:13px; color:var(--sub); cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-bottom:14px; }
+  .back:hover{ color:var(--indigo-d); }
+
+  .agent-head{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .agent-ico{ width:52px; height:52px; border-radius:13px; background:#3b6fe0; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; }
+  .agent-name{ font-size:22px; font-weight:800; color:var(--ink); }
+  .agent-desc{ font-size:13px; color:var(--sub); margin-top:2px; }
+
+  /* tabs */
+  .tabs{ display:flex; gap:4px; border-bottom:2px solid var(--line-2); margin-bottom:22px; }
+  .tab{ padding:10px 18px; font-size:14px; font-weight:700; color:var(--sub); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; position:relative; }
+  .tab:hover{ color:var(--txt); }
+  .tab.on{ color:var(--indigo-d); border-bottom-color:var(--indigo); }
+  .tab .dot{ font-size:9px; background:#ef4444; color:#fff; border-radius:4px; padding:1px 4px; margin-left:5px; vertical-align:top; }
+
+  .pane{ display:none; }
+  .pane.on{ display:block; }
+
+  .card{ border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:16px; background:#fff; }
+  .card-t{ font-size:15px; font-weight:800; color:var(--ink); }
+  .card-s{ font-size:12.5px; color:var(--mut); margin-top:2px; margin-bottom:14px; }
+
+  .sec-title{ font-size:14px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
+  .sec-sub{ font-size:12.5px; color:var(--mut); margin-bottom:12px; }
+
+  .btn{ border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; padding:8px 14px; display:inline-flex; align-items:center; gap:6px; transition:.15s; }
+  .btn.primary{ background:var(--indigo); color:#fff; }
+  .btn.primary:hover{ background:var(--indigo-d); }
+  .btn.ghost{ background:#fff; color:var(--txt); border:1px solid var(--line); }
+  .btn.ghost:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .btn.sm{ padding:6px 11px; font-size:12px; }
+
+  .pill{ font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; display:inline-block; }
+  .pill.green{ background:#dcfce7; color:#16a34a; } .pill.amber{ background:#fef3c7; color:#b45309; }
+  .pill.indigo{ background:#ede9fe; color:#6d28d9; } .pill.blue{ background:#dbeafe; color:#1d4ed8; }
+  .pill.gray{ background:#f1f5f9; color:#64748b; }
+
+  .table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .table th{ background:#f8fafc; color:#475569; font-weight:700; text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); font-size:12px; }
+  .table td{ padding:12px 14px; border-bottom:1px solid var(--line-2); color:var(--txt); }
+  .table tr:hover td{ background:#fafbff; }
+
+  /* placeholder */
+  .ph-box{ border:1.5px dashed #cbd5e1; border-radius:12px; padding:40px; text-align:center; color:var(--mut); font-size:13px; background:#fafbfc; }
+  .ph-box .big{ font-size:15px; font-weight:700; color:var(--sub); margin-bottom:6px; }
+
+  /* 使用范围 */
+  .scope-opts{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .scope-opt{ border:1.5px solid var(--line); border-radius:12px; padding:16px; cursor:pointer; display:flex; gap:12px; transition:.15s; background:#fff; }
+  .scope-opt:hover{ border-color:#c7d2fe; }
+  .scope-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
+  .scope-opt .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 18px; margin-top:2px; position:relative; }
+  .scope-opt.on .radio{ border-color:var(--indigo); }
+  .scope-opt.on .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+  .so-t{ font-size:14px; font-weight:800; color:var(--ink); }
+  .so-d{ font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5; }
+  .chips{ margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+  .tag-chip{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:3px 9px; font-size:12px; color:var(--txt); }
+  .add-chip{ color:var(--indigo-d); font-size:12px; font-weight:700; padding:3px 6px; cursor:pointer; }
+  .grp-ico{ width:34px; height:34px; border-radius:9px; background:#fff7ed; color:#f59e0b; display:inline-flex; align-items:center; justify-content:center; font-size:15px; margin-right:10px; vertical-align:middle; }
+  .reply-dd{ border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
+
+  /* 用量统计 */
+  .usage-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .range-dd select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:16px; }
+  .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
+  .stat-card .lb{ font-size:12px; color:var(--mut); }
+  .stat-card .vl{ font-size:24px; font-weight:800; color:var(--ink); margin-top:6px; }
+
+  .rule-card{ display:flex; align-items:center; justify-content:space-between; }
+  .rule-left{ display:flex; gap:12px; align-items:center; }
+  .rule-ico{ width:38px; height:38px; border-radius:10px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .rule-desc{ font-size:12.5px; color:var(--sub); margin-top:3px; max-width:520px; }
+  .rule-right{ display:flex; align-items:center; gap:16px; }
+  .rule-cur{ text-align:right; } .rc-lb{ font-size:11px; color:var(--mut); } .rc-vl{ font-size:14px; font-weight:800; color:var(--ink); }
+
+  .quota-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 12px; }
+  .q-lb{ font-size:12px; color:var(--mut); } .q-vl{ font-size:22px; font-weight:800; color:var(--ink); margin-top:4px; }
+  .q-bar{ height:8px; border-radius:6px; background:var(--line-2); overflow:hidden; }
+  .q-fill{ height:100%; background:linear-gradient(90deg,var(--indigo),var(--blue)); }
+  .q-foot{ display:flex; justify-content:space-between; font-size:11px; color:var(--mut); margin-top:6px; }
+
+  .u-cell{ display:flex; align-items:center; gap:10px; }
+  .u-av{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#818cf8,#a78bfa); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .u-name{ font-weight:700; color:var(--ink); font-size:13px; } .u-dep{ font-size:11px; color:var(--mut); }
+  .ratio-bar{ height:6px; width:70px; border-radius:4px; background:var(--line-2); display:inline-block; vertical-align:middle; overflow:hidden; margin-right:8px; }
+  .ratio-fill{ height:100%; background:var(--indigo); }
+
+  .trend-seg{ display:flex; align-items:center; }
+  .seg-btn{ font-size:12px; font-weight:700; color:var(--sub); padding:5px 12px; border:1px solid var(--line); cursor:pointer; }
+  .seg-btn:first-of-type{ border-radius:8px 0 0 8px; } .seg-btn:last-of-type{ border-radius:0 8px 8px 0; border-left:none; }
+  .seg-btn.on{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+  .chart{ display:flex; align-items:flex-end; gap:18px; height:230px; padding:10px 6px 0; }
+  .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; height:100%; }
+  .bar-val{ font-size:12px; font-weight:700; color:var(--sub); }
+  .bar{ width:60%; max-width:56px; border-radius:8px 8px 0 0; transition:.3s; }
+  .bar-x{ font-size:11px; color:var(--mut); }
+
+  /* modal */
+  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:50; }
+  .overlay.on{ display:flex; }
+  .modal{ background:#fff; border-radius:16px; width:440px; box-shadow:var(--shadow-lg); overflow:hidden; }
+  .modal-head{ padding:18px 22px; border-bottom:1px solid var(--line-2); display:flex; justify-content:space-between; align-items:center; }
+  .modal-head .mt{ font-size:16px; font-weight:800; color:var(--ink); }
+  .modal-head .x{ cursor:pointer; color:var(--mut); font-size:20px; }
+  .modal-body{ padding:18px 22px; }
+  .modal-foot{ padding:14px 22px; border-top:1px solid var(--line-2); display:flex; justify-content:flex-end; gap:10px; }
+  .rule-opt{ border:1.5px solid var(--line); border-radius:11px; padding:14px; cursor:pointer; margin-bottom:10px; display:flex; gap:12px; }
+  .rule-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
+  .rule-opt .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 18px; margin-top:2px; position:relative; }
+  .rule-opt.on .radio{ border-color:var(--indigo); } .rule-opt.on .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="b-num">A</span>
+  <span class="b-title">Agent 详情 · 4 Tab</span>
+  <span class="b-desc">配置 / 记忆（已有）· 使用范围 / 用量统计（本次新增）</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><span class="logo-icon">W</span>Workhub Studio</div>
+    <div class="right">
+      <span class="nav-link">🧭 服务导航</span>
+      <span class="avatar">张</span>
+    </div>
+  </div>
+
+  <div class="body-wrap">
+    <div class="back">← 返回 Agents</div>
+    <div class="agent-head">
+      <div class="agent-ico">云</div>
+      <div>
+        <div class="agent-name">云空间-运维 agent</div>
+        <div class="agent-desc">云空间-运维 agent · 拥有者：张振</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab" data-p="config" onclick="switchTab('config',this)">配置</div>
+      <div class="tab" data-p="memory" onclick="switchTab('memory',this)">记忆</div>
+      <div class="tab on" data-p="scope" onclick="switchTab('scope',this)">使用范围<span class="dot">NEW</span></div>
+      <div class="tab" data-p="usage" onclick="switchTab('usage',this)">用量统计<span class="dot">NEW</span></div>
+    </div>
+
+    <!-- PANES INSERTED HERE -->
+
+    <!-- 配置 -->
+    <div class="pane" id="pane-config">
+      <div class="ph-box"><div class="big">配置（已有能力）</div>基础信息 · 内置工具 · Prompt 绑定 · Skill 绑定 · MCP 绑定<br>逻辑不变，本次仅归入此 Tab（原型占位）。</div>
+    </div>
+
+    <!-- 记忆 -->
+    <div class="pane" id="pane-memory">
+      <div class="ph-box"><div class="big">记忆（已有能力）</div>会话记忆 · 用户记忆<br>逻辑不变，本次仅将记忆模块移入此 Tab（原型占位）。</div>
+    </div>
+
+    <!-- 使用范围 -->
+    <div class="pane on" id="pane-scope">
+      <div class="sec-title">可使用范围</div>
+      <div class="sec-sub">管理谁可以发现、私聊和使用这个 Agent（管理后台视角，可对本组织下任一 Agent 统一治理）。</div>
+      <div class="scope-opts">
+        <div class="scope-opt" onclick="pickScope('self')">
+          <div class="radio"></div>
+          <div><div class="so-t">仅自己</div><div class="so-d">只有拥有者能搜索、私聊和在 WorkHub 中使用；加入群聊后群成员可在群内与它对话。</div></div>
+        </div>
+        <div class="scope-opt on" onclick="pickScope('part')">
+          <div class="radio"></div>
+          <div><div class="so-t">指定成员或部门</div><div class="so-d">范围内的成员可搜索、私聊、使用并将 Agent 加入群聊。</div>
+            <div class="chips"><span class="tag-chip">效率工程部</span><span class="tag-chip">产品体验中心</span><span class="tag-chip">张振</span><span class="add-chip">＋ 选择范围</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:24px;">已加入的群聊</div>
+      <div class="sec-sub">查看该 Agent 所在的群，并按群设置回复方式。将 Agent 加入新群请前往对应群设置。</div>
+      <div class="card" style="padding:0;">
+        <table class="table">
+          <thead><tr><th style="width:34%">群聊</th><th style="width:30%">上下文</th><th style="width:24%">回复方式</th><th></th></tr></thead>
+          <tbody id="groupRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 用量统计 -->
+    <div class="pane" id="pane-usage">
+      <div class="usage-topbar">
+        <div class="sec-title" style="margin:0;">用量概览</div>
+        <div class="range-dd">
+          <select id="rangeSel" onchange="renderUsage()">
+            <option value="month">本月</option>
+            <option value="7d">近 7 天</option>
+            <option value="custom">自定义…</option>
+          </select>
+        </div>
+      </div>
+      <div class="stat-grid" id="statGrid"></div>
+
+      <!-- 扣除规则 -->
+      <div class="card rule-card">
+        <div class="rule-left">
+          <div class="rule-ico">💳</div>
+          <div>
+            <div class="card-t">Token 扣除规则</div>
+            <div class="rule-desc" id="ruleDesc"></div>
+          </div>
+        </div>
+        <div class="rule-right">
+          <div class="rule-cur"><div class="rc-lb">当前规则</div><div class="rc-vl" id="ruleCur"></div></div>
+          <button class="btn ghost sm" onclick="openRule()">修改</button>
+        </div>
+      </div>
+
+      <!-- 额度卡 -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="card-t" id="quotaTitle"></div><div class="card-s" id="quotaSub" style="margin-bottom:0;"></div></div>
+          <div style="font-size:11px;color:var(--mut);">同步于 2026-07-29 13:47</div>
+        </div>
+        <div class="quota-row">
+          <div><div class="q-lb">已使用</div><div class="q-vl">239,353</div></div>
+          <div><div class="q-lb">剩余额度</div><div class="q-vl">62,800</div></div>
+          <div><div class="q-lb">本月总额度</div><div class="q-vl">302,153</div></div>
+        </div>
+        <div class="q-bar"><div class="q-fill" style="width:79.2%"></div></div>
+        <div class="q-foot"><span>已使用 79.2%</span><span>单位：Token</span></div>
+      </div>
+
+      <!-- 按用户明细 -->
+      <div class="card" style="padding:0;">
+        <div style="padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="card-t">按用户用量明细</div><div class="card-s" style="margin-bottom:0;" id="detailSub"></div></div>
+        </div>
+        <table class="table" style="margin-top:12px;">
+          <thead><tr><th style="width:26%">用户</th><th>Token 消耗</th><th>会话数</th><th>任务数</th><th>占比</th><th style="width:20%">扣除归属</th></tr></thead>
+          <tbody id="detailRows"></tbody>
+        </table>
+      </div>
+
+      <!-- 趋势 -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="card-t" id="trendTitle">每日 Token 消耗</div>
+          <div class="trend-seg">
+            <span class="seg-btn on" data-k="token" onclick="switchTrend('token',this)">Token</span>
+            <span class="seg-btn" data-k="task" onclick="switchTrend('task',this)">任务数</span>
+            <span style="font-size:11px;color:var(--mut);margin-left:8px;">最近 7 天</span>
+          </div>
+        </div>
+        <div class="chart" id="chart"></div>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head"><div class="mt">修改 Token 扣除规则</div><span class="x" onclick="closeRule()">×</span></div>
+    <div class="modal-body">
+      <div class="rule-opt" id="ro-mine" onclick="pickRule('mine')">
+        <div class="radio"></div>
+        <div><div class="so-t">统一从我的额度扣除</div><div class="so-d">所有人使用此 Agent 产生的 Token，统一从创建时配置的账号额度扣除（无论谁用）。</div></div>
+      </div>
+      <div class="rule-opt" id="ro-asker" onclick="pickRule('asker')">
+        <div class="radio"></div>
+        <div><div class="so-t">从提问人的额度扣除</div><div class="so-d">每次对话产生的 Token，从发起本次对话的用户额度扣除（谁用扣谁）。</div></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeRule()">取消</button><button class="btn primary" onclick="saveRule()">保存</button></div>
+  </div>
+</div>
+
+<script>
+function switchTab(p,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pane-'+p).classList.add('on');
+}
+
+/* ===== 数据 ===== */
+let scopeVal="part";
+let rule="mine";              // mine | asker
+let trendKey="token";
+const groups=[
+  { name:"产品讨论群", reply:"智能回复" },
+  { name:"项目协作群", reply:"仅 @ 时回复" },
+  { name:"AgentHub 共创群", reply:"智能回复" }
+];
+const rangeData={
+  month:{ token:"60.0K", sess:47, task:89, users:23, groups:3 },
+  "7d":{ token:"41.2K", sess:29, task:47, users:16, groups:3 },
+  custom:{ token:"—", sess:"—", task:"—", users:"—", groups:3 }
+};
+const users=[
+  { name:"张振", dep:"效率工程部", tok:21400, sess:12, task:26, av:"张" },
+  { name:"朱弈", dep:"产品体验中心", tok:15800, sess:9, task:19, av:"朱" },
+  { name:"李扬", dep:"效率工程部", tok:11200, sess:8, task:17, av:"李" },
+  { name:"傅云辰", dep:"产品体验中心", tok:7300, sess:11, task:14, av:"傅" },
+  { name:"施羽婷", dep:"综合业务部", tok:4300, sess:7, task:13, av:"施" }
+];
+const trend={
+  token:[["7/23","5.2K",5200],["7/24","6.8K",6800],["7/25","7.1K",7100],["7/26","8.6K",8600],["7/27","9.8K",9800],["7/28","10.7K",10700],["7/29","11.8K",11800]],
+  task:[["7/23","4",4],["7/24","6",6],["7/25","5",5],["7/26","8",8],["7/27","7",7],["7/28","9",9],["7/29","8",8]]
+};
+
+/* ===== 使用范围 ===== */
+function pickScope(v){ scopeVal=v; document.querySelectorAll('.scope-opt').forEach((o,i)=>o.classList.toggle('on',(v==='self'?i===0:i===1))); }
+function renderGroups(){
+  document.getElementById('groupRows').innerHTML=groups.map((g,i)=>`
+    <tr>
+      <td><span class="grp-ico">👥</span><b>${g.name}</b></td>
+      <td style="font-size:12px;color:var(--mut);">会话上下文与其他私聊、群聊隔离</td>
+      <td><select class="reply-dd" onchange="groups[${i}].reply=this.value">
+        <option ${g.reply==='智能回复'?'selected':''}>智能回复</option>
+        <option ${g.reply==='仅 @ 时回复'?'selected':''}>仅 @ 时回复</option>
+      </select></td>
+      <td></td>
+    </tr>`).join("");
+}
+
+/* ===== 用量统计 ===== */
+function renderUsage(){
+  const d=rangeData[document.getElementById('rangeSel').value];
+  document.getElementById('statGrid').innerHTML=[
+    ["总用量（Token）",d.token],["总会话数",d.sess],["总任务数",d.task],["用户数",d.users],["加入群组数",d.groups]
+  ].map(([lb,vl])=>`<div class="stat-card"><div class="lb">${lb}</div><div class="vl">${vl}</div></div>`).join("");
+  renderRule();
+  renderDetail();
+}
+function renderRule(){
+  const mine=rule==='mine';
+  document.getElementById('ruleDesc').innerHTML= mine
+    ? "所有人使用此 Agent 产生的 Token，统一从你配置的账号额度中扣除。"
+    : "每次对话产生的 Token，从发起本次对话的用户额度中扣除。";
+  document.getElementById('ruleCur').textContent= mine?"统一从我的额度扣除":"从提问人的额度扣除";
+  document.getElementById('quotaTitle').textContent= mine?"账号 AIGW Token 额度（拥有者）":"AIGW Token 额度（按使用者归属）";
+  document.getElementById('quotaSub').textContent= mine
+    ? "统一扣除账号本月可用于公司 AI 工具的共享额度。"
+    : "谁用扣谁，下方额度为拥有者账号视图；各用户实际扣除见「按用户明细」。";
+}
+function renderDetail(){
+  const mine=rule==='mine';
+  document.getElementById('detailSub').textContent= mine
+    ? "统一从账号扣除，但按用户拆分展示各自消耗，便于识别高消耗用户。"
+    : "谁用扣谁，逐用户展示各自消耗与扣除归属。";
+  const max=Math.max(...users.map(u=>u.tok)); const total=users.reduce((s,u)=>s+u.tok,0);
+  document.getElementById('detailRows').innerHTML=users.map(u=>{
+    const pct=(u.tok/total*100).toFixed(1);
+    const attr= mine?`<span class="pill gray">拥有者账号</span>`:`<span class="pill indigo">${u.name} 本人</span>`;
+    return `<tr>
+      <td><div class="u-cell"><span class="u-av">${u.av}</span><div><div class="u-name">${u.name}</div><div class="u-dep">${u.dep}</div></div></div></td>
+      <td><b>${u.tok.toLocaleString()}</b></td>
+      <td>${u.sess}</td>
+      <td>${u.task}</td>
+      <td><span class="ratio-bar"><span class="ratio-fill" style="width:${u.tok/max*100}%"></span></span>${pct}%</td>
+      <td>${attr}</td>
+    </tr>`;
+  }).join("");
+}
+function switchTrend(k,el){ trendKey=k; document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderChart(); }
+function renderChart(){
+  const data=trend[trendKey]; const max=Math.max(...data.map(d=>d[2]));
+  const color=trendKey==='token'?'#7aa5f0':'#6ee7b7';
+  document.getElementById('trendTitle').textContent= trendKey==='token'?"每日 Token 消耗":"每日任务数";
+  document.getElementById('chart').innerHTML=data.map(([x,lb,v])=>`
+    <div class="bar-col"><div class="bar-val">${lb}</div><div class="bar" style="height:${v/max*160}px;background:${color};"></div><div class="bar-x">${x}</div></div>`).join("");
+}
+
+/* ===== 扣除规则弹窗 ===== */
+let ruleTmp=rule;
+function openRule(){ ruleTmp=rule; syncRuleModal(); document.getElementById('overlay').classList.add('on'); }
+function closeRule(){ document.getElementById('overlay').classList.remove('on'); }
+function pickRule(r){ ruleTmp=r; syncRuleModal(); }
+function syncRuleModal(){ document.getElementById('ro-mine').classList.toggle('on',ruleTmp==='mine'); document.getElementById('ro-asker').classList.toggle('on',ruleTmp==='asker'); }
+function saveRule(){ rule=ruleTmp; renderUsage(); closeRule(); }
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeRule(); });
+
+/* init */
+renderGroups(); renderUsage(); renderChart();
+</script>
+</body>
+</html>
