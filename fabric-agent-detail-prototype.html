@@ -131,19 +131,27 @@
   .mom.down{ color:#059669; }
   .mom.flat{ color:var(--mut); font-weight:500; }
   .trend-wrap{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
-  .trend-card{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; }
-  .trend-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:12px 0 10px; }
+  .trend-title{ margin-bottom:12px; }
+  .trend-card{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; position:relative; }
+  .trend-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:12px; }
   .lg-item{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); cursor:pointer; user-select:none; }
   .lg-item.off{ color:var(--mut); }
-  .lg-box{ width:13px; height:13px; border-radius:3px; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; color:var(--line); }
-  .lg-item.on .lg-box{ border-color:transparent; }
+  .lg-box{ width:13px; height:13px; border-radius:3px; border:1.5px solid #cbd5e1; background:#fff; display:inline-flex; align-items:center; justify-content:center; }
+  .lg-item.on .lg-box{ background:#4f46e5; border-color:#4f46e5; }
   .lg-box .tick{ color:#fff; font-size:9px; line-height:1; }
   .lg-dot{ width:9px; height:9px; border-radius:2px; }
-  .trend-chart{ width:100%; }
+  .trend-chart{ width:100%; position:relative; }
   .trend-chart svg{ width:100%; height:180px; display:block; }
   .trend-chart .gl{ stroke:#eef2f7; stroke-width:1; }
   .trend-chart .axis-x,.trend-chart .axis-y{ fill:var(--mut); font-size:10px; }
   .trend-chart .tline{ fill:none; stroke-width:2; }
+  .trend-chart .hover-line{ stroke:#cbd5e1; stroke-width:1; stroke-dasharray:3 3; }
+  .tt-box{ position:absolute; z-index:20; pointer-events:none; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 20px rgba(15,23,42,.12); padding:10px 12px; font-size:12px; min-width:150px; display:none; }
+  .tt-box .tt-d{ font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .tt-box .tt-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:2px 0; }
+  .tt-box .tt-nm{ display:inline-flex; align-items:center; gap:6px; color:var(--sub); }
+  .tt-box .tt-dot{ width:8px; height:8px; border-radius:2px; }
+  .tt-box .tt-vl{ font-weight:600; color:var(--ink); }
 
   .rule-card{ display:flex; align-items:center; justify-content:space-between; }
   .rule-bar{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line-2); }
@@ -432,26 +440,27 @@
       <div class="stat-grid" id="statGrid"></div>
 
       <!-- 变化趋势 -->
+      <div class="card-t trend-title">变化趋势</div>
       <div class="trend-wrap">
         <div class="trend-card" data-m="tok">
-          <div class="card-t">Token 总用量趋势</div>
-          <div class="trend-legend"></div>
+          <div class="card-t">Token 用量趋势</div>
           <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
         </div>
         <div class="trend-card" data-m="sess">
-          <div class="card-t">总会话数趋势</div>
-          <div class="trend-legend"></div>
+          <div class="card-t">会话数趋势</div>
           <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
         </div>
         <div class="trend-card" data-m="dlg">
-          <div class="card-t">总对话数趋势</div>
-          <div class="trend-legend"></div>
+          <div class="card-t">对话数趋势</div>
           <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
         </div>
         <div class="trend-card" data-m="user">
           <div class="card-t">用户数趋势</div>
-          <div class="trend-legend"></div>
           <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
         </div>
       </div>
 
@@ -772,10 +781,10 @@ function renderTrendLegend(card,m){
   const box=card.querySelector('.trend-legend');
   box.innerHTML=SCENES.map(s=>{
     const on=trendVis[m][s.key];
-    return `<span class="lg-item ${on?'on':'off'}" style="color:${s.color}" onclick="toggleScene('${m}','${s.key}')">
-      <span class="lg-box" style="${on?`background:${s.color}`:''}">${on?'<span class="tick">✓</span>':''}</span>
+    return `<span class="lg-item ${on?'on':'off'}" onclick="toggleScene('${m}','${s.key}')">
+      <span class="lg-box">${on?'<span class="tick">✓</span>':''}</span>
       <span class="lg-dot" style="background:${on?s.color:'#cbd5e1'}"></span>
-      <span style="color:var(--sub)">${s.name}</span>
+      <span>${s.name}</span>
     </span>`;
   }).join("");
 }
@@ -801,7 +810,29 @@ function renderTrendChart(card,m){
     const path=o.data.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(" ");
     return `<path class="tline" d="${path}" stroke="${o.s.color}"/>`;
   }).join("");
-  card.querySelector('.trend-chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${yl}${lines}${xl}</svg>`;
+  const wrap=card.querySelector('.trend-chart');
+  wrap.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${yl}${lines}<line class="hover-line" x1="0" y1="${padT}" x2="0" y2="${padT+ih}" style="display:none"/>${xl}</svg><div class="tt-box"></div>`;
+  // hover tooltip
+  const svg=wrap.querySelector('svg');
+  const hl=wrap.querySelector('.hover-line');
+  const tt=wrap.querySelector('.tt-box');
+  const plotFrac=i=> (padL+(n<=1?iw/2:iw*i/(n-1)))/W;   // 该点在svg宽度中的比例
+  wrap.onmousemove=e=>{
+    const r=wrap.getBoundingClientRect();
+    const rel=(e.clientX-r.left)/r.width;               // 0-1
+    // 找最近数据点
+    let bi=0,bd=1e9;
+    curSeries.forEach((d,i)=>{ const f=plotFrac(i); if(Math.abs(f-rel)<bd){ bd=Math.abs(f-rel); bi=i; } });
+    const f=plotFrac(bi);
+    hl.style.display=''; hl.setAttribute('x1',(f*W).toFixed(1)); hl.setAttribute('x2',(f*W).toFixed(1));
+    const rows=vis.map(o=>`<div class="tt-row"><span class="tt-nm"><span class="tt-dot" style="background:${o.s.color}"></span>${o.s.name}</span><span class="tt-vl">${kfmt(o.data[bi].v)}</span></div>`).join("");
+    tt.innerHTML=`<div class="tt-d">${fmtY(curSeries[bi].d)}</div>${rows||'<div class="tt-row" style="color:#94a3b8">无选中场景</div>'}`;
+    tt.style.display='block';
+    const px=f*r.width;
+    let left=px+12; if(left+tt.offsetWidth>r.width) left=px-tt.offsetWidth-12;
+    tt.style.left=Math.max(0,left)+'px'; tt.style.top='4px';
+  };
+  wrap.onmouseleave=()=>{ hl.style.display='none'; tt.style.display='none'; };
 }
 function renderRule(){
   const mine=rule==='mine';
