@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>POPO AI 产品赋能员工 - 产品规划大图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+    color: #1f2937;
+    padding: 32px 24px;
+    min-width: 1280px;
+  }
+  .blueprint {
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: #64748b;
+  }
+  .header .meta {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 8px;
+  }
+
+  /* 分层标签 */
+  .layer {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    position: relative;
+    border: 1px solid #e5e7eb;
+  }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .layer-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .layer-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .layer-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: auto;
+  }
+
+  /* L1 用户层 */
+  .layer-user .layer-tag { background: #6366f1; }
+  .user-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .user-card {
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .user-card .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4338ca;
+    margin-bottom: 4px;
+  }
+  .user-card .desc { font-size: 12px; color: #6366f1; }
+
+  /* L2 场景层 */
+  .layer-scene .layer-tag { background: #10b981; }
+  .scene-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .scene-block {
+    border-radius: 12px;
+    padding: 16px;
+    border: 2px dashed;
+  }
+  .scene-block.inside { border-color: #10b981; background: #ecfdf5; }
+  .scene-block.outside { border-color: #f59e0b; background: #fffbeb; }
+  .scene-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .scene-block.inside .scene-title { color: #047857; }
+  .scene-block.outside .scene-title { color: #b45309; }
+  .scene-sub { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+
+  /* 工具卡片 */
+  .tools-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .tools-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .tool-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(15,23,42,0.08);
+  }
+  .tool-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .tool-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+  .tool-tagline { font-size: 11px; color: #64748b; margin-bottom: 8px; line-height: 1.5; }
+  .tool-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tool-meta .pill {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+  }
+  .tool-meta .pill.primary { background: #dbeafe; color: #1e40af; }
+  .tool-meta .pill.success { background: #d1fae5; color: #047857; }
+  .tool-meta .pill.warn    { background: #fed7aa; color: #c2410c; }
+
+  .tool-card.workhub  .tool-icon { background:#dbeafe; color:#2563eb; }
+  .tool-card.lobster  .tool-icon { background:#fee2e2; color:#dc2626; }
+  .tool-card.popocli  .tool-icon { background:#ede9fe; color:#7c3aed; }
+  .tool-card.fabric   .tool-icon { background:#cffafe; color:#0891b2; }
+
+  /* L3 能力层 - 三套 Skills 并列 */
+  .layer-skill .layer-tag { background: #8b5cf6; }
+  .skills-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  .skills-col {
+    border-radius: 12px;
+    padding: 14px;
+    border: 1.5px solid;
+    position: relative;
+  }
+  .skills-col.fabric-side  { background: #faf5ff; border-color: #d8b4fe; }
+  .skills-col.popocli-side { background: #f5f3ff; border-color: #c4b5fd; }
+  .skills-col.fabriccli-side { background: #fef9c3; border-color: #fde047; }
+
+  .skills-col-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .skills-col-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #581c87;
+  }
+  .skills-col.popocli-side  .skills-col-title { color: #5b21b6; }
+  .skills-col.fabriccli-side .skills-col-title { color: #854d0e; }
+
+  .skills-col-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    color: #fff;
+    background: #a855f7;
+  }
+  .skills-col.popocli-side .skills-col-tag { background:#7c3aed; }
+  .skills-col.fabriccli-side .skills-col-tag { background:#ca8a04; }
+
+  .skills-col-sub {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .skills-used-by {
+    font-size: 11px;
+    color: #475569;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.6);
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+  .skills-used-by b { color: #0f172a; }
+
+  .skills-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .skills-row-item {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .skills-row-item.disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-style: dashed;
+  }
+  .skills-row-item .src-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #ddd6fe;
+    color: #5b21b6;
+  }
+  .skills-row-item .src-tag.party-1 { background:#dbeafe; color:#1e40af; }
+  .skills-row-item .src-tag.party-2 { background:#d1fae5; color:#047857; }
+  .skills-row-item .src-tag.party-3 { background:#fed7aa; color:#c2410c; }
+  .skills-row-item .src-tag.personal { background:#fce7f3; color:#be185d; }
+  .skills-row-item .src-tag.none { background:#e5e7eb; color:#9ca3af; }
+
+  .skill-list-mini {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .skill-list-mini .item {
+    font-size: 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* L4 底座层 */
+  .layer-base .layer-tag { background: #475569; }
+  .base-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .base-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .base-card .name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .base-card .desc { font-size: 11px; opacity: 0.7; }
+
+  /* 连接箭头 */
+  .arrow-down {
+    text-align: center;
+    color: #cbd5e1;
+    font-size: 18px;
+    margin: -8px 0 -2px;
+    line-height: 1;
+  }
+
+  /* 图例 */
+  .legend {
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 12px;
+    color: #475569;
+  }
+  .legend .item { display:flex; align-items:center; gap:6px;}
+  .legend .swatch { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-title { font-weight: 600; color:#0f172a; margin-right: 8px; }
+
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+</style>
+</head>
+<body>
+<div class="blueprint">
+
+  <div class="header">
+    <h1>POPO AI 产品赋能员工 · 产品规划大图</h1>
+    <div class="subtitle">用户场景 × 入口工具 × 三套 Skills 体系 × Fabric 平台底座</div>
+    <div class="meta">v1.1 · 2026</div>
+  </div>
+
+  <!-- L1 用户层 -->
+  <div class="layer layer-user">
+    <div class="layer-header">
+      <span class="layer-tag">L1</span>
+      <span class="layer-title">用户层 · 谁在用</span>
+      <span class="layer-desc">按是否已使用 Agent 区分目标用户</span>
+    </div>
+    <div class="user-row">
+      <div class="user-card">
+        <div class="name">👤 普通员工（未使用 Agent）</div>
+        <div class="desc">习惯在 POPO 内办公，希望开箱即用、无需配置</div>
+      </div>
+      <div class="user-card">
+        <div class="name">🛠️ 技术员工 / 重度 Agent 用户</div>
+        <div class="desc">已在使用 Claude Code、CodeMaker、Cursor 或自建 Agent，希望打通 POPO 生态</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down">↓</div>
+
+  <!-- L2 场景层 -->
+  <div class="layer layer-scene">
+    <div class="layer-header">
+      <span class="layer-tag">L2</span>
+      <span class="layer-title">场景与入口层 · 在哪里用、用什么</span>
+      <span class="layer-desc">POPO 内 / 外双场景覆盖，4 大产品入口</span>
+    </div>
+
+    <div class="scene-row">
+      <!-- POPO 内 -->
+      <div class="scene-block inside">
+        <div class="scene-title">🏠 POPO 内场景</div>
+        <div class="scene-sub">在 POPO 客户端内直接获得 AI 能力</div>
+        <div class="tools-grid cols-2">
+          <div class="tool-card workhub">
+            <div class="tool-icon">🎛️</div>
+            <div class="tool-name">WorkHub 工作台</div>
+            <div class="tool-tagline">POPO 官方 Agent 应用，专业化办公任务工作台</div>
+            <div class="tool-meta">
+              <span class="pill primary">官方 Agent</span>
+              <span class="pill">专业任务</span>
+              <span class="pill success">用 Ⓐ Skills</span>
+            </div>
+          </div>
+          <div class="tool-card lobster">
+            <div class="tool-icon">🦞</div>
+            <div class="tool-name">个人龙虾助手</div>
+            <div class="tool-tagline">POPO IM 内置助手，通过龙虾机器人插件打通 OpenClaw 等 Agent，作为个人办公助手</div>
+            <div class="tool-meta">
+              <span class="pill primary">IM 内</span>
+              <span class="pill">个人助手</span>
+              <span class="pill success">用 Ⓐ Skills</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POPO 外 -->
+      <div class="scene-block outside">
+        <div class="scene-title">🌐 POPO 外场景</div>
+        <div class="scene-sub">让 POPO 外的 Agent 接入 POPO 办公生态</div>
+        <div class="tools-grid cols-2">
+          <div class="tool-card popocli">
+            <div class="tool-icon">💻</div>
+            <div class="tool-name">POPO-CLI（本地）</div>
+            <div class="tool-tagline">本地部署，让 Claude Code、CodeMaker、Cursor 等本地 Agent 接入 POPO 能力</div>
+            <div class="tool-meta">
+              <span class="pill warn">本地部署</span>
+              <span class="pill">本地 Agent</span>
+              <span class="pill" style="background:#ede9fe;color:#5b21b6;">用 Ⓑ Skills</span>
+            </div>
+          </div>
+          <div class="tool-card fabric">
+            <div class="tool-icon">☁️</div>
+            <div class="tool-name">Fabric-CLI（云端）</div>
+            <div class="tool-tagline">服务器/云端部署，让 MLB 龙虾等服务端 Agent 调用 POPO 能力</div>
+            <div class="tool-meta">
+              <span class="pill warn">云端部署</span>
+              <span class="pill">服务端 Agent</span>
+              <span class="pill" style="background:#fef9c3;color:#854d0e;">用 Ⓒ Skills</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down">↓</div>
+
+  <!-- L3 能力 Skills 层 -->
+  <div class="layer layer-skill">
+    <div class="layer-header">
+      <span class="layer-tag">L3</span>
+      <span class="layer-title">能力层 · 三套 Skills 体系</span>
+      <span class="layer-desc">不同入口工具使用不同的 Skills 集合，三套 Skills 都基于 Fabric 平台底层接口构建</span>
+    </div>
+
+    <div class="skills-3col">
+
+      <!-- A. Fabric 平台 Skills -->
+      <div class="skills-col fabric-side">
+        <div class="skills-col-head">
+          <div class="skills-col-title">Ⓐ Fabric 平台 Skills</div>
+          <span class="skills-col-tag">平台官方</span>
+        </div>
+        <div class="skills-col-sub">由 Fabric 平台维护，覆盖 1/2/3 方官方 Skills</div>
+        <div class="skills-used-by">
+          被使用：<b>WorkHub</b> · <b>个人龙虾助手</b>
+        </div>
+        <div class="skills-row">
+          <div class="skills-row-item">
+            <span>1 方官方 Skills</span>
+            <span class="src-tag party-1">POPO 自研</span>
+          </div>
+          <div class="skills-row-item">
+            <span>2 方官方 Skills</span>
+            <span class="src-tag party-2">公司业务系统</span>
+          </div>
+          <div class="skills-row-item">
+            <span>3 方官方 Skills</span>
+            <span class="src-tag party-3">外部接入</span>
+          </div>
+          <div class="skills-row-item">
+            <span>个人 Skills <span style="color:#ec4899">（仅 WorkHub）</span></span>
+            <span class="src-tag personal">用户自建</span>
+          </div>
+        </div>
+        <div class="skill-list-mini">
+          <span class="item">IM</span>
+          <span class="item">云文档</span>
+          <span class="item">表格</span>
+          <span class="item">多维表</span>
+          <span class="item">日程</span>
+          <span class="item">KM</span>
+          <span class="item">OA</span>
+          <span class="item">…</span>
+        </div>
+      </div>
+
+      <!-- B. POPO-CLI Skills -->
+      <div class="skills-col popocli-side">
+        <div class="skills-col-head">
+          <div class="skills-col-title">Ⓑ POPO-CLI Skills</div>
+          <span class="skills-col-tag">POPO 产品侧</span>
+        </div>
+        <div class="skills-col-sub">POPO-CLI 独立包装维护，仅 POPO-CLI 使用</div>
+        <div class="skills-used-by">
+          被使用：<b>POPO-CLI</b>
+        </div>
+        <div class="skills-row">
+          <div class="skills-row-item">
+            <span>1 方官方 Skills</span>
+            <span class="src-tag party-1">POPO 生态</span>
+          </div>
+          <div class="skills-row-item">
+            <span>2 方官方 Skills</span>
+            <span class="src-tag party-2">公司业务</span>
+          </div>
+          <div class="skills-row-item disabled">
+            <span>3 方 Skills（暂不计划）</span>
+            <span class="src-tag none">不开放</span>
+          </div>
+          <div class="skills-row-item disabled">
+            <span>个人 Skills（暂不计划）</span>
+            <span class="src-tag none">不开放</span>
+          </div>
+        </div>
+        <div class="skill-list-mini">
+          <span class="item">popo-im</span>
+          <span class="item">popo-doc</span>
+          <span class="item">popo-calendar</span>
+          <span class="item">…</span>
+        </div>
+      </div>
+
+      <!-- C. Fabric-CLI Skills -->
+      <div class="skills-col fabriccli-side">
+        <div class="skills-col-head">
+          <div class="skills-col-title">Ⓒ Fabric-CLI Skills</div>
+          <span class="skills-col-tag">业务方自维护</span>
+        </div>
+        <div class="skills-col-sub">由接入的业务方自行生产、自行使用，POPO 不提供</div>
+        <div class="skills-used-by">
+          被使用：<b>Fabric-CLI</b>（如 MLB 龙虾等）
+        </div>
+        <div class="skills-row">
+          <div class="skills-row-item">
+            <span>业务方自定义 Skills</span>
+            <span class="src-tag" style="background:#fde68a;color:#92400e;">业务方自产</span>
+          </div>
+          <div class="skills-row-item disabled">
+            <span>POPO 不参与生产</span>
+            <span class="src-tag none">—</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#854d0e;margin-top:8px;background:rgba(255,255,255,0.5);padding:8px 10px;border-radius:6px;line-height:1.5;">
+          💡 业务方根据自身需求基于 Fabric 底层接口自由组装 Skills
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 共同底层接口提示 -->
+    <div style="margin-top:14px;padding:10px 14px;background:linear-gradient(90deg,#f3e8ff 0%,#fef3c7 100%);border-radius:10px;font-size:12px;color:#475569;text-align:center;border:1px dashed #c4b5fd;">
+      ⬇ 三套 Skills 都基于 <b style="color:#0f172a">Fabric 平台底层接口</b> 构建（IM API · 文档 API · 日历 API · 二方系统 API …）
+    </div>
+  </div>
+
+  <div class="arrow-down">↓</div>
+
+  <!-- L4 底座层 -->
+  <div class="layer layer-base">
+    <div class="layer-header">
+      <span class="layer-tag">L4</span>
+      <span class="layer-title">底座层 · Fabric Gateway 统一调度</span>
+      <span class="layer-desc">为所有上层入口提供统一鉴权、路由、限流、审计</span>
+    </div>
+    <div class="base-row">
+      <div class="base-card">
+        <div class="name">🔐 统一鉴权</div>
+        <div class="desc">OpenID 登录、SK 密钥、授权卡片</div>
+      </div>
+      <div class="base-card">
+        <div class="name">🚦 路由与限流</div>
+        <div class="desc">按 App / Channel / User 多维限流</div>
+      </div>
+      <div class="base-card">
+        <div class="name">🔍 调用方识别</div>
+        <div class="desc">区分业务方，精准展示授权文案</div>
+      </div>
+      <div class="base-card">
+        <div class="name">📊 审计与监控</div>
+        <div class="desc">全链路日志、调用统计、风险预警</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 图例 -->
+  <div class="legend">
+    <span class="legend-title">📖 图例</span>
+    <span class="item"><span class="swatch" style="background:#10b981"></span>POPO 内场景</span>
+    <span class="item"><span class="swatch" style="background:#f59e0b"></span>POPO 外场景</span>
+    <span class="item"><span class="swatch" style="background:#6366f1"></span>用户层</span>
+    <span class="item"><span class="swatch" style="background:#8b5cf6"></span>能力 Skills</span>
+    <span class="item"><span class="swatch" style="background:#475569"></span>统一底座</span>
+  </div>
+
+  <div class="footer">
+    POPO 产品团队 · AI 产品规划 · 「场景分层 → 入口工具 → 三套 Skills 体系 → Fabric 平台底座」四层架构
+  </div>
+
+</div>
+</body>
+</html>

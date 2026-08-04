@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Fabric 平台授权卡片个性化（一期 MVP） · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+    padding: 32px 24px;
+    line-height: 1.7;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* 头部 */
+  .header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 32px 36px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .header .meta {
+    display: flex; gap: 24px; font-size: 13px; opacity: 0.92; margin-top: 12px;
+  }
+  .header .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* 章节卡片 */
+  .section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 18px; font-weight: 700; color: #0f172a;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .section-title .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    background: #4f46e5; color: #fff;
+    border-radius: 50%;
+    font-size: 13px; font-weight: 600;
+  }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 10px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 6px; }
+
+  /* 表格 */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+  }
+  td code, p code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #be185d;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  /* 代码块 */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+  pre .kw { color: #c084fc; }
+  pre .str { color: #86efac; }
+  pre .com { color: #64748b; font-style: italic; }
+  pre .key { color: #fbbf24; }
+
+  /* 高亮框 */
+  .callout {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+  .callout.do { background: #ecfdf5; border-color: #10b981; color: #047857; }
+  .callout.dont { background: #fef2f2; border-color: #ef4444; color: #b91c1c; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #b45309; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+
+  /* 做与不做对比 */
+  .scope-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .scope-card {
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 1.5px solid;
+  }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; }
+  .scope-card h4 {
+    font-size: 14px; font-weight: 700; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scope-card.do h4 { color: #047857; }
+  .scope-card.dont h4 { color: #b91c1c; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+
+  /* 演进路线图 */
+  .roadmap {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 16px;
+    align-items: stretch;
+    margin: 16px 0;
+  }
+  .roadmap-card {
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+  }
+  .roadmap-card.v1 {
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+    border: 2px solid #a5b4fc;
+  }
+  .roadmap-card.v2 {
+    background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+    border: 2px solid #fcd34d;
+  }
+  .roadmap-card .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .roadmap-card.v1 .badge { background: #4f46e5; color: #fff; }
+  .roadmap-card.v2 .badge { background: #ca8a04; color: #fff; }
+  .roadmap-card h4 {
+    font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #0f172a;
+  }
+  .roadmap-card ul { padding-left: 18px; font-size: 13px; color: #374151; }
+  .roadmap-card li { margin-bottom: 4px; }
+
+  .roadmap-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: #9ca3af;
+  }
+
+  /* 演进对比表 */
+  .evo-table {
+    margin: 12px 0;
+  }
+  .evo-table td.field { font-weight: 600; color: #475569; width: 22%; }
+  .evo-table td.v1 { background: #eef2ff; width: 30%; }
+  .evo-table td.v2 { background: #fef3c7; width: 30%; }
+  .evo-table td.impact { width: 18%; font-weight: 600; }
+  .evo-table td.impact.safe { color: #047857; }
+  .evo-table td.impact.warn { color: #b45309; }
+
+  /* 卡片预览 */
+  .card-preview {
+    background: #fafafa;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 16px;
+    max-width: 360px;
+    margin: 12px 0;
+  }
+  .card-preview .card-title {
+    font-size: 12px; color: #6b7280; padding: 6px 10px;
+    background: #dbeafe; border-radius: 4px; margin-bottom: 8px;
+    display: inline-block;
+  }
+  .card-preview .card-copy { font-weight: 600; margin-bottom: 10px; font-size: 14px; }
+  .card-preview .perms { font-size: 13px; color: #475569; margin-bottom: 10px; }
+  .card-preview .perms div { margin-bottom: 2px; }
+  .card-preview .meta {
+    font-size: 11px; color: #6b7280;
+    border-top: 1px solid #e5e7eb; padding-top: 8px;
+  }
+  .card-preview .meta-row {
+    display: flex; gap: 12px; margin-bottom: 3px;
+  }
+  .card-preview .meta-row .k { width: 50px; color: #9ca3af; }
+  .card-preview .actions {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+  .card-preview button {
+    flex: 1; padding: 6px 0; border-radius: 4px;
+    border: 1px solid #d1d5db; background: #fff; font-size: 12px; cursor: pointer;
+  }
+  .card-preview button.primary {
+    background: #4f46e5; color: #fff; border-color: #4f46e5;
+  }
+
+  /* 工作量 */
+  .effort-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .effort-card {
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .effort-card .role { font-size: 11px; color: #6b7280; }
+  .effort-card .num {
+    font-size: 24px; font-weight: 700; color: #4f46e5;
+    margin: 4px 0;
+  }
+  .effort-card .desc { font-size: 11px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 头部 -->
+  <div class="header">
+    <h1>Fabric 平台授权卡片个性化（一期 MVP）</h1>
+    <div style="opacity:0.9;font-size:14px;">让授权卡片能识别调用方身份并显示对应文案</div>
+    <div class="meta">
+      <span>📅 创建：2026-05-18</span>
+      <span>🏷️ 版本：v1.1</span>
+      <span>👤 作者：张振</span>
+    </div>
+  </div>
+
+  <!-- 一、背景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与问题</div>
+    <p>当前 Fabric 平台的授权卡片只能显示统一文案（如 "请求访问以下权限"），无法区分不同调用方。
+       随着 POPO-CLI、POPO Bot、未来更多业务方接入 Fabric，需要支持<b>按调用方身份显示个性化授权文案</b>。</p>
+
+    <div class="callout warn">
+      <div class="title">⚠️ 旧方案被否原因</div>
+      旧方案把"业务方文案"挂在租户的应用配置下，存在两个问题：
+      <ul style="margin-top:6px;padding-left:18px;">
+        <li>业务方调用时<b>没有身份</b>，Fabric 不知道谁来调用，无法选对应文案</li>
+        <li>授权支持<b>跨租户多应用批量授权</b>，文案不能绑定在某个 App 上</li>
+      </ul>
+    </div>
+
+    <p style="margin-top:10px;">本方案站在 Fabric 平台视角，将<b>业务方（Caller）作为系统级独立实体</b>，文案跟随 Caller 维护。</p>
+
+    <div class="callout tip" style="margin-top:14px;">
+      <div class="title">📌 v1.1 变更说明</div>
+      <b>新增覆盖场景：</b>POPO-CLI 首次安装时调用 Fabric 应用授权接口，也统一走 Caller 机制（带 <code>caller_id</code> 参数）。Fabric 端不再为 POPO-CLI 硬编码识别身份。详见<b>第 4 章</b>。
+    </div>
+  </div>
+
+  <!-- 二、一期目标 vs 不做 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>一期范围（做 vs 不做）</div>
+
+    <div class="scope-grid">
+      <div class="scope-card do">
+        <h4>✅ 一期要做（仅 3 件）</h4>
+        <ul>
+          <li>引入「业务方（Caller）」作为<b>系统级实体</b>，存表</li>
+          <li>API 调用支持通过 Header <code>X-Caller-ID</code> 声明身份</li>
+          <li>授权卡片渲染时按 Caller 身份显示对应文案</li>
+        </ul>
+      </div>
+
+      <div class="scope-card dont">
+        <h4>❌ 一期不做（明确放二期）</h4>
+        <ul>
+          <li>不做业务方管理后台（一期用 SQL 直接插）</li>
+          <li>不做密钥签名校验（一期信任 Header）</li>
+          <li>不做调用权限白名单（一期任何 Caller 可调任何 App）</li>
+          <li>不做业务方 Logo 展示</li>
+          <li>不做业务方状态管控（disable/enable）</li>
+          <li>不做调用审计与统计</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 一期设计原则</div>
+      "一期做的事，二期不需要推翻。" 一期只立"骨架"，二期是给骨架"穿衣服"。
+    </div>
+  </div>
+
+  <!-- 三、数据模型 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>数据模型</div>
+    <p>新增表 <code>caller</code>，仅 4 个字段：</p>
+
+    <table>
+      <thead>
+        <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>caller_id</code></td><td>VARCHAR(64)</td><td>是（主键）</td><td>业务方唯一标识，如 <code>popo-cli</code></td></tr>
+        <tr><td><code>caller_name</code></td><td>VARCHAR(128)</td><td>是</td><td>业务方展示名，如 <code>POPO CLI</code></td></tr>
+        <tr><td><code>card_copy</code></td><td>VARCHAR(255)</td><td>是</td><td>授权卡片文案，如 <code>POPO CLI 请求访问以下权限：</code></td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>是</td><td>创建时间</td></tr>
+      </tbody>
+    </table>
+
+    <p>一期数据由 DBA 手动 SQL 插入：</p>
+    <pre><span class="com">-- POPO-CLI 接入</span>
+<span class="kw">INSERT INTO</span> caller (caller_id, caller_name, card_copy) <span class="kw">VALUES</span>
+  (<span class="str">'popo-cli'</span>, <span class="str">'POPO CLI'</span>, <span class="str">'POPO CLI 请求访问以下权限：'</span>),
+  (<span class="str">'popo-bot'</span>, <span class="str">'POPO Bot'</span>, <span class="str">'POPO Bot 请求访问以下权限：'</span>);</pre>
+  </div>
+
+  <!-- 四、覆盖的两个调用场景 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>一期覆盖的两个调用场景（统一走 Caller 机制）</div>
+
+    <p>一期 Caller 机制同时覆盖<b>两个</b> POPO-CLI 调用 Fabric 的场景，<b>共用同一张 caller 表、同一份 card_copy 文案、同一套识别逻辑</b>。Fabric 端不再为 POPO-CLI 做硬编码特例。</p>
+
+    <table>
+      <thead>
+        <tr><th>场景</th><th>触发时机</th><th>调用 Fabric 的方式</th><th>当前现状</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>① 首次安装授权</b></td>
+          <td>用户执行 <code>install-v1.sh</code> 后，POPO-CLI 调用 Fabric 应用授权接口</td>
+          <td>调用授权接口时带入 <code>caller_id=popo-cli</code></td>
+          <td>当前 Fabric 端硬编码识别为 POPO-CLI，需改造</td>
+        </tr>
+        <tr>
+          <td><b>② 日常 API 调用</b></td>
+          <td>Agent 通过 popo-cli 调用 Fabric API 时</td>
+          <td>请求 Header 携带 <code>X-Caller-ID: popo-cli</code></td>
+          <td>当前 Fabric 端无业务方识别能力，需新增</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="title">💡 这样设计的好处</div>
+      <ul style="margin-top:6px;padding-left:18px;">
+        <li><b>不为 POPO-CLI 开特殊通道</b>——POPO-CLI 在 Fabric 眼里只是一个普通业务方，跟未来 POPO Bot、其他业务方接入路径完全一致</li>
+        <li><b>统一性</b>——首次授权与日常调用走同一套 caller 识别逻辑，没有"安装时特例代码"</li>
+        <li><b>未来业务方接入零特例</b>——新业务方接入时仅需注册一条 caller 数据 + 调用时带 caller_id，Fabric 端永远不需要为新业务方加硬编码</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 五、接口协议 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>接口协议</div>
+
+    <h4 style="font-size:14px;margin-bottom:8px;color:#0f172a;">场景 ① 首次安装授权</h4>
+    <p>POPO-CLI 调用 Fabric 应用授权接口时，带入 <code>caller_id</code> 参数：</p>
+    <pre><span class="com"># 示例（具体接口路径以 Fabric 现有授权接口为准）</span>
+<span class="kw">POST</span> /api/v1/open-apis/gateway/auth/install
+<span class="key">Body:</span>
+  {
+    <span class="str">"caller_id"</span>: <span class="str">"popo-cli"</span>,
+    <span class="str">"device_info"</span>: {...}
+  }</pre>
+
+    <h4 style="font-size:14px;margin:14px 0 8px;color:#0f172a;">场景 ② 日常 API 调用</h4>
+    <p>业务方调用 Fabric API 时，请求头携带 <code>X-Caller-ID</code>：</p>
+    <pre><span class="kw">POST</span> /api/v1/open-apis/gateway/appcode/popo/_invoke
+<span class="key">Headers:</span>
+  <span class="str">X-Caller-ID</span>: popo-cli
+<span class="key">Body:</span>
+  {<span class="str">"tool"</span>: <span class="str">"popo_message_send_p2p"</span>, <span class="str">"params"</span>: {...}}</pre>
+
+    <h4 style="font-size:14px;margin:14px 0 8px;color:#0f172a;">Fabric 平台接收逻辑（伪代码）</h4>
+    <pre><span class="kw">def</span> get_card_copy(request):
+    <span class="com"># 兼容两种入参方式</span>
+    caller_id = request.headers.get(<span class="str">"X-Caller-ID"</span>) <span class="kw">or</span> request.body.get(<span class="str">"caller_id"</span>)
+
+    <span class="kw">if not</span> caller_id:
+        <span class="kw">return</span> DEFAULT_COPY  <span class="com"># "请求访问以下权限："</span>
+
+    caller = db.query(<span class="str">"SELECT card_copy FROM caller WHERE caller_id = ?"</span>, caller_id)
+
+    <span class="kw">if</span> caller:
+        <span class="kw">return</span> caller.card_copy
+    <span class="kw">else</span>:
+        <span class="kw">return</span> DEFAULT_COPY  <span class="com"># 未注册的 caller 走默认文案</span></pre>
+
+    <div class="callout do">
+      <div class="title">✅ 兜底策略</div>
+      Header 未传或 caller_id 未注册时，统一使用默认文案，不影响业务调用。
+    </div>
+  </div>
+
+  <!-- 六、授权卡片改造 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>授权卡片改造</div>
+
+    <p>仅修改卡片顶部一行文案，其他部分不变：</p>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:6px;">改造前</div>
+        <div class="card-preview">
+          <span class="card-title">授权请求</span>
+          <div class="card-copy">POPO 请求访问以下权限：</div>
+          <div class="perms">
+            <div>· 日历、会议室</div>
+            <div>· 云文档、表格、多维表格</div>
+            <div>· 任务</div>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><span class="k">主机名</span>DESKTOP-ABC123</div>
+            <div class="meta-row"><span class="k">来源IP</span>10.10.1.50</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:6px;">改造后（caller_id = popo-cli）</div>
+        <div class="card-preview">
+          <span class="card-title">授权请求</span>
+          <div class="card-copy" style="color:#4f46e5;">POPO CLI 请求访问以下权限：</div>
+          <div class="perms">
+            <div>· 日历、会议室</div>
+            <div>· 云文档、表格、多维表格</div>
+            <div>· 任务</div>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><span class="k">主机名</span>DESKTOP-ABC123</div>
+            <div class="meta-row"><span class="k">来源IP</span>10.10.1.50</div>
+            <div class="meta-row"><span class="k">Caller</span>popo-cli</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:10px;color:#64748b;font-size:13px;">
+      改造点仅 2 处：① 顶部文案改为 <code>get_card_copy(request)</code> 返回值；② 来源信息加一行 Caller。
+    </p>
+  </div>
+
+  <!-- 七、一期接入计划 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>一期接入计划</div>
+
+    <table>
+      <thead>
+        <tr><th>序号</th><th>业务方</th><th>caller_id</th><th>授权卡片文案</th><th>覆盖场景</th><th></th>接入责任人</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>POPO CLI</td>
+          <td><code>popo-cli</code></td>
+          <td>POPO CLI 请求访问以下权限：</td>
+          <td>① 首次安装授权<br>② 日常 API 调用</td>
+          <td>POPO-CLI 团队</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>POPO Bot（如适用）</td>
+          <td><code>popo-bot</code></td>
+          <td>POPO Bot 请求访问以下权限：</td>
+          <td>② 日常 API 调用</td>
+          <td>POPO Bot 团队</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 七、一期 → 二期演进路线图 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>一期 → 二期演进路线图</div>
+
+    <p>一期是骨架，二期是给骨架穿衣服。<b>所有二期能力都是"加字段、加 UI、加校验"，不需要推翻一期的数据模型与接口协议。</b></p>
+
+    <div class="roadmap">
+      <div class="roadmap-card v1">
+        <span class="badge">一期 MVP</span>
+        <h4>建立 Caller 实体</h4>
+        <ul>
+          <li>4 字段 caller 表</li>
+          <li>Header X-Caller-ID 自报</li>
+          <li>授权卡片文案按 Caller 渲染</li>
+          <li>SQL 手动管理数据</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-arrow">→</div>
+
+      <div class="roadmap-card v2">
+        <span class="badge">二期完整版</span>
+        <h4>给 Caller 穿衣服</h4>
+        <ul>
+          <li>caller 表加 secret / logo / status / allowed_apps 字段</li>
+          <li>新增 X-Caller-Sign 做签名校验</li>
+          <li>新增 "Caller 管理" 后台菜单（CRUD）</li>
+          <li>授权卡片加 Logo + 来源信息</li>
+          <li>调用审计 + Caller 维度报表</li>
+        </ul>
+      </div>
+    </div>
+
+    <h4 style="margin-top:18px;margin-bottom:8px;font-size:14px;color:#0f172a;">演进影响分析（一期到二期不会改 / 删什么）</h4>
+
+    <table class="evo-table">
+      <thead>
+        <tr>
+          <th>关键决策</th>
+          <th class="v1">一期实现</th>
+          <th class="v2">二期演进</th>
+          <th>是否推翻一期？</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="field">Caller 表结构</td>
+          <td class="v1">4 个字段</td>
+          <td class="v2">加 secret、logo、status、allowed_apps 字段</td>
+          <td class="impact safe">❌ 只加字段</td>
+        </tr>
+        <tr>
+          <td class="field">业务方身份识别</td>
+          <td class="v1">读 X-Caller-ID</td>
+          <td class="v2">增加 X-Caller-Sign 签名校验</td>
+          <td class="impact safe">❌ 兼容增强</td>
+        </tr>
+        <tr>
+          <td class="field">文案归属</td>
+          <td class="v1">挂在 caller 上</td>
+          <td class="v2">不变</td>
+          <td class="impact safe">❌ 不变</td>
+        </tr>
+        <tr>
+          <td class="field">配置入口</td>
+          <td class="v1">SQL 手动</td>
+          <td class="v2">加管理后台 UI</td>
+          <td class="impact safe">❌ 只加 UI</td>
+        </tr>
+        <tr>
+          <td class="field">跨租户多应用授权</td>
+          <td class="v1">天然支持</td>
+          <td class="v2">不变</td>
+          <td class="impact safe">❌ 不变</td>
+        </tr>
+        <tr>
+          <td class="field">未注册 Caller</td>
+          <td class="v1">走默认文案</td>
+          <td class="v2">可选拒绝调用（需手动 enable）</td>
+          <td class="impact warn">⚠️ 行为变化（需提前通知接入方）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout do">
+      <div class="title">✅ 演进安全性结论</div>
+      6 项关键决策中，5 项是<b>纯增量演进</b>（加字段、加 UI、加校验），不需要改一期代码或数据；
+      仅 1 项（未注册 Caller 的处理策略）在二期可能调整行为，但完全可以通过配置开关平滑切换。
+    </div>
+  </div>
+
+  <!-- 八、附录：术语 -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span>附录：术语表</div>
+    <table>
+      <thead>
+        <tr><th>术语</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Caller（业务方 / 调用方）</b></td><td>调用 Fabric API 的上游系统，如 POPO-CLI、POPO Bot</td></tr>
+        <tr><td><b>App（应用）</b></td><td>Fabric 平台内注册的功能模块，如 POPO、KM 等，每个 App 含多个 API</td></tr>
+        <tr><td><b>Tenant（租户）</b></td><td>Fabric 上的组织单位，一个 Caller 可跨多个租户的多个 App 调用</td></tr>
+        <tr><td><b>授权卡片</b></td><td>用户首次或重新授权时收到的 POPO 卡片消息，确认是否授权某个 Caller 调用</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;">
+    POPO 产品团队 · Fabric 平台授权卡片个性化 · 一期 MVP PRD · 2026
+  </div>
+
+</div>
+</body>
+</html>
