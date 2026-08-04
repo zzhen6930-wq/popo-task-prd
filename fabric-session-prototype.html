@@ -64,6 +64,20 @@
   .chip.gray { background: #f1f5f9; color: #64748b; }
   .chip.blue { background: #dbeafe; color: #1e40af; }
   .chip.red { background: #fee2e2; color: #b91c1c; }
+  .det-filters { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+  .det-filters .fitem { display: flex; flex-direction: column; gap: 4px; }
+  .det-filters .fitem label { font-size: 11px; color: #94a3b8; }
+  .det-filters .fitem input { border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; width: 190px; }
+  .det-filters .fitem input:focus { outline: none; border-color: #6366f1; }
+  .run-block { border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; overflow: hidden; background: #fff; }
+  .run-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #eef2f7; flex-wrap: wrap; }
+  .run-no { font-size: 12.5px; font-weight: 700; color: #0f172a; }
+  .run-email { font-size: 12px; color: #64748b; }
+  .run-metric { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: #94a3b8; }
+  .pager { display: flex; align-items: center; gap: 10px; padding: 10px 2px; }
+  .pg-info { font-size: 12px; color: #94a3b8; margin-right: auto; }
+  .pg-btn { font-size: 12.5px; color: #4f46e5; cursor: pointer; border: 1px solid #e0e7ff; border-radius: 7px; padding: 4px 12px; }
+  .pg-btn.disabled { color: #cbd5e1; border-color: #f1f5f9; cursor: not-allowed; }
   .tk { font-family: Menlo, monospace; font-size: 12px; color: #334155; }
   .link { color: #4f46e5; cursor: pointer; font-size: 13px; }
   .link:hover { text-decoration: underline; }
@@ -201,7 +215,7 @@
         <div class="fitem"><label>群 ID</label><input placeholder="群 ID"></div>
         <div class="fitem"><label>来源</label><select><option>全部来源</option><option>Agenthub</option><option>Workhub Studio</option><option>Claude Code</option><option>OpenClaw</option><option>CodeX</option><option>Hermes</option></select></div>
         <div class="fitem"><label>应用场景</label><select><option>全部场景</option><option>POPO-私聊</option><option>POPO-群聊</option><option>Workhub</option><option>SDK</option></select></div>
-        <div class="fitem"><label>用户</label><input placeholder="用户 ID / 邮箱"></div>
+        <div class="fitem"><label>用户邮箱</label><input placeholder="请输入用户邮箱"></div>
         <div class="fitem"><label>会话 ID</label><input placeholder="精确匹配"></div>
         <div class="fitem"><label>开始时间</label><input value="2026-07-23 00:00:00"></div>
         <div class="fitem"><label>结束时间</label><input value="2026-07-24 00:00:00"></div>
@@ -215,7 +229,7 @@
               <th>智能体</th>
               <th>来源</th>
               <th>应用场景</th>
-              <th>用户</th>
+              <th>用户邮箱</th>
               <th>群 ID</th>
               <th>消息数</th>
               <th>消耗 Token</th>
@@ -239,16 +253,20 @@
           <span class="st" id="dSt"></span>
           <div class="det-metas" id="dMetas"></div>
         </div>
-        <div class="det-sub" id="dSub"></div>
-      </div>
-
-      <div class="toolbar">
-        <div class="seg" id="evFilters"></div>
-        <div class="fspacer" style="margin-left:auto;"></div>
+        <div class="det-filters">
+          <div class="fitem"><label>用户邮箱</label><input id="fEmail" placeholder="请输入用户邮箱" oninput="onDetFilter()"></div>
+          <div class="fitem"><label>关键字</label><input id="fKw" placeholder="过滤包含关键字的对话" oninput="onDetFilter()"></div>
+          <div class="fitem"><label>开始时间</label><input id="fFrom" type="datetime-local" onchange="onDetFilter()"></div>
+          <div class="fitem"><label>结束时间</label><input id="fTo" type="datetime-local" onchange="onDetFilter()"></div>
+          <div class="fitem"><label>事件类型</label><div class="seg" id="evFilters"></div></div>
+        </div>
       </div>
 
       <div class="det-body">
-        <div class="ev-list" id="evList"></div>
+        <div>
+          <div class="ev-list" id="evList"></div>
+          <div class="pager" id="pager"></div>
+        </div>
         <div class="drawer" id="drawer">
           <div class="dh">
             <div class="dh-top">
@@ -283,7 +301,8 @@ const TYPES = {
 };
 
 // ============ 会话数据 ============
-const weatherEvents = [
+const weatherRuns = [
+  { no: 1, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:44:56", dur: "20.1s", tin: "20.9k", tout: "569", ok: true, events: [
   { type: "user", sum: "明日杭州天气", off: "0:00:09", raw: `{"query":"明日杭州天气","tenantId":"610082037166085"}`,
     render: `<div class="q-box">明日杭州天气</div>` },
   { type: "think", sum: "分析用户意图：查询杭州 7/23 天气，需调用网页搜索获取实时预报", tin: "3.1k", tout: "120", dur: "540ms", off: "0:00:10",
@@ -296,8 +315,9 @@ const weatherEvents = [
   { type: "agent", sum: "根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…", tin: "12.2k", tout: "380", dur: "7.5s", off: "0:00:20", deltas: true,
     render: `<div class="md"><p>根据最新天气预报数据，以下是<b>明天（7月23日，周四）杭州</b>的天气情况：</p><h4>🌦 杭州明日天气（2026-07-23 周四）</h4><table><tr><th>项目</th><th>详情</th></tr><tr><td>气温</td><td><b>28℃ ~ 38℃</b></td></tr><tr><td>天气</td><td>小雨转晴</td></tr><tr><td>风向</td><td>东北风，微风</td></tr></table><p>☔ 温馨提示：白天有小雨，出门记得带伞；最高 38℃，避免长时间户外活动。</p></div>`,
     raw: `{"role":"assistant","content":"根据最新天气预报数据...","finish_reason":"stop"}`,
-    deltasText: `delta#1 "根据"\ndelta#2 "最新天气"\ndelta#3 "预报数据，"\n… (共 42 个增量)` },
-  { type: "idle", text: "会话空闲 · 31.6 秒" },
+    deltasText: `delta#1 "根据"\ndelta#2 "最新天气"\ndelta#3 "预报数据，"\n… (共 42 个增量)` }
+  ]},
+  { no: 2, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:45:28", dur: "42.3s", tin: "43.2k", tout: "1.77k", ok: false, idleBefore: "会话空闲 · 31.6 秒", events: [
   { type: "user", sum: "根据这个天气情况，适合去北京游玩吗？", off: "0:00:52", raw: `{"query":"根据这个天气情况，适合去北京游玩吗？"}`,
     render: `<div class="q-box">根据这个天气情况，适合去北京游玩吗？</div>` },
   { type: "know", sum: "知识检索", lbl: "北京 7/23 天气 · 命中 3 条", tin: "15.5k", tout: "69", dur: "886ms", off: "0:00:57",
@@ -310,9 +330,19 @@ const weatherEvents = [
     render: `<div class="md"><h4>📊 明天去北京是否合适</h4><table><tr><th>城市</th><th>天气</th><th>体感</th></tr><tr><td>杭州</td><td>小雨转晴 28-38℃</td><td>闷热</td></tr><tr><td>北京</td><td>高温雷雨 35-38℃</td><td>不适宜</td></tr></table><p><b>结论：</b>北京 7/23 高温 + 午后雷阵雨，不建议当天出行游玩，可考虑改期或改去气候更温和的城市。</p></div>`,
     raw: `{"role":"assistant","content":"根据获取的天气数据...","finish_reason":"stop"}`,
     deltasText: `delta#1 "根据"\ndelta#2 "获取的"\n… (共 168 个增量)` }
+  ]},
+  { no: 3, email: "wangzimingzhang01@corp.netease.com", start: "2026-07-24 09:12:04", dur: "8.6s", tin: "9.4k", tout: "410", ok: true, idleBefore: "会话空闲 · 21 小时 26 分", events: [
+    { type: "user", sum: "帮我把上面两地天气整理成一句话结论", off: "0:00:03", raw: `{"query":"帮我把上面两地天气整理成一句话结论"}`,
+      render: `<div class="q-box">帮我把上面两地天气整理成一句话结论</div>` },
+    { type: "agent", sum: "结论：7/23 杭州闷热有阵雨、北京高温雷雨，两地均不适宜户外出行。", tin: "9.4k", tout: "410", dur: "8.6s", off: "0:00:11", deltas: true,
+      render: `<div class="md"><p><b>结论：</b>7 月 23 日杭州小雨转晴、28~38℃ 偏闷热；北京高温雷雨、35~38℃ 体感更差。<b>两地当天均不建议安排户外行程</b>，如需出行建议改期。</p></div>`,
+      raw: `{"role":"assistant","content":"结论：7/23 杭州...","finish_reason":"stop"}`,
+      deltasText: `delta#1 "结论"\n… (共 26 个增量)` }
+  ]}
 ];
 
-const itEvents = [
+const itRuns = [
+  { no: 1, email: "sangchen@corp.netease.com", start: "2026-07-23 11:44:36", dur: "9.3s", tin: "17.5k", tout: "830", ok: true, events: [
   { type: "user", sum: "请查看附件（IT 设备合规截图）", off: "0:00:02", raw: `{"query":"请查看附件","tenantId":"610082037166085","files":["file"]}`,
     render: `<div class="q-box">请查看附件<br><span style="color:#94a3b8;font-size:12px;">📎 file · IT设备合规管理界面.png</span></div>` },
   { type: "skill", sum: "图像理解 Skill", lbl: "解析合规截图 → 提取任务项", tin: "8.4k", tout: "210", dur: "1.9s", off: "0:00:04",
@@ -321,11 +351,22 @@ const itEvents = [
   { type: "agent", sum: "您截图中的是 IT 设备合规管理界面，以下为您逐一说明…", tin: "9.1k", tout: "620", dur: "5.2s", off: "0:00:09",
     render: `<div class="md"><p>您截图中的是 IT 设备合规管理界面，显示您的设备有几项合规任务需要处理：</p><ul><li><b>可信设备</b>：安装数据安全软件（DDR）、加入域控</li><li><b>系统更新</b>：升级至 Windows 11、驱动 / 补丁更新</li><li><b>必装软件</b>：安装微软电脑管家</li></ul></div>`,
     raw: `{"role":"assistant","content":"您截图中的是IT设备合规管理界面...","finish_reason":"stop"}`, deltas: true, deltasText: `delta#1 "您截图"\n…` }
+  ]},
+  { no: 2, email: "zhaoxiaoshuai@corp.netease.com", start: "2026-07-23 14:02:11", dur: "6.1s", tin: "6.2k", tout: "300", ok: true, idleBefore: "会话空闲 · 2 小时 17 分", events: [
+    { type: "user", sum: "微软电脑管家在哪里下载？", off: "0:00:01", raw: `{"query":"微软电脑管家在哪里下载？"}`,
+      render: `<div class="q-box">微软电脑管家在哪里下载？</div>` },
+    { type: "know", sum: "知识检索", lbl: "必装软件 · 命中 2 条", tin: "6.2k", tout: "80", dur: "640ms", off: "0:00:02",
+      render: `<div class="md"><div class="res-title">命中片段（相关性 0.91）</div><p>微软电脑管家可通过 IT 软件中心统一分发安装，路径：IT 服务台 → 软件中心 → 系统工具。</p></div>`,
+      raw: `{"retrieval":{"query":"微软电脑管家 下载","top_k":2}}` },
+    { type: "agent", sum: "可在 IT 软件中心统一安装，路径：IT 服务台 → 软件中心 → 系统工具。", tin: "6.2k", tout: "300", dur: "6.1s", off: "0:00:06",
+      render: `<div class="md"><p>请通过公司 <b>IT 软件中心</b>安装：<code>IT 服务台 → 软件中心 → 系统工具 → 微软电脑管家</code>，安装后重启生效。</p></div>`,
+      raw: `{"role":"assistant","content":"请通过公司IT软件中心安装...","finish_reason":"stop"}` }
+  ]}
 ];
 
 const sessions = {
-  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", groupId: "", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", status: "已关闭", created: "2026-07-23 11:44:56", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", events: weatherEvents },
-  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "POPO-群聊", user: "sangchen@corp.netease.com", groupId: "1008932211", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", status: "进行中", created: "2026-07-23 11:44:36", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", events: itEvents }
+  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", groupId: "", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", status: "已关闭", created: "2026-07-23 11:44:56", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", runs: weatherRuns },
+  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "POPO-群聊", user: "sangchen@corp.netease.com", groupId: "1008932211", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", status: "进行中", created: "2026-07-23 11:44:36", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", runs: itRuns }
 };
 const listRows = [
   { key: "s1" },
@@ -366,29 +407,33 @@ function renderList() {
 
 // ============ 状态 ============
 let curSess = null, selTypes = new Set(), curEvIdx = -1, drView = "render";
+let curPage = 1; const RUNS_PER_PAGE = 2;
 
 // ============ 打开详情 ============
 function openSession(key) {
-  curSess = sessions[key]; selType = null; curEvIdx = -1;
+  curSess = sessions[key]; curEvIdx = -1; curPage = 1;
+  selTypes.clear();
+  ['fEmail','fKw','fFrom','fTo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('listView').classList.add('hidden');
   document.getElementById('detailView').classList.remove('hidden');
   const s = curSess;
   document.getElementById('dTitle').textContent = s.bot;
   document.getElementById('dSt').textContent = s.status;
   document.getElementById('dMetas').innerHTML =
-    `<span class="metapill">⏱ ${s.dur}</span><span class="metapill">🎫 ${s.token}</span><span class="metapill">🕐 ${s.ago}</span>`;
-  document.getElementById('dSub').innerHTML =
-    `<span class="metapill">${channelChip(s.channel)}</span><span class="metapill">📚 ${s.kb}</span><span class="metapill" style="font-family:Menlo,monospace;">🆔 ${s.id}</span>`;
+    `<span class="metapill">🎫 ${s.token}</span><span class="metapill">🕐 上次对话 ${s.ago}</span>`;
   renderFilters();
   renderEvents();
   closeDrawer();
 }
 function goList() { document.getElementById('detailView').classList.add('hidden'); document.getElementById('listView').classList.remove('hidden'); }
 
+function onDetFilter() { curPage = 1; renderEvents(); }
+
 // 事件筛选下拉（多选）
 function ddLabelText() { return selTypes.size === 0 ? "All events" : "已选 " + selTypes.size + " 类"; }
 function renderFilters() {
-  const present = [...new Set(curSess.events.filter(e => e.type !== "idle").map(e => e.type))];
+  const all = curSess.runs.flatMap(r => r.events);
+  const present = [...new Set(all.map(e => e.type))];
   const opts = present.map(t =>
     `<div class="dd-opt" onclick="toggleType(event,'${t}')"><span class="ck">${selTypes.has(t)?'✓':''}</span><span class="d" style="background:${TYPES[t].color}"></span>${TYPES[t].name}</div>`).join('');
   document.getElementById('evFilters').innerHTML = `
@@ -403,38 +448,86 @@ function renderFilters() {
 }
 function toggleDD(e) { e && e.stopPropagation(); const m = document.getElementById('ddMenu'); m.classList.toggle('show'); }
 function openDD() { const m = document.getElementById('ddMenu'); if (m) m.classList.add('show'); }
-function toggleType(e, t) { e.stopPropagation(); if (selTypes.has(t)) selTypes.delete(t); else selTypes.add(t); renderFilters(); openDD(); renderEvents(); }
-function clearTypes(e) { e.stopPropagation(); selTypes.clear(); renderFilters(); openDD(); renderEvents(); }
+function toggleType(e, t) { e.stopPropagation(); if (selTypes.has(t)) selTypes.delete(t); else selTypes.add(t); curPage = 1; renderFilters(); openDD(); renderEvents(); }
+function clearTypes(e) { e.stopPropagation(); selTypes.clear(); curPage = 1; renderFilters(); openDD(); renderEvents(); }
 document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) { const m = document.getElementById('ddMenu'); if (m) m.classList.remove('show'); } });
 
-// 事件流
+// 事件流（按 run 分组 + 过滤 + 分页）
+function runText(r) {
+  return (r.email + ' ' + r.events.map(e => (e.sum||'') + ' ' + (e.lbl||'')).join(' ')).toLowerCase();
+}
+function filteredRuns() {
+  const email = (document.getElementById('fEmail')?.value || '').trim().toLowerCase();
+  const kw    = (document.getElementById('fKw')?.value || '').trim().toLowerCase();
+  const from  = document.getElementById('fFrom')?.value || '';
+  const to    = document.getElementById('fTo')?.value || '';
+  return curSess.runs.filter(r => {
+    if (email && !r.email.toLowerCase().includes(email)) return false;
+    if (kw && !runText(r).includes(kw)) return false;
+    const t = r.start.replace(' ', 'T').slice(0, 16);
+    if (from && t < from) return false;
+    if (to && t > to) return false;
+    if (selTypes.size > 0 && !r.events.some(e => selTypes.has(e.type))) return false;
+    return true;
+  });
+}
 function renderEvents() {
   if (!curSess) return;
+  const runs = filteredRuns();
+  const totalPages = Math.max(1, Math.ceil(runs.length / RUNS_PER_PAGE));
+  if (curPage > totalPages) curPage = totalPages;
+  const pageRuns = runs.slice((curPage - 1) * RUNS_PER_PAGE, curPage * RUNS_PER_PAGE);
+
   let html = "";
-  curSess.events.forEach((e, i) => {
-    if (e.type === "idle") {
-      if (selTypes.size === 0) html += `<div class="ev-idle">${e.text}</div>`;
-      return;
-    }
-    if (selTypes.size > 0 && !selTypes.has(e.type)) return;
-    const T = TYPES[e.type];
-    const metric = [];
-    if (e.tin) metric.push(`<span class="mtk">🎫 ${e.tin} / ${e.tout}</span>`);
-    if (e.dur) metric.push(`<span>⏱ ${e.dur}</span>`);
-    metric.push(`<span>${e.off}</span>`);
-    html += `<div class="ev-row ${curEvIdx===i?'active':''}" onclick="openDrawer(${i})">
-      <span class="ev-role ${T.cls}">${T.label}</span>
-      <div class="ev-main"><div class="ev-sum">${e.sum}${e.lbl?`<span class="lbl">${e.lbl}</span>`:''}</div></div>
-      <div class="ev-metric">${metric.join('')}</div>
-    </div>`;
+  pageRuns.forEach(r => {
+    const ri = curSess.runs.indexOf(r);
+    if (r.idleBefore) html += `<div class="ev-idle">${r.idleBefore}</div>`;
+    html += `<div class="run-block">
+      <div class="run-head">
+        <span class="run-no">第 ${r.no} 轮</span>
+        <span class="run-email">👤 ${r.email}</span>
+        <div class="run-metric">
+          <span>🕐 ${r.start}</span>
+          <span>⏱ ${r.dur}</span>
+          <span class="mtk">🎫 ${r.tin} / ${r.tout}</span>
+          <span class="chip ${r.ok?'green':'red'}">${r.ok?'成功':'失败'}</span>
+        </div>
+      </div>`;
+    r.events.forEach((e, ei) => {
+      if (selTypes.size > 0 && !selTypes.has(e.type)) return;
+      const T = TYPES[e.type];
+      const metric = [];
+      if (e.tin) metric.push(`<span class="mtk">🎫 ${e.tin} / ${e.tout}</span>`);
+      if (e.dur) metric.push(`<span>⏱ ${e.dur}</span>`);
+      metric.push(`<span>${e.off}</span>`);
+      const key = ri + '-' + ei;
+      html += `<div class="ev-row ${curEvIdx===key?'active':''}" onclick="openDrawer('${key}')">
+        <span class="ev-role ${T.cls}">${T.label}</span>
+        <div class="ev-main"><div class="ev-sum">${e.sum}${e.lbl?`<span class="lbl">${e.lbl}</span>`:''}</div></div>
+        <div class="ev-metric">${metric.join('')}</div>
+      </div>`;
+    });
+    html += `</div>`;
   });
-  document.getElementById('evList').innerHTML = html || `<div style="padding:40px;text-align:center;color:#94a3b8;">无匹配事件</div>`;
+  document.getElementById('evList').innerHTML = html || `<div style="padding:40px;text-align:center;color:#94a3b8;">无匹配对话</div>`;
+
+  const pg = document.getElementById('pager');
+  pg.innerHTML = runs.length ? `
+    <span class="pg-info">共 ${runs.length} 轮对话 · 第 ${curPage}/${totalPages} 页</span>
+    <span class="pg-btn ${curPage<=1?'disabled':''}" onclick="gotoPage(${curPage-1})">上一页</span>
+    <span class="pg-btn ${curPage>=totalPages?'disabled':''}" onclick="gotoPage(${curPage+1})">下一页</span>` : '';
+}
+function gotoPage(p) {
+  const total = Math.max(1, Math.ceil(filteredRuns().length / RUNS_PER_PAGE));
+  if (p < 1 || p > total) return;
+  curPage = p; renderEvents();
 }
 
 // 抽屉
-function openDrawer(i) {
-  curEvIdx = i; drView = "render";
-  const e = curSess.events[i]; const T = TYPES[e.type];
+function openDrawer(key) {
+  curEvIdx = key; drView = "render";
+  const [ri, ei] = String(key).split('-').map(Number);
+  const e = curSess.runs[ri].events[ei]; const T = TYPES[e.type];
   document.getElementById('drawer').classList.add('show');
   document.getElementById('drRole').className = "ev-role " + T.cls;
   document.getElementById('drRole').textContent = T.label;
@@ -457,7 +550,8 @@ function setView(v) {
   renderDrawerBody();
 }
 function renderDrawerBody() {
-  const e = curSess.events[curEvIdx];
+  const [_ri, _ei] = String(curEvIdx).split('-').map(Number);
+  const e = curSess.runs[_ri].events[_ei];
   const box = document.getElementById('drBody');
   if (drView === "raw") { box.innerHTML = `<div class="raw">${escapeHtml(e.raw||"（无原始数据）")}</div>`; return; }
   if (drView === "deltas") { box.innerHTML = `<div class="raw">${escapeHtml(e.deltasText||"（无增量数据）")}</div>`; return; }

@@ -188,7 +188,7 @@
         <tr><td>智能体</td><td><span class="tag gray">保留</span></td><td>关联智能体名称</td></tr>
         <tr><td><b>来源</b></td><td><span class="tag green">新增</span></td><td>会话上游来源：Agenthub / Workhub Studio / Claude Code / OpenClaw / CodeX / Hermes；支持作为筛选项</td></tr>
         <tr><td><b>应用场景</b></td><td><span class="tag green">新增</span></td><td>会话入口：<span class="tag purple">POPO-私聊</span> / <span class="tag blue">POPO-群聊</span> / <span class="tag cyan">Workhub</span> / <span class="tag green">SDK</span>；支持作为筛选项</td></tr>
-        <tr><td>用户</td><td><span class="tag gray">保留</span></td><td>用户 ID / 邮箱；<b>应用场景 = POPO-群聊时展示「-」</b></td></tr>
+        <tr><td><b>用户邮箱</b></td><td><span class="tag green">调整</span></td><td>原「用户」字段改为具体<b>用户邮箱</b>，支持搜索；<b>应用场景 = POPO-群聊时展示「-」</b></td></tr>
         <tr><td><b>群 ID</b></td><td><span class="tag green">新增</span></td><td>群会话所属群标识；<b>应用场景 = POPO-私聊时展示「-」</b>；非 POPO 场景（Workhub / SDK）无群概念，展示「-」；支持作为搜索项</td></tr>
         <tr><td>消息数</td><td><span class="tag gray">保留</span></td><td>该会话消息条数</td></tr>
         <tr><td><b>消耗 Token</b></td><td><span class="tag green">新增</span></td><td>该会话<b>累计总 Token</b>（建议展示总量，hover 可看 输入/输出 拆分）</td></tr>
@@ -205,53 +205,65 @@
   <!-- 6 详情页 -->
   <div class="section">
     <div class="section-title"><span class="num">6</span>会话详情页改造（事件流）</div>
-    <p>详情页由"两条消息"改造为<b>结构化事件流时间线</b>，形态参考图 1/2/3。整体分为：<b>①顶部会话概览</b> → <b>②筛选/搜索工具条</b> → <b>③事件流列表</b> → <b>④右侧详情抽屉</b>。</p>
+    <p>详情页由"两条消息"改造为<b>按 run 分组的结构化事件流时间线</b>。整体分为：<b>①顶部标识 + 检索区</b> → <b>②按 run 分组的事件流列表（分页）</b> → <b>③右侧详情抽屉</b>。</p>
 
-    <h3>6.1 顶部会话概览（会话元信息区）</h3>
-    <p>顶部这一行不是"并列的核心元素"，而是<b>会话元信息区</b>，由<b>一个身份主键 + 若干归属 / 配置标签</b>构成，服务于「<b>定位 + 归因</b>」两件事——排查问题时，光有会话 ID 只能定位"哪一条"，要判断"为什么这样"必须知道它绑定的 智能体 / 应用场景 / 知识库。字段拆解：</p>
+    <h3>6.1 顶部区（会话标识 + 检索区）</h3>
+    <p>会话是<b>持久聊天线程</b>，详情页会累积几十上百轮对话，因此顶部由原先的"归因展示区"调整为「<b>极简标识 + 检索区</b>」：归属类信息（应用场景 / 知识库 / 会话 ID）列表页已可见，不在详情页重复占位；<b>总耗时</b>因跨天累加无解释力，下沉到每一轮 run。</p>
     <table>
-      <thead><tr><th style="width:16%">元素</th><th style="width:16%">维度</th><th>回答的问题</th><th style="width:22%">性质</th></tr></thead>
+      <thead><tr><th style="width:26%">元素</th><th style="width:14%">变化</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>会话 ID</b></td><td>身份标识</td><td>这是<b>哪一条</b>会话</td><td>全局唯一主键</td></tr>
-        <tr><td><b>智能体</b>（深度研究员）</td><td>归属对象</td><td>这条会话由<b>谁</b>来应答</td><td>多对一：一个 Bot 下含多条会话</td></tr>
-        <tr><td><b>应用场景</b>（Workhub）</td><td>来源渠道</td><td>这条会话<b>从哪个入口</b>产生</td><td>分类标签（见第 5 节）</td></tr>
-        <tr><td><b>知识库</b>（事件指挥官资料库）</td><td>运行配置</td><td>这条会话用了<b>哪个知识库</b></td><td>运行时绑定的配置</td></tr>
+        <tr><td>智能体名称 + 状态</td><td><span class="tag gray">保留</span></td><td>标题行，状态见 5.1 线程状态枚举</td></tr>
+        <tr><td>总消耗 Token</td><td><span class="tag gray">保留</span></td><td>该会话累计总量（输入 / 输出）</td></tr>
+        <tr><td>上次对话时间</td><td><span class="tag gray">保留</span></td><td>相对时间，如「15 小时前」</td></tr>
+        <tr><td>总耗时</td><td><span class="tag red">去掉</span></td><td>持久线程累计耗时无意义，改为<b>每轮 run 各自的耗时</b></td></tr>
+        <tr><td>应用场景 / 知识库 / 会话 ID</td><td><span class="tag red">去掉</span></td><td>列表页已可见，详情页不再重复展示</td></tr>
       </tbody>
     </table>
-    <div class="callout tip">
-      <div class="title">层级关系</div>
-      <code>租户 → 智能体（深度研究员）→ 会话（会话 ID）</code>；应用场景 / 知识库是该会话运行时<b>绑定的配置</b>。<b>本期「环境」不在详情页透出</b>，避免信息冗余。
-    </div>
-    <p>此外展示<b>状态</b>、<b>总耗时</b>、<b>总 Token（输入/输出）</b>、创建相对时间。示意：</p>
+    <p><b>新增检索区</b>（位于标题行下方），用于在长线程中定位对话，各条件<b>可叠加</b>：</p>
+    <table>
+      <thead><tr><th style="width:20%">筛选项</th><th style="width:14%">形态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>用户邮箱</b></td><td>输入框</td><td>按发言人过滤；<b>群聊场景</b>下发言人为多个，可定位某人的对话；私聊场景唯一</td></tr>
+        <tr><td><b>关键字</b></td><td>输入框</td><td><b>过滤条件</b>（非高亮跳转）：命中即保留<b>整通 run</b>，未命中的 run 整体过滤掉，保证上下文完整</td></tr>
+        <tr><td><b>开始时间 / 结束时间</b></td><td>时间选择</td><td>按 run 开始时间过滤</td></tr>
+        <tr><td><b>事件类型</b></td><td>多选下拉</td><td>原 All events 筛选，位置移入检索区；命中该类事件的 run 才展示</td></tr>
+      </tbody>
+    </table>
+    <p>示意：</p>
     <div class="ev-wrap">
       <div class="ev-topbar">
-        <span class="ev-pill"><b>测试对话</b></span>
+        <span class="ev-pill"><b>深度研究员</b></span>
         <span class="ev-pill">已关闭</span>
-        <span class="ev-pill">🧠 深度研究员</span>
-        <span class="ev-pill">📚 资料库</span>
-        <span class="ev-pill" style="font-family:monospace;">🆔 a2a7149d…b48c</span>
         <span style="margin-left:auto"></span>
-        <span class="ev-pill">⏱ 2分59秒</span>
         <span class="ev-pill">🎫 167k / 4.7k</span>
-        <span class="ev-pill">🕐 15小时前</span>
+        <span class="ev-pill">🕐 上次对话 15小时前</span>
       </div>
       <div class="ev-topbar" style="background:#fff;">
-        <span class="ev-pill">👤 用户 ▾</span>
-        <span class="ev-pill">🗂 所有活动（All events）▾</span>
-        <span class="ev-pill">🔍 搜索</span>
-        <span style="margin-left:auto"></span>
-        <span class="ev-pill">⌨</span>
-        <span class="ev-pill">⧉ 复制</span>
+        <span class="ev-pill">用户邮箱：请输入用户邮箱</span>
+        <span class="ev-pill">关键字：过滤包含关键字的对话</span>
+        <span class="ev-pill">开始时间</span>
+        <span class="ev-pill">结束时间</span>
+        <span class="ev-pill">🗂 事件类型（All events）▾</span>
       </div>
     </div>
 
-    <h3>6.2 事件流列表</h3>
-    <p>按<b>时间线顺序</b>逐行展示事件；每行左侧为<b>角色标签</b>，中间为<b>内容摘要</b>，右侧为 <b>Token（入/出）· 耗时 · 开始时间</b>；相邻事件的空闲以分隔条标注。示意（对应参考图 1）：</p>
+    <h3>6.2 事件流列表（按 run 分组）</h3>
+    <p>会话为持久线程，内部由多通 <b>run（一轮对话）</b>构成。事件流<b>按 run 分块展示</b>，避免长列表平铺看不出轮次边界。</p>
+    <ul>
+      <li><b>run 块头</b>展示该轮汇总：<b>第 N 轮 · 发言人邮箱 · 开始时间 · 本轮耗时 · 本轮消耗 Token（入/出）· 本轮结果（成功 / 失败）</b>。</li>
+      <li><b>run 内事件</b>按时间线逐行展示：左侧<b>角色标签</b>，中间<b>内容摘要</b>，右侧 <b>Token（入/出）· 耗时 · 相对时间</b>。</li>
+      <li><b>两通 run 之间</b>以分隔条标注<b>会话空闲时长</b>（如「会话空闲 · 31.6 秒」「会话空闲 · 21 小时 26 分」）。</li>
+      <li><b>分页</b>：按 <b>run 粒度</b>分页（run 内事件不拆页），保证单轮上下文完整；页脚展示「共 N 轮对话 · 第 X/Y 页」与上/下一页。分页参数与交互细节由研发按实现选型决定。</li>
+      <li><b>筛选联动</b>：6.1 各筛选条件命中判定均以 <b>run</b> 为单位——命中则整通 run 保留，不命中整体过滤；筛选变化后分页重算并回到第 1 页。</li>
+    </ul>
+    <p>示意（对应参考图 1）：</p>
     <div class="ev-wrap">
+      <div class="ev-topbar"><span class="ev-pill"><b>第 1 轮</b></span><span class="ev-pill">👤 hzdingyuqing@corp.netease.com</span><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:44:56</span><span class="ev-pill">⏱ 20.1s</span><span class="ev-pill">🎫 20.9k / 569</span><span class="ev-pill">成功</span></div>
       <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">明日杭州天气</span><span class="ev-metric"><span>0:00:09</span></span></div>
       <div class="ev-row"><span class="ev-role tool">工具</span><span class="ev-body">网页搜索<span class="lbl">杭州明日天气预报 2026-07-23</span></span><span class="ev-metric"><span>🎫 5.6k / 69</span><span>⏱ 827ms</span><span>0:00:11</span></span></div>
       <div class="ev-row"><span class="ev-role agent">Agent</span><span class="ev-body">根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…</span><span class="ev-metric"><span>🎫 12.2k / 380</span><span>0:00:20</span></span></div>
       <div class="ev-idle">会话空闲 · 31.6 秒</div>
+      <div class="ev-topbar"><span class="ev-pill"><b>第 2 轮</b></span><span class="ev-pill">👤 hzdingyuqing@corp.netease.com</span><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:45:28</span><span class="ev-pill">⏱ 42.3s</span><span class="ev-pill">🎫 43.2k / 1.77k</span><span class="ev-pill">失败</span></div>
       <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">根据这个天气情况，适合去北京游玩吗？</span><span class="ev-metric"><span>0:00:52</span></span></div>
       <div class="ev-row"><span class="ev-role know">知识</span><span class="ev-body">知识检索<span class="lbl">北京 7/23 天气 · 命中 3 条</span></span><span class="ev-metric"><span>🎫 15.5k / 69</span><span>⏱ 886ms</span><span>0:00:57</span></span></div>
       <div class="ev-row"><span class="ev-role err">报错</span><span class="ev-body">工具超时 · TOOL_TIMEOUT（已重试 1 次）</span><span class="ev-metric"><span>⏱ 3.0s</span><span>0:01:02</span></span></div>
@@ -270,7 +282,7 @@
     </div>
 
     <h3>6.3 Events 筛选（默认 All events）</h3>
-    <p>工具条提供 <b>events 筛选下拉</b>，默认「<b>All events / 所有活动</b>」；可按<b>事件类型多选</b>过滤（如只看「调用工具 + 报错」用于排障，或只看「用户 + 模型输出」还原对话）。可叠加：<b>发言者筛选</b>（用户 / 某 Agent）、<b>关键词搜索</b>。筛选只影响展示，不改变原始记录。</p>
+    <p>事件类型筛选<b>位置移入 6.1 检索区</b>，默认「<b>All events / 所有活动</b>」；可按<b>事件类型多选</b>过滤（如只看「调用工具 + 报错」用于排障，或只看「用户 + 模型输出」还原对话）。判定以 <b>run</b> 为单位：run 内存在选中类型的事件则该 run 保留。可与用户邮箱、关键字、时间条件<b>叠加</b>。筛选只影响展示，不改变原始记录。</p>
 
     <h3>6.4 右侧详情抽屉</h3>
     <p>点击任一事件行，右侧滑出<b>详情抽屉</b>（参考图 2 / 图 3），展示该事件的<b>完整结构化内容</b>：</p>
