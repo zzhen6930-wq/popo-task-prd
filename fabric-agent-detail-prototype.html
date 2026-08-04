@@ -119,12 +119,19 @@
   /* 用量统计 */
   .usage-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .range-dd select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
-  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:16px; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
   .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
   .stat-card .lb{ font-size:12px; color:var(--mut); }
   .stat-card .vl{ font-size:24px; font-weight:800; color:var(--ink); margin-top:6px; }
 
   .rule-card{ display:flex; align-items:center; justify-content:space-between; }
+  .rule-bar{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line-2); }
+  .pager{ display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:12px 20px; }
+  .pg-btn{ min-width:30px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px; color:var(--txt); cursor:pointer; }
+  .pg-btn:hover:not(:disabled){ border-color:#c7d2fe; }
+  .pg-btn.on{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+  .pg-btn:disabled{ color:var(--mut); cursor:not-allowed; }
+  .pg-info{ font-size:12px; color:var(--sub); margin-right:8px; }
   .rule-left{ display:flex; gap:12px; align-items:center; }
   .rule-ico{ width:38px; height:38px; border-radius:10px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:18px; }
   .rule-desc{ font-size:12.5px; color:var(--sub); margin-top:3px; max-width:520px; }
@@ -403,43 +410,28 @@
       </div>
       <div class="stat-grid" id="statGrid"></div>
 
-      <!-- 扣除规则 -->
+      <!-- 扣除规则 + 用户用量明细（合并模块） -->
       <div id="usageDetail">
-      <div class="card rule-card">
-        <div class="rule-left">
-          <div class="rule-ico">💳</div>
-          <div>
-            <div class="card-t">Token 扣除规则</div>
-            <div class="rule-desc" id="ruleDesc"></div>
+      <div class="card" style="padding:0;">
+        <div class="rule-bar">
+          <div class="rule-left">
+            <div class="rule-ico">💳</div>
+            <div>
+              <div class="card-t">Token 扣除规则</div>
+              <div class="rule-desc" id="ruleDesc"></div>
+            </div>
+          </div>
+          <div class="rule-right">
+            <div class="rule-cur"><div class="rc-lb">当前规则</div><div class="rc-vl" id="ruleCur"></div></div>
+            <button class="btn ghost sm" onclick="openRule()">修改</button>
           </div>
         </div>
-        <div class="rule-right">
-          <div class="rule-cur"><div class="rc-lb">当前规则</div><div class="rc-vl" id="ruleCur"></div></div>
-          <button class="btn ghost sm" onclick="openRule()">修改</button>
-        </div>
-      </div>
-
-      <!-- 按用户明细 -->
-      <div class="card" style="padding:0;">
-        <div style="padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="card-t">用户用量明细</div><div class="card-s" style="margin-bottom:0;" id="detailSub"></div></div>
-        </div>
+        <div style="padding:16px 20px 0;"><div class="card-t">用户用量明细</div></div>
         <table class="table" style="margin-top:12px;">
           <thead><tr><th style="width:26%">用户</th><th>Token 消耗</th><th>会话数</th><th>对话数</th><th>占比</th><th style="width:20%">扣除归属</th></tr></thead>
           <tbody id="detailRows"></tbody>
         </table>
-      </div>
-
-      <!-- 趋势 -->
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div><div class="card-t" id="trendTitle">Token 消耗趋势</div><div class="card-s" id="trendSub" style="margin-bottom:0;"></div></div>
-          <div class="trend-seg">
-            <span class="seg-btn on" data-k="token" onclick="switchTrend('token',this)">Token</span>
-            <span class="seg-btn" data-k="task" onclick="switchTrend('task',this)">会话数</span>
-          </div>
-        </div>
-        <div class="chart" id="chart"></div>
+        <div class="pager" id="detailPager"></div>
       </div>
       </div><!-- /usageDetail -->
     </div>
@@ -584,7 +576,6 @@ function openDetail(id){
 /* ===== 数据 ===== */
 let scopeVal="part";
 let rule="mine";              // mine | asker
-let trendKey="token";
 const groups=[
   { name:"产品讨论群", reply:"智能回复" },
   { name:"项目协作群", reply:"仅 @ 时回复" },
@@ -600,8 +591,17 @@ const users=[
   { name:"朱弈", dep:"产品体验中心", tok:15800, sess:9, task:19, av:"朱" },
   { name:"李扬", dep:"效率工程部", tok:11200, sess:8, task:17, av:"李" },
   { name:"傅云辰", dep:"产品体验中心", tok:7300, sess:11, task:14, av:"傅" },
-  { name:"施羽婷", dep:"综合业务部", tok:4300, sess:7, task:13, av:"施" }
+  { name:"施羽婷", dep:"综合业务部", tok:4300, sess:7, task:13, av:"施" },
+  { name:"陈杰", dep:"研发中心", tok:3900, sess:6, task:11, av:"陈" },
+  { name:"汪晓东", dep:"人力资源部", tok:3200, sess:5, task:9, av:"汪" },
+  { name:"张大力", dep:"商务采购部", tok:2800, sess:5, task:8, av:"张" },
+  { name:"胡国群", dep:"法务部", tok:2100, sess:4, task:7, av:"胡" },
+  { name:"陈丽萱", dep:"行政部", tok:1700, sess:4, task:6, av:"陈" },
+  { name:"孙悦", dep:"财务部", tok:1300, sess:3, task:5, av:"孙" },
+  { name:"周涛", dep:"综合业务部", tok:900, sess:2, task:4, av:"周" },
+  { name:"吴敏", dep:"企业发展部", tok:600, sess:2, task:3, av:"吴" }
 ];
+let detailPage=1; const DETAIL_PER=10;
 
 /* 按结束日回溯 N 天生成日序列（伪随机稳定） */
 const END=new Date(2026,6,29);
@@ -678,9 +678,9 @@ function renderUsage(){
   const dlg=Math.round(sess*1.8);
   const usersN=Math.min(23, 8+Math.round(rangeDays/3));
   document.getElementById('statGrid').innerHTML=[
-    ["总用量（Token）",kfmt(totTok)],["总会话数",sess],["总对话数",dlg],["用户数",usersN],["加入群组数",3]
+    ["总用量（Token）",kfmt(totTok)],["总会话数",sess],["总对话数",dlg],["用户数",usersN]
   ].map(([lb,vl])=>`<div class="stat-card"><div class="lb">${lb}</div><div class="vl">${vl}</div></div>`).join("");
-  renderRule(); renderDetail(); renderChart();
+  renderRule(); detailPage=1; renderDetail();
 }
 function renderRule(){
   const mine=rule==='mine';
@@ -692,9 +692,13 @@ function renderRule(){
 function owner(){ return (typeof curAgent!=='undefined'&&curAgent)?curAgent.owner:"张振"; }
 function renderDetail(){
   const mine=rule==='mine';
-  document.getElementById('detailSub').textContent="";
-  const max=Math.max(...users.map(u=>u.tok)); const total=users.reduce((s,u)=>s+u.tok,0);
-  document.getElementById('detailRows').innerHTML=users.map(u=>{
+  const sorted=[...users].sort((a,b)=>b.tok-a.tok);
+  const max=Math.max(...sorted.map(u=>u.tok)); const total=sorted.reduce((s,u)=>s+u.tok,0);
+  const pages=Math.max(1,Math.ceil(sorted.length/DETAIL_PER));
+  if(detailPage>pages) detailPage=pages;
+  const start=(detailPage-1)*DETAIL_PER;
+  const rows=sorted.slice(start,start+DETAIL_PER);
+  document.getElementById('detailRows').innerHTML=rows.map(u=>{
     const pct=(u.tok/total*100).toFixed(1);
     const attr= mine?`<span class="pill gray">${owner()}</span>`:`<span class="pill indigo">${u.name}</span>`;
     return `<tr>
@@ -706,39 +710,19 @@ function renderDetail(){
       <td>${attr}</td>
     </tr>`;
   }).join("");
+  renderDetailPager(pages, sorted.length);
 }
-function switchTrend(k,el){ trendKey=k; document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderChart(); }
-function renderChart(){
-  const isTok=trendKey==='token';
-  const color=isTok?'#6366f1':'#10b981';
-  document.getElementById('trendTitle').textContent= isTok?"Token 消耗趋势":"会话数量趋势";
-  document.getElementById('trendSub').textContent="";
-  const data=curSeries.map(d=>({ x:d.x, v:isTok?d.tok:d.task }));
-  const W=1000, H=230, padL=48, padR=16, padT=16, padB=28;
-  const iw=W-padL-padR, ih=H-padT-padB;
-  const max=Math.max(...data.map(d=>d.v))*1.1, min=0;
-  const n=data.length;
-  const X=i=> padL + (n<=1?iw/2:iw*i/(n-1));
-  const Y=v=> padT + ih*(1-(v-min)/(max-min||1));
-  // y 网格 4 档
-  let grid="", yl="";
-  for(let g=0;g<=4;g++){ const yy=padT+ih*g/4; const val=max*(1-g/4); grid+=`<line class="gl" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`; yl+=`<text class="axis-y" x="${padL-8}" y="${yy+3}" text-anchor="end">${kfmt(Math.round(val))}</text>`; }
-  // x 标签：点多时抽稀
-  const step=Math.ceil(n/8);
-  let xl=""; data.forEach((d,i)=>{ if(i%step===0||i===n-1) xl+=`<text class="axis-x" x="${X(i)}" y="${H-8}" text-anchor="middle">${d.x}</text>`; });
-  // 折线 + 面积
-  const line=data.map((d,i)=>`${i?'L':'M'}${X(i)},${Y(d.v)}`).join(" ");
-  const area=`M${X(0)},${padT+ih} `+data.map((d,i)=>`L${X(i)},${Y(d.v)}`).join(" ")+` L${X(n-1)},${padT+ih} Z`;
-  // 点：点少时全画，点多只画端点
-  let dots=""; data.forEach((d,i)=>{ const show = n<=14 || i===0 || i===n-1 || d.v===Math.max(...data.map(p=>p.v)); if(show){ dots+=`<circle class="dot" cx="${X(i)}" cy="${Y(d.v)}" r="3.5" fill="${color}"/>`; if(n<=14) dots+=`<text class="dot-lb" x="${X(i)}" y="${Y(d.v)-9}" text-anchor="middle" fill="${color}">${kfmt(d.v)}</text>`; } });
-  document.getElementById('chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.18"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
-    ${grid}${yl}
-    <path d="${area}" fill="url(#ag)"/>
-    <path class="line-path" d="${line}" stroke="${color}"/>
-    ${dots}${xl}
-  </svg>`;
+function renderDetailPager(pages, tot){
+  const pg=document.getElementById('detailPager');
+  if(pages<=1){ pg.innerHTML=""; return; }
+  let btns="";
+  for(let i=1;i<=pages;i++){ btns+=`<button class="pg-btn ${i===detailPage?'on':''}" onclick="goDetailPage(${i})">${i}</button>`; }
+  pg.innerHTML=`<span class="pg-info">共 ${tot} 人</span>`
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage-1})" ${detailPage===1?'disabled':''}>上一页</button>`
+    +btns
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage+1})" ${detailPage===pages?'disabled':''}>下一页</button>`;
 }
+function goDetailPage(p){ detailPage=p; renderDetail(); }
 
 /* ===== 自定义日期（日历） ===== */
 let calY=2026, calM=6;              // 显示月（0-based month）
