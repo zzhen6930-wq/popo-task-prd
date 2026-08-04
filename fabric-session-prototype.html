@@ -69,6 +69,17 @@
   .det-filters .fitem label { font-size: 11px; color: #94a3b8; }
   .det-filters .fitem input { border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; width: 190px; }
   .det-filters .fitem input:focus { outline: none; border-color: #6366f1; }
+  .rng-wrap { position: relative; }
+  .rng-input { cursor: pointer; width: 240px !important; }
+  .rng-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; cursor: pointer; color: #94a3b8; font-size: 11px; }
+  .rng-pop { display: none; position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.12); padding: 12px; min-width: 260px; }
+  .rng-pop.show { display: block; }
+  .rng-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .rng-row label { font-size: 11px; color: #94a3b8; width: 56px; flex: none; }
+  .rng-row input { flex: 1; width: auto !important; }
+  .rng-foot { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 8px; }
+  .rng-btn { cursor: pointer; font-size: 12px; padding: 4px 12px; border-radius: 6px; border: 1px solid #d1d5db; color: #475569; }
+  .rng-btn.primary { background: #6366f1; border-color: #6366f1; color: #fff; }
   .run-block { border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; overflow: hidden; background: #fff; }
   .run-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #eef2f7; flex-wrap: wrap; }
   .run-no { font-size: 12.5px; font-weight: 700; color: #0f172a; }
@@ -256,8 +267,20 @@
         <div class="det-filters">
           <div class="fitem"><label>用户邮箱</label><input id="fEmail" placeholder="请输入用户邮箱" oninput="onDetFilter()"></div>
           <div class="fitem"><label>关键字</label><input id="fKw" placeholder="过滤包含关键字的对话" oninput="onDetFilter()"></div>
-          <div class="fitem"><label>开始时间</label><input id="fFrom" type="datetime-local" onchange="onDetFilter()"></div>
-          <div class="fitem"><label>结束时间</label><input id="fTo" type="datetime-local" onchange="onDetFilter()"></div>
+          <div class="fitem"><label>时间范围</label>
+            <div class="rng-wrap">
+              <input id="fRange" class="rng-input" placeholder="选择开始与结束时间" readonly onclick="toggleRange(event)">
+              <span class="rng-x" id="fRangeX" onclick="clearRange(event)">✕</span>
+              <div class="rng-pop" id="rangePop">
+                <div class="rng-row"><label>开始时间</label><input id="fFrom" type="datetime-local"></div>
+                <div class="rng-row"><label>结束时间</label><input id="fTo" type="datetime-local"></div>
+                <div class="rng-foot">
+                  <span class="rng-btn" onclick="clearRange(event)">清除</span>
+                  <span class="rng-btn primary" onclick="applyRange(event)">确定</span>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="fitem"><label>事件类型</label><div class="seg" id="evFilters"></div></div>
         </div>
       </div>
@@ -302,39 +325,39 @@ const TYPES = {
 
 // ============ 会话数据 ============
 const weatherRuns = [
-  { no: 1, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:44:56", dur: "20.1s", tin: "20.9k", tout: "569", ok: true, events: [
+  { no: 1, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:44:56", dur: "20.1s", tk: "21.5k", ok: true, events: [
   { type: "user", email: "hzdingyuqing@corp.netease.com", sum: "明日杭州天气", off: "0:00:09", raw: `{"query":"明日杭州天气","tenantId":"610082037166085"}`,
     render: `<div class="q-box">明日杭州天气</div>` },
-  { type: "think", sum: "分析用户意图：查询杭州 7/23 天气，需调用网页搜索获取实时预报", tin: "3.1k", tout: "120", dur: "540ms", off: "0:00:10",
+  { type: "think", sum: "分析用户意图：查询杭州 7/23 天气，需调用网页搜索获取实时预报", tk: "3.22k", dur: "540ms", off: "0:00:10",
     render: `<div class="md"><p>用户想了解杭州明日天气。当前无本地天气数据，需要调用「网页搜索」工具获取 7/23 的官方预报，再结构化汇总给用户。</p></div>`,
     raw: `[thinking] intent=weather_query city=杭州 date=2026-07-23 plan=web_search -> summarize` },
-  { type: "tool", sum: "网页搜索", lbl: "杭州明日天气预报 2026-07-23", tin: "5.6k", tout: "69", dur: "827ms", off: "0:00:11", tool: true,
+  { type: "tool", sum: "网页搜索", lbl: "杭州明日天气预报 2026-07-23", tk: "5.67k", dur: "827ms", off: "0:00:11", tool: true,
     toolUse: `"杭州明日天气预报 2026年7月23日"`,
     render: `<div class="md"><div class="res-title">杭州-天气预报 · www.nmc.cn ↗</div><p>07/23 周四 · 小雨转晴 · 东北风 微风 · 28℃~38℃。发布时间 07-21 08:00。</p><div class="res-title" style="margin-top:8px;">杭州天气7天预报 · tianqi.so.com ↗</div><p>未来一周多云到晴，最高 38℃，注意防暑。</p></div>`,
     raw: `{"tool":"web_search","input":{"q":"杭州明日天气预报 2026年7月23日"},"results":[{"title":"杭州-天气预报","url":"http://www.nmc.cn/...","snippet":"07/23 周四 小雨转晴 28-38℃"}]}` },
-  { type: "agent", sum: "根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…", tin: "12.2k", tout: "380", dur: "7.5s", off: "0:00:20", deltas: true,
+  { type: "agent", sum: "根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…", tk: "12.6k", dur: "7.5s", off: "0:00:20", deltas: true,
     render: `<div class="md"><p>根据最新天气预报数据，以下是<b>明天（7月23日，周四）杭州</b>的天气情况：</p><h4>🌦 杭州明日天气（2026-07-23 周四）</h4><table><tr><th>项目</th><th>详情</th></tr><tr><td>气温</td><td><b>28℃ ~ 38℃</b></td></tr><tr><td>天气</td><td>小雨转晴</td></tr><tr><td>风向</td><td>东北风，微风</td></tr></table><p>☔ 温馨提示：白天有小雨，出门记得带伞；最高 38℃，避免长时间户外活动。</p></div>`,
     raw: `{"role":"assistant","content":"根据最新天气预报数据...","finish_reason":"stop"}`,
     deltasText: `delta#1 "根据"\ndelta#2 "最新天气"\ndelta#3 "预报数据，"\n… (共 42 个增量)` }
   ]},
-  { no: 2, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:45:28", dur: "42.3s", tin: "43.2k", tout: "1.77k", ok: false, idleBefore: "会话空闲 · 31.6 秒", events: [
+  { no: 2, email: "hzdingyuqing@corp.netease.com", start: "2026-07-23 11:45:28", dur: "42.3s", tk: "45k", ok: false, idleBefore: "会话空闲 · 31.6 秒", events: [
   { type: "user", email: "hzdingyuqing@corp.netease.com", sum: "根据这个天气情况，适合去北京游玩吗？", off: "0:00:52", raw: `{"query":"根据这个天气情况，适合去北京游玩吗？"}`,
     render: `<div class="q-box">根据这个天气情况，适合去北京游玩吗？</div>` },
-  { type: "know", sum: "知识检索", lbl: "北京 7/23 天气 · 命中 3 条", tin: "15.5k", tout: "69", dur: "886ms", off: "0:00:57",
+  { type: "know", sum: "知识检索", lbl: "北京 7/23 天气 · 命中 3 条", tk: "15.6k", dur: "886ms", off: "0:00:57",
     render: `<div class="md"><div class="res-title">命中片段（相关性 0.86）</div><p>北京 07/23：高温雷雨，35~38℃，午后有雷阵雨，紫外线强。来源：事件指挥官资料库 / 北京气象。</p><ul><li>片段1 · score 0.86 · 北京气象站</li><li>片段2 · score 0.79 · 中国天气网</li><li>片段3 · score 0.71 · 历史同期</li></ul></div>`,
     raw: `{"retrieval":{"query":"北京 2026-07-23 天气","top_k":3,"hits":[{"score":0.86,"src":"北京气象站"},{"score":0.79,"src":"中国天气网"}]}}` },
   { type: "err", sum: "工具超时 · TOOL_TIMEOUT（已重试 1 次后成功）", dur: "3.0s", off: "0:01:02",
     render: `<div class="err-box"><div class="ec">TOOL_TIMEOUT (504)</div><div class="md"><p>web_search 首次调用在 3000ms 未返回，触发超时；系统自动重试 1 次后成功。</p></div></div>`,
     raw: `{"error":{"code":"TOOL_TIMEOUT","http":504,"stage":"tool_call:web_search","attempt":1,"retried":true,"message":"upstream timeout after 3000ms"}}` },
-  { type: "agent", sum: "根据获取的天气数据，我来综合分析明天（7/23）是否适合去北京…", tin: "27.7k", tout: "1.7k", dur: "12.1s", off: "0:01:34", deltas: true,
+  { type: "agent", sum: "根据获取的天气数据，我来综合分析明天（7/23）是否适合去北京…", tk: "29.4k", dur: "12.1s", off: "0:01:34", deltas: true,
     render: `<div class="md"><h4>📊 明天去北京是否合适</h4><table><tr><th>城市</th><th>天气</th><th>体感</th></tr><tr><td>杭州</td><td>小雨转晴 28-38℃</td><td>闷热</td></tr><tr><td>北京</td><td>高温雷雨 35-38℃</td><td>不适宜</td></tr></table><p><b>结论：</b>北京 7/23 高温 + 午后雷阵雨，不建议当天出行游玩，可考虑改期或改去气候更温和的城市。</p></div>`,
     raw: `{"role":"assistant","content":"根据获取的天气数据...","finish_reason":"stop"}`,
     deltasText: `delta#1 "根据"\ndelta#2 "获取的"\n… (共 168 个增量)` }
   ]},
-  { no: 3, email: "wangzimingzhang01@corp.netease.com", start: "2026-07-24 09:12:04", dur: "8.6s", tin: "9.4k", tout: "410", ok: true, idleBefore: "会话空闲 · 21 小时 26 分", events: [
+  { no: 3, email: "wangzimingzhang01@corp.netease.com", start: "2026-07-24 09:12:04", dur: "8.6s", tk: "9.81k", ok: true, idleBefore: "会话空闲 · 21 小时 26 分", events: [
     { type: "user", email: "wangzimingzhang01@corp.netease.com", sum: "帮我把上面两地天气整理成一句话结论", off: "0:00:03", raw: `{"query":"帮我把上面两地天气整理成一句话结论"}`,
       render: `<div class="q-box">帮我把上面两地天气整理成一句话结论</div>` },
-    { type: "agent", sum: "结论：7/23 杭州闷热有阵雨、北京高温雷雨，两地均不适宜户外出行。", tin: "9.4k", tout: "410", dur: "8.6s", off: "0:00:11", deltas: true,
+    { type: "agent", sum: "结论：7/23 杭州闷热有阵雨、北京高温雷雨，两地均不适宜户外出行。", tk: "9.81k", dur: "8.6s", off: "0:00:11", deltas: true,
       render: `<div class="md"><p><b>结论：</b>7 月 23 日杭州小雨转晴、28~38℃ 偏闷热；北京高温雷雨、35~38℃ 体感更差。<b>两地当天均不建议安排户外行程</b>，如需出行建议改期。</p></div>`,
       raw: `{"role":"assistant","content":"结论：7/23 杭州...","finish_reason":"stop"}`,
       deltasText: `delta#1 "结论"\n… (共 26 个增量)` }
@@ -342,27 +365,27 @@ const weatherRuns = [
 ];
 
 const itRuns = [
-  { no: 1, email: "sangchen@corp.netease.com", start: "2026-07-23 11:44:36", dur: "9.3s", tin: "17.5k", tout: "830", ok: true, events: [
+  { no: 1, email: "sangchen@corp.netease.com", start: "2026-07-23 11:44:36", dur: "9.3s", tk: "18.3k", ok: true, events: [
   { type: "user", email: "sangchen@corp.netease.com", sum: "请查看附件（IT 设备合规截图）", off: "0:00:02", raw: `{"query":"请查看附件","tenantId":"610082037166085","files":["file"]}`,
     render: `<div class="q-box">请查看附件<br><span style="color:#94a3b8;font-size:12px;">📎 file · IT设备合规管理界面.png</span></div>` },
   { type: "user", email: "wangzimingzhang01@corp.netease.com", sum: "顺便说下这几项分别怎么处理", off: "0:00:03", raw: `{"query":"顺便说下这几项分别怎么处理"}`,
     render: `<div class="q-box">顺便说下这几项分别怎么处理</div>` },
   { type: "user", email: "zhaoxiaoshuai@corp.netease.com", sum: "@Echo Agent 帮忙整理成清单", off: "0:00:04", raw: `{"query":"@Echo Agent 帮忙整理成清单","trigger":true}`,
     render: `<div class="q-box">@Echo Agent 帮忙整理成清单</div>` },
-  { type: "skill", sum: "图像理解 Skill", lbl: "解析合规截图 → 提取任务项", tin: "8.4k", tout: "210", dur: "1.9s", off: "0:00:04",
+  { type: "skill", sum: "图像理解 Skill", lbl: "解析合规截图 → 提取任务项", tk: "8.61k", dur: "1.9s", off: "0:00:04",
     render: `<div class="md"><p>识别出截图为 IT 设备合规管理界面，提取到 3 类待办：可信设备、系统更新、必装软件。</p></div>`,
     raw: `{"skill":"image_understanding","output":{"tasks":["可信设备","系统更新","必装软件"]}}` },
-  { type: "agent", sum: "您截图中的是 IT 设备合规管理界面，以下为您逐一说明…", tin: "9.1k", tout: "620", dur: "5.2s", off: "0:00:09",
+  { type: "agent", sum: "您截图中的是 IT 设备合规管理界面，以下为您逐一说明…", tk: "9.72k", dur: "5.2s", off: "0:00:09",
     render: `<div class="md"><p>您截图中的是 IT 设备合规管理界面，显示您的设备有几项合规任务需要处理：</p><ul><li><b>可信设备</b>：安装数据安全软件（DDR）、加入域控</li><li><b>系统更新</b>：升级至 Windows 11、驱动 / 补丁更新</li><li><b>必装软件</b>：安装微软电脑管家</li></ul></div>`,
     raw: `{"role":"assistant","content":"您截图中的是IT设备合规管理界面...","finish_reason":"stop"}`, deltas: true, deltasText: `delta#1 "您截图"\n…` }
   ]},
-  { no: 2, email: "zhaoxiaoshuai@corp.netease.com", start: "2026-07-23 14:02:11", dur: "6.1s", tin: "6.2k", tout: "300", ok: true, idleBefore: "会话空闲 · 2 小时 17 分", events: [
+  { no: 2, email: "zhaoxiaoshuai@corp.netease.com", start: "2026-07-23 14:02:11", dur: "6.1s", tk: "6.5k", ok: true, idleBefore: "会话空闲 · 2 小时 17 分", events: [
     { type: "user", email: "zhaoxiaoshuai@corp.netease.com", sum: "微软电脑管家在哪里下载？", off: "0:00:01", raw: `{"query":"微软电脑管家在哪里下载？"}`,
       render: `<div class="q-box">微软电脑管家在哪里下载？</div>` },
-    { type: "know", sum: "知识检索", lbl: "必装软件 · 命中 2 条", tin: "6.2k", tout: "80", dur: "640ms", off: "0:00:02",
+    { type: "know", sum: "知识检索", lbl: "必装软件 · 命中 2 条", tk: "6.28k", dur: "640ms", off: "0:00:02",
       render: `<div class="md"><div class="res-title">命中片段（相关性 0.91）</div><p>微软电脑管家可通过 IT 软件中心统一分发安装，路径：IT 服务台 → 软件中心 → 系统工具。</p></div>`,
       raw: `{"retrieval":{"query":"微软电脑管家 下载","top_k":2}}` },
-    { type: "agent", sum: "可在 IT 软件中心统一安装，路径：IT 服务台 → 软件中心 → 系统工具。", tin: "6.2k", tout: "300", dur: "6.1s", off: "0:00:06",
+    { type: "agent", sum: "可在 IT 软件中心统一安装，路径：IT 服务台 → 软件中心 → 系统工具。", tk: "6.5k", dur: "6.1s", off: "0:00:06",
       render: `<div class="md"><p>请通过公司 <b>IT 软件中心</b>安装：<code>IT 服务台 → 软件中心 → 系统工具 → 微软电脑管家</code>，安装后重启生效。</p></div>`,
       raw: `{"role":"assistant","content":"请通过公司IT软件中心安装...","finish_reason":"stop"}` }
   ]}
@@ -401,7 +424,7 @@ function renderList() {
       <td>${s.channel==='POPO-群聊' ? '-' : s.user}</td>
       <td>${s.channel==='POPO-私聊' ? '-' : (s.groupId || '-')}</td>
       <td>${s.msgs}</td>
-      <td class="tk" title="输入/输出">${s.tokenTotal}</td>
+      <td class="tk">${s.tokenTotal}</td>
       <td>${statusChip(s.status)}</td>
       <td style="color:#64748b;">${s.created}</td>
       <td><span class="link" onclick="openSession('${openKey}')">查看详情</span></td>
@@ -417,14 +440,15 @@ let curPage = 1; const RUNS_PER_PAGE = 2;
 function openSession(key) {
   curSess = sessions[key]; curEvIdx = -1; curPage = 1;
   selTypes.clear();
-  ['fEmail','fKw','fFrom','fTo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['fEmail','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const rx = document.getElementById('fRangeX'); if (rx) rx.style.display = 'none';
   document.getElementById('listView').classList.add('hidden');
   document.getElementById('detailView').classList.remove('hidden');
   const s = curSess;
   document.getElementById('dTitle').textContent = s.bot;
   document.getElementById('dSt').textContent = s.status;
   document.getElementById('dMetas').innerHTML =
-    `<span class="metapill">🎫 ${s.token}</span><span class="metapill">🕐 上次对话 ${s.ago}</span>`;
+    `<span class="metapill">🎫 总消耗 ${s.tokenTotal}</span><span class="metapill">🕐 上次对话 ${s.ago}</span>`;
   renderFilters();
   renderEvents();
   closeDrawer();
@@ -432,6 +456,22 @@ function openSession(key) {
 function goList() { document.getElementById('detailView').classList.add('hidden'); document.getElementById('listView').classList.remove('hidden'); }
 
 function onDetFilter() { curPage = 1; renderEvents(); }
+
+function toggleRange(e) { e.stopPropagation(); document.getElementById('rangePop').classList.toggle('show'); }
+function syncRangeText() {
+  const f = document.getElementById('fFrom').value, t = document.getElementById('fTo').value;
+  const fmt = v => v ? v.replace('T', ' ') : '';
+  const txt = (f || t) ? `${fmt(f) || '不限'} ~ ${fmt(t) || '不限'}` : '';
+  document.getElementById('fRange').value = txt;
+  document.getElementById('fRangeX').style.display = txt ? 'block' : 'none';
+}
+function applyRange(e) { e.stopPropagation(); syncRangeText(); document.getElementById('rangePop').classList.remove('show'); onDetFilter(); }
+function clearRange(e) {
+  e.stopPropagation();
+  document.getElementById('fFrom').value = ''; document.getElementById('fTo').value = '';
+  syncRangeText(); document.getElementById('rangePop').classList.remove('show'); onDetFilter();
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.rng-wrap')) { const p = document.getElementById('rangePop'); if (p) p.classList.remove('show'); } });
 
 // 事件筛选下拉（多选）
 function ddLabelText() { return selTypes.size === 0 ? "All events" : "已选 " + selTypes.size + " 类"; }
@@ -495,7 +535,7 @@ function renderEvents() {
         <div class="run-metric" style="margin-left:0;">
           <span>🕐 ${r.start}</span>
           <span>⏱ ${r.dur}</span>
-          <span class="mtk">🎫 ${r.tin} / ${r.tout}</span>
+          <span class="mtk">🎫 ${r.tk}</span>
           <span class="chip ${r.ok?'green':'red'}">${r.ok?'成功':'失败'}</span>
         </div>
       </div>`;
@@ -503,7 +543,7 @@ function renderEvents() {
       if (selTypes.size > 0 && !selTypes.has(e.type)) return;
       const T = TYPES[e.type];
       const metric = [];
-      if (e.tin) metric.push(`<span class="mtk">🎫 ${e.tin} / ${e.tout}</span>`);
+      if (e.tk) metric.push(`<span class="mtk">🎫 ${e.tk}</span>`);
       if (e.dur) metric.push(`<span>⏱ ${e.dur}</span>`);
       metric.push(`<span>${e.off}</span>`);
       const key = ri + '-' + ei;
@@ -541,7 +581,7 @@ function openDrawer(key) {
   document.getElementById('drTitle').textContent = T.name + (e.lbl ? " · " + (e.sum||"") : "");
   const m = [`event_id：sevt_…${Math.random().toString(36).slice(2,8)}`, e.off];
   if (e.dur) m.push("⏱ " + e.dur);
-  if (e.tin) m.push("🎫 " + e.tin + " / " + e.tout);
+  if (e.tk) m.push("🎫 " + e.tk);
   document.getElementById('drMeta').innerHTML = m.map(x => `<span>${x}</span>`).join('');
   // view tabs
   let tabs = [["render","渲染"],["raw","原始"]];
