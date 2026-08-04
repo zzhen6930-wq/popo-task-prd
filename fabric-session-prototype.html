@@ -198,7 +198,9 @@
       <div class="filters">
         <div class="fitem"><label>智能体</label><select><option>全部智能体</option><option>深度研究员</option><option>Echo Agent-IT服务中心</option></select></div>
         <div class="fitem"><label>会话 ID</label><input placeholder="精确匹配"></div>
-        <div class="fitem"><label>应用场景</label><select><option>全部场景</option><option>Bot</option><option>Workhub</option><option>SDK</option></select></div>
+        <div class="fitem"><label>群 ID</label><input placeholder="群 ID"></div>
+        <div class="fitem"><label>来源</label><select><option>全部来源</option><option>Agenthub</option><option>Workhub Studio</option><option>Claude Code</option><option>OpenClaw</option><option>CodeX</option><option>Hermes</option></select></div>
+        <div class="fitem"><label>应用场景</label><select><option>全部场景</option><option>POPO-私聊</option><option>POPO-群聊</option><option>Workhub</option><option>SDK</option></select></div>
         <div class="fitem"><label>用户</label><input placeholder="用户 ID / 邮箱"></div>
         <div class="fitem"><label>开始时间</label><input value="2026-07-23 00:00:00"></div>
         <div class="fitem"><label>结束时间</label><input value="2026-07-24 00:00:00"></div>
@@ -216,6 +218,7 @@
               <th>来源</th>
               <th>应用场景</th>
               <th>用户</th>
+              <th>群 ID</th>
               <th>消息数</th>
               <th>消耗 Token</th>
               <th>状态</th>
@@ -325,20 +328,20 @@ const itEvents = [
 ];
 
 const sessions = {
-  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", status: "已完成", created: "2026-07-23 11:44:56", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", events: weatherEvents },
-  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "Bot", user: "sangchen@corp.netease.com", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", status: "运行中", created: "2026-07-23 11:44:36", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", events: itEvents }
+  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", groupId: "", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", status: "已完成", created: "2026-07-23 11:44:56", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", events: weatherEvents },
+  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "POPO-群聊", user: "sangchen@corp.netease.com", groupId: "1008932211", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", status: "运行中", created: "2026-07-23 11:44:36", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", events: itEvents }
 };
 const listRows = [
   { key: "s1" },
   { key: "s2" },
-  { s: { id: "7a95efec-d709-44f4-a8db-73069b8800cc", title: "报销政策问答", bot: "Echo Agent-服务中心", source: "Claude Code", channel: "SDK", user: "pb.chak@mesg.corp.netease.com", msgs: 4, tokenTotal: "22.1k", status: "空闲", created: "2026-07-23 11:44:03", dur: "0分19秒" }, ref: "s2" },
-  { s: { id: "d3920a22-f9ff-407b-9b2c-b50f29c64505", title: "周报生成", bot: "深度研究员", source: "Hermes", channel: "Workhub", user: "wangzimingzhang01@corp.netease.com", msgs: 8, tokenTotal: "88.4k", status: "已终止", created: "2026-07-23 11:43:29", dur: "0分20秒" }, ref: "s1" },
-  { s: { id: "b441fbfa-58c2-4097-8b4a-a0a1e8272365", title: "合同要点提取", bot: "Echo Agent-法务系统", source: "CodeX", channel: "Bot", user: "zhaoxiaoshuai@corp.netease.com", msgs: 2, tokenTotal: "12.6k", status: "运行中", created: "2026-07-23 11:43:17", dur: "0分22秒" }, ref: "s2" }
+  { s: { id: "7a95efec-d709-44f4-a8db-73069b8800cc", title: "报销政策问答", bot: "Echo Agent-服务中心", source: "Claude Code", channel: "SDK", user: "pb.chak@mesg.corp.netease.com", groupId: "", msgs: 4, tokenTotal: "22.1k", status: "空闲", created: "2026-07-23 11:44:03", dur: "0分19秒" }, ref: "s2" },
+  { s: { id: "d3920a22-f9ff-407b-9b2c-b50f29c64505", title: "周报生成", bot: "深度研究员", source: "Hermes", channel: "Workhub", user: "wangzimingzhang01@corp.netease.com", groupId: "", msgs: 8, tokenTotal: "88.4k", status: "已终止", created: "2026-07-23 11:43:29", dur: "0分20秒" }, ref: "s1" },
+  { s: { id: "b441fbfa-58c2-4097-8b4a-a0a1e8272365", title: "合同要点提取", bot: "Echo Agent-法务系统", source: "CodeX", channel: "POPO-私聊", user: "zhaoxiaoshuai@corp.netease.com", groupId: "1007766540", msgs: 2, tokenTotal: "12.6k", status: "运行中", created: "2026-07-23 11:43:17", dur: "0分22秒" }, ref: "s2" }
 ];
 
 // ============ 列表 ============
 function channelChip(c) {
-  const map = { "Bot":"purple", "Workhub":"cyan", "SDK":"green" };
+  const map = { "POPO-私聊":"purple", "POPO-群聊":"blue", "Workhub":"cyan", "SDK":"green" };
   return `<span class="chip ${map[c]||'gray'}">${c}</span>`;
 }
 function statusChip(st) {
@@ -354,7 +357,8 @@ function renderList() {
       <td>${s.bot}</td>
       <td>${s.source}</td>
       <td>${channelChip(s.channel)}</td>
-      <td>${s.user}</td>
+      <td>${s.channel==='POPO-群聊' ? '-' : s.user}</td>
+      <td>${s.channel==='POPO-私聊' ? '-' : (s.groupId || '-')}</td>
       <td>${s.msgs}</td>
       <td class="tk" title="输入/输出">${s.tokenTotal}</td>
       <td>${statusChip(s.status)}</td>
