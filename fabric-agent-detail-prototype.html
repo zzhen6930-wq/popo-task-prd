@@ -130,6 +130,20 @@
   .mom.up{ color:#e11d48; }
   .mom.down{ color:#059669; }
   .mom.flat{ color:var(--mut); font-weight:500; }
+  .trend-wrap{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
+  .trend-card{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; }
+  .trend-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:12px 0 10px; }
+  .lg-item{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); cursor:pointer; user-select:none; }
+  .lg-item.off{ color:var(--mut); }
+  .lg-box{ width:13px; height:13px; border-radius:3px; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; color:var(--line); }
+  .lg-item.on .lg-box{ border-color:transparent; }
+  .lg-box .tick{ color:#fff; font-size:9px; line-height:1; }
+  .lg-dot{ width:9px; height:9px; border-radius:2px; }
+  .trend-chart{ width:100%; }
+  .trend-chart svg{ width:100%; height:180px; display:block; }
+  .trend-chart .gl{ stroke:#eef2f7; stroke-width:1; }
+  .trend-chart .axis-x,.trend-chart .axis-y{ fill:var(--mut); font-size:10px; }
+  .trend-chart .tline{ fill:none; stroke-width:2; }
 
   .rule-card{ display:flex; align-items:center; justify-content:space-between; }
   .rule-bar{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line-2); }
@@ -417,6 +431,30 @@
       </div>
       <div class="stat-grid" id="statGrid"></div>
 
+      <!-- 变化趋势 -->
+      <div class="trend-wrap">
+        <div class="trend-card" data-m="tok">
+          <div class="card-t">Token 总用量趋势</div>
+          <div class="trend-legend"></div>
+          <div class="trend-chart"></div>
+        </div>
+        <div class="trend-card" data-m="sess">
+          <div class="card-t">总会话数趋势</div>
+          <div class="trend-legend"></div>
+          <div class="trend-chart"></div>
+        </div>
+        <div class="trend-card" data-m="dlg">
+          <div class="card-t">总对话数趋势</div>
+          <div class="trend-legend"></div>
+          <div class="trend-chart"></div>
+        </div>
+        <div class="trend-card" data-m="user">
+          <div class="card-t">用户数趋势</div>
+          <div class="trend-legend"></div>
+          <div class="trend-chart"></div>
+        </div>
+      </div>
+
       <!-- 扣除规则 + 用户用量明细（合并模块） -->
       <div id="usageDetail">
       <div class="card" style="padding:0;">
@@ -702,7 +740,68 @@ function renderUsage(){
     ["总对话数",dlg,mom(dlg,pDlg)],
     ["用户数",usersN,mom(usersN,pUsers)]
   ].map(([lb,vl,mo])=>`<div class="stat-card"><div class="lb">${lb}</div><div class="vl">${vl}</div><div class="mom-row"><span class="mom-lb">环比</span>${mo}</div></div>`).join("");
-  renderRule(); detailPage=1; renderDetail();
+  renderRule(); detailPage=1; renderDetail(); renderTrends();
+}
+
+/* ===== 变化趋势（多场景折线） ===== */
+const SCENES=[
+  { key:"total", name:"总量", color:"#4f46e5", frac:1 },
+  { key:"workhub", name:"Workhub", color:"#06b6d4", frac:0.34 },
+  { key:"popo_p", name:"POPO-私聊", color:"#f59e0b", frac:0.28 },
+  { key:"popo_g", name:"POPO-群聊", color:"#22c55e", frac:0.22 },
+  { key:"sdk", name:"SDK", color:"#ec4899", frac:0.16 }
+];
+const METRICS={
+  tok:  { label:"总量", val:d=>d.tok },
+  sess: { label:"总量", val:d=>d.task },
+  dlg:  { label:"总量", val:d=>Math.round(d.task*1.8) },
+  user: { label:"总量", val:d=>2+((d.d.getDate())%6) }
+};
+// 每个指标记录各场景勾选状态
+const trendVis={};
+Object.keys(METRICS).forEach(m=>{ trendVis[m]={}; SCENES.forEach(s=>trendVis[m][s.key]=true); });
+
+function renderTrends(){
+  document.querySelectorAll('.trend-card').forEach(card=>{
+    const m=card.dataset.m;
+    renderTrendLegend(card,m);
+    renderTrendChart(card,m);
+  });
+}
+function renderTrendLegend(card,m){
+  const box=card.querySelector('.trend-legend');
+  box.innerHTML=SCENES.map(s=>{
+    const on=trendVis[m][s.key];
+    return `<span class="lg-item ${on?'on':'off'}" style="color:${s.color}" onclick="toggleScene('${m}','${s.key}')">
+      <span class="lg-box" style="${on?`background:${s.color}`:''}">${on?'<span class="tick">✓</span>':''}</span>
+      <span class="lg-dot" style="background:${on?s.color:'#cbd5e1'}"></span>
+      <span style="color:var(--sub)">${s.name}</span>
+    </span>`;
+  }).join("");
+}
+function toggleScene(m,k){ trendVis[m][k]=!trendVis[m][k]; renderTrends(); }
+function renderTrendChart(card,m){
+  const metric=METRICS[m];
+  const series=SCENES.map(s=>({
+    s, data: curSeries.map(d=>({ x:d.x, v:Math.round(metric.val(d)*s.frac) }))
+  }));
+  const vis=series.filter(o=>trendVis[m][o.s.key]);
+  const W=520,H=180,padL=40,padR=14,padT=12,padB=26;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const n=curSeries.length;
+  const allV=vis.flatMap(o=>o.data.map(p=>p.v));
+  const max=(allV.length?Math.max(...allV):1)*1.15||1;
+  const X=i=> padL+(n<=1?iw/2:iw*i/(n-1));
+  const Y=v=> padT+ih*(1-v/max);
+  let grid="",yl="";
+  for(let g=0;g<=4;g++){ const yy=padT+ih*g/4; const val=max*(1-g/4); grid+=`<line class="gl" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`; yl+=`<text class="axis-y" x="${padL-6}" y="${yy+3}" text-anchor="end">${kfmt(Math.round(val))}</text>`; }
+  const step=Math.max(1,Math.ceil(n/6));
+  let xl=""; curSeries.forEach((d,i)=>{ if(i%step===0||i===n-1) xl+=`<text class="axis-x" x="${X(i)}" y="${H-8}" text-anchor="middle">${d.x}</text>`; });
+  const lines=vis.map(o=>{
+    const path=o.data.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(" ");
+    return `<path class="tline" d="${path}" stroke="${o.s.color}"/>`;
+  }).join("");
+  card.querySelector('.trend-chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${yl}${lines}${xl}</svg>`;
 }
 function renderRule(){
   const mine=rule==='mine';
