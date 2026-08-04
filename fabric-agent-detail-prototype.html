@@ -419,28 +419,13 @@
         </div>
       </div>
 
-      <!-- 额度卡 -->
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="card-t" id="quotaTitle"></div><div class="card-s" id="quotaSub" style="margin-bottom:0;"></div></div>
-          <div style="font-size:11px;color:var(--mut);">同步于 2026-07-29 13:47</div>
-        </div>
-        <div class="quota-row">
-          <div><div class="q-lb">已使用</div><div class="q-vl">239,353</div></div>
-          <div><div class="q-lb">剩余额度</div><div class="q-vl">62,800</div></div>
-          <div><div class="q-lb">本月总额度</div><div class="q-vl">302,153</div></div>
-        </div>
-        <div class="q-bar"><div class="q-fill" style="width:79.2%"></div></div>
-        <div class="q-foot"><span>已使用 79.2%</span><span>单位：Token</span></div>
-      </div>
-
       <!-- 按用户明细 -->
       <div class="card" style="padding:0;">
         <div style="padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="card-t">按用户用量明细</div><div class="card-s" style="margin-bottom:0;" id="detailSub"></div></div>
+          <div><div class="card-t">用户用量明细</div><div class="card-s" style="margin-bottom:0;" id="detailSub"></div></div>
         </div>
         <table class="table" style="margin-top:12px;">
-          <thead><tr><th style="width:26%">用户</th><th>Token 消耗</th><th>会话数</th><th>任务数</th><th>占比</th><th style="width:20%">扣除归属</th></tr></thead>
+          <thead><tr><th style="width:26%">用户</th><th>Token 消耗</th><th>会话数</th><th>对话数</th><th>占比</th><th style="width:20%">扣除归属</th></tr></thead>
           <tbody id="detailRows"></tbody>
         </table>
       </div>
@@ -451,7 +436,7 @@
           <div><div class="card-t" id="trendTitle">Token 消耗趋势</div><div class="card-s" id="trendSub" style="margin-bottom:0;"></div></div>
           <div class="trend-seg">
             <span class="seg-btn on" data-k="token" onclick="switchTrend('token',this)">Token</span>
-            <span class="seg-btn" data-k="task" onclick="switchTrend('task',this)">任务数</span>
+            <span class="seg-btn" data-k="task" onclick="switchTrend('task',this)">会话数</span>
           </div>
         </div>
         <div class="chart" id="chart"></div>
@@ -689,11 +674,11 @@ function onRangeChange(){
 function renderUsage(){
   curSeries=seriesFor(rangeDays);
   const totTok=curSeries.reduce((s,d)=>s+d.tok,0);
-  const totTask=curSeries.reduce((s,d)=>s+d.task,0);
-  const sess=Math.round(totTask*0.55);
+  const sess=curSeries.reduce((s,d)=>s+d.task,0);
+  const dlg=Math.round(sess*1.8);
   const usersN=Math.min(23, 8+Math.round(rangeDays/3));
   document.getElementById('statGrid').innerHTML=[
-    ["总用量（Token）",kfmt(totTok)],["总会话数",sess],["总任务数",totTask],["用户数",usersN],["加入群组数",3]
+    ["总用量（Token）",kfmt(totTok)],["总会话数",sess],["总对话数",dlg],["用户数",usersN],["加入群组数",3]
   ].map(([lb,vl])=>`<div class="stat-card"><div class="lb">${lb}</div><div class="vl">${vl}</div></div>`).join("");
   renderRule(); renderDetail(); renderChart();
 }
@@ -703,8 +688,6 @@ function renderRule(){
     ? "所有人使用此 Agent 产生的 Token，统一从你配置的账号额度中扣除。"
     : "每次对话产生的 Token，从发起本次对话的用户额度中扣除。";
   document.getElementById('ruleCur').textContent= mine?"统一从我的额度扣除":"从提问人的额度扣除";
-  document.getElementById('quotaTitle').textContent="账号 AIGW Token 额度";
-  document.getElementById('quotaSub').textContent="拥有者账号本月可用于公司 AI 工具的共享额度。";
 }
 function owner(){ return (typeof curAgent!=='undefined'&&curAgent)?curAgent.owner:"张振"; }
 function renderDetail(){
@@ -718,7 +701,7 @@ function renderDetail(){
       <td><div class="u-cell"><span class="u-av">${u.av}</span><div><div class="u-name">${u.name}</div><div class="u-dep">${u.dep}</div></div></div></td>
       <td><b>${u.tok.toLocaleString()}</b></td>
       <td>${u.sess}</td>
-      <td>${u.task}</td>
+      <td>${Math.round(u.sess*1.8)}</td>
       <td><span class="ratio-bar"><span class="ratio-fill" style="width:${u.tok/max*100}%"></span></span>${pct}%</td>
       <td>${attr}</td>
     </tr>`;
@@ -728,7 +711,7 @@ function switchTrend(k,el){ trendKey=k; document.querySelectorAll('.seg-btn').fo
 function renderChart(){
   const isTok=trendKey==='token';
   const color=isTok?'#6366f1':'#10b981';
-  document.getElementById('trendTitle').textContent= isTok?"Token 消耗趋势":"任务数量趋势";
+  document.getElementById('trendTitle').textContent= isTok?"Token 消耗趋势":"会话数量趋势";
   document.getElementById('trendSub').textContent="";
   const data=curSeries.map(d=>({ x:d.x, v:isTok?d.tok:d.task }));
   const W=1000, H=230, padL=48, padR=16, padT=16, padB=28;
