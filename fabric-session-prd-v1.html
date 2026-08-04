@@ -223,7 +223,7 @@
     <table>
       <thead><tr><th style="width:20%">筛选项</th><th style="width:14%">形态</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><b>用户邮箱</b></td><td>输入框</td><td>按发言人过滤；<b>群聊场景</b>下发言人为多个，可定位某人的对话；私聊场景唯一</td></tr>
+        <tr><td><b>用户邮箱</b></td><td>输入框</td><td>按发言人过滤；判定为「run 内<b>任一参与人</b>匹配即保留整通 run」。<b>群聊场景</b>一轮 run 可能多人发言，可用于定位某人参与过的对话；私聊场景唯一</td></tr>
         <tr><td><b>关键字</b></td><td>输入框</td><td><b>过滤条件</b>（非高亮跳转）：命中即保留<b>整通 run</b>，未命中的 run 整体过滤掉，保证上下文完整</td></tr>
         <tr><td><b>开始时间 / 结束时间</b></td><td>时间选择</td><td>按 run 开始时间过滤</td></tr>
         <tr><td><b>事件类型</b></td><td>多选下拉</td><td>原 All events 筛选，位置移入检索区；命中该类事件的 run 才展示</td></tr>
@@ -250,21 +250,23 @@
     <h3>6.2 事件流列表（按 run 分组）</h3>
     <p>会话为持久线程，内部由多通 <b>run（一轮对话）</b>构成。事件流<b>按 run 分块展示</b>，避免长列表平铺看不出轮次边界。</p>
     <ul>
-      <li><b>run 块头</b>展示该轮汇总：<b>第 N 轮 · 发言人邮箱 · 开始时间 · 本轮耗时 · 本轮消耗 Token（入/出）· 本轮结果（成功 / 失败）</b>。</li>
+      <li><b>run 块头</b>展示该轮汇总：<b>开始时间 · 本轮耗时 · 本轮消耗 Token（入/出）· 本轮结果（成功 / 失败）</b>。<b>不展示「第 N 轮」与单个用户邮箱</b>——群场景一轮 run 可能由多人发言合并触发，单一邮箱无法准确表达。</li>
       <li><b>run 内事件</b>按时间线逐行展示：左侧<b>角色标签</b>，中间<b>内容摘要</b>，右侧 <b>Token（入/出）· 耗时 · 相对时间</b>。</li>
+      <li><b>发言人下沉到事件行</b>：「用户」类事件的角色标签展示为 <b>用户：&lt;用户邮箱&gt;</b>，从而在一轮 run 中清晰表达<b>有几个用户参与、分别在什么时间参与</b>（IM 群场景多人输入合并为一个问题时尤其必要）；私聊场景形态一致，仅为单一邮箱。</li>
       <li><b>两通 run 之间</b>以分隔条标注<b>会话空闲时长</b>（如「会话空闲 · 31.6 秒」「会话空闲 · 21 小时 26 分」）。</li>
       <li><b>分页</b>：按 <b>run 粒度</b>分页（run 内事件不拆页），保证单轮上下文完整；页脚展示「共 N 轮对话 · 第 X/Y 页」与上/下一页。分页参数与交互细节由研发按实现选型决定。</li>
       <li><b>筛选联动</b>：6.1 各筛选条件命中判定均以 <b>run</b> 为单位——命中则整通 run 保留，不命中整体过滤；筛选变化后分页重算并回到第 1 页。</li>
     </ul>
     <p>示意（对应参考图 1）：</p>
     <div class="ev-wrap">
-      <div class="ev-topbar"><span class="ev-pill"><b>第 1 轮</b></span><span class="ev-pill">👤 hzdingyuqing@corp.netease.com</span><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:44:56</span><span class="ev-pill">⏱ 20.1s</span><span class="ev-pill">🎫 20.9k / 569</span><span class="ev-pill">成功</span></div>
-      <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">明日杭州天气</span><span class="ev-metric"><span>0:00:09</span></span></div>
+      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:44:56</span><span class="ev-pill">⏱ 20.1s</span><span class="ev-pill">🎫 20.9k / 569</span><span class="ev-pill">成功</span></div>
+      <div class="ev-row"><span class="ev-role user">用户：hzdingyuqing@corp.netease.com</span><span class="ev-body">明日杭州天气</span><span class="ev-metric"><span>0:00:09</span></span></div>
       <div class="ev-row"><span class="ev-role tool">工具</span><span class="ev-body">网页搜索<span class="lbl">杭州明日天气预报 2026-07-23</span></span><span class="ev-metric"><span>🎫 5.6k / 69</span><span>⏱ 827ms</span><span>0:00:11</span></span></div>
       <div class="ev-row"><span class="ev-role agent">Agent</span><span class="ev-body">根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…</span><span class="ev-metric"><span>🎫 12.2k / 380</span><span>0:00:20</span></span></div>
       <div class="ev-idle">会话空闲 · 31.6 秒</div>
-      <div class="ev-topbar"><span class="ev-pill"><b>第 2 轮</b></span><span class="ev-pill">👤 hzdingyuqing@corp.netease.com</span><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:45:28</span><span class="ev-pill">⏱ 42.3s</span><span class="ev-pill">🎫 43.2k / 1.77k</span><span class="ev-pill">失败</span></div>
-      <div class="ev-row"><span class="ev-role user">用户</span><span class="ev-body">根据这个天气情况，适合去北京游玩吗？</span><span class="ev-metric"><span>0:00:52</span></span></div>
+      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:45:28</span><span class="ev-pill">⏱ 42.3s</span><span class="ev-pill">🎫 43.2k / 1.77k</span><span class="ev-pill">失败</span></div>
+      <div class="ev-row"><span class="ev-role user">用户：hzdingyuqing@corp.netease.com</span><span class="ev-body">根据这个天气情况，适合去北京游玩吗？</span><span class="ev-metric"><span>0:00:52</span></span></div>
+      <div class="ev-row"><span class="ev-role user">用户：sangchen@corp.netease.com</span><span class="ev-body">顺便看下北京当天有没有雷雨</span><span class="ev-metric"><span>0:00:54</span></span></div>
       <div class="ev-row"><span class="ev-role know">知识</span><span class="ev-body">知识检索<span class="lbl">北京 7/23 天气 · 命中 3 条</span></span><span class="ev-metric"><span>🎫 15.5k / 69</span><span>⏱ 886ms</span><span>0:00:57</span></span></div>
       <div class="ev-row"><span class="ev-role err">报错</span><span class="ev-body">工具超时 · TOOL_TIMEOUT（已重试 1 次）</span><span class="ev-metric"><span>⏱ 3.0s</span><span>0:01:02</span></span></div>
       <div class="ev-row"><span class="ev-role agent">Agent</span><span class="ev-body">根据获取的天气数据，我来综合分析明天（7/23）是否适合去北京…</span><span class="ev-metric"><span>🎫 27.7k / 1.7k</span><span>0:01:34</span></span></div>
