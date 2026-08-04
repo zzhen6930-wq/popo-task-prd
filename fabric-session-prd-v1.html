@@ -191,31 +191,12 @@
         <tr><td><b>消耗 Token</b></td><td><span class="tag green">新增</span></td><td>该会话<b>累计总 Token</b>（建议展示总量，hover 可看 输入/输出 拆分）</td></tr>
         <tr><td>状态</td><td><span class="tag gray">保留</span></td><td>运行中 / 空闲 / 已完成 / 已终止</td></tr>
         <tr><td>创建时间 / 最后答复时间 / 响应时长</td><td><span class="tag gray">保留</span></td><td>同现状</td></tr>
-        <tr><td>操作</td><td><span class="tag gray">保留</span></td><td>导出 / 查看详情</td></tr>
+        <tr><td>操作</td><td><span class="tag gray">保留</span></td><td>查看详情</td></tr>
       </tbody>
     </table>
 
     <h3>5.2 筛选区</h3>
-    <p>在现有筛选（智能体 / 会话 ID / 用户 / 开始时间 / 结束时间）基础上，新增 <b>应用场景</b> 筛选（全部 / Bot / Workhub / SDK）。其余（刷新 / 重置 / 导出 Excel）保持不变。</p>
-
-    <h3>5.3 会话导出（列表页 / 详情页）</h3>
-    <p><b>入口</b>：列表页顶部「⬇ 导出 Excel」与详情页工具条「⬇ 导出」，两处<b>导出逻辑完全一致</b>。</p>
-    <p><b>导出粒度</b>：一次导出<b>一条会话</b>的完整事件流为一个 Excel 表格（.xlsx）。</p>
-    <ul>
-      <li><b>表头（列）动态生成</b>：表头 = 该会话<b>实际发生过的事件类型</b>，未发生的类型不出现在表头中（例：本次会话未调用 Skill，则表头不含「Skills」列）。</li>
-      <li><b>表头文案用中文事件名</b>：用户、思考、工具、Skills、MCP、知识、Agent（模型输出）、系统、报错。</li>
-      <li><b>列顺序固定</b>：按事件类型固定顺序排列 —— 用户 → 思考 → 工具 → Skills → MCP → 知识 → Agent → 系统 → 报错，仅保留出现过的列。</li>
-      <li><b>单元格取值</b>：每列填入对应事件的<b>完整内容</b>，即详情页右侧抽屉中<b>「渲染后」</b>的事件内容（<b>非原始 JSON</b>）；富文本 / 表格等渲染内容<b>转为纯文本</b>（去除 HTML 样式，保留文字与换行）。</li>
-      <li><b>多次事件</b>：同一会话同一类型事件出现多次时，按发生时间顺序在该列<b>纵向多行</b>罗列（每次事件占一行）。</li>
-      <li><b>事件元信息</b>：每个事件<b>随内容一并导出</b>其元信息（开始时间 / 耗时 / 消耗 Token），附在该事件内容中。</li>
-    </ul>
-    <p><b>文件名规则</b>：<code>会话_{会话标题}_{会话ID前8位}.xlsx</code>。</p>
-
-    <div class="callout">
-      <div class="title">📋 导出示例</div>
-      <p>某会话依次发生：用户 → 思考 → 工具 → Agent（第 1 轮）→ 用户 → 知识 → 报错 → Agent（第 2 轮），未使用 Skills / MCP。</p>
-      <p>导出 Excel 表头为：<b>用户 | 思考 | 工具 | 知识 | Agent | 报错</b>（Skills、MCP、系统列不出现）。各列纵向罗列对应事件的渲染后正文（含元信息），Agent 列含 2 行。</p>
-    </div>
+    <p>在现有筛选（智能体 / 会话 ID / 用户 / 开始时间 / 结束时间）基础上，新增 <b>应用场景</b> 筛选（全部 / Bot / Workhub / SDK）。</p>
   </div>
 
   <!-- 6 详情页 -->
@@ -258,7 +239,6 @@
         <span style="margin-left:auto"></span>
         <span class="ev-pill">⌨</span>
         <span class="ev-pill">⧉ 复制</span>
-        <span class="ev-pill">⬇ 导出</span>
       </div>
     </div>
 
