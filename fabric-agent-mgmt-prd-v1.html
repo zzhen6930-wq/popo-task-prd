@@ -153,9 +153,24 @@
     <h3>6.4 Token 扣除规则</h3>
     <p>规则决定该 Agent 产生的 Token 从谁的额度扣，<b>二选一</b>，可查看可修改（切换即时生效、不追溯历史）：</p>
     <ul>
-      <li><b>统一从我的额度扣除</b>：无论谁使用，都从 Agent 创建时配置的账号额度扣。</li>
-      <li><b>从提问人的额度扣除</b>：谁发起对话就扣谁的额度。</li>
+      <li><b>统一从我的额度扣除</b>：无论谁使用，都从 Agent 创建者配置的额度统一扣除。<b>该规则下具体扣谁的额度，随 Agent 来源不同而不同</b>（见下表）。</li>
+      <li><b>从提问人的额度扣除</b>：谁发起对话就扣谁的额度。<b>不区分来源</b>，AgentHub 与 Workhub Studio 一致，均从提问人的个人积分扣除。</li>
     </ul>
+    <table>
+      <thead><tr><th style="width:24%">扣除规则</th><th style="width:30%">来源 = AgentHub（用户创建）</th><th>来源 = Workhub Studio（租户创建）</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>统一从我的额度扣除</b></td>
+          <td>统一从<b>该个人用户的积分</b>扣除。</td>
+          <td>统一从<b>该租户的账号</b>扣除。</td>
+        </tr>
+        <tr>
+          <td><b>从提问人的额度扣除</b></td>
+          <td colspan="2">均从<b>提问人的个人积分</b>扣除（两种来源一致）。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout tip"><div class="title">说明</div>「统一从我的额度扣除」文案相同，但因 Agent 来源不同，扣除主体不同：AgentHub 扣创建者<b>个人积分</b>，Workhub Studio 扣<b>租户账号</b>。</div>
 
     <h3>6.5 用户用量明细</h3>
     <p>与扣除规则合并为一个模块，<b>按用户拆分</b>展示各自 Token 消耗、会话数、消息数、<b>应用场景</b>（该用户涉及的场景以标签展示）、占比与<b>扣除归属</b>，用于识别高消耗用户与核对扣费对象。</p>
