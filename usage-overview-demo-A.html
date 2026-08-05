@@ -18,7 +18,8 @@
   .c-lb{ font-size:12.5px; color:var(--mut); }
   .c-main{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:6px; }
   .c-vl{ font-size:26px; font-weight:800; color:var(--ink); }
-  .mom{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:3px; }
+  .mom{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:3px; cursor:default; }
+  .mom-tag{ color:var(--mut); font-weight:500; margin-right:2px; }
   .mom i{ color:var(--line); font-style:normal; }
   .mom.up{ color:#e11d48; } .mom.down{ color:#059669; }
   .divider{ height:1px; background:var(--line-2); margin:14px 0 10px; }
@@ -64,7 +65,7 @@ document.getElementById('grid').innerHTML=cards.map(c=>{
       <div class="c-lb">${c.lb}</div>
       <div class="c-main">
         <div class="c-vl">${c.fmt(c.total)}</div>
-        <span class="mom ${c.mom.up?'up':'down'}">${arw} ${c.mom.abs} <i>|</i> ${c.mom.up?'':'-'}${c.mom.pct}</span>
+        <span class="mom ${c.mom.up?'up':'down'}" title="环比：与上一周期相比${c.mom.up?'上涨':'下降'} ${c.mom.abs}，${c.mom.up?'增幅':'降幅'} ${c.mom.pct}"><span class="mom-tag">环比</span>${arw} ${c.mom.abs} <i>|</i> ${c.mom.up?'':'-'}${c.mom.pct}</span>
       </div>
     </div>
     <div class="divider"></div>
