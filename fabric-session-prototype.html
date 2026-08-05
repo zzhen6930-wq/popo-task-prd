@@ -157,6 +157,11 @@
   .dh { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
   .dh-top { display: flex; align-items: center; gap: 8px; }
   .dh-top .x { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 20px; }
+  .dh-anchor { margin-left: auto; cursor: pointer; font-size: 12px; color: #6366f1; border: 1px solid #c7d2fe; background: #eef2ff; border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+  .dh-anchor:hover { background: #e0e7ff; }
+  .ev-row.anchored { background: #eef2ff; box-shadow: inset 3px 0 0 #6366f1; }
+  .run-solo { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475569; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 7px 12px; margin-bottom: 10px; }
+  .run-solo .back { margin-left: auto; cursor: pointer; color: #6366f1; font-weight: 600; }
   .dh-title { font-weight: 700; font-size: 14px; }
   .dh-meta { font-size: 11px; color: #94a3b8; font-family: Menlo, monospace; margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
   .view-tabs { display: flex; gap: 6px; margin-top: 10px; }
@@ -295,6 +300,7 @@
             <div class="dh-top">
               <span class="ev-role" id="drRole"></span>
               <span class="dh-title" id="drTitle"></span>
+              <span class="dh-anchor" id="drAnchor" onclick="anchorEvent()" title="在左侧定位该事件，并展示所在 run 的完整记录">⌖ 定位记录</span>
               <span class="x" onclick="closeDrawer()">×</span>
             </div>
             <div class="dh-meta" id="drMeta"></div>
@@ -435,6 +441,16 @@ function renderList() {
 // ============ 状态 ============
 let curSess = null, selTypes = new Set(), curEvIdx = -1, drView = "render";
 let curPage = 1; const RUNS_PER_PAGE = 2;
+let soloRunIdx = null;
+function anchorEvent() {
+  if (curEvIdx === null || curEvIdx === undefined) return;
+  soloRunIdx = Number(String(curEvIdx).split('-')[0]);
+  renderEvents();
+  const el = document.getElementById('ev-' + curEvIdx);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('已定位，左侧展示该轮完整记录');
+}
+function exitSolo() { soloRunIdx = null; renderEvents(); }
 
 // ============ 打开详情 ============
 function openSession(key) {
@@ -442,6 +458,7 @@ function openSession(key) {
   selTypes.clear();
   ['fEmail','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   const rx = document.getElementById('fRangeX'); if (rx) rx.style.display = 'none';
+  soloRunIdx = null;
   document.getElementById('listView').classList.add('hidden');
   document.getElementById('detailView').classList.remove('hidden');
   const s = curSess;
@@ -455,7 +472,7 @@ function openSession(key) {
 }
 function goList() { document.getElementById('detailView').classList.add('hidden'); document.getElementById('listView').classList.remove('hidden'); }
 
-function onDetFilter() { curPage = 1; renderEvents(); }
+function onDetFilter() { curPage = 1; soloRunIdx = null; renderEvents(); }
 
 function toggleRange(e) { e.stopPropagation(); document.getElementById('rangePop').classList.toggle('show'); }
 function syncRangeText() {
@@ -492,8 +509,8 @@ function renderFilters() {
 }
 function toggleDD(e) { e && e.stopPropagation(); const m = document.getElementById('ddMenu'); m.classList.toggle('show'); }
 function openDD() { const m = document.getElementById('ddMenu'); if (m) m.classList.add('show'); }
-function toggleType(e, t) { e.stopPropagation(); if (selTypes.has(t)) selTypes.delete(t); else selTypes.add(t); curPage = 1; renderFilters(); openDD(); renderEvents(); }
-function clearTypes(e) { e.stopPropagation(); selTypes.clear(); curPage = 1; renderFilters(); openDD(); renderEvents(); }
+function toggleType(e, t) { e.stopPropagation(); if (selTypes.has(t)) selTypes.delete(t); else selTypes.add(t); curPage = 1; soloRunIdx = null; renderFilters(); openDD(); renderEvents(); }
+function clearTypes(e) { e.stopPropagation(); selTypes.clear(); curPage = 1; soloRunIdx = null; renderFilters(); openDD(); renderEvents(); }
 document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) { const m = document.getElementById('ddMenu'); if (m) m.classList.remove('show'); } });
 
 // 事件流（按 run 分组 + 过滤 + 分页）
@@ -521,15 +538,17 @@ function filteredRuns() {
 }
 function renderEvents() {
   if (!curSess) return;
-  const runs = filteredRuns();
+  const solo = soloRunIdx !== null;
+  const runs = solo ? [curSess.runs[soloRunIdx]] : filteredRuns();
   const totalPages = Math.max(1, Math.ceil(runs.length / RUNS_PER_PAGE));
   if (curPage > totalPages) curPage = totalPages;
-  const pageRuns = runs.slice((curPage - 1) * RUNS_PER_PAGE, curPage * RUNS_PER_PAGE);
+  const pageRuns = solo ? runs : runs.slice((curPage - 1) * RUNS_PER_PAGE, curPage * RUNS_PER_PAGE);
 
   let html = "";
+  if (solo) html = `<div class="run-solo">⌖ 已定位到该事件所在的一轮对话，展示<b>完整记录</b>（不受筛选影响）<span class="back" onclick="exitSolo()">返回全部记录</span></div>`;
   pageRuns.forEach(r => {
     const ri = curSess.runs.indexOf(r);
-    if (r.idleBefore) html += `<div class="ev-idle">${r.idleBefore}</div>`;
+    if (!solo && r.idleBefore) html += `<div class="ev-idle">${r.idleBefore}</div>`;
     html += `<div class="run-block">
       <div class="run-head">
         <div class="run-metric" style="margin-left:0;">
@@ -540,7 +559,7 @@ function renderEvents() {
         </div>
       </div>`;
     r.events.forEach((e, ei) => {
-      if (selTypes.size > 0 && !selTypes.has(e.type)) return;
+      if (!solo && selTypes.size > 0 && !selTypes.has(e.type)) return;
       const T = TYPES[e.type];
       const metric = [];
       if (e.tk) metric.push(`<span class="mtk">🎫 ${e.tk}</span>`);
@@ -548,7 +567,7 @@ function renderEvents() {
       metric.push(`<span>${e.off}</span>`);
       const key = ri + '-' + ei;
       const roleLabel = e.type === 'user' ? `用户：${e.email || r.email}` : T.label;
-      html += `<div class="ev-row ${curEvIdx===key?'active':''}" onclick="openDrawer('${key}')">
+      html += `<div class="ev-row ${curEvIdx===key?'active':''} ${solo&&curEvIdx===key?'anchored':''}" id="ev-${key}" onclick="openDrawer('${key}')">
         <span class="ev-role ${T.cls}">${roleLabel}</span>
         <div class="ev-main"><div class="ev-sum">${e.sum}${e.lbl?`<span class="lbl">${e.lbl}</span>`:''}</div></div>
         <div class="ev-metric">${metric.join('')}</div>
@@ -559,7 +578,7 @@ function renderEvents() {
   document.getElementById('evList').innerHTML = html || `<div style="padding:40px;text-align:center;color:#94a3b8;">无匹配对话</div>`;
 
   const pg = document.getElementById('pager');
-  pg.innerHTML = runs.length ? `
+  pg.innerHTML = (!solo && runs.length) ? `
     <span class="pg-info">共 ${runs.length} 轮对话 · 第 ${curPage}/${totalPages} 页</span>
     <span class="pg-btn ${curPage<=1?'disabled':''}" onclick="gotoPage(${curPage-1})">上一页</span>
     <span class="pg-btn ${curPage>=totalPages?'disabled':''}" onclick="gotoPage(${curPage+1})">下一页</span>` : '';
@@ -611,7 +630,7 @@ function renderDrawerBody() {
     box.innerHTML = `<div class="sub-ev"><div class="se-h">${e.type==='err'?'error':(e.type==='user'?'user.message':'agent.message')}<span class="cp" onclick="toast('已复制')">⧉</span></div>${e.render}</div>`;
   }
 }
-function closeDrawer() { document.getElementById('drawer').classList.remove('show'); curEvIdx = -1; renderEvents(); }
+function closeDrawer() { document.getElementById('drawer').classList.remove('show'); curEvIdx = -1; soloRunIdx = null; renderEvents(); }
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 let tt;

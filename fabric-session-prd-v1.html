@@ -293,7 +293,9 @@
       <li><b>视图切换</b>：<span class="tag cyan">渲染</span>（友好排版，如 Markdown 表格）/ <span class="tag gray">原始</span>（raw payload）/ <span class="tag gray">Deltas</span>（流式增量，模型输出类事件适用）</li>
       <li><b>调用工具</b>类：分区展示 <code>agent.tool_use</code>（输入查询）与 <code>agent.tool_result</code>（返回结果，含来源链接、可跳转），每段可复制</li>
       <li><b>模型输出</b>类：展示渲染后的完整回答；<b>报错</b>类：展示错误码、消息、堆栈；<b>知识检索</b>类：展示命中片段与来源</li>
+      <li><b>「定位记录」按钮</b>（抽屉右上角，视图切换旁）：点击后<b>锚定左侧事件流</b>——① 左侧<b>取消所有筛选</b>（事件类型 / 关键字 / 邮箱 / 时间均不生效）；② 只展示<b>当前事件所在这一通 run 的完整记录</b>（含被筛掉的事件，保证排障时上下文不缺失）；③ 自动滚动到该事件并<b>高亮</b>；④ 顶部出现提示条与「<b>返回全部记录</b>」入口，点击后恢复原筛选与分页状态。关闭抽屉亦自动退出定位态。</li>
     </ul>
+    <p><b>设计意图</b>：筛选态下左侧只剩零散事件行，用户看某条详情时容易丢失上下文；「定位记录」提供一键从「筛选视图」切到「完整轨迹视图」的能力，形态参考同类 Agent 观测台的 trace 锚点交互。</p>
     <div class="two">
       <div class="ev-wrap">
         <div class="ev-topbar"><span class="ev-pill">Tool · 网络搜索</span><span style="margin-left:auto"></span><span class="ev-pill">渲染</span><span class="ev-pill">原始</span></div>
