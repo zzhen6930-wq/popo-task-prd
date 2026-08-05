@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+()f<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -735,11 +735,15 @@ function renderGroups(){
 
 /* ===== 用量统计 ===== */
 let curSeries=[];
+function rangeText(days){
+  const end=new Date(END); const start=new Date(END); start.setDate(END.getDate()-(days-1));
+  return `${fmtY(start)} 至 ${fmtY(end)}`;
+}
 function onRangeChange(){
   const v=document.getElementById('rangeSel').value;
   if(v==='custom'){ openDate(); return; }
   rangeDays = v==='7d' ? 7 : 31;
-  document.getElementById('rangeLabel').textContent = v==='7d' ? "近 7 天" : "本月（7/1 - 7/29）";
+  document.getElementById('rangeLabel').textContent = rangeText(rangeDays);
   renderUsage();
 }
 function renderUsage(){
@@ -987,7 +991,7 @@ function applyCal(){
   if(!selEnd) selEnd=selStart;
   const days=Math.round((selEnd-selStart)/86400000)+1;
   customStart=selStart; customEnd=selEnd; rangeDays=days;
-  document.getElementById('rangeLabel').textContent=`${fmtY(selStart)} 至 ${fmtY(selEnd)}（${days} 天）`;
+  document.getElementById('rangeLabel').textContent=`${fmtY(selStart)} 至 ${fmtY(selEnd)}`;
   document.getElementById('dateOverlay').classList.remove('on');
   renderUsage();
 }
@@ -1004,7 +1008,7 @@ document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id=
 
 /* init */
 /* init */
-document.getElementById('rangeLabel').textContent="近 7 天";
+document.getElementById('rangeLabel').textContent=rangeText(7);
 renderList(); renderGroups(); renderUsage();
 </script>
 </body>
