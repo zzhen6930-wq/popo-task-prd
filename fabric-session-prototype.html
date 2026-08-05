@@ -83,14 +83,16 @@
   .det-reset { cursor: pointer; font-size: 12.5px; color: #475569; border: 1px solid #d1d5db; background: #fff; border-radius: 8px; padding: 6px 16px; display: inline-block; }
   .det-reset:hover { border-color: #6366f1; color: #6366f1; }
   .sel-wrap { position: relative; }
-  .sel-input { width: 220px !important; padding-right: 24px !important; }
+  .sel-input { width: 220px !important; padding-right: 24px !important; -webkit-appearance: none; appearance: none; }
+  .sel-input::-webkit-search-decoration, .sel-input::-webkit-search-cancel-button,
+  .sel-input::-webkit-search-results-button, .sel-input::-webkit-search-results-decoration { display: none; -webkit-appearance: none; }
   .sel-caret { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 10px; cursor: pointer; }
-  .sel-pop { display: none; position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; width: 100%; max-height: 210px; overflow: auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.12); padding: 4px; }
+  .sel-pop { display: none; position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: 340px; max-height: 210px; overflow: auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.12); padding: 4px; }
   .sel-pop.show { display: block; }
-  .sel-opt { padding: 7px 10px; font-size: 12.5px; color: #334155; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sel-opt { padding: 7px 10px; font-size: 12.5px; color: #334155; border-radius: 6px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 14px; }
   .sel-opt:hover { background: #f1f5f9; }
   .sel-opt.on { background: #eef2ff; color: #4f46e5; font-weight: 600; }
-  .sel-opt .cnt { float: right; color: #94a3b8; font-weight: 400; font-size: 11px; }
+  .sel-opt .cnt { margin-left: auto; color: #94a3b8; font-weight: 400; font-size: 11px; flex: none; }
   .sel-empty { padding: 10px; font-size: 12px; color: #94a3b8; text-align: center; }
   .run-block { border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; overflow: hidden; background: #fff; }
   .run-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid #eef2f7; flex-wrap: wrap; }
@@ -284,7 +286,7 @@
         <div class="det-filters">
           <div class="fitem"><label>用户邮箱</label>
             <div class="sel-wrap">
-              <input id="fEmail" class="sel-input" placeholder="全部参与人" autocomplete="off" onclick="openEmailDD(event)" oninput="onEmailInput(event)">
+              <input id="fParty" class="sel-input" name="det-party-9f2" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="全部参与人" onclick="openEmailDD(event)" oninput="onEmailInput(event)">
               <span class="sel-caret" onclick="openEmailDD(event)">▾</span>
               <div class="sel-pop" id="emailPop"></div>
             </div>
@@ -476,7 +478,7 @@ function exitSolo() { soloRunIdx = null; renderEvents(); }
 function openSession(key) {
   curSess = sessions[key]; curEvIdx = -1; curPage = 1;
   selTypes.clear();
-  ['fEmail','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['fParty','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   const rx = document.getElementById('fRangeX'); if (rx) rx.style.display = 'none';
   soloRunIdx = null;
   document.getElementById('listView').classList.add('hidden');
@@ -507,27 +509,29 @@ function sessEmails() {
   return [...map.entries()].sort((a, b) => b[1] - a[1]);
 }
 function renderEmailDD(q) {
-  const cur = (document.getElementById('fEmail').value || '').trim().toLowerCase();
+  const cur = (document.getElementById('fParty').value || '').trim().toLowerCase();
   const kw = (q || '').trim().toLowerCase();
-  const list = sessEmails().filter(([m]) => !kw || m.toLowerCase().includes(kw));
+  const all = sessEmails();
+  const list = all.filter(([m]) => !kw || m.toLowerCase().includes(kw));
   const pop = document.getElementById('emailPop');
   pop.innerHTML = list.length
-    ? `<div class="sel-opt ${cur===''?'on':''}" onclick="pickEmail(event,'')">全部参与人<span class="cnt">${sessEmails().length} 人</span></div>`
-      + list.map(([m, c]) => `<div class="sel-opt ${cur===m.toLowerCase()?'on':''}" onclick="pickEmail(event,'${m}')">${m}<span class="cnt">${c} 条</span></div>`).join('')
+    ? `<div class="sel-opt ${cur===''?'on':''}" data-m="">全部参与人<span class="cnt">${all.length} 人</span></div>`
+      + list.map(([m, c]) => `<div class="sel-opt ${cur===m.toLowerCase()?'on':''}" data-m="${m}">${m}<span class="cnt">${c} 条</span></div>`).join('')
     : `<div class="sel-empty">无匹配参与人</div>`;
+  pop.querySelectorAll('.sel-opt').forEach(el => el.onclick = ev => pickEmail(ev, el.dataset.m));
 }
-function openEmailDD(e) { e.stopPropagation(); renderEmailDD(''); document.getElementById('emailPop').classList.add('show'); }
+function openEmailDD(e) { e.stopPropagation(); e.target.select && e.target.select(); renderEmailDD(''); document.getElementById('emailPop').classList.add('show'); }
 function onEmailInput(e) { renderEmailDD(e.target.value); document.getElementById('emailPop').classList.add('show'); onDetFilter(); }
 function pickEmail(e, m) {
   e.stopPropagation();
-  document.getElementById('fEmail').value = m;
+  document.getElementById('fParty').value = m;
   document.getElementById('emailPop').classList.remove('show');
   onDetFilter();
 }
 document.addEventListener('click', (e) => { if (!e.target.closest('.sel-wrap')) { const p = document.getElementById('emailPop'); if (p) p.classList.remove('show'); } });
 
 function resetDetFilters() {
-  ['fEmail','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['fParty','fKw','fFrom','fTo','fRange'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   const rx = document.getElementById('fRangeX'); if (rx) rx.style.display = 'none';
   selTypes.clear(); renderFilters();
   curPage = 1; soloRunIdx = null; renderEvents();
@@ -580,7 +584,7 @@ function runText(r) {
   return (runEmails(r) + ' ' + r.events.map(e => (e.sum||'') + ' ' + (e.lbl||'')).join(' ')).toLowerCase();
 }
 function filteredRuns() {
-  const email = (document.getElementById('fEmail')?.value || '').trim().toLowerCase();
+  const email = (document.getElementById('fParty')?.value || '').trim().toLowerCase();
   const kw    = (document.getElementById('fKw')?.value || '').trim().toLowerCase();
   const from  = document.getElementById('fFrom')?.value || '';
   const to    = document.getElementById('fTo')?.value || '';
