@@ -92,7 +92,7 @@
       <li><b>无法排查问题</b>：Agent 回答不对 / 变慢 / 报错时，看不到中间发生了什么，只能靠猜</li>
       <li><b>无法度量成本与性能</b>：单次会话消耗多少 Token、每一步耗时多久，都无从统计</li>
       <li><b>无法定位瓶颈</b>：哪一步工具慢、哪次检索没命中、哪里报错重试，没有抓手</li>
-      <li><b>渠道来源不清</b>：无法区分会话来自 POPO-私聊、POPO-群聊、Workhub 还是 SDK，难做分渠道分析</li>
+      <li><b>渠道来源不清</b>：无法区分会话来自 POPO-单聊、POPO-群聊、Workhub 还是 SDK，难做分渠道分析</li>
     </ul>
     <p style="margin-top:10px;"><b>本期目标</b>：升级会话管理的<b>数据采集与可视化</b>——将<b>模型思考、调用工具、Skills、MCP、知识检索、模型输出、系统信息、报错信息</b>等过程事件<b>结构化记录并回放</b>，并在每个事件上标注<b>消耗 Token、耗时、开始时间</b>；列表页补齐<b>应用场景</b>、<b>来源</b>与<b>消耗 Token</b>。参考同类 Agent 观测台（Trace / Timeline）的事件流交互形态（见参考图 1/2/3）。</p>
     <div class="callout key">
@@ -109,10 +109,10 @@
       <tbody>
         <tr><td><b>会话（Session / Conversation）</b></td><td><b>持久聊天线程</b>：一个用户（或一个群）与某个智能体的完整对话，拥有唯一 <code>conversation_id</code>；由若干轮消息构成，用户可随时回到同一会话继续对话。<b>列表页一行 = 一条会话线程</b>（非一次运行）</td></tr>
         <tr><td><b>运行（Run / 一轮）</b></td><td>会话内 Agent 处理<b>一轮请求</b>的执行实例：用户发起 → 思考 / 调用工具 / 检索 → 产出结果。run <b>不作为列表主粒度</b>，在详情页事件流中作为线程内的分段呈现</td></tr>
-        <tr><td><b>会话状态（Status）</b></td><td>线程维度状态，本期枚举：<b>进行中</b>（当前有一轮 run 正在执行）/ <b>空闲</b>（等待用户下一句，线程存活可续聊）/ <b>已关闭</b>（用户主动结束或超时归档，不可再续）/ <b>异常</b>（最近一轮 run 失败，需排查）</td></tr>
+        <tr><td><b>更新时间（Updated At）</b></td><td>该会话<b>最近一条消息的发送时间</b>（用户发言或 Agent 回复取较晚者）；列表默认按该字段<b>倒序</b>排列，最近有互动的会话置顶</td></tr>
         <tr><td><b>事件（Event）</b></td><td>会话内一次可被记录的最小过程单元，拥有唯一 <code>event_id</code>（如 <code>sevt_…</code>），带类型、开始时间、耗时、Token 等元数据</td></tr>
         <tr><td><b>事件类型（Event Type）</b></td><td>见第 4 节：用户输入 / 模型思考 / 调用工具 / Skills / MCP / 知识检索 / 模型输出 / 系统信息 / 报错信息</td></tr>
-        <tr><td><b>应用场景（Channel）</b></td><td>会话的产生来源，本期枚举：<span class="tag purple">POPO-私聊</span><span class="tag blue">POPO-群聊</span><span class="tag cyan">Workhub</span><span class="tag green">SDK</span></td></tr>
+        <tr><td><b>应用场景（Channel）</b></td><td>会话的产生来源，本期枚举：<span class="tag purple">POPO-单聊</span><span class="tag blue">POPO-群聊</span><span class="tag cyan">Workhub</span><span class="tag green">SDK</span></td></tr>
         <tr><td><b>来源（Source）</b></td><td>会话产生的上游系统，本期枚举：Agenthub / Workhub Studio / Claude Code / OpenClaw / CodeX / Hermes</td></tr>
         <tr><td><b>消耗 Token</b></td><td>事件级：该事件的 <b>输入 Token / 输出 Token</b>（如 <code>5.6k / 69</code>）；会话级：全部事件累计的<b>总 Token</b></td></tr>
         <tr><td><b>耗时（Duration）</b></td><td>单个事件从开始到结束的时长（毫秒 / 秒）；会话级为总时长</td></tr>
@@ -187,19 +187,19 @@
         <tr><td>会话 ID</td><td><span class="tag gray">保留</span></td><td><code>conversation_id</code>，点击进详情</td></tr>
         <tr><td>智能体</td><td><span class="tag gray">保留</span></td><td>关联智能体名称</td></tr>
         <tr><td><b>来源</b></td><td><span class="tag green">新增</span></td><td>会话上游来源：Agenthub / Workhub Studio / Claude Code / OpenClaw / CodeX / Hermes；支持作为筛选项</td></tr>
-        <tr><td><b>应用场景</b></td><td><span class="tag green">新增</span></td><td>会话入口：<span class="tag purple">POPO-私聊</span> / <span class="tag blue">POPO-群聊</span> / <span class="tag cyan">Workhub</span> / <span class="tag green">SDK</span>；支持作为筛选项</td></tr>
+        <tr><td><b>应用场景</b></td><td><span class="tag green">新增</span></td><td>会话入口：<span class="tag purple">POPO-单聊</span> / <span class="tag blue">POPO-群聊</span> / <span class="tag cyan">Workhub</span> / <span class="tag green">SDK</span>；支持作为筛选项</td></tr>
         <tr><td><b>用户邮箱</b></td><td><span class="tag green">调整</span></td><td>原「用户」字段改为具体<b>用户邮箱</b>，支持搜索；<b>应用场景 = POPO-群聊时展示「-」</b></td></tr>
-        <tr><td><b>群 ID</b></td><td><span class="tag green">新增</span></td><td>群会话所属群标识；<b>应用场景 = POPO-私聊时展示「-」</b>；非 POPO 场景（Workhub / SDK）无群概念，展示「-」；支持作为搜索项</td></tr>
+        <tr><td><b>群 ID</b></td><td><span class="tag green">新增</span></td><td>群会话所属群标识；<b>应用场景 = POPO-单聊时展示「-」</b>；非 POPO 场景（Workhub / SDK）无群概念，展示「-」；支持作为搜索项</td></tr>
         <tr><td>消息数</td><td><span class="tag gray">保留</span></td><td>该会话消息条数</td></tr>
         <tr><td><b>消耗 Token</b></td><td><span class="tag green">新增</span></td><td>该会话<b>累计总 Token</b>（建议展示总量，hover 可看 输入/输出 拆分）</td></tr>
-        <tr><td>状态</td><td><span class="tag green">调整</span></td><td>会话（线程）状态：<b>进行中</b>（当前有一轮 run 正在执行）/ <b>空闲</b>（等待用户下一句，线程存活可续聊）/ <b>已关闭</b>（用户主动结束或超时归档，不可再续）/ <b>异常</b>（最近一轮 run 失败，需排查）</td></tr>
-        <tr><td>创建时间</td><td><span class="tag gray">保留</span></td><td>同现状；<b>本期去掉「响应时长」列</b></td></tr>
+        <tr><td><b>更新时间</b></td><td><span class="tag green">新增</span></td><td>该会话<b>最近一条消息发送时间</b>；<b>列表默认按此字段倒序排列</b>。本期<b>去掉「状态」列</b>——会话为持久线程，可随时被续聊，不存在稳定的终态，标注状态易误导</td></tr>
+        <tr><td>创建时间</td><td><span class="tag gray">保留</span></td><td>同现状；<b>本期去掉「响应时长」与「状态」列</b></td></tr>
         <tr><td>操作</td><td><span class="tag gray">保留</span></td><td>查看详情</td></tr>
       </tbody>
     </table>
 
     <h3>5.2 筛选区</h3>
-    <p>筛选项（依次）：<b>智能体</b>（输入框，输入智能体名称）/ <b>群 ID</b>（输入框）/ <b>来源</b>（下拉：全部 / Agenthub / Workhub Studio / Claude Code / OpenClaw / CodeX / Hermes）/ <b>应用场景</b>（下拉：全部 / POPO-私聊 / POPO-群聊 / Workhub / SDK）/ <b>用户</b> / <b>会话 ID</b> / <b>开始时间</b> / <b>结束时间</b>。本期<b>不提供</b>刷新、重置与导出。</p>
+    <p>筛选项（依次）：<b>智能体</b>（输入框，输入智能体名称）/ <b>群 ID</b>（输入框）/ <b>来源</b>（下拉：全部 / Agenthub / Workhub Studio / Claude Code / OpenClaw / CodeX / Hermes）/ <b>应用场景</b>（下拉：全部 / POPO-单聊 / POPO-群聊 / Workhub / SDK）/ <b>用户</b> / <b>会话 ID</b> / <b>开始时间</b> / <b>结束时间</b>。本期<b>不提供</b>刷新、重置与导出。</p>
   </div>
 
   <!-- 6 详情页 -->
@@ -212,7 +212,7 @@
     <table>
       <thead><tr><th style="width:26%">元素</th><th style="width:14%">变化</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>智能体名称 + 状态</td><td><span class="tag gray">保留</span></td><td>标题行，状态见 5.1 线程状态枚举</td></tr>
+        <tr><td>智能体名称</td><td><span class="tag gray">保留</span></td><td>标题行；<b>不展示会话状态</b>（持久线程无终态）</td></tr>
         <tr><td>总消耗 Token</td><td><span class="tag gray">保留</span></td><td>该会话累计总量（输入 / 输出）</td></tr>
         <tr><td>上次对话时间</td><td><span class="tag gray">保留</span></td><td>相对时间，如「15 小时前」</td></tr>
         <tr><td>总耗时</td><td><span class="tag red">去掉</span></td><td>持久线程累计耗时无意义，改为<b>每轮 run 各自的耗时</b></td></tr>
@@ -234,8 +234,7 @@
     <div class="ev-wrap">
       <div class="ev-topbar">
         <span class="ev-pill"><b>深度研究员</b></span>
-        <span class="ev-pill">已关闭</span>
-        <span style="margin-left:auto"></span>
+                <span style="margin-left:auto"></span>
         <span class="ev-pill">🎫 171.7k</span>
         <span class="ev-pill">🕐 上次对话 15小时前</span>
       </div>
@@ -251,7 +250,7 @@
     <h3>6.2 事件流列表（按 run 分组）</h3>
     <p>会话为持久线程，内部由多通 <b>run（一轮对话）</b>构成。事件流<b>按 run 分块展示</b>，避免长列表平铺看不出轮次边界。</p>
     <ul>
-      <li><b>run 块头</b>展示该轮汇总：<b>开始时间 · 本轮耗时 · 本轮消耗 Token（总消耗）· 本轮结果（成功 / 失败）</b>。<b>不展示「第 N 轮」与单个用户邮箱</b>——群场景一轮 run 可能由多人发言合并触发，单一邮箱无法准确表达。</li>
+      <li><b>run 块头</b>展示该轮汇总：<b>开始时间 · 本轮耗时 · 本轮消耗 Token（总消耗）</b>（<b>不展示成功 / 失败状态</b>）。<b>不展示「第 N 轮」与单个用户邮箱</b>——群场景一轮 run 可能由多人发言合并触发，单一邮箱无法准确表达。</li>
       <li><b>run 内事件</b>按时间线逐行展示：左侧<b>角色标签</b>，中间<b>内容摘要</b>，右侧 <b>Token（总消耗）· 耗时 · 相对时间</b>。</li>
       <li><b>发言人下沉到事件行</b>：「用户」类事件的角色标签展示为 <b>用户：&lt;用户邮箱&gt;</b>，从而在一轮 run 中清晰表达<b>有几个用户参与、分别在什么时间参与</b>（IM 群场景多人输入合并为一个问题时尤其必要）；私聊场景形态一致，仅为单一邮箱。</li>
       <li><b>Token 口径</b>：本期<b>不再区分输入 / 输出</b>，统一展示<b>总消耗</b>（= 输入 + 输出）。会话顶部展示<b>整条会话总消耗</b>，run 块头展示<b>本轮总消耗</b>，事件行展示<b>该步骤总消耗</b>。</li>
@@ -261,12 +260,12 @@
     </ul>
     <p>示意（对应参考图 1）：</p>
     <div class="ev-wrap">
-      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:44:56</span><span class="ev-pill">⏱ 20.1s</span><span class="ev-pill">🎫 21.5k</span><span class="ev-pill">成功</span></div>
+      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:44:56</span><span class="ev-pill">⏱ 20.1s</span><span class="ev-pill">🎫 21.5k</span></div>
       <div class="ev-row"><span class="ev-role user">用户：hzdingyuqing@corp.netease.com</span><span class="ev-body">明日杭州天气</span><span class="ev-metric"><span>0:00:09</span></span></div>
       <div class="ev-row"><span class="ev-role tool">工具</span><span class="ev-body">网页搜索<span class="lbl">杭州明日天气预报 2026-07-23</span></span><span class="ev-metric"><span>🎫 5.67k</span><span>⏱ 827ms</span><span>0:00:11</span></span></div>
       <div class="ev-row"><span class="ev-role agent">Agent</span><span class="ev-body">根据最新天气预报数据，以下是明天（7/23，周四）杭州的天气情况…</span><span class="ev-metric"><span>🎫 12.6k</span><span>0:00:20</span></span></div>
       <div class="ev-idle">会话空闲 · 31.6 秒</div>
-      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:45:28</span><span class="ev-pill">⏱ 42.3s</span><span class="ev-pill">🎫 45k</span><span class="ev-pill">失败</span></div>
+      <div class="ev-topbar"><span style="margin-left:auto"></span><span class="ev-pill">🕐 2026-07-23 11:45:28</span><span class="ev-pill">⏱ 42.3s</span><span class="ev-pill">🎫 45k</span></div>
       <div class="ev-row"><span class="ev-role user">用户：hzdingyuqing@corp.netease.com</span><span class="ev-body">根据这个天气情况，适合去北京游玩吗？</span><span class="ev-metric"><span>0:00:52</span></span></div>
       <div class="ev-row"><span class="ev-role user">用户：sangchen@corp.netease.com</span><span class="ev-body">顺便看下北京当天有没有雷雨</span><span class="ev-metric"><span>0:00:54</span></span></div>
       <div class="ev-row"><span class="ev-role know">知识</span><span class="ev-body">知识检索<span class="lbl">北京 7/23 天气 · 命中 3 条</span></span><span class="ev-metric"><span>🎫 15.6k</span><span>⏱ 886ms</span><span>0:00:57</span></span></div>
@@ -337,7 +336,7 @@
     <div class="section-title"><span class="num">8</span>数据采集要求（研发对齐）</div>
     <ul>
       <li><b>全过程落库</b>：运行时把 9 类事件按发生顺序写入会话事件表，字段含 <code>event_id</code> / <code>conversation_id</code> / <code>type</code> / <code>role</code> / <code>start_offset</code> / <code>duration</code> / <code>token_in</code> / <code>token_out</code> / <code>payload</code>。</li>
-      <li><b>渠道标记</b>：会话创建时写入 <code>channel</code>（POPO-私聊 / POPO-群聊 / Workhub / SDK）与 <code>group_id</code>（仅群聊场景），供列表列与筛选使用。</li>
+      <li><b>渠道标记</b>：会话创建时写入 <code>channel</code>（POPO-单聊 / POPO-群聊 / Workhub / SDK）与 <code>group_id</code>（仅群聊场景），供列表列与筛选使用。</li>
       <li><b>成对记录</b>：工具 / MCP / Skills 的调用与返回成对入库并可关联为同一事件组。</li>
       <li><b>报错不吞没</b>：任何阶段异常都单独记为 <code>error</code> 事件，保留错误码与原始返回。</li>
       <li><b>原始可回放</b>：payload 同时保留 <b>渲染所需结构</b> 与 <b>raw 原文</b>，支撑抽屉「渲染 / 原始 / Deltas」切换。</li>
@@ -364,7 +363,7 @@
           <li>不改会话的运行 / 调度机制本身</li>
           <li>不做跨会话的聚合报表 / 成本看板（后续）</li>
           <li>不做实时告警 / 异常自动通知（后续）</li>
-          <li>应用场景枚举本期仅 POPO-私聊 / POPO-群聊 / Workhub / SDK</li>
+          <li>应用场景枚举本期仅 POPO-单聊 / POPO-群聊 / Workhub / SDK</li>
         </ul>
       </div>
     </div>

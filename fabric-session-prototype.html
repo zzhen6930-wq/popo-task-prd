@@ -244,7 +244,7 @@
         <div class="fitem"><label>智能体</label><input placeholder="请输入智能体名称"></div>
         <div class="fitem"><label>群 ID</label><input placeholder="群 ID"></div>
         <div class="fitem"><label>来源</label><select><option>全部来源</option><option>Agenthub</option><option>Workhub Studio</option><option>Claude Code</option><option>OpenClaw</option><option>CodeX</option><option>Hermes</option></select></div>
-        <div class="fitem"><label>应用场景</label><select><option>全部场景</option><option>POPO-私聊</option><option>POPO-群聊</option><option>Workhub</option><option>SDK</option></select></div>
+        <div class="fitem"><label>应用场景</label><select><option>全部场景</option><option>POPO-单聊</option><option>POPO-群聊</option><option>Workhub</option><option>SDK</option></select></div>
         <div class="fitem"><label>用户邮箱</label><input placeholder="请输入用户邮箱"></div>
         <div class="fitem"><label>会话 ID</label><input placeholder="精确匹配"></div>
         <div class="fitem"><label>开始时间</label><input value="2026-07-23 00:00:00"></div>
@@ -263,8 +263,8 @@
               <th>群 ID</th>
               <th>消息数</th>
               <th>消耗 Token</th>
-              <th>状态</th>
               <th>创建时间</th>
+              <th>更新时间</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -280,7 +280,6 @@
       <div class="det-top">
         <div class="det-title">
           <h2 id="dTitle"></h2>
-          <span class="st" id="dSt"></span>
           <div class="det-metas" id="dMetas"></div>
         </div>
         <div class="det-filters">
@@ -420,28 +419,28 @@ const itRuns = [
 ];
 
 const sessions = {
-  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", groupId: "", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", status: "已关闭", created: "2026-07-23 11:44:56", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", runs: weatherRuns },
-  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "POPO-群聊", user: "sangchen@corp.netease.com", groupId: "1008932211", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", status: "进行中", created: "2026-07-23 11:44:36", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", runs: itRuns }
+  s1: { id: "a2a7149d-dc00-4c6b-bf55-47424334b48c", title: "测试对话", bot: "深度研究员", source: "Workhub Studio", channel: "Workhub", user: "hzdingyuqing@corp.netease.com", groupId: "", msgs: 6, token: "167k / 4.7k", tokenTotal: "171.7k", created: "2026-07-23 11:44:56", updated: "2026-07-23 12:06:21", dur: "2分59秒", env: "事件指挥官环境", kb: "事件指挥官资料库", ago: "15小时前", runs: weatherRuns },
+  s2: { id: "138b31df-9a35-4a71-ace8-315310994", title: "IT 合规咨询", bot: "Echo Agent-IT服务中心", source: "Agenthub", channel: "POPO-群聊", user: "sangchen@corp.netease.com", groupId: "1008932211", msgs: 2, token: "17.5k / 0.8k", tokenTotal: "18.3k", created: "2026-07-23 11:44:36", updated: "2026-07-24 09:41:08", dur: "0分25秒", env: "IT 服务环境", kb: "IT 知识库", ago: "16小时前", runs: itRuns }
 };
 const listRows = [
   { key: "s1" },
   { key: "s2" },
-  { s: { id: "7a95efec-d709-44f4-a8db-73069b8800cc", title: "报销政策问答", bot: "Echo Agent-服务中心", source: "Claude Code", channel: "SDK", user: "pb.chak@mesg.corp.netease.com", groupId: "", msgs: 4, tokenTotal: "22.1k", status: "空闲", created: "2026-07-23 11:44:03", dur: "0分19秒" }, ref: "s2" },
-  { s: { id: "d3920a22-f9ff-407b-9b2c-b50f29c64505", title: "周报生成", bot: "深度研究员", source: "Hermes", channel: "Workhub", user: "wangzimingzhang01@corp.netease.com", groupId: "", msgs: 8, tokenTotal: "88.4k", status: "异常", created: "2026-07-23 11:43:29", dur: "0分20秒" }, ref: "s1" },
-  { s: { id: "b441fbfa-58c2-4097-8b4a-a0a1e8272365", title: "合同要点提取", bot: "Echo Agent-法务系统", source: "CodeX", channel: "POPO-私聊", user: "zhaoxiaoshuai@corp.netease.com", groupId: "1007766540", msgs: 2, tokenTotal: "12.6k", status: "进行中", created: "2026-07-23 11:43:17", dur: "0分22秒" }, ref: "s2" }
+  { s: { id: "7a95efec-d709-44f4-a8db-73069b8800cc", title: "报销政策问答", bot: "Echo Agent-服务中心", source: "Claude Code", channel: "SDK", user: "pb.chak@mesg.corp.netease.com", groupId: "", msgs: 4, tokenTotal: "22.1k", created: "2026-07-23 11:44:03", updated: "2026-07-23 18:52:37", dur: "0分19秒" }, ref: "s2" },
+  { s: { id: "d3920a22-f9ff-407b-9b2c-b50f29c64505", title: "周报生成", bot: "深度研究员", source: "Hermes", channel: "Workhub", user: "wangzimingzhang01@corp.netease.com", groupId: "", msgs: 8, tokenTotal: "88.4k", created: "2026-07-23 11:43:29", updated: "2026-07-24 10:15:44", dur: "0分20秒" }, ref: "s1" },
+  { s: { id: "b441fbfa-58c2-4097-8b4a-a0a1e8272365", title: "合同要点提取", bot: "Echo Agent-法务系统", source: "CodeX", channel: "POPO-单聊", user: "zhaoxiaoshuai@corp.netease.com", groupId: "1007766540", msgs: 2, tokenTotal: "12.6k", created: "2026-07-23 11:43:17", updated: "2026-07-23 14:03:12", dur: "0分22秒" }, ref: "s2" }
 ];
 
 // ============ 列表 ============
 function channelChip(c) {
-  const map = { "POPO-私聊":"purple", "POPO-群聊":"blue", "Workhub":"cyan", "SDK":"green" };
+  const map = { "POPO-单聊":"purple", "POPO-群聊":"blue", "Workhub":"cyan", "SDK":"green" };
   return `<span class="chip ${map[c]||'gray'}">${c}</span>`;
 }
-function statusChip(st) {
-  const map = { "进行中":"green", "空闲":"cyan", "已关闭":"gray", "异常":"red" };
-  return `<span class="chip ${map[st]||'gray'}">${st}</span>`;
-}
 function renderList() {
-  document.getElementById('sessBody').innerHTML = listRows.map(r => {
+  const rows = [...listRows].sort((a, b) => {
+    const sa = a.key ? sessions[a.key] : a.s, sb = b.key ? sessions[b.key] : b.s;
+    return sb.updated.localeCompare(sa.updated);
+  });
+  document.getElementById('sessBody').innerHTML = rows.map(r => {
     const s = r.key ? sessions[r.key] : r.s;
     const openKey = r.key || r.ref;
     return `<tr>
@@ -450,11 +449,11 @@ function renderList() {
       <td>${s.source}</td>
       <td>${channelChip(s.channel)}</td>
       <td>${s.channel==='POPO-群聊' ? '-' : s.user}</td>
-      <td>${s.channel==='POPO-私聊' ? '-' : (s.groupId || '-')}</td>
+      <td>${s.channel==='POPO-单聊' ? '-' : (s.groupId || '-')}</td>
       <td>${s.msgs}</td>
       <td class="tk">${s.tokenTotal}</td>
-      <td>${statusChip(s.status)}</td>
       <td style="color:#64748b;">${s.created}</td>
+      <td style="color:#64748b;">${s.updated}</td>
       <td><span class="link" onclick="openSession('${openKey}')">查看详情</span></td>
     </tr>`;
   }).join('');
@@ -485,7 +484,6 @@ function openSession(key) {
   document.getElementById('detailView').classList.remove('hidden');
   const s = curSess;
   document.getElementById('dTitle').textContent = s.bot;
-  document.getElementById('dSt').textContent = s.status;
   document.getElementById('dMetas').innerHTML =
     `<span class="metapill">🎫 总消耗 ${s.tokenTotal}</span><span class="metapill">🕐 上次对话 ${s.ago}</span>`;
   renderFilters();
@@ -617,7 +615,6 @@ function renderEvents() {
           <span>🕐 ${r.start}</span>
           <span>⏱ ${r.dur}</span>
           <span class="mtk">🎫 ${r.tk}</span>
-          <span class="chip ${r.ok?'green':'red'}">${r.ok?'成功':'失败'}</span>
         </div>
       </div>`;
     r.events.forEach((e, ei) => {
