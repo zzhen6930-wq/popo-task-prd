@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用量概览 · 方案A（卡片内嵌场景条）</title>
+<style>
+  :root{ --ink:#0f172a; --sub:#475569; --mut:#94a3b8; --line:#e5e7eb; --line-2:#f1f5f9; --indigo:#4f46e5; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#f1f5f9; color:var(--ink); padding:32px; }
+  .wrap{ max-width:1180px; margin:0 auto; }
+  .badge{ font-size:12px; color:var(--mut); }
+  h1{ font-size:20px; margin:4px 0 20px; }
+  .sec-t{ font-size:15px; font-weight:700; margin-bottom:12px; }
+  .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+  .c-head{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .c-lb{ font-size:12.5px; color:var(--mut); }
+  .c-vl{ font-size:26px; font-weight:800; color:var(--ink); margin-top:6px; }
+  .mom{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:3px; }
+  .mom.up{ color:#e11d48; } .mom.down{ color:#059669; }
+  .divider{ height:1px; background:var(--line-2); margin:14px 0 10px; }
+  .sc-row{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12.5px; }
+  .sc-dot{ width:9px; height:9px; border-radius:2px; flex:none; }
+  .sc-nm{ color:var(--sub); flex:1; }
+  .sc-v{ font-weight:700; color:var(--ink); }
+  .sc-p{ color:var(--mut); width:38px; text-align:right; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">WorkHub Studio · 用量管理原型（方案预览）</div>
+  <h1>方案 A · 卡片内嵌场景条</h1>
+  <div class="sec-t">用量概览</div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const SCENES=[
+  { name:"Workhub", color:"#06b6d4", frac:0.34 },
+  { name:"POPO-单聊", color:"#f59e0b", frac:0.28 },
+  { name:"POPO-群聊", color:"#22c55e", frac:0.22 },
+  { name:"SDK", color:"#ec4899", frac:0.16 }
+];
+const kfmt=n=> n>=1000?(n/1000).toFixed(1)+"K":String(n);
+const cards=[
+  { lb:"总 Token 用量", total:128600, fmt:kfmt, mom:{up:true,pct:"3.2%"} },
+  { lb:"总消息数", total:1860, fmt:x=>x, mom:{up:true,pct:"6.4%"} },
+  { lb:"总对话数", total:3350, fmt:x=>x, mom:{up:false,pct:"1.9%"} },
+  { lb:"用户数", total:23, fmt:x=>x, mom:{up:true,pct:"4.5%"} }
+];
+document.getElementById('grid').innerHTML=cards.map(c=>{
+  const rows=SCENES.map(s=>{
+    const v=Math.round(c.total*s.frac);
+    return `<div class="sc-row">
+      <span class="sc-dot" style="background:${s.color}"></span>
+      <span class="sc-nm">${s.name}</span>
+      <span class="sc-v">${c.fmt(v)}</span>
+      <span class="sc-p">${(s.frac*100).toFixed(0)}%</span>
+    </div>`;
+  }).join("");
+  const arw=c.mom.up?'▲':'▼';
+  return `<div class="card">
+    <div class="c-head">
+      <div><div class="c-lb">${c.lb}</div><div class="c-vl">${c.fmt(c.total)}</div></div>
+      <span class="mom ${c.mom.up?'up':'down'}">${arw} ${c.mom.pct}</span>
+    </div>
+    <div class="divider"></div>
+    ${rows}
+  </div>`;
+}).join("");
+</script>
+</body>
+</html>
