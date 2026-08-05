@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio 超管后台 · 用量统计 · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1120px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; flex-wrap: wrap; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #6366f1; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 18px 0 8px; padding-left: 10px; border-left: 3px solid #6366f1; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th { background: #f8fafc; text-align: left; font-weight: 700; color: #334155; padding: 10px 12px; border: 1px solid #e5e7eb; }
+  td { padding: 10px 12px; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 5px; font-size: 12.5px; color: #4338ca; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 12px 0; font-size: 13.5px; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; }
+  .callout.key { background: #eef2ff; border-left: 4px solid #6366f1; color: #3730a3; }
+  .callout.tip { background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; }
+  .callout.warn { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+  .scope-card h4 { font-size: 14px; margin-bottom: 8px; }
+  .scope-card.do { background: #f0fdf4; border-color: #bbf7d0; }
+  .scope-card.dont { background: #fef2f2; border-color: #fecaca; }
+  .scope-card ul { font-size: 13px; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12.5px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>WorkHub Studio 超管后台 · 用量统计</h1>
+    <div style="opacity:0.92;font-size:13px;">在超管后台新增「用量统计」菜单，从<b>平台 / 租户</b>视角查看用量。与租户平台「Agent 管理 - 用量」页最大区别：<b>统计维度不是单个 Agent，而是某租户下全部 Agent 的汇总</b>。</div>
+    <div class="meta">
+      <span>📅 2026-08-05</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：Workhub Studio Admin</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与目标</div>
+    <p>租户平台的用量页只能看<b>单个 Agent</b> 的消耗，超管缺少平台侧的整体视角：某租户一共用了多少 Token、集中在哪些场景、趋势如何、谁是高消耗用户。</p>
+    <p>本期在超管后台新增「用量统计」菜单（位置：MCP 管理下方），提供<b>按租户汇总</b>的用量视图，用于平台侧的成本观测与资源分配决策。</p>
+    <div class="callout key"><div class="title">🔑 一句话定位</div>同一套用量指标与口径，<b>换一个统计主体</b>：从「一个 Agent」升到「一个租户 / 全平台的所有 Agent」。<b>具体交互详见原型。</b></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>与租户平台「Agent 管理 - 用量」的区别</div>
+    <p>两者复用同一套指标口径与图表逻辑，差异集中在<b>统计主体、筛选维度、模块取舍</b>三点：</p>
+    <table>
+      <thead><tr><th style="width:20%">对比项</th><th style="width:38%">租户平台 · Agent 详情-用量</th><th>超管后台 · 用量统计</th></tr></thead>
+      <tbody>
+        <tr><td><b>统计主体</b></td><td><b>单个 Agent</b> 的用量</td><td><b>某租户下全部 Agent 的汇总</b>（默认全部租户 = 全平台汇总）</td></tr>
+        <tr><td><b>使用者</b></td><td>Agent 拥有者 / 租户管理员</td><td>平台超管</td></tr>
+        <tr><td><b>页面入口</b></td><td>Agent 详情页「用量」Tab</td><td>超管后台左侧菜单「用量统计」（MCP 管理下方）</td></tr>
+        <tr><td><b>页面顶部</b></td><td>展示 Agent 信息（名称 / 来源 / 拥有者）+ Tab</td><td><b>不展示任何 Agent 信息</b>，「用量概览」即页面第一行</td></tr>
+        <tr><td><b>筛选维度</b></td><td>仅时间范围</td><td>时间范围 + <b>租户筛选（默认全部租户）</b>，切换后全页联动</td></tr>
+        <tr><td><b>Token 扣除规则</b></td><td>有，可查看与修改（决定扣谁额度）</td><td><b>无此模块</b>（扣费规则属于单 Agent 配置，超管仅观测不配置）</td></tr>
+        <tr><td><b>用户用量明细</b></td><td>含「扣除归属」列</td><td>无「扣除归属」列，其余一致</td></tr>
+        <tr><td><b>指标口径</b></td><td colspan="2">完全一致：总 Token 用量 / 总会话数 / 总消息数 / 总用户数，差别只在统计范围（单 Agent vs 租户全部 Agent）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="title">⚠️ 口径注意</div><b>总用户数为去重值</b>：同一用户在该租户下使用了多个 Agent，只计 1 人，不做各 Agent 用户数的简单相加。会话 / 消息 / Token 则为各 Agent 求和。</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>页面构成</div>
+    <h3>3.1 用量概览</h3>
+    <p>页面第一行，右侧为<b>租户筛选</b>与<b>时间范围</b>（近 7 天 / 本月 / 自定义，默认近 7 天）。四项指标各展示总量、<b>按应用场景拆解</b>（Workhub / POPO-单聊 / POPO-群聊 / SDK 及占比）与<b>环比</b>（绝对值 + 百分比，对比上一等长周期）。</p>
+    <table>
+      <thead><tr><th style="width:22%">指标</th><th>口径（统计范围 = 所选租户下全部 Agent）</th></tr></thead>
+      <tbody>
+        <tr><td><b>总 Token 用量</b></td><td>该范围内所有 Agent 使用过程中消耗的 Token 总量。</td></tr>
+        <tr><td><b>总会话数</b></td><td>用户与该范围内 Agent 发起的会话总数（非消息数）。</td></tr>
+        <tr><td><b>总消息数</b></td><td>该范围内 Agent 成功回复的消息总数，每回复一条计 1。</td></tr>
+        <tr><td><b>总用户数</b></td><td>与该范围内 Agent 对话过的<b>去重</b>用户总数。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 变化趋势</h3>
+    <p>四项指标各一张趋势图，每张同时展示<b>总量 + 4 个应用场景</b>共 5 条线，可单独勾选显隐；支持 <b>日 / 周 / 月</b> 粒度切换，横轴随时间范围与租户筛选联动。</p>
+
+    <h3>3.3 用户用量明细</h3>
+    <p>按用户展示 Token 消耗、会话数、消息数、涉及的<b>应用场景</b>标签与占比；默认按 Token 消耗降序，<b>分页每页最多 10 条</b>，用于定位租户内高消耗用户。</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>范围与非目标</div>
+    <div class="scope-grid">
+      <div class="scope-card do"><h4>✅ 本期做</h4><ul>
+        <li>超管后台新增「用量统计」菜单（MCP 管理下方）。</li>
+        <li>租户筛选（默认全部租户）+ 时间范围，全页联动。</li>
+        <li>用量概览（4 指标 + 场景拆解 + 环比）、变化趋势、用户用量明细。</li>
+      </ul></div>
+      <div class="scope-card dont"><h4>🚫 本期不做</h4><ul>
+        <li>不提供 Token 扣除规则的查看与修改。</li>
+        <li>不下钻到单个 Agent 维度的用量列表。</li>
+        <li>不提供额度调整、限额、告警等治理动作。</li>
+        <li>不提供数据导出。</li>
+      </ul></div>
+    </div>
+    <div class="callout tip"><div class="title">后续可扩展</div>概览下增加「按 Agent 排行」以定位租户内高消耗 Agent，并支持点击下钻到该 Agent 的用量详情。</div>
+  </div>
+
+  <div class="footer">WorkHub Studio Admin · 用量统计 · PRD v1.0 · 统计主体：租户下全部 Agent 汇总</div>
+
+</div>
+</body>
+</html>
