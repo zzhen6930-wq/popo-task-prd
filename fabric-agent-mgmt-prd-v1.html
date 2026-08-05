@@ -200,6 +200,22 @@
     </div>
   </div>
 
+  <!-- 8 后续规划 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>后续规划（非本期，需提前预留）</div>
+    <div class="callout warn"><div class="title">⚠️ 提示技术同学</div>以下能力<b>非本期需求</b>，但会在后续版本落地。请在本期方案设计（数据模型、投放范围、可见性判定）时<b>提前预留扩展点</b>，避免后续无法支持而返工。</div>
+
+    <h3>8.1 跨租户定向投放到 AgentHub</h3>
+    <p>支持<b>其他租户</b>在 Studio 后台创建 Agent，并<b>定向投放</b>到前端 AgentHub；仅被投放到的<b>指定用户</b>可在 AgentHub「发现智能体」模块看到该 Agent，其余用户不可见。</p>
+    <ul>
+      <li><b>投放主体</b>：任意租户（不限于用户自身所在租户），可将其在 Studio 创建的 Agent 投放至 AgentHub。</li>
+      <li><b>投放范围</b>：由创建方按用户 / 岗位 / 部门等维度设置定向范围。</li>
+      <li><b>可见性</b>：AgentHub「发现智能体」按当前登录用户是否命中投放范围决定是否展示；命中可见、未命中不可见。</li>
+      <li><b>示例</b>：财务租户创建「财务审计 Agent」，定向投放给财务岗位同学 → 财务同学在 AgentHub 可见，其他部门不可见。</li>
+    </ul>
+    <div class="callout tip"><div class="title">对本期的影响点</div>Agent 与「来源租户」的归属关系、投放范围（目标用户群）配置、AgentHub 发现模块的<b>按用户可见性过滤</b>，需在数据结构与权限模型上预留，以便后续直接扩展。</div>
+  </div>
+
   <div class="footer">WorkHub Studio · Agent 管理能力增强 · PRD v1.1 · 配置 / 记忆 / 使用 / 用量</div>
 
 </div>
