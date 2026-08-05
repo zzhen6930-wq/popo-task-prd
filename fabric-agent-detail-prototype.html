@@ -737,7 +737,7 @@ function renderGroups(){
 let curSeries=[];
 function rangeText(days){
   const end=new Date(END); const start=new Date(END); start.setDate(END.getDate()-(days-1));
-  return `${fmtY(start)} 至 ${fmtY(end)}`;
+  return `${fmtMD(start)} - ${fmtMD(end)}`;
 }
 function onRangeChange(){
   const v=document.getElementById('rangeSel').value;
@@ -991,7 +991,7 @@ function applyCal(){
   if(!selEnd) selEnd=selStart;
   const days=Math.round((selEnd-selStart)/86400000)+1;
   customStart=selStart; customEnd=selEnd; rangeDays=days;
-  document.getElementById('rangeLabel').textContent=`${fmtY(selStart)} 至 ${fmtY(selEnd)}`;
+  document.getElementById('rangeLabel').textContent=`${fmtMD(selStart)} - ${fmtMD(selEnd)}`;
   document.getElementById('dateOverlay').classList.remove('on');
   renderUsage();
 }
