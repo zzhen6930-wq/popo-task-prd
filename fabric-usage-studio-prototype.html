@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub 超管平台 · 用量统计 · 高保真原型</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e5e7eb; --line-2:#f1f5f9; --bg:#f8fafc; --bg-2:#eef2f7;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.08);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg-2); color:var(--txt); padding:24px 16px 60px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .page-label{ max-width:1400px; margin:6px auto 12px; display:flex; align-items:center; gap:10px; }
+  .page-label .b-num{ background:#dc2626; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
+  .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
+  .app{ max-width:1400px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); height:1100px; display:flex; position:relative; }
+  .topbar{ position:absolute; top:0; left:0; right:0; height:58px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 22px; z-index:3; }
+  .logo{ display:flex; align-items:center; gap:9px; font-size:17px; font-weight:800; color:var(--ink); }
+  .logo-icon{ width:24px; height:24px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+  .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+  .sidebar{ width:196px; background:#fafbfc; border-right:1px solid var(--line-2); padding:72px 12px 12px; overflow-y:auto; }
+  .side-item{ font-size:13px; color:var(--txt); padding:8px 12px; border-radius:8px; margin:1px 0; cursor:pointer; display:flex; align-items:center; gap:9px; font-weight:500; }
+  .side-item:hover{ background:var(--line-2); }
+  .side-item.active{ background:#ede9fe; color:#6d28d9; font-weight:700; }
+  .main{ flex:1; padding:74px 30px 24px; overflow-y:auto; background:var(--bg); position:relative; }
+  .main-title{ font-size:21px; font-weight:800; color:var(--ink); }
+  .main-sub{ font-size:13px; color:var(--mut); margin-bottom:18px; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:12px; }
+  .card-t{ font-size:14px; font-weight:700; color:var(--ink); }
+  .table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .table th{ text-align:left; font-size:12px; font-weight:700; color:var(--sub); background:#fafbfc; padding:10px 14px; border-bottom:1px solid var(--line-2); }
+  .table td{ padding:12px 14px; border-bottom:1px solid var(--line-2); color:var(--txt); vertical-align:middle; }
+  .pill{ font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; display:inline-block; }
+  .pill.gray{ background:#f1f5f9; color:#475569; }
+  .pill.indigo{ background:#eef2ff; color:#4338ca; }
+  .u-cell{ display:flex; align-items:center; gap:9px; }
+  .u-av{ width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#818cf8,#c084fc); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .u-name{ font-weight:700; color:var(--ink); font-size:13px; }
+  .u-dep{ font-size:11.5px; color:var(--mut); }
+  .ratio-bar{ display:inline-block; width:74px; height:6px; border-radius:4px; background:#eef2f7; margin-right:8px; vertical-align:middle; }
+  .ratio-fill{ display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,#818cf8,#6366f1); }
+
+  /* 用量统计 */
+  .usage-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .sec-title{ font-size:15px; font-weight:800; color:var(--ink); }
+  .filters{ display:flex; align-items:center; gap:10px; }
+  .filters select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
+  .range-label{ font-size:12.5px; color:var(--mut); }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
+  .stat-card .lb{ font-size:13px; font-weight:600; color:var(--sub); display:inline-flex; align-items:center; gap:4px; }
+  .tip-ic{ font-size:12px; color:var(--mut); cursor:help; position:relative; font-weight:400; }
+  .tip-ic:hover{ color:var(--sub); }
+  .tip-ic::after{ content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); background:#1e293b; color:#fff; font-size:12px; font-weight:400; line-height:1.5; white-space:normal; width:220px; padding:8px 10px; border-radius:8px; box-shadow:0 6px 20px rgba(15,23,42,.25); opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; text-align:left; }
+  .tip-ic::before{ content:""; position:absolute; left:50%; bottom:calc(100% + 3px); transform:translateX(-50%); border:5px solid transparent; border-top-color:#1e293b; opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; }
+  .tip-ic:hover::after,.tip-ic:hover::before{ opacity:1; visibility:visible; }
+  .stat-card .stat-main{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:6px; }
+  .stat-card .vl{ font-size:24px; font-weight:800; color:var(--ink); }
+  .stat-div{ height:1px; background:var(--line-2); margin:12px 0 8px; }
+  .sc-row{ display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12.5px; }
+  .sc-row .sc-nm{ color:var(--sub); flex:1; }
+  .sc-row .sc-v{ font-weight:700; color:var(--ink); }
+  .sc-row .sc-p{ color:var(--mut); width:38px; text-align:right; }
+  .mom{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:3px; cursor:default; }
+  .mom-tag{ color:var(--mut); font-weight:500; margin-right:2px; }
+  .mom i{ color:var(--line); font-style:normal; margin:0 1px; }
+  .mom.up{ color:#e11d48; }
+  .mom.down{ color:#059669; }
+  .mom.flat{ color:var(--mut); font-weight:500; }
+  .trend-wrap{ display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:16px; }
+  .trend-title{ margin-bottom:12px; }
+  .gran-seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+  .gran-btn{ font-size:13px; color:var(--sub); padding:6px 18px; border:none; background:#fff; cursor:pointer; border-left:1px solid var(--line); }
+  .gran-btn:first-child{ border-left:none; }
+  .gran-btn.on{ background:var(--indigo-d); color:#fff; }
+  .trend-card{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; position:relative; }
+  .trend-legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 14px; margin-top:12px; }
+  .lg-item{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); cursor:pointer; user-select:none; }
+  .lg-item.off{ color:var(--mut); }
+  .lg-box{ width:13px; height:13px; border-radius:3px; border:1.5px solid #cbd5e1; background:#fff; display:inline-flex; align-items:center; justify-content:center; }
+  .lg-item.on .lg-box{ background:#4f46e5; border-color:#4f46e5; }
+  .lg-box .tick{ color:#fff; font-size:9px; line-height:1; }
+  .lg-dot{ width:9px; height:9px; border-radius:2px; }
+  .trend-chart{ width:100%; position:relative; }
+  .trend-chart svg{ width:100%; height:210px; display:block; }
+  .trend-chart .gl{ stroke:#eef2f7; stroke-width:1; }
+  .trend-chart .axis-x,.trend-chart .axis-y{ fill:var(--mut); font-size:10px; }
+  .trend-chart .tline{ fill:none; stroke-width:2; }
+  .trend-chart .hover-line{ stroke:#cbd5e1; stroke-width:1; stroke-dasharray:3 3; }
+  .tt-box{ position:absolute; z-index:20; pointer-events:none; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 20px rgba(15,23,42,.12); padding:10px 12px; font-size:12px; min-width:150px; display:none; }
+  .tt-box .tt-d{ font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .tt-box .tt-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:2px 0; }
+  .tt-box .tt-nm{ display:inline-flex; align-items:center; gap:6px; color:var(--sub); }
+  .tt-box .tt-dot{ width:8px; height:8px; border-radius:2px; }
+  .tt-box .tt-vl{ font-weight:600; color:var(--ink); }
+  .sc-tags{ display:flex; flex-wrap:wrap; gap:4px; }
+  .sc-tag{ box-sizing:border-box; max-width:calc(50% - 2px); font-size:11px; line-height:1; padding:4px 8px; border-radius:6px; color:var(--sc); background:color-mix(in srgb, var(--sc) 12%, #fff); border:1px solid color-mix(in srgb, var(--sc) 30%, #fff); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pager{ display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:12px 20px; }
+  .pg-btn{ min-width:30px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px; color:var(--txt); cursor:pointer; }
+  .pg-btn:hover:not(:disabled){ border-color:#c7d2fe; }
+  .pg-btn.on{ background:var(--indigo-d); color:#fff; border-color:var(--indigo-d); }
+  .pg-btn:disabled{ color:var(--mut); cursor:not-allowed; }
+  .pg-info{ font-size:12px; color:var(--sub); margin-right:8px; }
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="b-num">1</span>
+  <span class="b-title">Workhub Studio Admin · 用量统计</span>
+  <span class="b-desc">按租户统计其全部 Agent 的用量总数 · 概览（场景拆解 + 环比）· 变化趋势（多场景 / 日周月）· 用户用量明细</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><span class="logo-icon">W</span>Workhub Studio Admin</div>
+    <div class="right"><span class="nav-link">🧭 服务导航</span><span class="avatar">张</span></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="side-item">🏢 组织管理</div>
+    <div class="side-item">👤 超管列表</div>
+    <div class="side-item">🛡 平台管控</div>
+    <div class="side-item">🔌 MCP 管理</div>
+    <div class="side-item active">📊 用量统计</div>
+    <div class="side-item">📖 文档管理</div>
+  </div>
+
+  <div class="main">
+    <!-- 用量概览（页面第一行，右侧租户筛选 + 时间范围） -->
+    <div class="usage-topbar">
+      <div class="sec-title">用量概览</div>
+      <div class="filters">
+        <select id="tenantSel" onchange="onTenantChange()"></select>
+        <select id="rangeSel" onchange="onRangeChange()">
+          <option value="7d">近 7 天</option>
+          <option value="month">本月</option>
+          <option value="custom">自定义…</option>
+        </select>
+        <span id="rangeLabel" class="range-label"></span>
+      </div>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+
+    <!-- 变化趋势 -->
+    <div class="card-t trend-title">变化趋势</div>
+    <div class="gran-seg">
+      <button class="gran-btn on" data-g="day" onclick="setGran('day',this)">日</button>
+      <button class="gran-btn" data-g="week" onclick="setGran('week',this)">周</button>
+      <button class="gran-btn" data-g="month" onclick="setGran('month',this)">月</button>
+    </div>
+    <div class="trend-wrap">
+      <div class="trend-card" data-m="tok"><div class="card-t">Token 用量趋势</div><div class="trend-chart"></div><div class="trend-legend"></div></div>
+      <div class="trend-card" data-m="sess"><div class="card-t">会话数趋势</div><div class="trend-chart"></div><div class="trend-legend"></div></div>
+      <div class="trend-card" data-m="dlg"><div class="card-t">消息数趋势</div><div class="trend-chart"></div><div class="trend-legend"></div></div>
+      <div class="trend-card" data-m="user"><div class="card-t">用户数趋势</div><div class="trend-chart"></div><div class="trend-legend"></div></div>
+    </div>
+
+    <!-- 用量明细（无 Token 扣除规则模块） -->
+    <div class="card-t trend-title">用量明细</div>
+    <div class="card" style="padding:0;">
+      <div style="padding:16px 20px 0;"><div class="card-t">用户用量明细</div></div>
+      <table class="table" style="margin-top:12px;">
+        <thead><tr><th style="width:24%">用户</th><th>Token 消耗</th><th>会话数</th><th>消息数</th><th style="width:24%">应用场景</th><th>占比</th></tr></thead>
+        <tbody id="detailRows"></tbody>
+      </table>
+      <div class="pager" id="detailPager"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== 数据 ===== */
+const TENANTS=["网易－效率工程部","AgentHub 租户","网易云音乐","网易游戏","有道","网易严选","网易传媒"];
+let curTenant="all";                       // all = 全部租户
+const tenantFactor=t=> t==="all"?1:(0.12+((TENANTS.indexOf(t)+1)%5)*0.06);
+
+const SCENES=[
+  { key:"total", name:"总量", color:"#4f46e5", frac:1 },
+  { key:"workhub", name:"Workhub", color:"#06b6d4", frac:0.34 },
+  { key:"popo_p", name:"POPO-单聊", color:"#f59e0b", frac:0.28 },
+  { key:"popo_g", name:"POPO-群聊", color:"#22c55e", frac:0.22 },
+  { key:"sdk", name:"SDK", color:"#ec4899", frac:0.16 }
+];
+const users=[
+  { name:"张振", dep:"效率工程部", tok:214000, sess:120, av:"张" },
+  { name:"朱弈", dep:"产品体验中心", tok:158000, sess:96, av:"朱" },
+  { name:"李扬", dep:"效率工程部", tok:112000, sess:83, av:"李" },
+  { name:"傅云辰", dep:"产品体验中心", tok:73000, sess:110, av:"傅" },
+  { name:"施羽婷", dep:"综合业务部", tok:43000, sess:71, av:"施" },
+  { name:"陈杰", dep:"研发中心", tok:39000, sess:62, av:"陈" },
+  { name:"汪晓东", dep:"人力资源部", tok:32000, sess:54, av:"汪" },
+  { name:"张大力", dep:"商务采购部", tok:28000, sess:50, av:"张" },
+  { name:"胡国群", dep:"法务部", tok:21000, sess:41, av:"胡" },
+  { name:"陈丽萱", dep:"行政部", tok:17000, sess:38, av:"陈" },
+  { name:"孙悦", dep:"财务部", tok:13000, sess:33, av:"孙" },
+  { name:"周涛", dep:"综合业务部", tok:9000, sess:26, av:"周" },
+  { name:"吴敏", dep:"企业发展部", tok:6000, sess:21, av:"吴" }
+];
+let detailPage=1; const DETAIL_PER=10;
+
+const END=new Date(2026,6,29);
+function fmtMD(d){ return (d.getMonth()+1)+"/"+d.getDate(); }
+function fmtY(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function kfmt(n){ return n>=1000?(n/1000).toFixed(1)+"K":String(n); }
+let rangeDays=7, curSeries=[];
+function seriesFor(days){
+  const f=tenantFactor(curTenant); const arr=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(END); d.setDate(END.getDate()-i);
+    const seed=(d.getDate()*7+d.getMonth()*13)%17;
+    arr.push({ d, x:fmtMD(d), tok:Math.round((72000+seed*9800+(days-i)*640)*f), task:Math.round((48+((seed+d.getDate())%23))*f*3) });
+  }
+  return arr;
+}
+function rangeText(days){
+  const end=new Date(END); const start=new Date(END); start.setDate(END.getDate()-(days-1));
+  return `${fmtMD(start)} - ${fmtMD(end)}`;
+}
+function onRangeChange(){
+  const v=document.getElementById('rangeSel').value;
+  rangeDays = v==='7d' ? 7 : (v==='month' ? 31 : 90);
+  document.getElementById('rangeLabel').textContent=rangeText(rangeDays);
+  renderUsage();
+}
+function onTenantChange(){ curTenant=document.getElementById('tenantSel').value; renderUsage(); }
+
+/* ===== 概览 ===== */
+function renderUsage(){
+  curSeries=seriesFor(rangeDays);
+  const totTok=curSeries.reduce((s,d)=>s+d.tok,0);
+  const sess=curSeries.reduce((s,d)=>s+d.task,0);
+  const dlg=Math.round(sess*1.8);
+  const usersN=Math.max(3,Math.round((180+rangeDays*6)*tenantFactor(curTenant)));
+  const prev=(()=>{ const f=tenantFactor(curTenant); const arr=[];
+    for(let i=rangeDays*2-1;i>=rangeDays;i--){ const d=new Date(END); d.setDate(END.getDate()-i);
+      const seed=(d.getDate()*7+d.getMonth()*13)%17;
+      arr.push({ tok:Math.round((72000+seed*9800)*f), task:Math.round((48+((seed+d.getDate())%23))*f*3) }); }
+    return arr; })();
+  const pTok=prev.reduce((s,d)=>s+d.tok,0), pSess=prev.reduce((s,d)=>s+d.task,0);
+  const pDlg=Math.round(pSess*1.8), pUsers=Math.max(1,Math.round(usersN*0.94));
+  const mom=(cur,pv)=>{
+    const diff=cur-pv; const pct= pv? (diff/pv*100):0;
+    const av=a=> Math.abs(a)>=1000?kfmt(Math.abs(a)):Math.abs(a);
+    if(diff===0) return `<span class="mom flat" title="环比：与上一周期持平"><span class="mom-tag">环比</span>0 <i>|</i> 0.0%</span>`;
+    const up=diff>0, arw=up?'▲':'▼';
+    return `<span class="mom ${up?'up':'down'}" title="环比：与上一周期相比${up?'上涨':'下降'} ${av(diff)}，${up?'增幅':'降幅'} ${Math.abs(pct).toFixed(1)}%"><span class="mom-tag">环比</span>${arw} ${av(diff)} <i>|</i> ${up?'':'-'}${Math.abs(pct).toFixed(1)}%</span>`;
+  };
+  const scenes=SCENES.slice(1);
+  const sceneRows=(total,fmt)=> scenes.map(s=>`<div class="sc-row"><span class="sc-nm">${s.name}</span><span class="sc-v">${fmt(Math.round(total*s.frac))}</span><span class="sc-p">${(s.frac*100).toFixed(0)}%</span></div>`).join("");
+  const idF=x=>x;
+  const scope= curTenant==="all" ? "全部租户" : curTenant;
+  document.getElementById('statGrid').innerHTML=[
+    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok),`${scope}下全部 Agent 使用过程中消耗的 Token 总量`],
+    ["总会话数",sess,idF,mom(sess,pSess),`用户与${scope}下全部 Agent 发起的会话总数（非消息数）`],
+    ["总消息数",dlg,idF,mom(dlg,pDlg),`${scope}下全部 Agent 成功回复的消息总数，每回复一条计 1`],
+    ["总用户数",usersN,idF,mom(usersN,pUsers),`与${scope}下 Agent 对话过的去重用户总数`]
+  ].map(([lb,vl,fmt,mo,tip])=>`<div class="stat-card">
+      <div class="lb">${lb}<span class="tip-ic" data-tip="${tip}">ⓘ</span></div>
+      <div class="stat-main"><div class="vl">${fmt(vl)}</div>${mo}</div>
+      <div class="stat-div"></div>
+      ${sceneRows(vl,fmt)}
+    </div>`).join("");
+  detailPage=1; renderDetail(); renderTrends();
+}
+
+/* ===== 变化趋势 ===== */
+const METRICS={
+  tok:{ val:d=>d.tok }, sess:{ val:d=>d.task },
+  dlg:{ val:d=>Math.round(d.task*1.8) }, user:{ val:d=>Math.round((60+(d.d.getDate()%9)*8)*tenantFactor(curTenant)) }
+};
+const trendVis={};
+Object.keys(METRICS).forEach(m=>{ trendVis[m]={}; SCENES.forEach(s=>trendVis[m][s.key]=true); });
+let trendGran='day';
+function setGran(g,el){ trendGran=g; document.querySelectorAll('.gran-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderTrends(); }
+function aggSeries(){
+  if(trendGran==='day') return curSeries.map(d=>({ d:d.d, x:d.x, label:fmtY(d.d), tok:d.tok, task:d.task }));
+  const bk=new Map();
+  curSeries.forEach(d=>{
+    let key,label,rep,short;
+    if(trendGran==='week'){
+      const wd=(d.d.getDay()+6)%7;
+      const st=new Date(d.d); st.setDate(d.d.getDate()-wd);
+      const en=new Date(st); en.setDate(st.getDate()+6);
+      key=fmtY(st); rep=st; label=fmtMD(st)+"–"+fmtMD(en); short=fmtMD(st);
+    }else{
+      key=d.d.getFullYear()+"-"+(d.d.getMonth()+1); rep=new Date(d.d.getFullYear(),d.d.getMonth(),1);
+      label=(d.d.getMonth()+1)+"月"; short=label;
+    }
+    if(!bk.has(key)) bk.set(key,{ d:rep, x:short, label, tok:0, task:0 });
+    const b=bk.get(key); b.tok+=d.tok; b.task+=d.task;
+  });
+  return [...bk.values()].sort((a,b)=>a.d-b.d);
+}
+function renderTrends(){
+  document.querySelectorAll('.trend-card').forEach(card=>{
+    const m=card.dataset.m; renderTrendLegend(card,m); renderTrendChart(card,m);
+  });
+}
+function renderTrendLegend(card,m){
+  card.querySelector('.trend-legend').innerHTML=SCENES.map(s=>{
+    const on=trendVis[m][s.key];
+    return `<span class="lg-item ${on?'on':'off'}" onclick="toggleScene('${m}','${s.key}')"><span class="lg-box">${on?'<span class="tick">✓</span>':''}</span><span class="lg-dot" style="background:${on?s.color:'#cbd5e1'}"></span><span>${s.name}</span></span>`;
+  }).join("");
+}
+function toggleScene(m,k){ trendVis[m][k]=!trendVis[m][k]; renderTrends(); }
+function renderTrendChart(card,m){
+  const metric=METRICS[m], base=aggSeries();
+  const series=SCENES.map(s=>({ s, data: base.map(d=>({ v:Math.round(metric.val(d)*s.frac) })) }));
+  const vis=series.filter(o=>trendVis[m][o.s.key]);
+  const W=1040,H=210,padL=48,padR=16,padT=14,padB=28;
+  const iw=W-padL-padR, ih=H-padT-padB, n=base.length;
+  const allV=vis.flatMap(o=>o.data.map(p=>p.v));
+  const max=(allV.length?Math.max(...allV):1)*1.15||1;
+  const X=i=> padL+(n<=1?iw/2:iw*i/(n-1));
+  const Y=v=> padT+ih*(1-v/max);
+  let grid="",yl="";
+  for(let g=0;g<=4;g++){ const yy=padT+ih*g/4, val=max*(1-g/4);
+    grid+=`<line class="gl" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`;
+    yl+=`<text class="axis-y" x="${padL-6}" y="${yy+3}" text-anchor="end">${kfmt(Math.round(val))}</text>`; }
+  const step=Math.max(1,Math.ceil(n/10));
+  let xl=""; base.forEach((d,i)=>{ if(i%step===0||i===n-1) xl+=`<text class="axis-x" x="${X(i)}" y="${H-8}" text-anchor="middle">${d.x}</text>`; });
+  const lines=vis.map(o=>`<path class="tline" d="${o.data.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(" ")}" stroke="${o.s.color}"/>`).join("");
+  const wrap=card.querySelector('.trend-chart');
+  wrap.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${yl}${lines}<line class="hover-line" x1="0" y1="${padT}" x2="0" y2="${padT+ih}" style="display:none"/>${xl}</svg><div class="tt-box"></div>`;
+  const hl=wrap.querySelector('.hover-line'), tt=wrap.querySelector('.tt-box');
+  const plotFrac=i=> (padL+(n<=1?iw/2:iw*i/(n-1)))/W;
+  wrap.onmousemove=e=>{
+    const r=wrap.getBoundingClientRect(), rel=(e.clientX-r.left)/r.width;
+    let bi=0,bd=1e9;
+    base.forEach((d,i)=>{ const f=plotFrac(i); if(Math.abs(f-rel)<bd){ bd=Math.abs(f-rel); bi=i; } });
+    const f=plotFrac(bi);
+    hl.style.display=''; hl.setAttribute('x1',(f*W).toFixed(1)); hl.setAttribute('x2',(f*W).toFixed(1));
+    const rows=vis.map(o=>`<div class="tt-row"><span class="tt-nm"><span class="tt-dot" style="background:${o.s.color}"></span>${o.s.name}</span><span class="tt-vl">${kfmt(o.data[bi].v)}</span></div>`).join("");
+    tt.innerHTML=`<div class="tt-d">${base[bi].label}</div>${rows||'<div class="tt-row" style="color:#94a3b8">无选中场景</div>'}`;
+    tt.style.display='block';
+    const px=f*r.width; let left=px+12; if(left+tt.offsetWidth>r.width) left=px-tt.offsetWidth-12;
+    tt.style.left=Math.max(0,left)+'px'; tt.style.top='4px';
+  };
+  wrap.onmouseleave=()=>{ hl.style.display='none'; tt.style.display='none'; };
+}
+
+/* ===== 用户用量明细 ===== */
+const APP_SCENES=SCENES.slice(1);
+function userScenes(u){
+  const seed=(u.name.charCodeAt(0)+u.tok)%APP_SCENES.length;
+  const cnt=1+((u.sess+u.tok)%3);
+  const picked=[]; for(let k=0;k<cnt;k++) picked.push(APP_SCENES[(seed+k)%APP_SCENES.length]);
+  const tf=picked.reduce((s,p)=>s+p.frac,0), dlg=Math.round(u.sess*1.8);
+  return picked.map(p=>({ name:p.name, color:p.color, tok:Math.round(u.tok*p.frac/tf), dlg:Math.max(1,Math.round(dlg*p.frac/tf)) }));
+}
+function renderDetail(){
+  const f=tenantFactor(curTenant);
+  const list=users.map(u=>({ ...u, tok:Math.round(u.tok*f), sess:Math.max(1,Math.round(u.sess*f)) })).sort((a,b)=>b.tok-a.tok);
+  const max=Math.max(...list.map(u=>u.tok)), total=list.reduce((s,u)=>s+u.tok,0);
+  const pages=Math.max(1,Math.ceil(list.length/DETAIL_PER));
+  if(detailPage>pages) detailPage=pages;
+  const rows=list.slice((detailPage-1)*DETAIL_PER, (detailPage-1)*DETAIL_PER+DETAIL_PER);
+  document.getElementById('detailRows').innerHTML=rows.map(u=>{
+    const pct=(u.tok/total*100).toFixed(1);
+    const tags=userScenes(u).map(o=>`<span class="sc-tag" style="--sc:${o.color}" title="${o.name}：${kfmt(o.tok)} Token · ${o.dlg} 消息">${o.name}</span>`).join("");
+    return `<tr>
+      <td><div class="u-cell"><span class="u-av">${u.av}</span><div><div class="u-name">${u.name}</div><div class="u-dep">${u.dep}</div></div></div></td>
+      <td><b>${u.tok.toLocaleString()}</b></td>
+      <td>${u.sess}</td>
+      <td>${Math.round(u.sess*1.8)}</td>
+      <td><div class="sc-tags">${tags}</div></td>
+      <td><span class="ratio-bar"><span class="ratio-fill" style="width:${u.tok/max*100}%"></span></span>${pct}%</td>
+    </tr>`;
+  }).join("");
+  const pg=document.getElementById('detailPager');
+  if(pages<=1){ pg.innerHTML=""; return; }
+  let btns=""; for(let i=1;i<=pages;i++) btns+=`<button class="pg-btn ${i===detailPage?'on':''}" onclick="goDetailPage(${i})">${i}</button>`;
+  pg.innerHTML=`<span class="pg-info">共 ${list.length} 人</span>`
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage-1})" ${detailPage===1?'disabled':''}>上一页</button>`
+    +btns
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage+1})" ${detailPage===pages?'disabled':''}>下一页</button>`;
+}
+function goDetailPage(p){ detailPage=p; renderDetail(); }
+
+/* ===== init ===== */
+document.getElementById('tenantSel').innerHTML=`<option value="all">全部租户</option>`+TENANTS.map(t=>`<option value="${t}">${t}</option>`).join("");
+document.getElementById('rangeLabel').textContent=rangeText(7);
+renderUsage();
+</script>
+</body>
+</html>
