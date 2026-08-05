@@ -121,7 +121,12 @@
   .range-dd select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
   .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
   .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
-  .stat-card .lb{ font-size:13px; font-weight:600; color:var(--sub); }
+  .stat-card .lb{ font-size:13px; font-weight:600; color:var(--sub); display:inline-flex; align-items:center; gap:4px; }
+  .tip-ic{ font-size:12px; color:var(--mut); cursor:help; position:relative; font-weight:400; }
+  .tip-ic:hover{ color:var(--sub); }
+  .tip-ic::after{ content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); background:#1e293b; color:#fff; font-size:12px; font-weight:400; line-height:1.5; white-space:normal; width:220px; padding:8px 10px; border-radius:8px; box-shadow:0 6px 20px rgba(15,23,42,.25); opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; text-align:left; }
+  .tip-ic::before{ content:""; position:absolute; left:50%; bottom:calc(100% + 3px); transform:translateX(-50%); border:5px solid transparent; border-top-color:#1e293b; opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; }
+  .tip-ic:hover::after,.tip-ic:hover::before{ opacity:1; visibility:visible; }
   .stat-card .stat-main{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:6px; }
   .stat-card .vl{ font-size:24px; font-weight:800; color:var(--ink); }
   .stat-div{ height:1px; background:var(--line-2); margin:12px 0 8px; }
@@ -769,12 +774,12 @@ function renderUsage(){
   const sceneRows=(total,fmt)=> scenes.map(s=>`<div class="sc-row"><span class="sc-nm">${s.name}</span><span class="sc-v">${fmt(Math.round(total*s.frac))}</span><span class="sc-p">${(s.frac*100).toFixed(0)}%</span></div>`).join("");
   const idF=x=>x;
   document.getElementById('statGrid').innerHTML=[
-    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok)],
-    ["总会话数",sess,idF,mom(sess,pSess)],
-    ["总消息数",dlg,idF,mom(dlg,pDlg)],
-    ["用户数",usersN,idF,mom(usersN,pUsers)]
-  ].map(([lb,vl,fmt,mo])=>`<div class="stat-card">
-      <div class="lb">${lb}</div>
+    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok),"智能体使用过程中消耗的 Token 总量"],
+    ["总会话数",sess,idF,mom(sess,pSess),"用户与该智能体发起的会话总数（非消息数）"],
+    ["总消息数",dlg,idF,mom(dlg,pDlg),"智能体成功回复的消息总数，每回复一条计 1"],
+    ["总用户数",usersN,idF,mom(usersN,pUsers),"与智能体对话过的去重用户总数"]
+  ].map(([lb,vl,fmt,mo,tip])=>`<div class="stat-card">
+      <div class="lb">${lb}<span class="tip-ic" data-tip="${tip}">ⓘ</span></div>
       <div class="stat-main"><div class="vl">${fmt(vl)}</div>${mo}</div>
       <div class="stat-div"></div>
       ${sceneRows(vl,fmt)}
