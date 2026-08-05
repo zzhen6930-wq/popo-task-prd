@@ -57,10 +57,10 @@
 
   <div class="header">
     <h1>WorkHub Studio · Agent 管理能力增强</h1>
-    <div style="opacity:0.92;font-size:13px;">在一个 Agents 列表中统一管理「自建 Agent（AgentHub / Workhub Studio）」与「外部连接的智能体（Claude Code / Hermes / OpenClaw / Codex 等）」；详情页由单一配置升级为四 Tab，补齐使用范围（分发管控）与用量统计（成本可视）两大管理维度。</div>
+    <div style="opacity:0.92;font-size:13px;">在一个 Agents 列表中统一管理「自建 Agent（AgentHub / Workhub Studio）」与「外部连接的智能体（Claude Code / Hermes / OpenClaw / Codex 等）」；详情页由单一配置升级为四 Tab，补齐「使用」（分发管控）与「用量」（成本与用量可视）两大管理维度。</div>
     <div class="meta">
-      <span>📅 2026-08-03</span>
-      <span>🏷️ v1.0</span>
+      <span>📅 2026-08-05</span>
+      <span>🏷️ v1.1</span>
       <span>👤 作者：青远（张振）</span>
       <span>🧩 归属：WorkHub Studio · Agents 模块</span>
     </div>
@@ -71,7 +71,7 @@
     <div class="section-title"><span class="num">1</span>背景与目标</div>
     <p>平台在同一 <b>Agents 列表</b> 中承载两类智能体：<b>自建 Agent</b>（AgentHub / Workhub Studio）与<b>外部连接的智能体</b>（Claude Code / Hermes / OpenClaw / Codex 等三方接入）。当前二者缺少统一管理入口与管理维度：无来源区分、详情页只有能力配置，管理员看不到「谁能用、成本从谁扣」。</p>
     <p>本次目标：<b>一个列表统管两类 Agent</b>，并在详情页补齐<b>使用范围</b>（分发管控）与<b>用量统计</b>（成本可视）两大管理维度。</p>
-    <div class="callout key"><div class="title">🔑 定位</div>「配置」管能力、「使用范围」管分发、「用量统计」管成本，构成 Agent 完整管理视图。<b>具体交互详见原型。</b></div>
+    <div class="callout key"><div class="title">🔑 定位</div>「配置」管能力、「使用」管分发、「用量」管成本与用量，构成 Agent 完整管理视图。<b>具体交互详见原型。</b></div>
   </div>
 
   <!-- 2 Agent 列表页 -->
@@ -91,19 +91,19 @@
     <p>三方智能体的角色、技能、工具由三方侧维护，平台可见 / 可管理的信息有限，故做差异化：</p>
     <ul>
       <li><b>列表</b>：模型、记忆显 <code>-</code>；来源显具体三方名。</li>
-      <li><b>详情</b>：隐藏「配置 / 记忆」Tab；<b>使用范围</b>与自建一致；<b>用量统计仅保留概览</b>，不含扣除规则 / 额度 / 用户明细 / 趋势（扣费逻辑对三方不适用）。</li>
+      <li><b>详情</b>：隐藏「配置 / 记忆」Tab；<b>使用</b>与自建一致；<b>用量仅保留用量概览与变化趋势</b>，隐藏「Token 扣除规则 / 用户用量明细」（扣费逻辑对三方不适用）。</li>
     </ul>
   </div>
 
   <!-- 4 详情页布局 -->
   <div class="section">
     <div class="section-title"><span class="num">4</span>详情页布局（Tab 化）</div>
-    <p>详情页由单一配置改为 4 个 Tab：<b>配置、记忆</b>（已有逻辑，仅归位）+ <b>使用范围、用量统计</b>（本次新增）。外部连接智能体隐藏「配置 / 记忆」。</p>
+    <p>详情页由单一配置改为 4 个 Tab：<b>配置、记忆</b>（已有逻辑，仅归位）+ <b>使用、用量</b>（本次新增）。外部连接智能体隐藏「配置 / 记忆」。</p>
   </div>
 
   <!-- 5 使用范围 -->
   <div class="section">
-    <div class="section-title"><span class="num">5</span>使用范围（新增）</div>
+    <div class="section-title"><span class="num">5</span>使用（新增）</div>
     <p>后台管理视角，管理员在 Agent 维度管理「谁能用」与「在各群怎么回复」。</p>
 
     <h3>5.1 可使用范围</h3>
@@ -118,41 +118,51 @@
   </div>
 
 
-  <!-- 4 用量统计 -->
+  <!-- 6 用量 -->
   <div class="section">
-    <div class="section-title"><span class="num">6</span>用量统计（新增）</div>
-    <p>在 Agent 维度呈现该 Agent 的 Token 消耗、会话 / 任务量、影响面与近期趋势，并管理 Token 扣除规则。用于成本可视与配额治理。<b>外部连接的智能体仅展示 6.1 用量概览</b>，隐藏 6.2~6.5。</p>
+    <div class="section-title"><span class="num">6</span>用量（新增）</div>
+    <p>在 Agent 维度呈现该 Agent 的用量与成本：总量指标、按应用场景的分布与趋势、Token 扣除规则及按用户明细。所有数据按顶部所选<b>时间范围</b>统计。<b>外部连接的智能体仅展示 6.2 用量概览与 6.3 变化趋势</b>，隐藏 6.4~6.5。</p>
 
-    <h3>6.1 用量概览</h3>
-    <p>顶部可选时间范围（默认近 7 天 / 月度 / 自定义），指标随范围联动。</p>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="lb">总用量（Token）</div><div class="vl">60.0K</div></div>
-      <div class="stat-card"><div class="lb">总会话数</div><div class="vl">47</div></div>
-      <div class="stat-card"><div class="lb">总任务数</div><div class="vl">89</div></div>
-      <div class="stat-card"><div class="lb">用户数</div><div class="vl">23</div></div>
-      <div class="stat-card"><div class="lb">加入群组数</div><div class="vl">3</div></div>
-    </div>
-    <p>五项指标：总用量（Token）、总会话数、总任务数、用户数（去重影响面）、加入群组数，均按所选时间范围统计。</p>
+    <h3>6.1 时间范围</h3>
+    <p>提供 <b>近 7 天 / 本月 / 自定义</b> 三种范围，默认近 7 天；概览、趋势、明细均随范围联动。范围标签统一以起止日期表达（如 <code>7/23 - 7/29</code>）。</p>
 
-    <h3>6.2 Token 扣除规则</h3>
+    <h3>6.2 用量概览</h3>
+    <p>四项核心指标，每项均给出<b>总量</b>、<b>按应用场景拆解</b>与<b>环比</b>：</p>
+    <table>
+      <thead><tr><th style="width:22%">指标</th><th>口径定义</th></tr></thead>
+      <tbody>
+        <tr><td><b>总 Token 用量</b></td><td>智能体使用过程中消耗的 Token 总量。</td></tr>
+        <tr><td><b>总会话数</b></td><td>用户与该智能体发起的会话总数（非消息数）。</td></tr>
+        <tr><td><b>总消息数</b></td><td>智能体成功回复的消息总数，每回复一条计 1。</td></tr>
+        <tr><td><b>总用户数</b></td><td>与智能体对话过的去重用户总数。</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li><b>应用场景拆解</b>：每个指标的总量向下拆到 4 个应用场景 —— <span class="pill blue">Workhub</span> <span class="pill indigo">POPO-单聊</span> <span class="pill green">POPO-群聊</span> <span class="pill amber">SDK</span>，展示各场景数值与占该指标总量的占比，用于观察用量的场景分布。</li>
+      <li><b>环比</b>：与上一等长周期对比，同时给出<b>绝对值变化</b>（增减数量）与<b>百分比</b>（增幅 / 降幅），持平记为 0。</li>
+    </ul>
+
+    <h3>6.3 变化趋势</h3>
+    <p>四项指标各对应一张趋势图（Token 用量 / 会话数 / 消息数 / 用户数），用于观察总量与各场景随时间的变化：</p>
+    <ul>
+      <li><b>多场景对比</b>：每张图同时展示<b>总量</b>与 4 个应用场景共 5 条线，各场景可单独勾选显隐。</li>
+      <li><b>粒度切换</b>：支持 <b>日 / 周 / 月</b> 三种横轴颗粒度，对同一时间范围内的数据按日 / 周 / 月聚合，便于不同跨度下的趋势观察。</li>
+      <li>横轴时间随所选时间范围联动。</li>
+    </ul>
+
+    <h3>6.4 Token 扣除规则</h3>
     <p>规则决定该 Agent 产生的 Token 从谁的额度扣，<b>二选一</b>，可查看可修改（切换即时生效、不追溯历史）：</p>
     <ul>
-      <li><b>统一从我的额度扣除</b>：无论谁用，都从 Agent 创建时配置的账号额度扣。</li>
+      <li><b>统一从我的额度扣除</b>：无论谁使用，都从 Agent 创建时配置的账号额度扣。</li>
       <li><b>从提问人的额度扣除</b>：谁发起对话就扣谁的额度。</li>
     </ul>
 
-    <h3>6.3 额度（AIGW Token 额度）</h3>
-    <p>展示<b>拥有者账号</b>的已使用 / 剩余 / 本月总额度（进度条）。额度固定展示拥有者，不随扣除规则变化。</p>
-
-    <h3>6.4 按用户用量明细</h3>
-    <p>两种扣除规则下都<b>按用户拆分</b>展示各自 Token 消耗、会话 / 任务数、占比，便于识别高消耗用户。「<b>扣除归属</b>」列显示实际扣谁的额度（<b>直接显示人名</b>）：</p>
+    <h3>6.5 用户用量明细</h3>
+    <p>与扣除规则合并为一个模块，<b>按用户拆分</b>展示各自 Token 消耗、会话数、消息数、<b>应用场景</b>（该用户涉及的场景以标签展示）、占比与<b>扣除归属</b>，用于识别高消耗用户与核对扣费对象。</p>
     <ul>
-      <li>统一从我的额度扣除 → 归属<b>拥有者</b>。</li>
-      <li>从提问人的额度扣除 → 归属<b>各用户本人</b>。</li>
+      <li><b>扣除归属</b>随扣除规则变化，直接显示实际扣费人名：统一从我的额度扣除 → 归属 <b>Agent 拥有者</b>；从提问人的额度扣除 → 归属 <b>各用户本人</b>。</li>
+      <li>默认按 Token 消耗降序，<b>分页展示，每页最多 10 条</b>。</li>
     </ul>
-
-    <h3>6.5 趋势分析</h3>
-    <p>折线图展示近期 <b>Token 消耗</b> / <b>任务数量</b> 趋势，两维度可切换。</p>
   </div>
 
 
@@ -161,10 +171,10 @@
     <div class="scope-grid">
       <div class="scope-card do"><h4>✅ 本期做</h4><ul>
         <li>Agent 列表页统一管理两类 Agent，补齐来源、操作列，支持搜索与来源筛选。</li>
-        <li>Agent 详情页 4 Tab（配置 / 记忆 / 使用范围 / 用量统计）。</li>
-        <li>使用范围：可使用范围（仅自己 / 指定成员或部门）+ 已加入群聊回复方式。</li>
-        <li>用量统计：概览、扣除规则（可改）、拥有者额度、按用户明细、趋势。</li>
-        <li>外部连接智能体差异化：列表模型 / 记忆显 <code>-</code>；详情隐藏配置 / 记忆，用量仅概览。</li>
+        <li>Agent 详情页 4 Tab（配置 / 记忆 / 使用 / 用量）。</li>
+        <li>使用：可使用范围（仅自己 / 指定成员或部门）+ 已加入群聊回复方式。</li>
+        <li>用量：概览（4 指标 + 场景拆解 + 环比）、变化趋势（多场景 + 日/周/月粒度）、扣除规则（可改）、按用户明细（分页）。</li>
+        <li>外部连接智能体差异化：列表模型 / 记忆显 <code>-</code>；详情隐藏配置 / 记忆，用量仅保留概览与趋势。</li>
       </ul></div>
       <div class="scope-card dont"><h4>🚫 本期不做</h4><ul>
         <li>不改动「配置」「记忆」既有逻辑，仅做布局归位。</li>
@@ -175,7 +185,7 @@
     </div>
   </div>
 
-  <div class="footer">WorkHub Studio · Agent 管理能力增强 · PRD v1.0 · 配置 / 记忆 / 使用范围 / 用量统计</div>
+  <div class="footer">WorkHub Studio · Agent 管理能力增强 · PRD v1.1 · 配置 / 记忆 / 使用 / 用量</div>
 
 </div>
 </body>
