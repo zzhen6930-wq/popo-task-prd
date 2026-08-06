@@ -180,18 +180,18 @@
         <div class="form-card">
           <div class="field">
             <label><span class="req">*</span>名称</label>
-            <input class="input" id="fName">
+            <input class="input" id="fName" placeholder="例如：运营助手" maxlength="20">
           </div>
           <div class="field">
-            <label>一句话描述</label>
-            <input class="input" id="fDesc" placeholder="简要描述（选填）">
+            <label><span class="req">*</span>一句话描述</label>
+            <input class="input" id="fDesc" placeholder="说明这个模版能帮助谁完成什么工作" maxlength="100">
           </div>
           <div class="field">
-            <label>系统提示词</label>
+            <label><span class="req">*</span>系统提示词</label>
             <textarea class="input" id="fPrompt" placeholder="你是一个有帮助的 AI 助手。"></textarea>
             <div class="hint">定义模版 Agent 的角色与行为准则，租户基于该模版创建 Agent 时会继承。</div>
           </div>
-          <div class="save-bar"><button class="btn primary" onclick="toast('已保存基础信息')">💾 保存</button></div>
+          <div class="save-bar"><button class="btn primary" onclick="saveBase()">💾 保存</button></div>
         </div>
       </div>
 
@@ -233,34 +233,10 @@
     </div>
   </div>
 
-  <!-- 创建模版弹窗 -->
-  <div class="overlay" id="createOverlay">
-    <div class="modal">
-      <div class="modal-head"><span class="mt">创建模版</span><span class="cl" onclick="closeCreate()">✕</span></div>
-      <div class="modal-body">
-        <div class="lb-row"><span class="lb">模版头像</span></div>
-        <div class="av-list" id="avList"></div>
-        <div class="lb-row"><span class="lb">模版名称</span><span class="cnt">最多 20 个字</span></div>
-        <input class="input" id="newName" maxlength="20" placeholder="例如：运营助手" style="margin-bottom:18px">
-        <div class="lb-row"><span class="lb">一句话介绍</span><span class="cnt">最多 100 个字</span></div>
-        <textarea class="input" id="newDesc" maxlength="100" placeholder="说明这个模版能帮助谁完成什么工作"></textarea>
-      </div>
-      <div class="modal-foot">
-        <span class="foot-tip">创建后可继续配置提示词、Skill 和 MCP。</span>
-        <div class="foot-btns">
-          <button class="btn" onclick="closeCreate()">取消</button>
-          <button class="btn primary" onclick="doCreate()">创建</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="toastBox" style="position:absolute;left:50%;bottom:26px;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:13px;padding:9px 18px;border-radius:9px;opacity:0;transition:opacity .2s;z-index:90;"></div>
 </div>
 
 <script>
-const AVATARS=["👨‍💻","👩‍💼","🧑‍🏫","👩‍🔬","🧑‍🌾","🤖"];
-let newAv=0;
 const templates=[
   { id:1, name:"Echo 系统答疑", desc:"面向系统使用者的智能答疑模版", by:"张振", ct:"2026-07-12 10:24", st:"on", ico:"E" },
   { id:2, name:"财务审计助手", desc:"财务单据审核与合规检查", by:"朱弈", ct:"2026-07-09 15:40", st:"on", ico:"财" },
@@ -300,21 +276,36 @@ function toggleSt(id){
   renderList(); toast(t.st==='on'?`已上架「${t.name}」`:`已下架「${t.name}」`);
 }
 function openCreate(){
-  newAv=0; document.getElementById('newName').value=""; document.getElementById('newDesc').value="";
-  renderAvatars(); document.getElementById('createOverlay').classList.add('on');
+  curTpl=null;
+  bindSel={ skill:[], mcp:[] };
+  document.getElementById('viewList').style.display='none';
+  document.getElementById('viewCfg').style.display='block';
+  document.getElementById('cfgIco').textContent='＋';
+  document.getElementById('cfgName').textContent='创建模版';
+  document.getElementById('fName').value="";
+  document.getElementById('fDesc').value="";
+  document.getElementById('fPrompt').value="";
+  switchTab('base', document.querySelector('.tab[data-p="base"]'));
+  renderBind('skill'); renderBind('mcp');
 }
-function closeCreate(){ document.getElementById('createOverlay').classList.remove('on'); }
-function renderAvatars(){
-  document.getElementById('avList').innerHTML=AVATARS.map((a,i)=>
-    `<div class="av-op ${i===newAv?'on':''}" style="background:${['#dbeafe','#fee2e2','#fef3c7','#dcfce7','#ede9fe','#e0e7ff'][i]}" onclick="pickAv(${i})">${a}</div>`).join("");
-}
-function pickAv(i){ newAv=i; renderAvatars(); }
-function doCreate(){
-  const nm=document.getElementById('newName').value.trim();
-  if(!nm){ toast('请填写模版名称'); return; }
-  const id=Math.max(...templates.map(t=>t.id))+1;
-  templates.unshift({ id, name:nm, desc:document.getElementById('newDesc').value.trim()||"—", by:"张振", ct:"2026-08-05 21:10", st:"off", ico:nm[0] });
-  closeCreate(); renderList(); toast('创建成功，请继续配置'); openCfg(id);
+function saveBase(){
+  const nm=document.getElementById('fName').value.trim();
+  const ds=document.getElementById('fDesc').value.trim();
+  const pt=document.getElementById('fPrompt').value.trim();
+  if(!nm){ toast('请填写名称'); return; }
+  if(!ds){ toast('请填写一句话描述'); return; }
+  if(!pt){ toast('请填写系统提示词'); return; }
+  if(curTpl){
+    curTpl.name=nm; curTpl.desc=ds; curTpl.ico=nm[0];
+    toast('已保存基础信息');
+  }else{
+    const id=Math.max(...templates.map(t=>t.id))+1;
+    curTpl={ id, name:nm, desc:ds, by:"张振", ct:"2026-08-06 10:00", st:"off", ico:nm[0] };
+    templates.unshift(curTpl);
+    toast('创建成功，可继续绑定 Skill 与 MCP');
+  }
+  document.getElementById('cfgIco').textContent=curTpl.ico;
+  document.getElementById('cfgName').textContent=curTpl.name;
 }
 
 /* ===== 配置页 ===== */
@@ -374,7 +365,6 @@ function clearSel(type){ bindSel[type]=[]; renderBind(type); }
 
 /* init */
 renderList();
-document.getElementById('createOverlay').addEventListener('click',e=>{ if(e.target.id==='createOverlay') closeCreate(); });
 </script>
 </body>
 </html>
