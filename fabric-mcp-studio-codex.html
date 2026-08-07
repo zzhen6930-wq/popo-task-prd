@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub 超管平台 · MCP 管理 · Codex 风格原型</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e5e7eb; --line-2:#f1f5f9; --bg:#f8fafc; --bg-2:#eef2f7;
+    --ok:#16a34a; --warn:#b45309; --danger:#ef4444;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.08);
+    --shadow-lg:0 20px 60px rgba(15,23,42,.22);
+    --r:10px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg-2); color:var(--txt); padding:24px 16px 60px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+  .page-label{ max-width:1400px; margin:6px auto 12px; display:flex; align-items:center; gap:10px; }
+  .page-label .b-num{ background:#dc2626; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
+  .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
+
+  .app{ max-width:1400px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); height:900px; display:flex; position:relative; }
+
+  .topbar{ position:absolute; top:0; left:0; right:0; height:58px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 22px; z-index:3; }
+  .logo{ display:flex; align-items:center; gap:9px; font-size:17px; font-weight:800; color:var(--ink); }
+  .logo-icon{ width:24px; height:24px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+  .env-tag{ margin-left:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:4px 10px; font-size:12px; color:#dc2626; font-weight:700; }
+  .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .nav-link:hover{ color:var(--indigo-d); }
+  .txt-act{ font-size:13px; font-weight:600; cursor:pointer; }
+  .txt-act.edit{ color:var(--indigo); }
+  .txt-act.del{ color:var(--danger); margin-left:14px; }
+  .txt-act:hover{ text-decoration:underline; }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+
+  .sidebar{ width:196px; background:#fafbfc; border-right:1px solid var(--line-2); padding:72px 12px 12px; overflow-y:auto; }
+  .side-item{ font-size:13px; color:var(--txt); padding:8px 12px; border-radius:8px; margin:1px 0; cursor:pointer; display:flex; align-items:center; gap:9px; font-weight:500; }
+  .side-item:hover{ background:var(--line-2); }
+  .side-item.active{ background:#ede9fe; color:#6d28d9; font-weight:700; }
+  .side-item.sub{ margin-left:18px; font-size:12.5px; }
+
+  .main{ flex:1; padding:74px 30px 24px; overflow-y:auto; background:var(--bg); position:relative; }
+  .main-head{ display:flex; align-items:center; margin-bottom:4px; }
+  .main-title{ font-size:21px; font-weight:800; color:var(--ink); }
+  .main-sub{ font-size:13px; color:var(--mut); margin-bottom:16px; }
+
+  .btn{ border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; padding:9px 15px; display:inline-flex; align-items:center; gap:6px; transition:.15s; white-space:nowrap; }
+  .btn.primary{ background:var(--indigo); color:#fff; box-shadow:var(--shadow-sm); }
+  .btn.primary:hover{ background:var(--indigo-d); }
+  .btn.ghost{ background:#fff; color:var(--txt); border:1px solid var(--line); }
+  .btn.ghost:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .btn.sm{ padding:7px 12px; font-size:12px; }
+  .btn.danger-ghost{ background:#fff; color:var(--danger); border:1px solid #fecaca; }
+  .btn.danger-ghost:hover{ background:#fef2f2; }
+
+  .toolbar{ display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .search{ position:relative; flex:0 0 300px; }
+  .search input{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 12px 9px 34px; font-size:13px; background:#fff; }
+  .search input:focus{ outline:none; border-color:#a5b4fc; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+  .search .ic{ position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--mut); font-size:14px; }
+
+  .dd{ position:relative; }
+  .dd-btn{ display:inline-flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13px; color:var(--txt); cursor:pointer; font-weight:600; min-width:130px; justify-content:space-between; transition:.15s; }
+  .dd-btn:hover{ border-color:#c7d2fe; }
+  .dd-btn.on{ border-color:#a5b4fc; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+  .dd-btn .cur{ color:var(--ink); }
+  .dd-btn .cur.ph{ color:var(--mut); font-weight:500; }
+  .dd-btn .caret{ color:var(--mut); font-size:10px; transition:.2s; }
+  .dd-btn.on .caret{ transform:rotate(180deg); }
+  .dd-menu{ position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:#fff; border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow-md); padding:6px; z-index:30; display:none; max-height:280px; overflow-y:auto; }
+  .dd-menu.show{ display:block; animation:pop .14s ease; }
+  @keyframes pop{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
+  .dd-opt{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--txt); cursor:pointer; white-space:nowrap; }
+  .dd-opt:hover{ background:var(--line-2); }
+  .dd-opt.sel{ background:#ede9fe; color:#6d28d9; font-weight:700; }
+  .dd-opt .ck{ margin-left:auto; color:#6d28d9; font-size:12px; opacity:0; }
+  .dd-opt.sel .ck{ opacity:1; }
+
+  .table{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--shadow-sm); }
+  .table th{ background:#fafbfc; font-size:12px; font-weight:700; color:var(--sub); text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); }
+  .table td{ padding:13px 14px; font-size:13px; border-bottom:1px solid var(--line-2); vertical-align:middle; }
+  .table tr:last-child td{ border-bottom:none; }
+  .table tbody tr{ transition:.12s; }
+  .table tbody tr:hover{ background:#fafbff; }
+  .cell-name{ display:flex; align-items:center; gap:11px; }
+  .cell-ico{ width:36px; height:36px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .cell-name .nm{ font-weight:700; color:var(--ink); font-size:13.5px; }
+  .cell-name .dz{ font-size:11.5px; color:var(--mut); margin-top:1px; max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .pill{ font-size:11px; padding:2.5px 9px; border-radius:20px; font-weight:700; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .pill.gray{ background:var(--line-2); color:var(--sub); }
+  .pill.green{ background:#dcfce7; color:var(--ok); }
+  .pill.amber{ background:#fef3c7; color:var(--warn); }
+  .pill.indigo{ background:#ede9fe; color:#6d28d9; }
+  .pill.blue{ background:#dbeafe; color:#2563eb; }
+
+  .row-acts{ display:flex; align-items:center; gap:4px; justify-content:flex-end; }
+  .icon-btn{ width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--sub); font-size:15px; transition:.12s; }
+  .icon-btn:hover{ background:var(--line-2); color:var(--indigo-d); }
+  .icon-btn.danger:hover{ background:#fef2f2; color:var(--danger); }
+  .empty{ color:var(--mut); font-size:13px; padding:56px 0; text-align:center; background:#fff; border:1px dashed var(--line); border-radius:12px; }
+
+  .overlay{ position:absolute; inset:0; background:rgba(15,23,42,.42); backdrop-filter:blur(1px); z-index:40; display:none; align-items:center; justify-content:center; }
+  .overlay.show{ display:flex; animation:fade .16s ease; }
+  @keyframes fade{ from{opacity:0;} to{opacity:1;} }
+  .modal{ background:#fff; border-radius:18px; width:640px; max-width:94%; max-height:88%; display:flex; flex-direction:column; overflow:hidden; box-shadow:var(--shadow-lg); animation:rise .2s cubic-bezier(.2,.9,.3,1); }
+  @keyframes rise{ from{opacity:0; transform:translateY(12px) scale(.98);} to{opacity:1; transform:none;} }
+  .modal-head{ padding:20px 24px 6px; display:flex; align-items:flex-start; }
+  .modal-head .mt{ font-size:18px; font-weight:800; color:var(--ink); }
+  .modal-head .ms{ font-size:12.5px; color:var(--mut); margin-top:3px; }
+  .modal-head .x{ margin-left:auto; cursor:pointer; color:var(--mut); font-size:20px; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; }
+  .modal-head .x:hover{ background:var(--line-2); }
+  .modal-body{ padding:14px 24px 8px; overflow-y:auto; flex:1; }
+  .modal-foot{ padding:16px 24px; display:flex; align-items:center; gap:10px; justify-content:flex-end; border-top:1px solid var(--line-2); }
+
+  .field{ margin-bottom:18px; }
+  .field > label{ display:block; font-size:13px; font-weight:700; color:var(--txt); margin-bottom:7px; }
+  .field label .opt{ color:var(--mut); font-weight:400; }
+  .field .hint{ font-size:11.5px; color:var(--mut); margin-top:6px; }
+  .inp{ width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; background:#fff; transition:.15s; }
+  .inp:focus{ outline:none; border-color:#a5b4fc; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+  textarea.inp{ min-height:78px; resize:vertical; }
+  .mono{ font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12px; }
+
+  .note{ font-size:12px; border-radius:9px; padding:10px 12px; line-height:1.6; }
+  .note.info{ color:#3730a3; background:#eef2ff; border-left:3px solid var(--indigo); }
+
+  .seg{ display:inline-flex; background:var(--line-2); border-radius:10px; padding:3px; }
+  .seg button{ border:none; background:none; padding:7px 18px; font-size:13px; font-weight:700; color:var(--sub); border-radius:7px; cursor:pointer; transition:.15s; }
+  .seg button.on{ background:#fff; color:#6d28d9; box-shadow:var(--shadow-sm); }
+
+  .icon-up{ display:flex; align-items:center; gap:14px; }
+  .icon-box{ width:60px; height:60px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1px solid var(--line); }
+  .up-btn{ border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--txt); }
+  .up-btn:hover{ border-color:#c7d2fe; }
+
+  /* 鉴权类型选择卡 */
+  .auth-opts{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; }
+  .auth-opt{ border:1.5px solid var(--line); border-radius:11px; padding:11px; cursor:pointer; transition:.15s; }
+  .auth-opt:hover{ border-color:#c7d2fe; }
+  .auth-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
+  .auth-opt .ao-t{ font-size:13px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:5px; }
+  .auth-opt .ao-d{ color:var(--mut); margin-top:4px; line-height:1.45; font-size:11.5px; }
+
+  /* 租户多选 */
+  .radio-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .radio-opt{ flex:1; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13px; font-weight:600; color:var(--txt); cursor:pointer; display:flex; align-items:center; gap:8px; transition:.15s; }
+  .radio-opt:hover{ border-color:#c7d2fe; }
+  .radio-opt.on{ border-color:var(--indigo); background:#f5f3ff; color:#4338ca; }
+  .radio-dot{ width:16px; height:16px; border-radius:50%; border:1.5px solid var(--mut); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .radio-opt.on .radio-dot{ border-color:var(--indigo); }
+  .radio-opt.on .radio-dot::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--indigo); }
+  .tenant-list{ border:1px solid var(--line); border-radius:11px; max-height:180px; overflow-y:auto; }
+  .tl-item{ display:flex; align-items:center; gap:10px; padding:9px 13px; font-size:13px; border-bottom:1px solid var(--line-2); cursor:pointer; }
+  .tl-item:last-child{ border-bottom:none; }
+  .tl-item:hover{ background:var(--bg); }
+  .checkbox{ width:18px; height:18px; border-radius:5px; border:1.5px solid var(--line); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0; }
+  .checkbox.on{ background:var(--indigo); border-color:var(--indigo); }
+
+  .toast{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%) translateY(8px); background:var(--ink); color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; z-index:60; opacity:0; transition:.24s; pointer-events:none; box-shadow:var(--shadow-md); }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ============ CODEX 风格覆盖 ============ */
+:root{
+  --indigo:#0d0d0d; --indigo-d:#0d0d0d; --violet:#0d0d0d;
+  --ink:#0d0d0d; --txt:#3f3f46; --sub:#5d5d63; --mut:#8e8e96;
+  --line:#e8e8ea; --line-2:#f0f0f2; --bg:#f7f7f8; --bg-2:#f7f7f8;
+  --ok:#1a7f4b; --warn:#b45309; --danger:#c8342b;
+  --shadow-sm:none; --shadow-md:none; --shadow-lg:0 8px 24px rgba(0,0,0,.10);
+  --r:8px;
+}
+body{ background:#f7f7f8; }
+.app{ border-radius:12px; box-shadow:none; border:1px solid var(--line); }
+.page-label .b-num{ background:#0d0d0d; border-radius:6px; font-weight:600; }
+.page-label .b-title{ font-weight:700; }
+
+/* 顶栏 */
+.topbar{ border-bottom:1px solid var(--line); }
+.logo{ font-size:15px; font-weight:700; }
+.logo-icon{ background:#0d0d0d; border-radius:6px; font-weight:700; }
+.env-tag{ background:#fdf0ef; border:none; border-radius:6px; color:#c8342b; font-weight:500; font-size:11.5px; padding:3px 8px; }
+.nav-link{ font-weight:500; color:var(--sub); }
+.nav-link:hover{ color:#0d0d0d; }
+.avatar{ background:#0d0d0d; font-weight:600; }
+.txt-act{ font-weight:500; font-size:12.5px; }
+.txt-act.edit{ color:var(--sub); } .txt-act.edit:hover{ color:#0d0d0d; }
+.txt-act.del{ color:#c8342b; }
+
+/* 侧栏 */
+.sidebar{ width:200px; background:#f4f4f5; border-right:1px solid var(--line); }
+.side-item{ height:30px; padding:0 10px; border-radius:6px; font-size:13px; color:var(--sub); font-weight:400; }
+.side-item:hover{ background:#ebebed; }
+.side-item.active{ background:#fff; color:#0d0d0d; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+
+/* 页头 */
+.main{ background:#fff; padding:74px 32px 24px; }
+.main-title{ font-size:24px; font-weight:700; letter-spacing:-.2px; }
+.main-sub{ font-size:13px; color:var(--sub); margin-bottom:20px; }
+
+/* 按钮 */
+.btn{ border-radius:8px; font-size:13px; font-weight:500; padding:0 14px; height:32px; }
+.btn.primary{ background:#0d0d0d; color:#fff; box-shadow:none; }
+.btn.primary:hover{ background:#26262b; }
+.btn.ghost{ background:#fff; color:#0d0d0d; border:1px solid var(--line); }
+.btn.ghost:hover{ background:#f7f7f8; border-color:#d8d8dc; color:#0d0d0d; }
+.btn.sm{ height:28px; padding:0 11px; font-size:12.5px; }
+.btn.danger-ghost{ background:#fdf0ef; color:#c8342b; border:none; }
+.btn.danger-ghost:hover{ background:#fbe4e2; }
+
+/* 搜索 / 下拉 */
+.search input{ border-radius:8px; padding:7px 12px 7px 32px; height:32px; background:#f4f4f5; border:1px solid transparent; }
+.search input:focus{ outline:none; border-color:#0d0d0d; box-shadow:none; background:#fff; }
+.dd-btn{ border-radius:8px; padding:0 12px; height:32px; font-weight:500; font-size:12.5px; }
+.dd-btn:hover{ border-color:#d8d8dc; }
+.dd-btn.on{ border-color:#0d0d0d; box-shadow:none; }
+.dd-menu{ border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.10); padding:4px; }
+.dd-opt{ border-radius:6px; height:32px; padding:0 10px; font-size:13px; }
+.dd-opt:hover{ background:#f4f4f5; }
+.dd-opt.sel{ background:#f0f0f2; color:#0d0d0d; font-weight:500; }
+.dd-opt .ck{ color:#0d0d0d; }
+
+/* 表格 */
+.table{ border-radius:12px; box-shadow:none; border:1px solid var(--line); }
+.table th{ background:#fafafa; font-size:12.5px; font-weight:600; color:var(--sub); border-bottom:1px solid var(--line); }
+.table td{ padding:12px 14px; border-bottom:1px solid var(--line-2); }
+.table tbody tr:hover{ background:#fafafa; }
+.cell-ico{ border-radius:8px; background:#f4f4f5; }
+.cell-name .nm{ font-weight:500; }
+.cell-name .dz{ color:var(--sub); }
+.pill{ border-radius:6px; font-size:11.5px; font-weight:500; padding:3px 8px; }
+.pill.gray{ background:#f0f0f2; color:#5d5d63; }
+.pill.green{ background:#eaf5ee; color:#1a7f4b; }
+.pill.amber{ background:#fdf4e7; color:#b45309; }
+.pill.indigo{ background:#f0f0f2; color:#5d5d63; }
+.pill.blue{ background:#eef4fd; color:#0b6bcb; }
+.icon-btn{ border-radius:6px; color:var(--sub); }
+.icon-btn:hover{ background:#f0f0f2; color:#0d0d0d; }
+.icon-btn.danger:hover{ background:#fdf0ef; color:#c8342b; }
+.empty{ border:1px dashed #d8d8dc; border-radius:12px; background:#fafafa; color:var(--sub); }
+
+/* 弹窗 */
+.overlay{ background:rgba(0,0,0,.30); backdrop-filter:none; }
+.modal{ border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.10); }
+.modal-head .mt{ font-size:17px; font-weight:700; letter-spacing:-.2px; }
+.modal-head .ms{ color:var(--sub); }
+.modal-head .x{ border-radius:6px; } .modal-head .x:hover{ background:#f0f0f2; }
+.modal-foot{ border-top:1px solid var(--line-2); }
+
+/* 表单 */
+.field > label{ font-size:13px; font-weight:500; color:#0d0d0d; }
+.field .hint{ color:var(--sub); }
+.inp{ border-radius:8px; padding:8px 12px; font-size:13px; }
+.inp:focus{ outline:none; border-color:#0d0d0d; box-shadow:none; }
+.note.info{ color:#3f3f46; background:#fafafa; border:1px solid var(--line); border-left:3px solid #0d0d0d; border-radius:8px; }
+.seg{ background:#f0f0f2; border-radius:8px; padding:3px; }
+.seg button{ border-radius:6px; padding:5px 16px; font-size:12.5px; font-weight:500; color:var(--sub); }
+.seg button.on{ background:#fff; color:#0d0d0d; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.icon-box{ border-radius:10px; border:1px solid var(--line); background:#fafafa; }
+.up-btn{ border-radius:8px; font-weight:500; font-size:12.5px; color:#0d0d0d; }
+.up-btn:hover{ border-color:#0d0d0d; }
+
+/* 选择卡 / 单选 / 多选 */
+.auth-opt{ border:1px solid var(--line); border-radius:8px; }
+.auth-opt:hover{ border-color:#d8d8dc; }
+.auth-opt.on{ border-color:#0d0d0d; background:#fafafa; }
+.auth-opt .ao-t{ font-size:13px; font-weight:600; }
+.auth-opt .ao-d{ color:var(--sub); }
+.radio-opt{ border:1px solid var(--line); border-radius:8px; font-weight:500; }
+.radio-opt:hover{ border-color:#d8d8dc; }
+.radio-opt.on{ border-color:#0d0d0d; background:#fafafa; color:#0d0d0d; }
+.radio-dot{ border:1.5px solid #b9b9bf; }
+.radio-opt.on .radio-dot{ border-color:#0d0d0d; }
+.radio-opt.on .radio-dot::after{ background:#0d0d0d; }
+.tenant-list{ border-radius:8px; border:1px solid var(--line); }
+.tl-item{ border-bottom:1px solid var(--line-2); }
+.tl-item:hover{ background:#fafafa; }
+.checkbox{ border-radius:4px; border:1.5px solid #c4c4ca; }
+.checkbox.on{ background:#0d0d0d; border-color:#0d0d0d; }
+.toast{ background:#0d0d0d; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.16); }
+.cell-ico,.icon-box{ background:#f4f4f5 !important; border:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="b-num">1</span>
+  <span class="b-title">Workhub Studio Admin · MCP 管理（Codex 风格）</span>
+  <span class="b-desc">上架内置 MCP（手动 / 导入 json，SSE·HTTP）· 上架时自动检测鉴权类型 · 分配可使用租户｜不碰凭据、不做账号授权</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><span class="logo-icon">W</span>Workhub Studio Admin</div>
+    <div class="right"><span class="nav-link">🧭 服务导航</span><span class="avatar">张</span></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="side-item">🏢 组织管理</div>
+    <div class="side-item">👤 超管列表</div>
+    <div class="side-item">🛡 平台管控</div>
+    <div class="side-item active">🔌 MCP 管理</div>
+    <div class="side-item">📊 用量统计</div>
+    <div class="side-item">🧩 模版管理</div>
+    <div class="side-item">📖 文档管理</div>
+  </div>
+
+  <div class="main" id="main"></div>
+
+  <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ============ 数据 ============ */
+const TENANTS = ["网易－效率工程部","AgentHub 租户","网易云音乐","网易游戏","有道","网易严选","网易传媒"];
+
+const authMeta = {
+  popo:  { pill:"green",  label:"静默授权" },
+  oauth: { pill:"amber",  label:"OAuth连接" },
+  api:   { pill:"indigo", label:"自定义API Key" }
+};
+const authDesc = {
+  popo:  "用户以自己 POPO 身份静默授权，无需连接",
+  oauth: "外跳浏览器授权绑定账号（租户 / 用户）",
+  api:   "配 Headers（API Key）由租户 / 用户提供"
+};
+
+/* auth 上架时手动指定；scope=all/part；tenants=指定租户 */
+const mcps = [
+  { name:"POPO 云空间", ico:"📁", bg:"#e0f2fe", desc:"读写 POPO 云文档、表格、多维表与文件夹", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-doc/mcp", scope:"all", tenants:[] },
+  { name:"POPO 日程",   ico:"📅", bg:"#ede9fe", desc:"查询日程、预约会议与会议室、节假日查询", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-cal/mcp", scope:"all", tenants:[] },
+  { name:"POPO 任务",   ico:"✅", bg:"#dcfce7", desc:"创建 / 更新任务与子任务、查询任务列表", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/popo-task/mcp", scope:"all", tenants:[] },
+  { name:"易协作",     ico:"🤝", bg:"#fef3c7", desc:"协同文档、项目与流程审批的接入", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/yxc/mcp", scope:"all", tenants:[] },
+  { name:"KM 知识管理", ico:"📚", bg:"#e0e7ff", desc:"搜索知识、阅读文章，与 KM 系统交互", auth:"popo",  transport:"http", url:"https://mcp.workhub.netease.com/km/mcp", scope:"all", tenants:[] },
+  { name:"网易邮箱",   ico:"✉️", bg:"#eef2f7", desc:"读取邮件、搜索往来和发送邮件", auth:"oauth", transport:"sse",  url:"https://mcp.workhub.netease.com/mail/sse", scope:"all", tenants:[] },
+  { name:"GitHub",     ico:"🐙", bg:"#f1f5f9", desc:"查询代码、Issue、PR 和仓库信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/github/mcp", scope:"part", tenants:["网易－效率工程部","有道"] },
+  { name:"Figma",      ico:"🎨", bg:"#fae8ff", desc:"读取设计文件、页面和组件信息", auth:"oauth", transport:"http", url:"https://mcp.workhub.netease.com/figma/mcp", scope:"part", tenants:["网易游戏","网易云音乐"] },
+  { name:"CodeMaker",  ico:"⟨⟩", bg:"#e0f2fe", desc:"调用研发代码生成与分析能力", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/codemaker/mcp", scope:"all", tenants:[] },
+  { name:"北大法宝",   ico:"⚖️", bg:"#f1f5f9", desc:"检索法律法规、案例与司法解释", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/pkulaw/mcp", scope:"part", tenants:["网易－效率工程部"] },
+  { name:"企查查",     ico:"🏢", bg:"#eef2f7", desc:"查询企业工商、股东、风险与关系图谱", auth:"api",   transport:"http", url:"https://mcp.workhub.netease.com/qcc/mcp", scope:"all", tenants:[] }
+];
+
+/* ============ 状态 ============ */
+let fltName="";
+let fltAuth="";   // 空=全部
+const main=document.getElementById("main");
+const overlay=document.getElementById("overlay");
+const modal=document.getElementById("modal");
+
+/* ============ 渲染 ============ */
+function render(){
+  main.innerHTML=`
+    <div class="main-head">
+      <span class="main-title">MCP 管理</span>
+      <button class="btn primary" style="margin-left:auto;" onclick="openAdd(-1)">＋ 上架 MCP</button>
+    </div>
+    <div class="main-sub"></div>
+
+    <div class="toolbar">
+      <div class="search"><span class="ic">🔍</span><input placeholder="搜索 MCP 名称" value="${fltName}" oninput="onSearch(this.value)"></div>
+      ${ddAuth()}
+      ${(fltName||fltAuth)?`<button class="btn ghost sm" onclick="resetFlt()">重置</button>`:""}
+    </div>
+
+    ${renderTable()}
+  `;
+}
+function onSearch(v){ fltName=v; render(); }
+function resetFlt(){ fltName=""; fltAuth=""; render(); }
+
+function ddAuth(){
+  const cur=fltAuth?authMeta[fltAuth]:null;
+  return `<div class="dd" id="ddAuth">
+    <div class="dd-btn" onclick="toggleDD('ddAuth',event)">
+      <span class="cur ${cur?'':'ph'}">${cur?cur.label:'全部鉴权类型'}</span><span class="caret">▼</span>
+    </div>
+    <div class="dd-menu">
+      <div class="dd-opt ${!fltAuth?'sel':''}" onclick="pickAuth('')">全部鉴权类型<span class="ck">✓</span></div>
+      ${Object.keys(authMeta).map(a=>`<div class="dd-opt ${a===fltAuth?'sel':''}" onclick="pickAuth('${a}')"><span class="pill ${authMeta[a].pill}">${authMeta[a].label}</span><span class="ck">✓</span></div>`).join("")}
+    </div>
+  </div>`;
+}
+function pickAuth(a){ fltAuth=a; closeDD(); render(); }
+
+function toggleDD(id,e){ e.stopPropagation(); const el=document.getElementById(id); const menu=el.querySelector('.dd-menu'); const btn=el.querySelector('.dd-btn'); const open=menu.classList.contains('show'); closeDD(); if(!open){ menu.classList.add('show'); btn.classList.add('on'); } }
+function closeDD(){ document.querySelectorAll('.dd-menu.show').forEach(m=>m.classList.remove('show')); document.querySelectorAll('.dd-btn.on').forEach(b=>b.classList.remove('on')); }
+document.addEventListener('click', closeDD);
+
+function renderTable(){
+  const rows=mcps.filter(m=>{
+    if(fltName){ const q=fltName.toLowerCase(); if(!(m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q))) return false; }
+    if(fltAuth && m.auth!==fltAuth) return false;
+    return true;
+  });
+  if(!rows.length) return `<div class="empty">没有匹配的 MCP，调整筛选试试。</div>`;
+  return `<table class="table">
+    <thead><tr>
+      <th style="width:34%">MCP</th>
+      <th style="width:14%">鉴权类型</th>
+      <th style="width:10%">传输</th>
+      <th style="width:26%">可使用租户</th>
+      <th style="width:9%;text-align:right;">操作</th>
+    </tr></thead>
+    <tbody>${rows.map(m=>{ const i=mcps.indexOf(m); const meta=authMeta[m.auth];
+      const scope = m.scope==="all"
+        ? `<span class="pill blue">全部租户</span>`
+        : `<span class="pill gray">${m.tenants.length} 个租户</span> <span style="font-size:11.5px;color:var(--mut);">${m.tenants.slice(0,2).join("、")}${m.tenants.length>2?" 等":""}</span>`;
+      return `<tr>
+        <td><div class="cell-name"><span class="cell-ico" style="background:${m.bg}">${m.ico}</span><div><div class="nm">${m.name}</div><div class="dz">${m.desc}</div></div></div></td>
+        <td><span class="pill ${meta.pill}">${meta.label}</span></td>
+        <td><span class="pill gray">${m.transport.toUpperCase()}</span></td>
+        <td>${scope}</td>
+        <td><div class="row-acts">
+          <span class="txt-act edit" onclick="openAdd(${i})">编辑</span>
+          <span class="txt-act del" onclick="delMcp(${i})">删除</span>
+        </div></td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
+}
+
+/* ============ 上架 / 编辑 ============ */
+let f={};
+function openAdd(idx){
+  if(idx>=0){ const m=mcps[idx]; f={ idx, mode:"form", name:m.name, ico:m.ico, bg:m.bg, note:m.desc, auth:m.auth, transport:m.transport, url:m.url, json:"", scope:m.scope, tenants:[...m.tenants] }; }
+  else f={ idx:-1, mode:"form", name:"", ico:"🔌", bg:"#eef2ff", note:"", auth:"popo", transport:"http", url:"", json:"", scope:"all", tenants:[] };
+  overlay.classList.add("show"); renderModal();
+}
+function closeModal(){ overlay.classList.remove("show"); }
+function setF(k,v){ f[k]=v; }
+function setAuth(a){ f.auth=a; renderModal(); }
+function setMode(m){ f.mode=m; renderModal(); }
+function setTransport(t){ f.transport=t; renderModal(); }
+function setScope(s){ f.scope=s; renderModal(); }
+function toggleTenant(t){ const i=f.tenants.indexOf(t); if(i>=0)f.tenants.splice(i,1); else f.tenants.push(t); renderModal(); }
+
+function renderModal(){
+  const isNew=f.idx<0;
+  const formBody=`
+    <div class="field"><label>服务器名称</label><input class="inp" placeholder="如：GitHub MCP" value="${f.name}" oninput="setF('name',this.value)"></div>
+    <div class="field"><label>描述 <span class="opt">可选</span></label><textarea class="inp" placeholder="说明此 MCP 的用途，便于 Agent 判断何时调用" oninput="setF('note',this.value)">${f.note}</textarea></div>
+    <div class="field"><label>传输类型</label>
+      <div class="seg"><button class="${f.transport==='sse'?'on':''}" onclick="setTransport('sse')">SSE</button><button class="${f.transport==='http'?'on':''}" onclick="setTransport('http')">HTTP</button></div>
+    </div>
+    <div class="field"><label>服务器 URL</label><input class="inp mono" placeholder="${f.transport==='sse'?'https://mcp.yourserver.com/sse':'https://mcp.yourserver.com/mcp'}" value="${f.url}" oninput="setF('url',this.value)"></div>`;
+  const jsonBody=`
+    <div class="note info" style="margin-bottom:12px;">粘贴标准 MCP 配置 json，支持 <b>sse / http</b>。<b>无需填写 Headers</b>——凭据由各租户 / 用户在后续环节补充。</div>
+    <div class="field"><label>配置 json</label>
+      <textarea class="inp mono" style="min-height:180px;" placeholder='{\n  "name": "GitHub MCP",\n  "transport": "http",\n  "url": "https://mcp.yourserver.com/mcp"\n}' oninput="setF('json',this.value)">${f.json}</textarea>
+    </div>`;
+
+  modal.innerHTML=`
+    <div class="modal-head"><div><div class="mt">${isNew?'上架 MCP':'编辑 MCP'}</div></div><span class="x" onclick="closeModal()">×</span></div>
+    <div class="modal-body">
+      <div class="field"><label>图标</label>
+        <div class="icon-up"><div class="icon-box" style="background:${f.bg}">${f.ico}</div>
+          <div><button class="up-btn" onclick="toast('选择本地图片（PNG/JPG，≤1MB，推荐 256×256）')">⬆ 上传图标</button>
+          <div class="hint">未上传使用默认图标</div></div></div>
+      </div>
+
+      <div style="margin-bottom:16px;"><div class="seg">
+        <button class="${f.mode==='form'?'on':''}" onclick="setMode('form')">手动配置</button>
+        <button class="${f.mode==='json'?'on':''}" onclick="setMode('json')">导入 json</button>
+      </div></div>
+      ${f.mode==='form'?formBody:jsonBody}
+
+      <div class="field"><label>可使用租户</label>
+        <div class="radio-row">
+          <div class="radio-opt ${f.scope==='all'?'on':''}" onclick="setScope('all')"><span class="radio-dot"></span>全部租户（默认）</div>
+          <div class="radio-opt ${f.scope==='part'?'on':''}" onclick="setScope('part')"><span class="radio-dot"></span>指定租户</div>
+        </div>
+        ${f.scope==='part'?`<div class="tenant-list">${TENANTS.map(t=>`<label class="tl-item" onclick="toggleTenant('${t}')"><span class="checkbox ${f.tenants.includes(t)?'on':''}">${f.tenants.includes(t)?'✓':''}</span>${t}</label>`).join("")}</div>`:''}
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal()">取消</button>
+      <button class="btn primary" onclick="doSave()">${isNew?'上架':'保存'}</button>
+    </div>`;
+}
+function doSave(){
+  let rec;
+  if(f.mode==='json'){
+    try{ const o=JSON.parse(f.json||"{}"); rec={ name:o.name||"自定义 MCP", desc:o.note||o.url||"", transport:(o.transport||"http").toLowerCase(), url:o.url||"" }; }
+    catch(e){ toast("json 解析失败，请检查格式"); return; }
+  } else rec={ name:f.name.trim()||"自定义 MCP", desc:f.note.trim(), transport:f.transport, url:f.url.trim() };
+  const full={ ...rec, ico:f.ico, bg:f.bg, auth:f.auth, scope:f.scope, tenants:f.scope==='all'?[]:[...f.tenants] };
+  if(f.idx>=0){ full.bg=mcps[f.idx].bg; mcps[f.idx]=full; } else mcps.push(full);
+  toast((f.idx>=0?"已保存：":"已上架：")+full.name); closeModal(); render();
+}
+function delMcp(i){ if(!confirm(`确认下架「${mcps[i].name}」？下架后已分配租户将不可见。`))return; const n=mcps[i].name; mcps.splice(i,1); toast("已下架："+n); render(); }
+
+/* ============ 公共 ============ */
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+let toastTimer;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2400); }
+
+render();
+</script>
+</body>
+</html>
