@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · 全局设计规范 v2.0</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#fff; --side:#f4f4f5;
+  --line:#e8e8ea; --line2:#f0f0f2;
+  --t1:#0d0d0d; --t2:#5d5d63; --t3:#8e8e96;
+  --acc:#0b6bcb; --ok:#1a7f4b; --warn:#b45309; --err:#c8342b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC",sans-serif;background:var(--bg);color:var(--t1);line-height:1.7;padding:36px 24px;font-size:14px}
+.wrap{max-width:1080px;margin:0 auto}
+.hd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin-bottom:16px}
+.hd h1{font-size:22px;font-weight:700;letter-spacing:-.2px}
+.hd p{color:var(--t2);margin-top:6px}
+.hd .m{display:flex;gap:16px;color:var(--t3);font-size:12.5px;margin-top:12px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 26px;margin-bottom:14px}
+.sec>h2{font-size:16px;font-weight:700;padding-bottom:10px;border-bottom:1px solid var(--line2);margin-bottom:14px;display:flex;gap:9px;align-items:center}
+.sec>h2 .n{width:22px;height:22px;border-radius:6px;background:var(--t1);color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
+h3{font-size:14px;font-weight:700;margin:18px 0 8px}
+h4{font-size:13px;font-weight:600;margin:14px 0 6px;color:var(--t1)}
+p{color:var(--t2);margin-bottom:8px}
+ul,ol{padding-left:20px;color:var(--t2)} li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:#fafafa;color:var(--t2);font-weight:600}
+code{background:#f4f4f5;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px;font-family:Menlo,monospace;color:#3f3f46}
+.note{border:1px solid var(--line);border-left:3px solid var(--t1);border-radius:8px;background:#fafafa;padding:11px 14px;margin:10px 0;font-size:13px;color:var(--t2)}
+.note b{color:var(--t1)}
+.bad{border-left-color:var(--err)} .good{border-left-color:var(--ok)}
+pre{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-family:Menlo,monospace;font-size:12px;line-height:1.75;color:#3f3f46;overflow-x:auto;margin:10px 0}
+.demo{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fcfcfd;margin:10px 0}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.cmp>div{border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13px}
+.cmp .h{font-weight:600;font-size:12px;margin-bottom:6px}
+.cmp .o .h{color:var(--err)} .cmp .n2 .h{color:var(--ok)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1>WorkHub Studio · 全局设计规范 v2.0</h1>
+    <p>参考 Codex 设计语言，对 Studio 平台做<b>信息架构 / 页面骨架 / 组件体系 / 交互范式</b>的整体升级。不是换色换字，是重构页面组织方式。</p>
+    <div class="m"><span>2026-08-07</span><span>青远（张振）</span><span>替代 v1.0</span></div>
+  </div>
+  <div class="sec">
+    <h2><span class="n">0</span>设计升级的 6 条主张</h2>
+    <p>这 6 条决定「像不像 Codex」，比配色重要得多。后续所有页面必须满足。</p>
+    <table>
+      <thead><tr><th style="width:5%">#</th><th style="width:28%">主张</th><th>含义与判定标准</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>去容器化</b></td><td>删掉"卡片包卡片"。一屏最多 <b>1 层</b>容器边框。模块标题<b>裸露</b>在容器外，不再包一层白卡。判定：任意元素外层边框嵌套 ≤1。</td></tr>
+        <tr><td>2</td><td><b>行式信息单元</b></td><td>凡"一个对象 + 一个设置"的场景，一律用<b>设置行</b>，不用表格、不用卡片、不用表单。判定：列数 ≤3 且其中一列是操作 → 必须用设置行。</td></tr>
+        <tr><td>3</td><td><b>内容限宽居中</b></td><td>配置/详情类页面主区限宽 <b>860px</b> 居中；纯数据表格页限宽 <b>1180px</b>。不做通栏铺满。</td></tr>
+        <tr><td>4</td><td><b>单色线性图标</b></td><td>全站禁用 emoji 与彩色图标，统一 <b>16px stroke-1.5 线性 SVG</b>，颜色继承文字色。</td></tr>
+        <tr><td>5</td><td><b>抽屉优先</b></td><td>任何超过 3 个字段或需要浏览列表的操作，用<b>右侧抽屉</b>，不用居中弹窗。弹窗只留确认类。</td></tr>
+        <tr><td>6</td><td><b>信息减法</b></td><td>每行重复的静态说明上提到标题下说一次；卡片内信息 ≤3 条；表格列 ≤6 列，超出收进详情或 <code>···</code>。</td></tr>
+      </tbody>
+    </table>
+    <div class="note bad"><b>反面示例（当前 Studio）：</b>「已加入的群聊」用 3 列表格，第 2 列每行都是同一句"会话上下文与其他私聊、群聊隔离"；外层还包了一层白卡。→ 违反第 1、2、6 条。</div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">1</span>页面骨架（Layout）</h2>
+    <h3>1.1 三区结构</h3>
+    <pre>┌──────────────────────────────────────────────────┐
+│ TopBar 52px  产品名 · 租户切换          搜索 头像 │
+├────────────┬─────────────────────────────────────┤
+│ Sidebar    │  Main                                │
+│ 240px      │  ┌ PageHeader ────────────────────┐  │
+│ #f4f4f5    │  │ 标题 24/700 + 副标题 + 右上操作 │  │
+│            │  ├ Toolbar（Tab / 筛选 / 搜索）───┤  │
+│            │  ├ Content（限宽 860 或 1180）────┤  │
+│            │  └────────────────────────────────┘  │
+└────────────┴─────────────────────────────────────┘</pre>
+    <table>
+      <thead><tr><th style="width:18%">区域</th><th style="width:14%">尺寸</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td>TopBar</td><td>高 52px</td><td>白底，底部 1px 线。左：产品标识 + 租户选择器；右：全局搜索、帮助、头像。<b>不放业务操作。</b></td></tr>
+        <tr><td>Sidebar</td><td>宽 240px</td><td>底色 #f4f4f5，无右边框（靠色差分层）。顶部搜索框，中部分组菜单，<b>底部固定</b>当前账号。可折叠到 56px（仅图标）。</td></tr>
+        <tr><td>Main</td><td>flex:1</td><td>白底。内边距 <code>32px 40px 64px</code>。内部内容按类型限宽居中。</td></tr>
+      </tbody>
+    </table>
+    <h3>1.2 内容限宽</h3>
+    <ul>
+      <li><b>860px</b>：详情页、配置页、设置页、表单页（Agent 详情、模版配置、MCP 编辑）。</li>
+      <li><b>1180px</b>：列表页、数据看板（Agent 列表、MCP 列表、用量统计）。</li>
+      <li>超宽屏时容器 <code>margin:0 auto</code> 居中，两侧留白，<b>不拉伸</b>。</li>
+    </ul>
+    <h3>1.3 垂直节奏</h3>
+    <pre>PageHeader 标题
+  ↓ 4px
+副标题
+  ↓ 24px
+Toolbar（Tab / 筛选）
+  ↓ 24px
+Section 小标题 ← 裸标题，无容器
+  ↓ 4px
+Section 说明（可选，灰）
+  ↓ 12px
+容器（设置行组 / 表格 / 图表）
+  ↓ 32px  ← 模块间距
+下一个 Section 小标题</pre>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">2</span>设计 Token</h2>
+    <h3>2.1 颜色</h3>
+    <table>
+      <thead><tr><th style="width:22%">Token</th><th style="width:16%">值</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code>--bg</code></td><td>#f7f7f8</td><td>页面外底色（原型外壳）</td></tr>
+        <tr><td><code>--panel</code></td><td>#ffffff</td><td>主区背景、容器背景</td></tr>
+        <tr><td><code>--side</code></td><td>#f4f4f5</td><td>侧栏、输入框静止态、分段器底</td></tr>
+        <tr><td><code>--hover</code></td><td>#fafafa</td><td>行悬浮、表头</td></tr>
+        <tr><td><code>--line</code></td><td>#e8e8ea</td><td>容器边框</td></tr>
+        <tr><td><code>--line2</code></td><td>#f0f0f2</td><td>容器内行分隔线</td></tr>
+        <tr><td><code>--t1</code></td><td>#0d0d0d</td><td>主文字 / 主按钮 / 选中态 / 强调</td></tr>
+        <tr><td><code>--t2</code></td><td>#5d5d63</td><td>描述、次要文字、未选中菜单</td></tr>
+        <tr><td><code>--t3</code></td><td>#8e8e96</td><td>占位符、分组标题、时间戳</td></tr>
+        <tr><td><code>--acc</code></td><td>#0b6bcb</td><td><b>仅</b>链接、开关开启态</td></tr>
+        <tr><td><code>--ok / --warn / --err</code></td><td>#1a7f4b / #b45309 / #c8342b</td><td><b>仅</b>状态语义，面积 ≤ 一个 pill</td></tr>
+      </tbody>
+    </table>
+    <div class="note">硬性规则：<b>单页彩色像素占比 &lt; 2%</b>。主色是黑，不是蓝。禁用渐变。</div>
+
+    <h3>2.2 字号 / 字重</h3>
+    <table>
+      <thead><tr><th style="width:22%">角色</th><th style="width:20%">字号 / 字重</th><th style="width:14%">色</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>Display</td><td>24px / 700 / -.2px</td><td>t1</td><td>页面主标题（每页唯一）</td></tr>
+        <tr><td>Title</td><td>16px / 700</td><td>t1</td><td>抽屉标题、弹窗标题</td></tr>
+        <tr><td>Section</td><td>14px / 600</td><td>t1</td><td>模块小标题（裸标题）</td></tr>
+        <tr><td>RowTitle</td><td>13.5px / 500</td><td>t1</td><td>设置行左侧名称、表格主列</td></tr>
+        <tr><td>Body</td><td>13px / 400</td><td>t1</td><td>表格单元格、正文</td></tr>
+        <tr><td>Desc</td><td>12.5px / 400</td><td>t2</td><td>副标题、行描述、说明</td></tr>
+        <tr><td>Caption</td><td>11.5px / 500</td><td>t2/t3</td><td>Pill、计数、分组标题、时间</td></tr>
+        <tr><td>Number</td><td>26px / 700 / tabular-nums</td><td>t1</td><td>指标卡大数字</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.3 间距 / 圆角 / 层级</h3>
+    <ul>
+      <li><b>间距阶</b>：<code>4 / 8 / 12 / 16 / 24 / 32 / 48</code>。模块间距固定 <b>32</b>，容器内元素间距 <b>12/16</b>。</li>
+      <li><b>圆角</b>：容器 <code>12</code>；行 / 输入 / 按钮 / 下拉 <code>8</code>；Pill / 图标底 <code>6</code>；复选框 <code>4</code>。</li>
+      <li><b>描边</b>：容器 <code>1px #e8e8ea</code>；行分隔 <code>1px #f0f0f2</code>；<b>禁止用阴影分层</b>。</li>
+      <li><b>阴影</b>只有 3 档：<code>none</code>（默认）/ <code>0 1px 2px rgba(0,0,0,.05)</code>（选中态、分段器滑块）/ <code>0 8px 24px rgba(0,0,0,.10)</code>（抽屉、弹窗、下拉）。</li>
+      <li><b>高度</b>：按钮 / 输入 / 下拉统一 <b>32px</b>（小号 28）；设置行 <b>56px</b>（无描述 48）；表格行 <b>52px</b>；菜单项 <b>32px</b>。</li>
+    </ul>
+
+    <h3>2.4 图标</h3>
+    <ul>
+      <li>统一 <b>线性 SVG</b>，<code>stroke-width:1.5</code>，<code>fill:none</code>，颜色 <code>currentColor</code>。</li>
+      <li>尺寸档：菜单/行内 <b>16px</b>，页头/空态 <b>20/32px</b>。</li>
+      <li><b>全站禁用 emoji</b>。对象标识（Agent、MCP）用<b>首字母方块</b>：32px、圆角 8px、底 #f4f4f5、字 #5d5d63、600。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">3</span>核心组件 A：容器与信息单元</h2>
+
+    <h3>3.1 Section（模块）—— 替代"白卡片"</h3>
+    <p>模块 = <b>裸标题 + 可选说明 + 一个容器</b>。标题不在容器内，容器只包内容。</p>
+    <div class="demo">
+      <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px">已加入的群聊 <span style="background:#f0f0f2;color:#5d5d63;border-radius:6px;font-size:11.5px;font-weight:500;padding:1px 7px">3</span></div>
+      <div style="font-size:12.5px;color:#5d5d63;margin:4px 0 12px">所有群聊的会话上下文相互隔离；加入新群请前往对应群设置。</div>
+      <div style="border:1px solid #e8e8ea;border-radius:12px;background:#fff">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:56px;border-bottom:1px solid #f0f0f2">
+          <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:8px;background:#f4f4f5;color:#5d5d63;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center">产</span><span style="font-size:13.5px;font-weight:500">产品讨论群</span></div>
+          <div style="border:1px solid #e8e8ea;border-radius:8px;height:32px;display:flex;align-items:center;padding:0 10px;font-size:12.5px">智能回复 ⌄</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:56px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:8px;background:#f4f4f5;color:#5d5d63;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center">项</span><span style="font-size:13.5px;font-weight:500">项目协作群</span></div>
+          <div style="border:1px solid #e8e8ea;border-radius:8px;height:32px;display:flex;align-items:center;padding:0 10px;font-size:12.5px">仅 @ 时回复 ⌄</div>
+        </div>
+      </div>
+    </div>
+    <div class="cmp">
+      <div class="o"><div class="h">✗ 旧做法</div>白卡片 → 卡内标题 → 卡内又一个带边框表格 → 每行重复同一句说明</div>
+      <div class="n2"><div class="h">✓ 新做法</div>裸标题 + 计数 → 说明只说一次 → 一个圆角容器装设置行</div>
+    </div>
+
+    <h3>3.2 SettingRow（设置行）—— 全站最核心组件</h3>
+    <p><b>结构</b>：<code>[图标/首字母] 标题 + 描述 ......... 控件</code>。多行包在一个 12px 圆角容器内，行间 1px 分隔线。</p>
+    <table>
+      <thead><tr><th style="width:20%">属性</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td>高度</td><td>带描述 56px；单行 48px；带头像/图标同高</td></tr>
+        <tr><td>内边距</td><td><code>0 16px</code></td></tr>
+        <tr><td>左侧</td><td>标题 13.5/500 + 描述 12.5/t2（描述可省略）</td></tr>
+        <tr><td>右侧控件</td><td><b>仅 6 种</b>：开关 / 下拉 / 次按钮 / 值+箭头（可点进抽屉）/ 只读值 / <code>···</code> 菜单</td></tr>
+        <tr><td>可点整行</td><td>控件为「值+箭头」时整行可点，hover 底 #fafafa</td></tr>
+        <tr><td>禁用</td><td>整行 opacity .5，控件不可点</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>使用判定：</b>当一组数据满足「每条 = 一个对象 + 一个可改设置」，<b>必须</b>用 SettingRow，禁止用表格。例：已加入群聊、Skill 绑定、MCP 绑定、租户分配、扣费规则。</div>
+
+    <h3>3.3 Table（表格）—— 仅用于多维数据</h3>
+    <ul>
+      <li><b>使用条件</b>：列数 ≥4 且每列信息不同、需要排序/分页。否则改用 SettingRow。</li>
+      <li>外层 12px 圆角边框，<b>无阴影、无斑马纹</b>；行高 52px；行分隔 1px #f0f0f2；hover 底 #fafafa。</li>
+      <li>表头：底 #fafafa、12.5px/600/t2、无粗边框。</li>
+      <li>主列 = 首字母方块 + 名称（13.5/500）+ 副信息（12.5/t2）两行结构。</li>
+      <li><b>操作列</b>：收敛为一个 <code>···</code> 图标按钮，点开下拉菜单（编辑 / 上下架 / 删除）。<b>不再平铺多个图标按钮。</b></li>
+      <li>列上限 <b>6 列</b>；数字列右对齐 + tabular-nums；时间列 12.5px/t2。</li>
+      <li>行点击 = 进入详情；操作按钮需 <code>stopPropagation</code>。</li>
+    </ul>
+
+    <h3>3.4 StatCard（指标卡）</h3>
+    <ul>
+      <li>内容<b>只放 3 样</b>：标题（+ ⓘ）、大数字、环比。<b>不再在卡内堆场景明细</b>（下沉到趋势图）。</li>
+      <li>容器：12px 圆角、1px 边框、无阴影、内边距 16px 18px。</li>
+      <li>大数字 26px/700/tabular-nums；环比与数字<b>基线对齐</b>，格式 <code>▲ 1.2k · 12.4%</code>，涨红跌绿。</li>
+      <li>栅格：4 列等宽，间距 12px。</li>
+    </ul>
+
+    <h3>3.5 EmptyState（空态）</h3>
+    <p>容器内居中：20px 线性图标（t3）→ 8px → 一句说明（13px/t2）→ 12px → 一个主按钮。容器保持 12px 圆角边框，底 #fafafa，高度 ≥ 200px。<b>不用插画。</b></p>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">4</span>核心组件 B：控件</h2>
+
+    <h3>4.1 按钮</h3>
+    <table>
+      <thead><tr><th style="width:14%">类型</th><th style="width:36%">样式</th><th>用途 / 数量约束</th></tr></thead>
+      <tbody>
+        <tr><td>Primary</td><td>底 #0d0d0d，白字，h32，r8，13/500，padding 0 14px；hover #26262b</td><td><b>每屏 ≤1 个</b>。放页头右上或抽屉底部右侧</td></tr>
+        <tr><td>Secondary</td><td>白底，1px #e8e8ea，字 t1，同尺寸；hover 底 #f7f7f8</td><td>取消、导入、次级动作</td></tr>
+        <tr><td>Ghost</td><td>无底无边框，字 t2；hover 底 #f0f0f2、字 t1</td><td>行内操作、图标按钮</td></tr>
+        <tr><td>Danger</td><td>底 #fdf0ef，字 #c8342b，无边框</td><td>删除、重置；<b>只出现在菜单或确认弹窗</b></td></tr>
+        <tr><td>Disabled</td><td>底 #f4f4f5，字 #b0b0b6，cursor 默认</td><td>表单未变更时的保存按钮（默认禁用）</td></tr>
+        <tr><td>IconBtn</td><td>28×28，r6，图标 16px/t2；hover 底 #f0f0f2</td><td>表格 <code>···</code>、关闭、刷新</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 输入 / 搜索 / 下拉</h3>
+    <ul>
+      <li><b>搜索框</b>（Codex 特征）：静止态 <b>浅灰底 #f4f4f5 + 无边框</b>，h32、r8、左侧 16px 图标、placeholder t3；<b>focus 转白底 + 1px #0d0d0d 边框</b>，无光晕。</li>
+      <li><b>输入框</b>：白底 + 1px #e8e8ea，h34、r8；focus 边框转 #0d0d0d，<b>禁用彩色 focus ring</b>。</li>
+      <li><b>Textarea</b>：min-height 88px，resize vertical，其余同输入框。</li>
+      <li><b>下拉</b>：触发器同 Secondary 按钮样式 + 右侧 12px ⌄；菜单白底、r8、阴影档 3、内边距 4px、选项 h32/r6，hover #f4f4f5，选中 #f0f0f2 + 右侧对勾（黑）。</li>
+      <li><b>新增行按钮</b>（"+ 添加参数"）：<b>整行浅灰底 #f4f4f5</b>、r8、h34、居中文字 12.5/t2；hover #ebebed。</li>
+    </ul>
+
+    <h3>4.3 选择控件</h3>
+    <ul>
+      <li><b>开关 Switch</b>：38×22，r11；关 #d8d8dc，开 <b>#0b6bcb</b>（全站唯一蓝）；滑块白色 18px。</li>
+      <li><b>复选框</b>：18×18，r4，1.5px #c4c4ca；选中 <b>黑底黑边 + 白勾</b>。</li>
+      <li><b>单选</b>：18×18 圆，1.5px #c4c4ca；选中黑边 + 8px 黑心点。</li>
+      <li><b>选择卡（RadioCard）</b>：1px 边框 + r8；选中 <b>边框转 #0d0d0d + 底 #fafafa</b>，<b>不用彩色底</b>。</li>
+    </ul>
+
+    <h3>4.4 Tab / 分段器 / 筛选</h3>
+    <ul>
+      <li><b>Tab = 胶囊式</b>：外层 #f0f0f2 底 + 3px padding + r8；项 h26/r6/13px/t2；选中 <b>白底 + t1 + 阴影档 2</b>。<b>禁用下划线式 Tab。</b></li>
+      <li>Tab 后可跟计数（11.5/t3/常规字重）。</li>
+      <li><b>分段器</b>（日/周/月）样式同 Tab，尺寸更小（h24）。</li>
+      <li><b>筛选区</b>：右对齐，置于页头右侧或 Tab 同行右端；多个筛选器间距 8px。</li>
+    </ul>
+
+    <h3>4.5 状态标识</h3>
+    <table>
+      <thead><tr><th style="width:16%">形态</th><th style="width:26%">样式</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>Pill</td><td>r6、11.5px/500、padding 3px 8px、浅底深字、<b>无边框</b></td><td>状态：上架 #eaf5ee/#1a7f4b；下架 #f0f0f2/#5d5d63；异常 #fdf0ef/#c8342b；进行中 #eef4fd/#0b6bcb</td></tr>
+        <tr><td>Dot + 文字</td><td>6px 圆点 + 12.5px 文字</td><td>表格内状态列首选（比 Pill 更轻）</td></tr>
+        <tr><td>中性标签</td><td>底 #f4f4f5 + 1px 边框 + 字 t2</td><td>模型名、来源、场景等<b>非状态</b>信息</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>约束：</b>同一行内 Pill ≤2 个。分类信息（来源、模型）一律用<b>中性标签</b>，不给颜色。</div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">5</span>浮层体系：抽屉 / 弹窗 / 菜单 / 反馈</h2>
+
+    <h3>5.1 选型规则（强制）</h3>
+    <table>
+      <thead><tr><th style="width:22%">场景</th><th style="width:18%">用什么</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>字段 ≥3 的创建/编辑</td><td><b>右侧抽屉</b></td><td>MCP 编辑、模版配置、Agent 编辑</td></tr>
+        <tr><td>需要浏览/搜索列表后选择</td><td><b>右侧抽屉</b></td><td>选择人员、绑定 Skill、绑定 MCP、分配租户</td></tr>
+        <tr><td>字段 ≤2 的快速创建</td><td>居中弹窗 440</td><td>新建模版（名称 + 描述）</td></tr>
+        <tr><td>二次确认 / 危险操作</td><td>居中弹窗 440</td><td>删除确认、下架确认</td></tr>
+        <tr><td>查看只读详情</td><td><b>右侧抽屉</b></td><td>用量下钻、日志详情</td></tr>
+        <tr><td>轻量选择</td><td>下拉菜单</td><td>回复方式、状态筛选</td></tr>
+      </tbody>
+    </table>
+    <div class="note">原则：<b>抽屉优先</b>。抽屉不打断上下文（列表仍可见），且能承载长表单不出现内部滚动条嵌套。</div>
+
+    <h3>5.2 抽屉（Drawer）</h3>
+    <ul>
+      <li>宽度三档：<b>480</b>（简单表单）/ <b>600</b>（默认）/ <b>760</b>（左右分栏，如选择人员）。</li>
+      <li>右侧贴边、<b>满高</b>、左上左下圆角 12px，阴影档 3；遮罩 <code>rgba(0,0,0,.30)</code>。</li>
+      <li>结构：<code>Header（标题 16/700 + 副标题 + 右上 ×）</code> → <code>Body（可滚动，padding 20px 24px）</code> → <code>Footer（固定底部，1px 上边线，右对齐 取消 + 主按钮）</code>。</li>
+      <li>动效：<code>transform:translateX(100%)→0</code>，<code>.22s cubic-bezier(.2,.9,.3,1)</code>。</li>
+      <li>关闭：× / Esc / 点遮罩；<b>有未保存改动时点遮罩不关闭</b>，弹二次确认。</li>
+      <li>主按钮默认<b>禁用</b>，检测到字段变更后启用。</li>
+    </ul>
+
+    <h3>5.3 弹窗（Modal）</h3>
+    <ul>
+      <li>宽 <b>440</b>（确认/快速表单）或 <b>560</b>（略复杂）；r12；阴影档 3；居中；遮罩同上。</li>
+      <li>结构：标题 16/700 → 说明 12.5/t2 → 内容 → 底部右对齐按钮。</li>
+      <li>危险确认：标题直述后果，主按钮为 Danger 实心（底 #c8342b、白字），且需<b>输入名称确认</b>时才启用。</li>
+    </ul>
+
+    <h3>5.4 下拉菜单 / Tooltip</h3>
+    <ul>
+      <li><b>菜单</b>：白底 r8、padding 4px、阴影档 3、min-width 140；项 h32/r6/13px；分组间加 1px #f0f0f2 分隔；危险项文字 #c8342b。</li>
+      <li><b>Tooltip</b>：黑底 #0d0d0d、白字 12px、r8、padding 8px 10px、max-width 260、延迟 300ms 出现，带 5px 小三角。用于指标口径说明。</li>
+    </ul>
+
+    <h3>5.5 反馈</h3>
+    <ul>
+      <li><b>Toast</b>：底部居中、黑底白字、r8、13px、阴影档 3、2.4s 自动消失。仅用于成功/失败短提示。</li>
+      <li><b>行内错误</b>：输入框边框转 #c8342b + 下方 11.5px 红字，<b>不用弹窗报错</b>。</li>
+      <li><b>加载</b>：骨架屏（#f4f4f5 圆角块 + 微弱呼吸），<b>不用转圈 spinner</b> 占满屏。</li>
+      <li><b>保存</b>：设置行类改动<b>即时保存 + Toast</b>；表单类改动需显式点保存。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">6</span>页面模版 A：列表页 / 详情页</h2>
+
+    <h3>6.1 列表页模版（限宽 1180）</h3>
+    <pre>Agents                                    [+ 创建 Agent]
+管理自建与外部连接的智能体
+──────────────────────────────────────────────────
+[全部 12][自建 8][外部 4]        [搜索…] [来源 ⌄]
+──────────────────────────────────────────────────
+┌────────────────────────────────────────────────┐
+│ 名称            模型      来源     状态   更新  ···│
+│ [云] 云空间运维  GPT-5.4  Studio   ●在线  2小时前 ···│
+└────────────────────────────────────────────────┘</pre>
+    <ul>
+      <li>页头：Display 标题 + 副标题，右上角唯一 Primary 按钮。</li>
+      <li>Tab 作分类（带计数），筛选/搜索<b>右对齐同一行</b>。</li>
+      <li>表格无外层卡片包裹，直接一层 12px 圆角容器。</li>
+      <li>列 ≤6；操作收进 <code>···</code>；状态用 Dot+文字；来源/模型用中性标签。</li>
+      <li>分页置于容器<b>外部</b>下方右对齐，10 条/页。</li>
+    </ul>
+
+    <h3>6.2 详情页模版（限宽 860）</h3>
+    <pre>← Agents
+[云] 云空间–运维 agent                       [···]
+Workhub Studio · 拥有者 张振 · 更新于 2 小时前
+[配置][记忆][使用][用量]
+──────────────────────────────────────────────────
+可使用范围                          ← 裸小标题
+控制谁可以发现、私聊和使用该 Agent。
+┌────────────────────────────────────────────┐
+│ 可使用范围            指定成员或部门 ⌄       │
+│ 已选范围     技术部、产品部 等 3 项       ›  │ → 抽屉
+└────────────────────────────────────────────┘
+
+已加入的群聊 3                      ← 32px 间距
+所有群聊的会话上下文相互隔离。
+┌────────────────────────────────────────────┐
+│ [产] 产品讨论群              智能回复 ⌄      │
+│ [项] 项目协作群           仅 @ 时回复 ⌄      │
+└────────────────────────────────────────────┘</pre>
+    <ul>
+      <li>返回链接 12.5/t2，独立一行。</li>
+      <li>标题行：32px 首字母方块 + Display 标题 + 右上 <code>···</code>（编辑/删除）。</li>
+      <li>元信息一行灰字，用 <code>·</code> 连接，不用多个彩色 Pill。</li>
+      <li>Tab 胶囊式，紧随元信息下方。</li>
+      <li>内容全部由「裸标题 + 说明 + SettingRow 容器」组成，<b>不再出现白卡片</b>。</li>
+    </ul>
+    <div class="cmp">
+      <div class="o"><div class="h">✗ 改造前</div>2 个白卡片；单选项堆叠占 2 行；群聊用 3 列表格且第 2 列每行重复同一句话；通栏 1200 宽</div>
+      <div class="n2"><div class="h">✓ 改造后</div>裸标题 + 2 个行容器；范围收成 1 行下拉 + 1 行入口；群聊 2 列设置行；说明上提；限宽 860</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">7</span>页面模版 B：数据页 / 配置页 / 抽屉</h2>
+
+    <h3>7.1 数据页（用量统计，限宽 1180）</h3>
+    <pre>用量统计                        [租户 ⌄][近7天 ⌄]
+统计租户下全部 Agent 的用量与成本
+──────────────────────────────────────────────
+用量概览                    ← 裸标题
+┌─────┐┌─────┐┌─────┐┌─────┐  ← 卡内只放 3 样
+│Token││会话 ││消息 ││用户 │
+│1.2M ││3.4k ││8.9k ││ 421 │
+│▲12% ││▲8%  ││▼3%  ││▲21% │
+└─────┘└─────┘└─────┘└─────┘
+
+变化趋势                [日|周|月]
+Token 用量                    ← 图表裸标题
+（无边框图表区，网格线 #f0f0f2）
+□总量 □Workhub □单聊 □群聊 □SDK   ← 居中</pre>
+    <ul>
+      <li>指标卡<b>不再堆场景明细</b>；场景拆解只在趋势图中呈现（勾选切换）。</li>
+      <li>图表区<b>去掉卡片边框</b>，只留裸标题 + 绘图区，模块间距 32px。</li>
+      <li>折线配色中性化：总量黑、其余用蓝/绿/橙/灰各一，<b>不用高饱和撞色</b>。</li>
+      <li>hover 显示垂直虚线 + 黑底浮层（各场景色点 + 数值）。</li>
+    </ul>
+
+    <h3>7.2 配置页（模版 Agent 配置，限宽 860）</h3>
+    <ul>
+      <li>顶部返回 + Display 标题 + 右上 Primary「保存」（未改动时禁用）。</li>
+      <li>Tab 胶囊式：基础信息 / Skill 绑定 / MCP 绑定。</li>
+      <li><b>基础信息</b>：表单包在一个 12px 圆角容器内，字段间距 16px，Label 在上输入在下。</li>
+      <li><b>Skill / MCP 绑定</b>：<b>必须用 SettingRow</b> —— 左首字母方块 + 名称 + 描述，右侧开关（已绑/未绑）。顶部一个搜索框过滤。<b>禁止用表格或多选卡片墙。</b></li>
+    </ul>
+
+    <h3>7.3 抽屉模版（选择人员，760 双栏）</h3>
+    <pre>┌─ 选择人员 ─────────────────── × ┐
+│ 从组织架构中选择部门或人员        │
+├──────────────┬──────────────────┤
+│ [搜索…]      │ 已选 3           │
+│ ▸ 网易       │ ┌──────────────┐ │
+│   ▸ 技术部   │ │ 技术部     × │ │
+│   ▸ 产品部   │ │ 张振       × │ │
+├──────────────┴──────────────────┤
+│                  [取消] [确定]   │
+└─────────────────────────────────┘</pre>
+    <ul>
+      <li>左栏树形浏览 + 搜索，右栏已选列表（chip 行，可单个移除）。</li>
+      <li>底部固定 Footer，右对齐 Secondary + Primary。</li>
+      <li>已选为空时右栏显示 EmptyState。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">8</span>交互范式</h2>
+    <table>
+      <thead><tr><th style="width:20%">场景</th><th style="width:34%">旧做法</th><th>新范式</th></tr></thead>
+      <tbody>
+        <tr><td>修改单个设置</td><td>点编辑 → 弹窗 → 改 → 保存 → 关闭</td><td><b>就地改</b>：设置行右侧下拉/开关直接改，<b>即时保存 + Toast</b>，无弹窗</td></tr>
+        <tr><td>创建对象</td><td>弹窗填全部字段</td><td>弹窗<b>只填名称+描述</b>创建 → 直接进配置页补全（渐进式）</td></tr>
+        <tr><td>复杂编辑</td><td>大弹窗内滚动</td><td><b>右侧抽屉</b>，列表保持可见</td></tr>
+        <tr><td>批量选择</td><td>多选卡片墙</td><td>SettingRow + 开关，顶部搜索过滤</td></tr>
+        <tr><td>表格操作</td><td>平铺编辑/删除图标</td><td>收进 <code>···</code> 菜单；行本身可点进详情</td></tr>
+        <tr><td>危险操作</td><td>直接删除按钮</td><td>藏进 <code>···</code> 菜单底部 → 确认弹窗 → 输入名称确认</td></tr>
+        <tr><td>加载</td><td>全屏 spinner</td><td>骨架屏，保持布局不跳动</td></tr>
+        <tr><td>报错</td><td>alert / 弹窗</td><td>行内红字 + 边框变红；全局失败用 Toast</td></tr>
+      </tbody>
+    </table>
+    <h3>8.1 键盘与效率</h3>
+    <ul>
+      <li><code>Esc</code> 关闭抽屉/弹窗；<code>⌘K</code> 全局搜索；<code>⌘S</code> 保存表单。</li>
+      <li>所有可点元素有 hover 态；焦点态用 1px #0d0d0d 边框，不用蓝色 outline。</li>
+      <li>过渡统一 <code>.15s ease</code>；浮层进出 <code>.22s cubic-bezier(.2,.9,.3,1)</code>。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">9</span>落地计划与验收</h2>
+    <h3>9.1 分期</h3>
+    <table>
+      <thead><tr><th style="width:12%">阶段</th><th style="width:30%">内容</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td>P0</td><td>确认本规范</td><td>本文档</td></tr>
+        <tr><td>P1</td><td>基础层：Token + 图标库 + 布局骨架（TopBar/Sidebar/PageHeader）</td><td>公共样式文件</td></tr>
+        <tr><td>P2</td><td>组件层：SettingRow、Table、Drawer、Modal、按钮/输入/Tab/Pill</td><td>组件样例页</td></tr>
+        <tr><td>P3</td><td>样板页：<b>Agent 详情（重构版）</b></td><td>新原型，供确认</td></tr>
+        <tr><td>P4</td><td>铺开：Agent 列表、MCP 管理、用量统计（租户+超管）</td><td>各页新原型</td></tr>
+        <tr><td>P5</td><td>新增：模版管理（列表 + 创建 + 配置页）直接按新规范做</td><td>新原型</td></tr>
+      </tbody>
+    </table>
+    <h3>9.2 验收清单（逐页自查）</h3>
+    <ol>
+      <li>页面内是否存在<b>卡片套卡片</b>？→ 必须为 0。</li>
+      <li>是否有 ≤3 列且含操作列的表格？→ 必须改为 SettingRow。</li>
+      <li>是否有<b>每行重复的静态文案</b>？→ 上提到说明行。</li>
+      <li>是否还有 <b>emoji 或彩色图标</b>？→ 必须换单色线性图标 / 首字母方块。</li>
+      <li>主区是否<b>通栏铺满</b>？→ 必须限宽 860 / 1180 居中。</li>
+      <li>Primary 按钮是否 &gt;1 个？→ 必须 ≤1。</li>
+      <li>是否存在<b>彩色卡片阴影</b>或渐变？→ 必须去除。</li>
+      <li>复杂编辑是否还在居中弹窗？→ 必须改抽屉。</li>
+      <li>彩色像素占比是否 &lt;2%？</li>
+      <li>指标卡内信息是否 ≤3 条？</li>
+    </ol>
+    <div class="note good"><b>下一步建议：</b>你确认本规范后，我先做 <b>P3 样板页（Agent 详情重构版）</b>，这是结构改动最大、最能验证规范的一页。样板确认后再批量铺 P4/P5。</div>
+  </div>
+
+  </div>
+</body>
+</html>
