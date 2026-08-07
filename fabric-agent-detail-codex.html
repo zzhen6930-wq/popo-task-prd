@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · Agent 管理 · Codex 风格原型</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e5e7eb; --line-2:#f1f5f9; --bg:#f8fafc; --bg-2:#eef2f7;
+    --ok:#16a34a; --warn:#b45309; --danger:#ef4444; --blue:#2563eb;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.08);
+    --shadow-lg:0 20px 60px rgba(15,23,42,.22);
+    --r:10px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg-2); color:var(--txt); padding:24px 16px 60px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+  .page-label{ max-width:1200px; margin:6px auto 12px; display:flex; align-items:center; gap:10px; }
+  .page-label .b-num{ background:#dc2626; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
+  .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
+
+  .app{ max-width:1480px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:900px; position:relative; }
+
+  .main-row{ display:flex; align-items:stretch; }
+  .sidebar{ width:190px; flex:0 0 190px; border-right:1px solid var(--line-2); padding:10px 12px 16px; background:#fff; }
+  .side-brand{ display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; color:var(--ink); padding:4px 10px 14px; }
+  .side-brand .bi{ width:26px; height:26px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:800; }
+  .side-group{ font-size:11px; font-weight:800; color:var(--mut); letter-spacing:.5px; padding:14px 12px 6px; }
+  .side-item{ display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:2px; }
+  .side-item:hover{ background:#f1f5f9; }
+  .side-item.on{ background:#ede9fe; color:var(--indigo-d); font-weight:700; }
+  .side-item .ci{ font-size:15px; width:18px; text-align:center; }
+
+  .topbar{ height:56px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 20px; gap:16px; }
+  .tb-brand{ display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; color:var(--ink); width:190px; flex:0 0 190px; }
+  .tb-brand .bi{ width:26px; height:26px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:800; }
+  .tenant-sel{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:9px; padding:6px 12px; font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; background:#fff; }
+  .tenant-sel .caret{ color:var(--mut); font-size:11px; }
+  .topbar .right{ margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .nav-link{ font-size:13px; color:var(--txt); font-weight:600; cursor:pointer; }
+  .nav-link:hover{ color:var(--indigo-d); }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+
+  .body-wrap{ flex:1; min-width:0; padding:20px 30px 40px; }
+  .back{ font-size:13px; color:var(--sub); cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-bottom:14px; }
+  .back:hover{ color:var(--indigo-d); }
+
+  .agent-head{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .agent-ico{ width:52px; height:52px; border-radius:13px; background:#3b6fe0; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; }
+  .agent-name{ font-size:22px; font-weight:800; color:var(--ink); }
+  .agent-desc{ font-size:13px; color:var(--sub); margin-top:2px; }
+
+  /* tabs */
+  .tabs{ display:flex; gap:4px; border-bottom:2px solid var(--line-2); margin-bottom:22px; }
+  .tab{ padding:10px 18px; font-size:14px; font-weight:700; color:var(--sub); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; position:relative; }
+  .tab:hover{ color:var(--txt); }
+  .tab.on{ color:var(--indigo-d); border-bottom-color:var(--indigo); }
+  .tab .dot{ font-size:9px; background:#ef4444; color:#fff; border-radius:4px; padding:1px 4px; margin-left:5px; vertical-align:top; }
+
+  .pane{ display:none; }
+  .pane.on{ display:block; }
+
+  .card{ border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:16px; background:#fff; }
+  .card-t{ font-size:15px; font-weight:800; color:var(--ink); }
+  .card-s{ font-size:12.5px; color:var(--mut); margin-top:2px; margin-bottom:14px; }
+
+  .sec-title{ font-size:14px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
+  .sec-sub{ font-size:12.5px; color:var(--mut); margin-bottom:12px; }
+
+  .btn{ border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; padding:8px 14px; display:inline-flex; align-items:center; gap:6px; transition:.15s; }
+  .btn.primary{ background:var(--indigo); color:#fff; }
+  .btn.primary:hover{ background:var(--indigo-d); }
+  .btn.ghost{ background:#fff; color:var(--txt); border:1px solid var(--line); }
+  .btn.ghost:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .btn.sm{ padding:6px 11px; font-size:12px; }
+
+  .pill{ font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; display:inline-block; }
+  .pill.green{ background:#dcfce7; color:#16a34a; } .pill.amber{ background:#fef3c7; color:#b45309; }
+  .pill.indigo{ background:#ede9fe; color:#6d28d9; } .pill.blue{ background:#dbeafe; color:#1d4ed8; }
+  .pill.gray{ background:#f1f5f9; color:#64748b; }
+
+  .table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .table th{ background:#f8fafc; color:#475569; font-weight:700; text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); font-size:12px; }
+  .table td{ padding:12px 14px; border-bottom:1px solid var(--line-2); color:var(--txt); }
+  .table tr:hover td{ background:#fafbff; }
+
+  /* placeholder */
+  .ph-box{ border:1.5px dashed #cbd5e1; border-radius:12px; padding:40px; text-align:center; color:var(--mut); font-size:13px; background:#fafbfc; }
+  .ph-box .big{ font-size:15px; font-weight:700; color:var(--sub); margin-bottom:6px; }
+
+  /* 使用范围 — 后台紧凑风 */
+  .row-block{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; background:#fff; }
+  .rb-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+  .rb-t{ font-size:14px; font-weight:800; color:var(--ink); }
+  .rb-s{ font-size:12px; color:var(--mut); margin-top:2px; }
+  .count-badge{ font-size:11px; background:#eef2ff; color:var(--indigo-d); border-radius:20px; padding:1px 8px; font-weight:700; margin-left:4px; vertical-align:middle; }
+
+  .opt-line{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px; cursor:pointer; transition:.12s; }
+  .opt-line:hover{ background:var(--line-2); }
+  .opt-line.on{ background:#f5f3ff; }
+  .opt-line .rd{ width:16px; height:16px; border-radius:50%; border:2px solid var(--mut); flex:0 0 16px; position:relative; }
+  .opt-line.on .rd{ border-color:var(--indigo); }
+  .opt-line.on .rd::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+  .ol-main{ flex:0 0 auto; display:flex; align-items:baseline; gap:10px; }
+  .ol-t{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .ol-d{ font-size:12px; color:var(--sub); }
+  .ol-side{ margin-left:auto; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .tag-chip{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:2px 9px; font-size:12px; color:var(--txt); }
+  .add-chip{ color:var(--indigo-d); font-size:12px; font-weight:700; padding:2px 6px; cursor:pointer; }
+  .add-chip:hover{ text-decoration:underline; }
+
+  .table.compact td{ padding:10px 14px; }
+  .grp-dot{ margin-right:8px; font-size:14px; opacity:.85; }
+  .reply-dd{ border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:12.5px; font-weight:600; color:var(--txt); background:#fff; cursor:pointer; }
+
+  /* 用量统计 */
+  .usage-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .range-dd select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
+  .stat-card .lb{ font-size:13px; font-weight:600; color:var(--sub); display:inline-flex; align-items:center; gap:4px; }
+  .tip-ic{ font-size:12px; color:var(--mut); cursor:help; position:relative; font-weight:400; }
+  .tip-ic:hover{ color:var(--sub); }
+  .tip-ic::after{ content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); background:#1e293b; color:#fff; font-size:12px; font-weight:400; line-height:1.5; white-space:normal; width:220px; padding:8px 10px; border-radius:8px; box-shadow:0 6px 20px rgba(15,23,42,.25); opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; text-align:left; }
+  .tip-ic::before{ content:""; position:absolute; left:50%; bottom:calc(100% + 3px); transform:translateX(-50%); border:5px solid transparent; border-top-color:#1e293b; opacity:0; visibility:hidden; transition:opacity .12s; z-index:60; }
+  .tip-ic:hover::after,.tip-ic:hover::before{ opacity:1; visibility:visible; }
+  .stat-card .stat-main{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:6px; }
+  .stat-card .vl{ font-size:24px; font-weight:800; color:var(--ink); }
+  .stat-div{ height:1px; background:var(--line-2); margin:12px 0 8px; }
+  .sc-row{ display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12.5px; }
+  .sc-row .sc-nm{ color:var(--sub); flex:1; }
+  .sc-row .sc-v{ font-weight:700; color:var(--ink); }
+  .sc-row .sc-p{ color:var(--mut); width:38px; text-align:right; }
+  .mom{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:3px; cursor:default; }
+  .mom-tag{ color:var(--mut); font-weight:500; margin-right:2px; }
+  .mom i{ color:var(--line); font-style:normal; margin:0 1px; }
+  .mom.up{ color:#e11d48; }
+  .mom.down{ color:#059669; }
+  .mom.flat{ color:var(--mut); font-weight:500; }
+  .trend-wrap{ display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:16px; }
+  .trend-title{ margin-bottom:12px; }
+  .gran-seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+  .gran-btn{ font-size:13px; color:var(--sub); padding:6px 18px; border:none; background:#fff; cursor:pointer; border-left:1px solid var(--line); }
+  .gran-btn:first-child{ border-left:none; }
+  .gran-btn.on{ background:var(--indigo); color:#fff; }
+  .trend-card{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; position:relative; }
+  .trend-legend{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 14px; margin-top:12px; }
+  .lg-item{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); cursor:pointer; user-select:none; }
+  .lg-item.off{ color:var(--mut); }
+  .lg-box{ width:13px; height:13px; border-radius:3px; border:1.5px solid #cbd5e1; background:#fff; display:inline-flex; align-items:center; justify-content:center; }
+  .lg-item.on .lg-box{ background:#4f46e5; border-color:#4f46e5; }
+  .lg-box .tick{ color:#fff; font-size:9px; line-height:1; }
+  .lg-dot{ width:9px; height:9px; border-radius:2px; }
+  .trend-chart{ width:100%; position:relative; }
+  .trend-chart svg{ width:100%; height:210px; display:block; }
+  .trend-chart .gl{ stroke:#eef2f7; stroke-width:1; }
+  .trend-chart .axis-x,.trend-chart .axis-y{ fill:var(--mut); font-size:10px; }
+  .trend-chart .tline{ fill:none; stroke-width:2; }
+  .trend-chart .hover-line{ stroke:#cbd5e1; stroke-width:1; stroke-dasharray:3 3; }
+  .tt-box{ position:absolute; z-index:20; pointer-events:none; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 20px rgba(15,23,42,.12); padding:10px 12px; font-size:12px; min-width:150px; display:none; }
+  .tt-box .tt-d{ font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .tt-box .tt-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:2px 0; }
+  .tt-box .tt-nm{ display:inline-flex; align-items:center; gap:6px; color:var(--sub); }
+  .tt-box .tt-dot{ width:8px; height:8px; border-radius:2px; }
+  .tt-box .tt-vl{ font-weight:600; color:var(--ink); }
+  .sc-tags{ display:flex; flex-wrap:wrap; gap:4px; }
+  .sc-tag{ box-sizing:border-box; max-width:calc(50% - 2px); font-size:11px; line-height:1; padding:4px 8px; border-radius:6px; color:var(--sc); background:color-mix(in srgb, var(--sc) 12%, #fff); border:1px solid color-mix(in srgb, var(--sc) 30%, #fff); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .rule-card{ display:flex; align-items:center; justify-content:space-between; }
+  .rule-bar{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line-2); }
+  .pager{ display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:12px 20px; }
+  .pg-btn{ min-width:30px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px; color:var(--txt); cursor:pointer; }
+  .pg-btn:hover:not(:disabled){ border-color:#c7d2fe; }
+  .pg-btn.on{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+  .pg-btn:disabled{ color:var(--mut); cursor:not-allowed; }
+  .pg-info{ font-size:12px; color:var(--sub); margin-right:8px; }
+  .rule-left{ display:flex; gap:12px; align-items:center; }
+  .rule-ico{ width:38px; height:38px; border-radius:10px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .rule-desc{ font-size:12.5px; color:var(--sub); margin-top:3px; max-width:520px; }
+  .rule-right{ display:flex; align-items:center; gap:16px; }
+  .rule-cur{ text-align:right; } .rc-lb{ font-size:11px; color:var(--mut); } .rc-vl{ font-size:14px; font-weight:800; color:var(--ink); }
+
+  .quota-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 12px; }
+  .q-lb{ font-size:12px; color:var(--mut); } .q-vl{ font-size:22px; font-weight:800; color:var(--ink); margin-top:4px; }
+  .q-bar{ height:8px; border-radius:6px; background:var(--line-2); overflow:hidden; }
+  .q-fill{ height:100%; background:linear-gradient(90deg,var(--indigo),var(--blue)); }
+  .q-foot{ display:flex; justify-content:space-between; font-size:11px; color:var(--mut); margin-top:6px; }
+
+  .u-cell{ display:flex; align-items:center; gap:10px; }
+  .u-av{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#818cf8,#a78bfa); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .u-name{ font-weight:700; color:var(--ink); font-size:13px; } .u-dep{ font-size:11px; color:var(--mut); }
+  .ratio-bar{ height:6px; width:70px; border-radius:4px; background:var(--line-2); display:inline-block; vertical-align:middle; overflow:hidden; margin-right:8px; }
+  .ratio-fill{ height:100%; background:var(--indigo); }
+
+  .trend-seg{ display:flex; align-items:center; }
+  .seg-btn{ font-size:12px; font-weight:700; color:var(--sub); padding:5px 12px; border:1px solid var(--line); cursor:pointer; }
+  .seg-btn:first-of-type{ border-radius:8px 0 0 8px; } .seg-btn:last-of-type{ border-radius:0 8px 8px 0; border-left:none; }
+  .seg-btn.on{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+  .range-label{ font-size:12px; color:var(--mut); margin-left:10px; }
+  .chart{ width:100%; height:250px; }
+  .chart svg{ width:100%; height:100%; overflow:visible; display:block; }
+  .gl{ stroke:var(--line-2); stroke-width:1; }
+  .axis-x{ font-size:10px; fill:var(--mut); }
+  .axis-y{ font-size:10px; fill:var(--mut); }
+  .line-path{ fill:none; stroke-width:2.5; stroke-linejoin:round; stroke-linecap:round; }
+  .dot{ stroke:#fff; stroke-width:2; }
+  .dot-lb{ font-size:10px; font-weight:700; }
+
+  /* 日历选择器 */
+  .cal-modal{ width:360px; }
+  .cal-range{ font-size:13px; color:var(--txt); margin-bottom:14px; min-height:20px; }
+  .cal-range b{ color:var(--indigo-d); }
+  .cal-range .ph{ color:var(--mut); }
+  .cal-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:10px; }
+  .cal-title{ font-size:15px; font-weight:800; color:var(--ink); min-width:110px; text-align:center; }
+  .cal-arrow{ width:34px; height:34px; border:1px solid var(--line); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--txt); }
+  .cal-arrow:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .cal-week{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+  .cal-week span{ text-align:center; font-size:12px; color:var(--mut); padding:6px 0; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px 0; }
+  .cal-cell{ height:40px; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--ink); cursor:pointer; position:relative; }
+  .cal-cell.mute{ color:var(--mut); }
+  .cal-cell:hover .cd{ background:var(--line-2); }
+  .cd{ width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
+  .cal-cell.in-range{ background:#eef2ff; }
+  .cal-cell.range-start{ background:linear-gradient(90deg,transparent 50%,#eef2ff 50%); }
+  .cal-cell.range-end{ background:linear-gradient(90deg,#eef2ff 50%,transparent 50%); }
+  .cal-cell.range-start.range-end{ background:transparent; }
+  .cal-cell.endpoint .cd{ background:var(--ink); color:#fff; font-weight:700; }
+  .cal-cell.disabled{ color:#cbd5e1; cursor:not-allowed; }
+  .cal-cell.disabled:hover .cd{ background:transparent; }
+  .cal-quick{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .cal-quick span{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:7px; padding:5px 12px; cursor:pointer; font-weight:700; }
+  .cal-quick span:hover{ background:#e0e7ff; }
+
+  /* 列表页 */
+  .list-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .list-title{ font-size:22px; font-weight:800; color:var(--ink); }
+  .list-tools{ margin-bottom:14px; display:flex; gap:12px; align-items:center; }
+  .src-filter{ border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:13px; color:var(--txt); font-family:inherit; background:#fff; cursor:pointer; }
+  .src-filter:focus{ outline:none; border-color:#c7d2fe; }
+  .search-inp{ width:320px; border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:13px; color:var(--txt); font-family:inherit; }
+  .search-inp:focus{ outline:none; border-color:#c7d2fe; }
+  .list-card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .list-table td{ padding:14px; }
+  .list-table tbody tr{ cursor:pointer; }
+  .ag-name{ font-weight:700; color:var(--ink); font-size:13.5px; }
+  .model-tag{ font-size:12px; color:var(--indigo-d); background:#eef2ff; border-radius:6px; padding:2px 8px; font-family:"JetBrains Mono",Menlo,monospace; }
+  .src-tag{ font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .src-agenthub{ background:#dbeafe; color:#1d4ed8; }
+  .src-studio{ background:#ede9fe; color:#6d28d9; }
+  .src-ext{ background:#fef3c7; color:#b45309; }
+  .mem-on{ background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 8px; border-radius:20px; font-weight:700; }
+  .mem-off{ color:var(--mut); font-size:12px; }
+  .st-on{ background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .st-off{ background:#f1f5f9; color:#64748b; font-size:11px; padding:2px 9px; border-radius:20px; font-weight:700; }
+  .muted-cell{ color:var(--mut); }
+  .time-cell{ font-size:12px; color:var(--sub); }
+  .op-cell{ white-space:nowrap; }
+  .op-btn{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:14px; margin-right:6px; }
+  .op-btn.edit{ color:var(--indigo-d); } .op-btn.edit:hover{ background:#eef2ff; }
+  .op-btn.del{ color:#dc2626; } .op-btn.del:hover{ background:#fef2f2; }
+
+
+  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:80; }
+  .overlay.on{ display:flex; }
+  .modal{ background:#fff; border-radius:16px; width:440px; box-shadow:var(--shadow-lg); overflow:hidden; }
+  .modal-head{ padding:18px 22px; border-bottom:1px solid var(--line-2); display:flex; justify-content:space-between; align-items:center; }
+  .modal-head .mt{ font-size:16px; font-weight:800; color:var(--ink); }
+  .modal-head .x{ cursor:pointer; color:var(--mut); font-size:20px; }
+  .modal-body{ padding:18px 22px; }
+  .modal-foot{ padding:14px 22px; border-top:1px solid var(--line-2); display:flex; justify-content:flex-end; gap:10px; }
+  .rule-opt{ border:1.5px solid var(--line); border-radius:11px; padding:14px; cursor:pointer; margin-bottom:10px; display:flex; gap:12px; }
+  .rule-opt.on{ border-color:var(--indigo); background:#f5f3ff; }
+  .rule-opt .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 18px; margin-top:2px; position:relative; }
+  .rule-opt.on .radio{ border-color:var(--indigo); } .rule-opt.on .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--indigo); }
+  .rule-opt .so-t{ font-size:14px; font-weight:800; color:var(--ink); }
+  .rule-opt .so-d{ font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5; }
+
+  /* 选择人员弹窗 */
+  .ppl-modal{ width:760px; }
+  .ppl-body{ display:flex; height:440px; }
+  .ppl-left{ flex:1; border-right:1px solid var(--line-2); padding:16px; overflow-y:auto; }
+  .ppl-right{ flex:1; padding:16px; display:flex; flex-direction:column; }
+  .ppl-search{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13px; margin-bottom:14px; font-family:inherit; }
+  .ppl-search:focus{ outline:none; border-color:#c7d2fe; }
+  .ppl-dept{ display:flex; align-items:center; gap:10px; padding:9px 6px; font-size:14px; color:var(--ink); cursor:pointer; border-radius:8px; }
+  .ppl-dept:hover{ background:#f1f5f9; }
+  .ppl-dept.root{ font-weight:700; }
+  .ppl-dept .di{ width:26px; height:26px; border-radius:50%; background:#2563eb; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:13px; }
+  .ppl-dept .arw{ color:var(--mut); font-size:10px; width:10px; }
+  .ppl-tabs{ display:flex; gap:8px; margin-bottom:14px; }
+  .ppl-tab{ flex:1; text-align:center; padding:8px; font-size:13px; font-weight:700; color:var(--sub); border:1px solid var(--line); border-radius:9px; cursor:pointer; }
+  .ppl-tab.on{ color:#2563eb; border-color:#2563eb; background:#eff6ff; }
+  .ppl-selected{ flex:1; display:flex; flex-direction:column; gap:8px; overflow-y:auto; }
+  .ppl-empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--mut); font-size:13px; gap:10px; }
+  .sel-chip{ display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#f8fafc; border-radius:8px; font-size:13px; }
+  .sel-chip .rm{ color:var(--mut); cursor:pointer; }
+  .ppl-foot-row{ display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--txt); padding-top:12px; border-top:1px solid var(--line-2); margin-top:8px; }
+  .switch-off{ width:36px; height:20px; border-radius:20px; background:#e2e8f0; position:relative; }
+  .switch-off::after{ content:""; position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:2px; left:2px; }
+
+/* ============ CODEX 风格覆盖 ============ */
+:root{
+  --indigo:#0d0d0d; --indigo-d:#0d0d0d; --violet:#0d0d0d;
+  --ink:#0d0d0d; --txt:#3f3f46; --sub:#5d5d63; --mut:#8e8e96;
+  --line:#e8e8ea; --line-2:#f0f0f2; --bg:#f7f7f8; --bg-2:#f7f7f8;
+  --ok:#1a7f4b; --warn:#b45309; --danger:#c8342b; --blue:#0b6bcb;
+  --shadow-sm:none; --shadow-md:none; --shadow-lg:0 8px 24px rgba(0,0,0,.10);
+  --r:8px;
+}
+body{ background:#f7f7f8; }
+.app{ border-radius:12px; box-shadow:none; border:1px solid var(--line); }
+.page-label .b-num{ background:#0d0d0d; border-radius:6px; }
+.page-label .b-title{ font-weight:700; }
+
+/* 顶栏 / 侧栏 */
+.topbar{ border-bottom:1px solid var(--line); }
+.tb-brand .bi,.side-brand .bi{ background:#0d0d0d; border-radius:6px; font-weight:700; }
+.tb-brand,.side-brand{ font-weight:700; }
+.tenant-sel{ border-radius:8px; font-weight:500; font-size:12.5px; padding:5px 10px; }
+.nav-link{ font-weight:500; color:var(--sub); }
+.nav-link:hover{ color:#0d0d0d; }
+.avatar{ background:#0d0d0d; font-weight:600; }
+.sidebar{ width:200px; flex:0 0 200px; background:#f4f4f5; border-right:1px solid var(--line); }
+.side-group{ font-size:11.5px; font-weight:500; color:var(--mut); letter-spacing:0; padding:16px 10px 6px; }
+.side-item{ height:30px; padding:0 10px; border-radius:6px; font-size:13px; color:var(--sub); font-weight:400; }
+.side-item:hover{ background:#ebebed; }
+.side-item.on{ background:#fff; color:#0d0d0d; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.side-item .ci{ font-size:14px; }
+
+/* 页头 / Tab */
+.body-wrap{ padding:24px 32px 40px; }
+.back{ color:var(--sub); font-size:12.5px; }
+.back:hover{ color:#0d0d0d; }
+.agent-ico{ border-radius:10px; background:#0d0d0d; font-weight:600; }
+.agent-name{ font-size:24px; font-weight:700; letter-spacing:-.2px; }
+.agent-desc{ color:var(--sub); }
+.tabs{ display:inline-flex; gap:2px; border-bottom:none; margin-bottom:20px; background:#f0f0f2; padding:3px; border-radius:8px; }
+.tab{ padding:6px 16px; font-size:13px; font-weight:500; color:var(--sub); border-bottom:none; margin-bottom:0; border-radius:6px; }
+.tab:hover{ color:#0d0d0d; }
+.tab.on{ color:#0d0d0d; background:#fff; border-bottom:none; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.tab .dot{ background:#0d0d0d; border-radius:4px; font-weight:500; }
+
+/* 卡片 / 标题 */
+.card,.row-block,.trend-card,.stat-card,.list-card{ border-radius:12px; border:1px solid var(--line); box-shadow:none; }
+.card-t,.rb-t,.sec-title{ font-size:14px; font-weight:600; color:#0d0d0d; }
+.card-s,.rb-s,.sec-sub{ font-size:12.5px; color:var(--sub); }
+
+/* 按钮 */
+.btn{ border-radius:8px; font-size:13px; font-weight:500; padding:7px 14px; height:32px; }
+.btn.primary{ background:#0d0d0d; color:#fff; }
+.btn.primary:hover{ background:#26262b; }
+.btn.ghost{ background:#fff; color:#0d0d0d; border:1px solid var(--line); }
+.btn.ghost:hover{ background:#f7f7f8; border-color:#d8d8dc; color:#0d0d0d; }
+.btn.sm{ padding:5px 11px; height:28px; font-size:12.5px; }
+
+/* Pill / 标签 */
+.pill,.src-tag,.st-on,.st-off,.mem-on{ border-radius:6px; font-size:11.5px; font-weight:500; padding:3px 8px; }
+.pill.green,.st-on,.mem-on{ background:#eaf5ee; color:#1a7f4b; }
+.pill.amber{ background:#fdf4e7; color:#b45309; }
+.pill.indigo{ background:#f0f0f2; color:#5d5d63; }
+.pill.blue{ background:#eef4fd; color:#0b6bcb; }
+.pill.gray,.st-off{ background:#f0f0f2; color:#5d5d63; }
+.src-agenthub{ background:#eef4fd; color:#0b6bcb; }
+.src-studio{ background:#f0f0f2; color:#5d5d63; }
+.src-ext{ background:#fdf4e7; color:#b45309; }
+.model-tag{ background:#f4f4f5; color:#3f3f46; border-radius:6px; border:1px solid var(--line); }
+.count-badge{ background:#f0f0f2; color:var(--sub); border-radius:6px; font-weight:500; }
+
+/* 表格 */
+.table th{ background:#fafafa; color:var(--sub); font-weight:600; font-size:12.5px; border-bottom:1px solid var(--line); }
+.table td{ border-bottom:1px solid var(--line-2); }
+.table tr:hover td{ background:#fafafa; }
+.ag-name{ font-weight:500; }
+.op-btn{ border-radius:6px; color:var(--sub); }
+.op-btn.edit{ color:var(--sub); } .op-btn.edit:hover{ background:#f0f0f2; color:#0d0d0d; }
+.op-btn.del{ color:#c8342b; } .op-btn.del:hover{ background:#fdf0ef; }
+
+/* 列表页 */
+.list-title{ font-size:24px; font-weight:700; letter-spacing:-.2px; }
+.search-inp,.src-filter{ border-radius:8px; padding:7px 12px; font-size:13px; height:32px; }
+.search-inp:focus,.src-filter:focus{ border-color:#0d0d0d; }
+.list-table td{ padding:12px 14px; }
+
+/* 使用范围 */
+.opt-line{ border-radius:8px; }
+.opt-line:hover{ background:#f7f7f8; }
+.opt-line.on{ background:#f4f4f5; }
+.opt-line .rd{ border:1.5px solid #b9b9bf; }
+.opt-line.on .rd{ border-color:#0d0d0d; }
+.opt-line.on .rd::after{ background:#0d0d0d; }
+.ol-t{ font-weight:500; font-size:13.5px; }
+.ol-d{ color:var(--sub); }
+.tag-chip{ border-radius:6px; font-size:12px; }
+.add-chip{ color:#0b6bcb; font-weight:500; }
+.reply-dd{ border-radius:8px; font-weight:500; }
+
+/* 用量 - 概览 */
+.range-dd select{ border-radius:8px; font-weight:500; font-size:12.5px; padding:6px 10px; }
+.stat-card{ padding:16px 18px; }
+.stat-card .lb{ font-size:12.5px; font-weight:500; color:var(--sub); }
+.stat-card .vl{ font-size:26px; font-weight:700; letter-spacing:-.4px; font-variant-numeric:tabular-nums; }
+.tip-ic::after{ background:#0d0d0d; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.16); }
+.tip-ic::before{ border-top-color:#0d0d0d; }
+.sc-row .sc-nm{ color:var(--sub); }
+.sc-row .sc-v{ font-weight:500; font-variant-numeric:tabular-nums; }
+.mom{ font-weight:500; }
+.mom.up{ color:#c8342b; } .mom.down{ color:#1a7f4b; }
+.mom i{ color:#d8d8dc; }
+
+/* 用量 - 趋势 */
+.gran-seg{ border:none; background:#f0f0f2; padding:3px; border-radius:8px; gap:2px; }
+.gran-btn{ border-left:none; background:transparent; border-radius:6px; padding:5px 16px; font-size:12.5px; color:var(--sub); }
+.gran-btn.on{ background:#fff; color:#0d0d0d; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.lg-box{ border:1.5px solid #c4c4ca; border-radius:4px; }
+.lg-item.on .lg-box{ background:#0d0d0d; border-color:#0d0d0d; }
+.trend-chart .gl{ stroke:#f0f0f2; }
+.tt-box{ border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.10); }
+
+/* 用量 - 规则 / 明细 */
+.rule-ico{ background:#f4f4f5; border-radius:8px; }
+.rule-desc{ color:var(--sub); }
+.rc-vl{ font-weight:600; font-size:13.5px; }
+.pg-btn{ border-radius:8px; }
+.pg-btn:hover:not(:disabled){ border-color:#0d0d0d; }
+.pg-btn.on{ background:#0d0d0d; border-color:#0d0d0d; }
+.u-av{ background:#e8e8ea; color:#5d5d63; font-weight:600; }
+.u-name{ font-weight:500; }
+.ratio-fill{ background:#0d0d0d; }
+.sc-tag{ background:#f4f4f5; border:1px solid var(--line); color:#5d5d63; border-radius:6px; }
+
+/* 弹窗 */
+.overlay{ background:rgba(0,0,0,.30); }
+.modal{ border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.10); }
+.modal-head{ border-bottom:1px solid var(--line-2); }
+.modal-head .mt{ font-size:16px; font-weight:700; }
+.modal-foot{ border-top:1px solid var(--line-2); }
+.rule-opt{ border:1px solid var(--line); border-radius:8px; }
+.rule-opt.on{ border-color:#0d0d0d; background:#fafafa; }
+.rule-opt .radio{ border:1.5px solid #b9b9bf; }
+.rule-opt.on .radio{ border-color:#0d0d0d; } .rule-opt.on .radio::after{ background:#0d0d0d; }
+.rule-opt .so-t{ font-size:13.5px; font-weight:600; }
+.rule-opt .so-d{ color:var(--sub); }
+.ppl-search{ border-radius:8px; } .ppl-search:focus{ border-color:#0d0d0d; }
+.ppl-tab{ border-radius:8px; font-weight:500; }
+.ppl-tab.on{ color:#0d0d0d; border-color:#0d0d0d; background:#f4f4f5; }
+.ppl-dept .di{ background:#e8e8ea; color:#5d5d63; }
+.ppl-dept:hover{ background:#f4f4f5; }
+.sel-chip{ background:#f7f7f8; border-radius:8px; }
+
+/* 日历 */
+.cal-range b{ color:#0d0d0d; }
+.cal-arrow{ border-radius:8px; } .cal-arrow:hover{ border-color:#0d0d0d; color:#0d0d0d; }
+.cal-cell.in-range{ background:#f0f0f2; }
+.cal-cell.range-start{ background:linear-gradient(90deg,transparent 50%,#f0f0f2 50%); }
+.cal-cell.range-end{ background:linear-gradient(90deg,#f0f0f2 50%,transparent 50%); }
+.cal-quick span{ color:#3f3f46; background:#f0f0f2; border-radius:8px; font-weight:500; }
+.cal-quick span:hover{ background:#e8e8ea; }
+.ph-box{ border:1px dashed #d8d8dc; border-radius:12px; background:#fafafa; }
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="b-num">A</span>
+  <span class="b-title">Agents 列表 + 详情（Codex 风格）</span>
+  <span class="b-desc">按 v1.0 设计规范重做：中性配色 / 边框代阴影 / 胶囊 Tab / 黑色主按钮</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="tb-brand"><span class="bi">W</span>WrokHub Studio</div>
+    <div class="tenant-sel">📁 AgentHub <span class="caret">▾</span></div>
+    <div class="right">
+      <span class="nav-link">AI 能力</span>
+      <span class="avatar">张</span>
+    </div>
+  </div>
+
+  <div class="main-row">
+  <aside class="sidebar">
+    <div class="side-group" style="padding-top:6px;">AI 能力</div>
+    <div class="side-item"><span class="ci">🧬</span>Models</div>
+    <div class="side-item"><span class="ci">📝</span>Prompts</div>
+    <div class="side-item"><span class="ci">✨</span>Skills</div>
+    <div class="side-item"><span class="ci">🔧</span>工具</div>
+    <div class="side-item"><span class="ci">🔌</span>MCP</div>
+    <div class="side-item"><span class="ci">📖</span>知识</div>
+    <div class="side-group">Agent 管理</div>
+    <div class="side-item on"><span class="ci">🧠</span>Agents</div>
+    <div class="side-item"><span class="ci">💾</span>产物库</div>
+    <div class="side-item"><span class="ci">⚡</span>自动化</div>
+    <div class="side-group">效果分析</div>
+    <div class="side-item"><span class="ci">💬</span>对话</div>
+    <div class="side-item"><span class="ci">📒</span>会话</div>
+    <div class="side-item"><span class="ci">📊</span>评测</div>
+  </aside>
+
+  <div class="body-wrap">
+
+    <!-- ===== 列表页 ===== -->
+    <div id="view-list">
+      <div class="list-head">
+        <div class="list-title">Agents</div>
+        <button class="btn primary" onclick="alert('新建 Agent（原型占位）')">＋ 新建 Agent</button>
+      </div>
+      <div class="list-tools">
+        <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 创建人" oninput="renderList()">
+        <select class="src-filter" id="agSrc" onchange="renderList()">
+          <option value="">全部来源</option>
+          <option value="AgentHub">AgentHub</option>
+          <option value="Workhub Studio">Workhub Studio</option>
+          <option value="Claude Code">Claude Code</option>
+          <option value="Hermes">Hermes</option>
+          <option value="OpenClaw">OpenClaw</option>
+          <option value="Codex">Codex</option>
+        </select>
+      </div>
+      <div class="list-card">
+        <table class="table list-table">
+          <thead><tr>
+            <th style="width:15%">名称</th>
+            <th style="width:11%">模型</th>
+            <th style="width:11%">来源</th>
+            <th style="width:6%">记忆</th>
+            <th style="width:6%">状态</th>
+            <th style="width:7%">创建人</th>
+            <th style="width:11%">创建时间</th>
+            <th style="width:7%">更新人</th>
+            <th style="width:11%">更新时间</th>
+            <th style="width:8%">操作</th>
+          </tr></thead>
+          <tbody id="agRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== 详情页 ===== -->
+    <div id="view-detail" style="display:none;">
+    <div class="back" onclick="backToList()">← 返回 Agents</div>
+    <div class="agent-head">
+      <div class="agent-ico" id="dIco">云</div>
+      <div>
+        <div class="agent-name" id="dName">云空间-运维 agent</div>
+        <div class="agent-desc" id="dDesc">云空间-运维 agent · 拥有者：张振</div>
+      </div>
+    </div>
+
+    <div class="tabs" id="dTabs">
+      <div class="tab" data-p="config" onclick="switchTab('config',this)">配置</div>
+      <div class="tab" data-p="memory" onclick="switchTab('memory',this)">记忆</div>
+      <div class="tab on" data-p="scope" onclick="switchTab('scope',this)">使用</div>
+      <div class="tab" data-p="usage" onclick="switchTab('usage',this)">用量</div>
+    </div>
+
+
+    <!-- PANES INSERTED HERE -->
+
+    <!-- 配置 -->
+    <div class="pane" id="pane-config">
+      <div class="ph-box"><div class="big">配置（已有能力）</div>基础信息 · 内置工具 · Prompt 绑定 · Skill 绑定 · MCP 绑定<br>逻辑不变，本次仅归入此 Tab（原型占位）。</div>
+    </div>
+
+    <!-- 记忆 -->
+    <div class="pane" id="pane-memory">
+      <div class="ph-box"><div class="big">记忆（已有能力）</div>会话记忆 · 用户记忆<br>逻辑不变，本次仅将记忆模块移入此 Tab（原型占位）。</div>
+    </div>
+
+    <!-- 使用范围 -->
+    <div class="pane on" id="pane-scope">
+      <div class="row-block">
+        <div class="rb-head">
+          <div><div class="rb-t">可使用范围</div><div class="rb-s">管理谁可以发现、私聊和使用该 Agent。</div></div>
+        </div>
+        <div class="opt-line on" onclick="pickScope('self')">
+          <span class="rd"></span>
+          <div class="ol-main"><span class="ol-t">指定成员或部门</span><span class="ol-d">范围内成员可搜索、私聊、使用并将 Agent 加入群聊</span></div>
+          <div class="ol-side"><span class="add-chip" onclick="event.stopPropagation();openPeople()">＋ 选择人员</span></div>
+        </div>
+        <div class="opt-line" onclick="pickScope('part')">
+          <span class="rd"></span>
+          <div class="ol-main"><span class="ol-t">仅自己</span><span class="ol-d">仅拥有者可搜索、私聊、使用；加入群聊后群成员可在群内对话</span></div>
+        </div>
+      </div>
+
+      <div class="row-block">
+        <div class="rb-head">
+          <div><div class="rb-t">已加入的群聊 <span class="count-badge">3</span></div><div class="rb-s">按群设置回复方式；加入新群请前往对应群设置。</div></div>
+        </div>
+        <table class="table compact">
+          <thead><tr><th style="width:40%">群聊</th><th style="width:36%">上下文</th><th style="width:24%">回复方式</th></tr></thead>
+          <tbody id="groupRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 用量统计 -->
+    <div class="pane" id="pane-usage">
+      <div class="usage-topbar">
+        <div class="sec-title" style="margin:0;">用量概览</div>
+        <div class="range-dd">
+          <select id="rangeSel" onchange="onRangeChange()">
+            <option value="7d">近 7 天</option>
+            <option value="month">本月</option>
+            <option value="custom">自定义…</option>
+          </select>
+          <span id="rangeLabel" class="range-label"></span>
+        </div>
+      </div>
+      <div class="stat-grid" id="statGrid"></div>
+
+      <!-- 变化趋势 -->
+      <div class="card-t trend-title">变化趋势</div>
+      <div class="gran-seg" id="granSeg">
+        <button class="gran-btn on" data-g="day" onclick="setGran('day',this)">日</button>
+        <button class="gran-btn" data-g="week" onclick="setGran('week',this)">周</button>
+        <button class="gran-btn" data-g="month" onclick="setGran('month',this)">月</button>
+      </div>
+      <div class="trend-wrap">
+        <div class="trend-card" data-m="tok">
+          <div class="card-t">Token 用量趋势</div>
+          <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
+        </div>
+        <div class="trend-card" data-m="sess">
+          <div class="card-t">会话数趋势</div>
+          <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
+        </div>
+        <div class="trend-card" data-m="dlg">
+          <div class="card-t">消息数趋势</div>
+          <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
+        </div>
+        <div class="trend-card" data-m="user">
+          <div class="card-t">用户数趋势</div>
+          <div class="trend-chart"></div>
+          <div class="trend-legend"></div>
+        </div>
+      </div>
+
+      <!-- 扣除规则 + 用户用量明细（合并模块） -->
+      <div id="usageDetail">
+      <div class="card-t trend-title">用户用量明细</div>
+      <div class="card" style="padding:0;">
+        <div class="rule-bar">
+          <div class="rule-left">
+            <div class="rule-ico">💳</div>
+            <div>
+              <div class="card-t">Token 扣除规则</div>
+              <div class="rule-desc" id="ruleDesc"></div>
+            </div>
+          </div>
+          <div class="rule-right">
+            <div class="rule-cur"><div class="rc-lb">当前规则</div><div class="rc-vl" id="ruleCur"></div></div>
+            <button class="btn ghost sm" onclick="openRule()">修改</button>
+          </div>
+        </div>
+        <table class="table" style="margin-top:0;">
+          <thead><tr><th style="width:22%">用户</th><th>Token 消耗</th><th>会话数</th><th>消息数</th><th style="width:22%">应用场景</th><th>占比</th><th style="width:16%">扣除归属</th></tr></thead>
+          <tbody id="detailRows"></tbody>
+        </table>
+        <div class="pager" id="detailPager"></div>
+      </div>
+      </div><!-- /usageDetail -->
+    </div>
+
+    </div><!-- /view-detail -->
+
+
+
+  </div><!-- /body-wrap -->
+  </div><!-- /main-row -->
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head"><div class="mt">修改 Token 扣除规则</div><span class="x" onclick="closeRule()">×</span></div>
+    <div class="modal-body">
+      <div class="rule-opt" id="ro-mine" onclick="pickRule('mine')">
+        <div class="radio"></div>
+        <div><div class="so-t">统一从我的额度扣除</div><div class="so-d">所有人使用此 Agent 产生的 Token，统一从创建时配置的账号额度扣除（无论谁用）。</div></div>
+      </div>
+      <div class="rule-opt" id="ro-asker" onclick="pickRule('asker')">
+        <div class="radio"></div>
+        <div><div class="so-t">从提问人的额度扣除</div><div class="so-d">每次对话产生的 Token，从发起本次对话的用户额度扣除（谁用扣谁）。</div></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeRule()">取消</button><button class="btn primary" onclick="saveRule()">保存</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="dateOverlay">
+  <div class="modal cal-modal">
+    <div class="modal-head"><div class="mt">自定义时间范围</div><span class="x" onclick="closeDate()">×</span></div>
+    <div class="modal-body">
+      <div class="cal-range" id="calRange"></div>
+      <div class="cal-nav">
+        <span class="cal-arrow" onclick="calMove(-1)">‹</span>
+        <span class="cal-title" id="calTitle"></span>
+        <span class="cal-arrow" onclick="calMove(1)">›</span>
+      </div>
+      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-quick">
+        <span onclick="calQuick(7)">近 7 天</span>
+        <span onclick="calQuick(14)">近 14 天</span>
+        <span onclick="calQuick(30)">近 30 天</span>
+        <span onclick="calQuick(90)">近 90 天</span>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeDate()">取消</button><button class="btn primary" onclick="applyCal()">确定</button></div>
+  </div>
+</div>
+
+<!-- 选择人员 -->
+<div class="overlay" id="peopleOverlay">
+  <div class="modal ppl-modal">
+    <div class="modal-head"><div class="mt">选择人员</div><span class="x" onclick="closePeople()">×</span></div>
+    <div class="ppl-body">
+      <div class="ppl-left">
+        <input class="ppl-search" placeholder="🔍 请输入人员姓名或邮箱">
+        <label class="ppl-dept root"><input type="checkbox" onchange="toggleAllDept(this)"> 全部部门</label>
+        <div id="deptList"></div>
+      </div>
+      <div class="ppl-right">
+        <div class="ppl-tabs">
+          <span class="ppl-tab on" data-t="dept" onclick="pplTab('dept',this)">已选部门(<span id="cntDept">0</span>)</span>
+          <span class="ppl-tab" data-t="user" onclick="pplTab('user',this)">已选人员(<span id="cntUser">0</span>)</span>
+        </div>
+        <div class="ppl-selected" id="pplSelected"></div>
+        <div class="ppl-foot-row"><span>部门内人员筛选 <span style="color:var(--mut)">ⓘ</span></span><span class="switch-off"></span></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closePeople()">取消</button><button class="btn primary" onclick="applyPeople()">确定</button></div>
+  </div>
+</div>
+
+<script>
+function switchTab(p,el){
+  document.querySelectorAll('#dTabs .tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pane-'+p).classList.add('on');
+}
+
+/* ===== Agent 列表 ===== */
+const agents=[
+  { id:1, name:"云空间-运维 agent", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"云", extName:"" },
+  { id:2, name:"Echo Agent-icare", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"E", extName:"" },
+  { id:3, name:"Echo Agent-网易KM", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"E", extName:"" },
+  { id:4, name:"我的有道龙虾", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"🦞", extName:"OpenClaw" },
+  { id:5, name:"研发助理 CC", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"🤖", extName:"Claude Code" },
+  { id:6, name:"Hermes 分析体", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"🪽", extName:"Hermes" },
+  { id:7, name:"Codex 编码体", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"⌨️", extName:"Codex" },
+  { id:8, name:"HR 智能问答", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"H", extName:"" }
+];
+const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
+let curAgent=agents[0];
+
+function renderList(){
+  const q=(document.getElementById('agSearch').value||"").toLowerCase();
+  const sf=document.getElementById('agSrc').value;
+  const rows=agents.filter(a=>(!q||a.name.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q))&&(!sf||a.src===sf));
+  document.getElementById('agRows').innerHTML=rows.map(a=>`
+    <tr onclick="openDetail(${a.id})">
+      <td><span class="ag-name">${a.name}</span></td>
+      <td>${a.model==='-'?'<span class="muted-cell">-</span>':`<span class="model-tag">${a.model}</span>`}</td>
+      <td><span class="src-tag ${srcClass[a.srcType]}">${a.src}</span></td>
+      <td>${a.model==='-'&&a.srcType==='ext'?'<span class="muted-cell">-</span>':(a.mem?'<span class="mem-on">开启</span>':'<span class="mem-off">关闭</span>')}</td>
+      <td>${a.status==='on'?'<span class="st-on">启用</span>':'<span class="st-off">停用</span>'}</td>
+      <td>${a.owner}</td>
+      <td class="time-cell">${a.ct}</td>
+      <td>${a.uu}</td>
+      <td class="time-cell">${a.ut}</td>
+      <td class="op-cell" onclick="event.stopPropagation()">
+        <span class="op-btn edit" title="编辑" onclick="alert('编辑：${a.name}（原型占位）')">✎</span>
+        <span class="op-btn del" title="删除" onclick="delAgent(${a.id})">🗑</span>
+      </td>
+    </tr>`).join("");
+}
+function backToList(){ document.getElementById('view-detail').style.display='none'; document.getElementById('view-list').style.display='block'; }
+function delAgent(id){ const a=agents.find(x=>x.id===id); if(confirm('确认删除「'+a.name+'」？')){ const i=agents.indexOf(a); agents.splice(i,1); renderList(); } }
+function openDetail(id){
+  curAgent=agents.find(a=>a.id===id);
+  document.getElementById('view-list').style.display='none';
+  document.getElementById('view-detail').style.display='block';
+  // 头部
+  document.getElementById('dIco').textContent=curAgent.ico;
+  document.getElementById('dName').textContent=curAgent.name;
+  const srcTxt=curAgent.srcType==='ext'?`外部连接 · ${curAgent.extName}`:curAgent.src;
+  document.getElementById('dDesc').textContent=`${srcTxt} · 拥有者：${curAgent.owner}`;
+  // Tab 可见性
+  const ext=curAgent.srcType==='ext';
+  const tabs=document.querySelectorAll('#dTabs .tab');
+  tabs.forEach(t=>{ const p=t.dataset.p; const hide=ext&&(p==='config'||p==='memory'); t.style.display=hide?'none':''; });
+  document.getElementById('usageDetail').style.display=ext?'none':'';
+  // 默认落到「使用范围」
+  const scopeTab=[...tabs].find(t=>t.dataset.p==='scope');
+  switchTab('scope',scopeTab);
+  renderUsage();
+}
+
+
+/* ===== 数据 ===== */
+let scopeVal="part";
+let rule="mine";              // mine | asker
+const groups=[
+  { name:"产品讨论群", reply:"智能回复" },
+  { name:"项目协作群", reply:"仅 @ 时回复" },
+  { name:"AgentHub 共创群", reply:"智能回复" }
+];
+const rangeData={
+  month:{ token:"60.0K", sess:47, task:89, users:23, groups:3 },
+  "7d":{ token:"41.2K", sess:29, task:47, users:16, groups:3 },
+  custom:{ token:"—", sess:"—", task:"—", users:"—", groups:3 }
+};
+const users=[
+  { name:"张振", dep:"效率工程部", tok:21400, sess:12, task:26, av:"张" },
+  { name:"朱弈", dep:"产品体验中心", tok:15800, sess:9, task:19, av:"朱" },
+  { name:"李扬", dep:"效率工程部", tok:11200, sess:8, task:17, av:"李" },
+  { name:"傅云辰", dep:"产品体验中心", tok:7300, sess:11, task:14, av:"傅" },
+  { name:"施羽婷", dep:"综合业务部", tok:4300, sess:7, task:13, av:"施" },
+  { name:"陈杰", dep:"研发中心", tok:3900, sess:6, task:11, av:"陈" },
+  { name:"汪晓东", dep:"人力资源部", tok:3200, sess:5, task:9, av:"汪" },
+  { name:"张大力", dep:"商务采购部", tok:2800, sess:5, task:8, av:"张" },
+  { name:"胡国群", dep:"法务部", tok:2100, sess:4, task:7, av:"胡" },
+  { name:"陈丽萱", dep:"行政部", tok:1700, sess:4, task:6, av:"陈" },
+  { name:"孙悦", dep:"财务部", tok:1300, sess:3, task:5, av:"孙" },
+  { name:"周涛", dep:"综合业务部", tok:900, sess:2, task:4, av:"周" },
+  { name:"吴敏", dep:"企业发展部", tok:600, sess:2, task:3, av:"吴" }
+];
+let detailPage=1; const DETAIL_PER=10;
+
+/* 按结束日回溯 N 天生成日序列（伪随机稳定） */
+const END=new Date(2026,6,29);
+function fmtMD(d){ return (d.getMonth()+1)+"/"+d.getDate(); }
+function fmtY(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function seriesFor(days){
+  const arr=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(END); d.setDate(END.getDate()-i);
+    const seed=(d.getDate()*7+d.getMonth()*13)%17;
+    const tok=4200+seed*620+(days-i)*40;
+    const task=3+((seed+d.getDate())%9);
+    arr.push({ d, x:fmtMD(d), tok, task });
+  }
+  return arr;
+}
+function kfmt(n){ return n>=1000?(n/1000).toFixed(1)+"K":String(n); }
+
+/* 当前范围状态 */
+let rangeDays=7;                 // 7 | 本月天数 | 自定义天数
+let customStart=null, customEnd=null;
+
+
+/* ===== 使用范围 ===== */
+function pickScope(v){ scopeVal=v; const lines=document.querySelectorAll('#pane-scope .opt-line'); lines[0].classList.toggle('on',v==='self'); lines[1].classList.toggle('on',v==='part'); }
+
+/* 选择人员弹窗 */
+const depts=["财务部","人力资源部","行政部","投资者关系部","企业发展部","执行办公室","综合业务部","法务部","商务采购部","内审部","农业事业部"];
+let selDepts=[], selUsers=["张振","朱弈","李扬","傅云辰","施羽婷","陈杰","汪晓东","张大力"], pplCur="dept";
+function renderDeptList(){
+  document.getElementById('deptList').innerHTML=depts.map((d,i)=>`
+    <label class="ppl-dept"><span class="arw">▶</span><input type="checkbox" ${selDepts.includes(d)?'checked':''} onchange="toggleDept('${d}',this)"><span class="di">🏢</span>${d}</label>`).join("");
+}
+function toggleDept(d,el){ if(el.checked){ if(!selDepts.includes(d))selDepts.push(d); } else selDepts=selDepts.filter(x=>x!==d); syncPpl(); }
+function toggleAllDept(el){ selDepts=el.checked?[...depts]:[]; renderDeptList(); syncPpl(); }
+function pplTab(t,el){ pplCur=t; document.querySelectorAll('.ppl-tab').forEach(x=>x.classList.remove('on')); el.classList.add('on'); renderSelected(); }
+function renderSelected(){
+  const list=pplCur==='dept'?selDepts:selUsers;
+  const box=document.getElementById('pplSelected');
+  if(!list.length){ box.innerHTML=`<div class="ppl-empty"><div style="font-size:40px">📁</div>暂无${pplCur==='dept'?'部门':'人员'}</div>`; return; }
+  box.innerHTML=list.map(x=>`<div class="sel-chip">${x}<span class="rm" onclick="rmSel('${x}')">×</span></div>`).join("");
+}
+function rmSel(x){ if(pplCur==='dept') selDepts=selDepts.filter(v=>v!==x); else selUsers=selUsers.filter(v=>v!==x); syncPpl(); renderDeptList(); }
+function syncPpl(){ document.getElementById('cntDept').textContent=selDepts.length; document.getElementById('cntUser').textContent=selUsers.length; renderSelected(); }
+function openPeople(){ renderDeptList(); syncPpl(); document.getElementById('peopleOverlay').classList.add('on'); }
+function closePeople(){ document.getElementById('peopleOverlay').classList.remove('on'); }
+function applyPeople(){ closePeople(); }
+document.getElementById('peopleOverlay').addEventListener('click',e=>{ if(e.target.id==='peopleOverlay') closePeople(); });
+function renderGroups(){
+  document.getElementById('groupRows').innerHTML=groups.map((g,i)=>`
+    <tr>
+      <td><span class="grp-dot">👥</span><b>${g.name}</b></td>
+      <td style="font-size:12px;color:var(--mut);">会话上下文与其他私聊、群聊隔离</td>
+      <td><select class="reply-dd" onchange="groups[${i}].reply=this.value">
+        <option ${g.reply==='智能回复'?'selected':''}>智能回复</option>
+        <option ${g.reply==='仅 @ 时回复'?'selected':''}>仅 @ 时回复</option>
+      </select></td>
+    </tr>`).join("");
+}
+
+/* ===== 用量统计 ===== */
+let curSeries=[];
+function rangeText(days){
+  const end=new Date(END); const start=new Date(END); start.setDate(END.getDate()-(days-1));
+  return `${fmtMD(start)} - ${fmtMD(end)}`;
+}
+function onRangeChange(){
+  const v=document.getElementById('rangeSel').value;
+  if(v==='custom'){ openDate(); return; }
+  rangeDays = v==='7d' ? 7 : 31;
+  document.getElementById('rangeLabel').textContent = rangeText(rangeDays);
+  renderUsage();
+}
+function renderUsage(){
+  curSeries=seriesFor(rangeDays);
+  const totTok=curSeries.reduce((s,d)=>s+d.tok,0);
+  const sess=curSeries.reduce((s,d)=>s+d.task,0);
+  const dlg=Math.round(sess*1.8);
+  const usersN=Math.min(23, 8+Math.round(rangeDays/3));
+  // 上一周期（用于环比）
+  const prevSeries=seriesFor(rangeDays*2).slice(0,rangeDays);
+  const pTok=prevSeries.reduce((s,d)=>s+d.tok,0);
+  const pSess=prevSeries.reduce((s,d)=>s+d.task,0);
+  const pDlg=Math.round(pSess*1.8);
+  const pUsers=Math.max(1, usersN-1);
+  const mom=(cur,prev)=>{
+    const diff=cur-prev; const pct= prev? (diff/prev*100):0;
+    const av= a=> Math.abs(a)>=1000?kfmt(Math.abs(a)):Math.abs(a);
+    if(diff===0) return `<span class="mom flat" title="环比：与上一周期持平"><span class="mom-tag">环比</span>0 <i>|</i> 0.0%</span>`;
+    const up=diff>0; const cls=up?'up':'down'; const arw=up?'▲':'▼';
+    return `<span class="mom ${cls}" title="环比：与上一周期相比${up?'上涨':'下降'} ${av(diff)}，${up?'增幅':'降幅'} ${Math.abs(pct).toFixed(1)}%"><span class="mom-tag">环比</span>${arw} ${av(diff)} <i>|</i> ${up?'':'-'}${Math.abs(pct).toFixed(1)}%</span>`;
+  };
+  const scenes=SCENES.slice(1);   // 4 应用场景
+  const sceneRows=(total,fmt)=> scenes.map(s=>`<div class="sc-row"><span class="sc-nm">${s.name}</span><span class="sc-v">${fmt(Math.round(total*s.frac))}</span><span class="sc-p">${(s.frac*100).toFixed(0)}%</span></div>`).join("");
+  const idF=x=>x;
+  document.getElementById('statGrid').innerHTML=[
+    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok),"智能体使用过程中消耗的 Token 总量"],
+    ["总会话数",sess,idF,mom(sess,pSess),"用户与该智能体发起的会话总数（非消息数）"],
+    ["总消息数",dlg,idF,mom(dlg,pDlg),"智能体成功回复的消息总数，每回复一条计 1"],
+    ["总用户数",usersN,idF,mom(usersN,pUsers),"与智能体对话过的去重用户总数"]
+  ].map(([lb,vl,fmt,mo,tip])=>`<div class="stat-card">
+      <div class="lb">${lb}<span class="tip-ic" data-tip="${tip}">ⓘ</span></div>
+      <div class="stat-main"><div class="vl">${fmt(vl)}</div>${mo}</div>
+      <div class="stat-div"></div>
+      ${sceneRows(vl,fmt)}
+    </div>`).join("");
+  renderRule(); detailPage=1; renderDetail(); renderTrends();
+}
+
+/* ===== 变化趋势（多场景折线） ===== */
+const SCENES=[
+  { key:"total", name:"总量", color:"#0d0d0d", frac:1 },
+  { key:"workhub", name:"Workhub", color:"#0b6bcb", frac:0.34 },
+  { key:"popo_p", name:"POPO-单聊", color:"#1a7f4b", frac:0.28 },
+  { key:"popo_g", name:"POPO-群聊", color:"#b45309", frac:0.22 },
+  { key:"sdk", name:"SDK", color:"#8e8e96", frac:0.16 }
+];
+const METRICS={
+  tok:  { label:"总量", val:d=>d.tok },
+  sess: { label:"总量", val:d=>d.task },
+  dlg:  { label:"总量", val:d=>Math.round(d.task*1.8) },
+  user: { label:"总量", val:d=>2+((d.d.getDate())%6) }
+};
+// 每个指标记录各场景勾选状态
+const trendVis={};
+Object.keys(METRICS).forEach(m=>{ trendVis[m]={}; SCENES.forEach(s=>trendVis[m][s.key]=true); });
+
+// 横轴粒度：日/周/月
+let trendGran='day';
+function setGran(g,el){ trendGran=g; document.querySelectorAll('.gran-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderTrends(); }
+// 按粒度把 curSeries 聚合为绘图基础序列
+function aggSeries(){
+  if(trendGran==='day') return curSeries.map(d=>({ d:d.d, x:d.x, label:fmtY(d.d), tok:d.tok, task:d.task }));
+  const buckets=new Map();
+  curSeries.forEach(d=>{
+    let key,label,rep;
+    if(trendGran==='week'){
+      const wd=(d.d.getDay()+6)%7;                       // 周一为首
+      const start=new Date(d.d); start.setDate(d.d.getDate()-wd);
+      const end=new Date(start); end.setDate(start.getDate()+6);
+      key=fmtY(start); rep=start;
+      label=fmtMD(start)+"–"+fmtMD(end); var short=fmtMD(start);
+    }else{ // month
+      key=d.d.getFullYear()+"-"+(d.d.getMonth()+1); rep=new Date(d.d.getFullYear(),d.d.getMonth(),1);
+      label=(d.d.getMonth()+1)+"月"; var short=label;
+    }
+    if(!buckets.has(key)) buckets.set(key,{ d:rep, x:short, label, tok:0, task:0 });
+    const b=buckets.get(key); b.tok+=d.tok; b.task+=d.task;
+  });
+  return [...buckets.values()].sort((a,b)=>a.d-b.d);
+}
+
+function renderTrends(){
+  document.querySelectorAll('.trend-card').forEach(card=>{
+    const m=card.dataset.m;
+    renderTrendLegend(card,m);
+    renderTrendChart(card,m);
+  });
+}
+function renderTrendLegend(card,m){
+  const box=card.querySelector('.trend-legend');
+  box.innerHTML=SCENES.map(s=>{
+    const on=trendVis[m][s.key];
+    return `<span class="lg-item ${on?'on':'off'}" onclick="toggleScene('${m}','${s.key}')">
+      <span class="lg-box">${on?'<span class="tick">✓</span>':''}</span>
+      <span class="lg-dot" style="background:${on?s.color:'#cbd5e1'}"></span>
+      <span>${s.name}</span>
+    </span>`;
+  }).join("");
+}
+function toggleScene(m,k){ trendVis[m][k]=!trendVis[m][k]; renderTrends(); }
+function renderTrendChart(card,m){
+  const metric=METRICS[m];
+  const base=aggSeries();
+  const series=SCENES.map(s=>({
+    s, data: base.map(d=>({ x:d.x, v:Math.round(metric.val(d)*s.frac) }))
+  }));
+  const vis=series.filter(o=>trendVis[m][o.s.key]);
+  const W=1040,H=210,padL=44,padR=16,padT=14,padB=28;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const n=base.length;
+  const allV=vis.flatMap(o=>o.data.map(p=>p.v));
+  const max=(allV.length?Math.max(...allV):1)*1.15||1;
+  const X=i=> padL+(n<=1?iw/2:iw*i/(n-1));
+  const Y=v=> padT+ih*(1-v/max);
+  let grid="",yl="";
+  for(let g=0;g<=4;g++){ const yy=padT+ih*g/4; const val=max*(1-g/4); grid+=`<line class="gl" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`; yl+=`<text class="axis-y" x="${padL-6}" y="${yy+3}" text-anchor="end">${kfmt(Math.round(val))}</text>`; }
+  const step=Math.max(1,Math.ceil(n/10));
+  let xl=""; base.forEach((d,i)=>{ if(i%step===0||i===n-1) xl+=`<text class="axis-x" x="${X(i)}" y="${H-8}" text-anchor="middle">${d.x}</text>`; });
+  const lines=vis.map(o=>{
+    const path=o.data.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(" ");
+    return `<path class="tline" d="${path}" stroke="${o.s.color}"/>`;
+  }).join("");
+  const wrap=card.querySelector('.trend-chart');
+  wrap.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${yl}${lines}<line class="hover-line" x1="0" y1="${padT}" x2="0" y2="${padT+ih}" style="display:none"/>${xl}</svg><div class="tt-box"></div>`;
+  // hover tooltip
+  const hl=wrap.querySelector('.hover-line');
+  const tt=wrap.querySelector('.tt-box');
+  const plotFrac=i=> (padL+(n<=1?iw/2:iw*i/(n-1)))/W;
+  wrap.onmousemove=e=>{
+    const r=wrap.getBoundingClientRect();
+    const rel=(e.clientX-r.left)/r.width;
+    let bi=0,bd=1e9;
+    base.forEach((d,i)=>{ const f=plotFrac(i); if(Math.abs(f-rel)<bd){ bd=Math.abs(f-rel); bi=i; } });
+    const f=plotFrac(bi);
+    hl.style.display=''; hl.setAttribute('x1',(f*W).toFixed(1)); hl.setAttribute('x2',(f*W).toFixed(1));
+    const rows=vis.map(o=>`<div class="tt-row"><span class="tt-nm"><span class="tt-dot" style="background:${o.s.color}"></span>${o.s.name}</span><span class="tt-vl">${kfmt(o.data[bi].v)}</span></div>`).join("");
+    tt.innerHTML=`<div class="tt-d">${base[bi].label}</div>${rows||'<div class="tt-row" style="color:#94a3b8">无选中场景</div>'}`;
+    tt.style.display='block';
+    const px=f*r.width;
+    let left=px+12; if(left+tt.offsetWidth>r.width) left=px-tt.offsetWidth-12;
+    tt.style.left=Math.max(0,left)+'px'; tt.style.top='4px';
+  };
+  wrap.onmouseleave=()=>{ hl.style.display='none'; tt.style.display='none'; };
+}
+function renderRule(){
+  const mine=rule==='mine';
+  document.getElementById('ruleDesc').innerHTML= mine
+    ? "所有人使用此 Agent 产生的 Token，统一从你配置的账号额度中扣除。"
+    : "每次对话产生的 Token，从发起本次对话的用户额度中扣除。";
+  document.getElementById('ruleCur').textContent= mine?"统一从我的额度扣除":"从提问人的额度扣除";
+}
+function owner(){ return (typeof curAgent!=='undefined'&&curAgent)?curAgent.owner:"张振"; }
+function renderDetail(){
+  const mine=rule==='mine';
+  const sorted=[...users].sort((a,b)=>b.tok-a.tok);
+  const max=Math.max(...sorted.map(u=>u.tok)); const total=sorted.reduce((s,u)=>s+u.tok,0);
+  const pages=Math.max(1,Math.ceil(sorted.length/DETAIL_PER));
+  if(detailPage>pages) detailPage=pages;
+  const start=(detailPage-1)*DETAIL_PER;
+  const rows=sorted.slice(start,start+DETAIL_PER);
+  document.getElementById('detailRows').innerHTML=rows.map((u,ri)=>{
+    const pct=(u.tok/total*100).toFixed(1);
+    const attr= mine?`<span class="pill gray">${owner()}</span>`:`<span class="pill indigo">${u.name}</span>`;
+    const scTags=userScenes(u).map(o=>`<span class="sc-tag" style="--sc:${o.color}" title="${o.name}：${kfmt(o.tok)} Token · ${o.dlg} 消息">${o.name}</span>`).join("");
+    return `<tr>
+      <td><div class="u-cell"><span class="u-av">${u.av}</span><div><div class="u-name">${u.name}</div><div class="u-dep">${u.dep}</div></div></div></td>
+      <td><b>${u.tok.toLocaleString()}</b></td>
+      <td>${u.sess}</td>
+      <td>${Math.round(u.sess*1.8)}</td>
+      <td><div class="sc-tags">${scTags}</div></td>
+      <td><span class="ratio-bar"><span class="ratio-fill" style="width:${u.tok/max*100}%"></span></span>${pct}%</td>
+      <td>${attr}</td>
+    </tr>`;
+  }).join("");
+  renderDetailPager(pages, sorted.length);
+}
+// 四个应用场景（去掉"总量"），按用户稳定拆解
+const APP_SCENES=SCENES.slice(1);
+function userScenes(u){
+  const seed=(u.name.charCodeAt(0)+u.tok)%APP_SCENES.length;
+  const cnt=1+((u.sess+u.tok)%3);                       // 1-3 个场景
+  const picked=[]; for(let k=0;k<cnt;k++) picked.push(APP_SCENES[(seed+k)%APP_SCENES.length]);
+  // 按占比分配该用户的 token / 对话
+  const totFrac=picked.reduce((s,p)=>s+p.frac,0);
+  const dlg=Math.round(u.sess*1.8);
+  return picked.map(p=>({ name:p.name, color:p.color, tok:Math.round(u.tok*p.frac/totFrac), dlg:Math.max(1,Math.round(dlg*p.frac/totFrac)) }));
+}
+function renderDetailPager(pages, tot){
+  const pg=document.getElementById('detailPager');
+  if(pages<=1){ pg.innerHTML=""; return; }
+  let btns="";
+  for(let i=1;i<=pages;i++){ btns+=`<button class="pg-btn ${i===detailPage?'on':''}" onclick="goDetailPage(${i})">${i}</button>`; }
+  pg.innerHTML=`<span class="pg-info">共 ${tot} 人</span>`
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage-1})" ${detailPage===1?'disabled':''}>上一页</button>`
+    +btns
+    +`<button class="pg-btn" onclick="goDetailPage(${detailPage+1})" ${detailPage===pages?'disabled':''}>下一页</button>`;
+}
+function goDetailPage(p){ detailPage=p; renderDetail(); }
+
+/* ===== 自定义日期（日历） ===== */
+let calY=2026, calM=6;              // 显示月（0-based month）
+let selStart=null, selEnd=null;     // Date
+function openDate(){ calY=END.getFullYear(); calM=END.getMonth(); selStart=null; selEnd=null; renderCal(); document.getElementById('dateOverlay').classList.add('on'); }
+function closeDate(){ document.getElementById('dateOverlay').classList.remove('on'); if(document.getElementById('rangeSel').value==='custom' && !customStart){ document.getElementById('rangeSel').value='7d'; onRangeChange(); } }
+function calMove(step){ calM+=step; if(calM<0){ calM=11; calY--; } if(calM>11){ calM=0; calY++; } renderCal(); }
+function sameDay(a,b){ return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function pickDay(y,m,d){
+  const dt=new Date(y,m,d);
+  if(dt>END) return;                                   // 不可选未来
+  if(!selStart || (selStart&&selEnd)){ selStart=dt; selEnd=null; }
+  else { if(dt<selStart){ selEnd=selStart; selStart=dt; } else selEnd=dt; }
+  renderCal();
+}
+function renderCal(){
+  document.getElementById('calTitle').textContent=`${calY}年${calM+1}月`;
+  const first=new Date(calY,calM,1);
+  let lead=(first.getDay()+6)%7;                        // 周一起始
+  const daysInMon=new Date(calY,calM+1,0).getDate();
+  const prevDays=new Date(calY,calM,0).getDate();
+  let cells="";
+  for(let i=0;i<42;i++){
+    let y=calY,m=calM,d,mute=false;
+    if(i<lead){ d=prevDays-lead+1+i; m=calM-1; mute=true; if(m<0){m=11;y--;} }
+    else if(i<lead+daysInMon){ d=i-lead+1; }
+    else { d=i-lead-daysInMon+1; m=calM+1; mute=true; if(m>11){m=0;y++;} }
+    const dt=new Date(y,m,d);
+    const future=dt>END;
+    const isStart=sameDay(dt,selStart), isEnd=sameDay(dt,selEnd);
+    const inRange=selStart&&selEnd&&dt>selStart&&dt<selEnd;
+    let cls="cal-cell"; if(mute)cls+=" mute"; if(future)cls+=" disabled";
+    if(inRange)cls+=" in-range";
+    if(isStart&&selEnd)cls+=" range-start"; if(isEnd&&selStart)cls+=" range-end";
+    if(isStart||isEnd)cls+=" endpoint";
+    cells+=`<div class="${cls}" ${future?'':`onclick="pickDay(${y},${m},${d})"`}><span class="cd">${d}</span></div>`;
+  }
+  document.getElementById('calGrid').innerHTML=cells;
+  const rg=document.getElementById('calRange');
+  if(!selStart) rg.innerHTML=`<span class="ph">请选择开始日期</span>`;
+  else if(!selEnd) rg.innerHTML=`<b>${fmtY(selStart)}</b> <span class="ph">→ 请选择结束日期</span>`;
+  else { const days=Math.round((selEnd-selStart)/86400000)+1; rg.innerHTML=`<b>${fmtY(selStart)}</b> → <b>${fmtY(selEnd)}</b> · 共 ${days} 天`; }
+}
+function calQuick(days){ const e=new Date(END); const s=new Date(END); s.setDate(END.getDate()-days+1); selStart=s; selEnd=e; calY=e.getFullYear(); calM=e.getMonth(); renderCal(); }
+function applyCal(){
+  if(!selStart){ return; }
+  if(!selEnd) selEnd=selStart;
+  const days=Math.round((selEnd-selStart)/86400000)+1;
+  customStart=selStart; customEnd=selEnd; rangeDays=days;
+  document.getElementById('rangeLabel').textContent=`${fmtMD(selStart)} - ${fmtMD(selEnd)}`;
+  document.getElementById('dateOverlay').classList.remove('on');
+  renderUsage();
+}
+document.getElementById('dateOverlay').addEventListener('click',e=>{ if(e.target.id==='dateOverlay') closeDate(); });
+
+/* ===== 扣除规则弹窗 ===== */
+let ruleTmp=rule;
+function openRule(){ ruleTmp=rule; syncRuleModal(); document.getElementById('overlay').classList.add('on'); }
+function closeRule(){ document.getElementById('overlay').classList.remove('on'); }
+function pickRule(r){ ruleTmp=r; syncRuleModal(); }
+function syncRuleModal(){ document.getElementById('ro-mine').classList.toggle('on',ruleTmp==='mine'); document.getElementById('ro-asker').classList.toggle('on',ruleTmp==='asker'); }
+function saveRule(){ rule=ruleTmp; renderUsage(); closeRule(); }
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeRule(); });
+
+/* init */
+/* init */
+document.getElementById('rangeLabel').textContent=rangeText(7);
+renderList(); renderGroups(); renderUsage();
+</script>
+</body>
+</html>
