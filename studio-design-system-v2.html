@@ -42,9 +42,9 @@ pre{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:14
 <body>
 <div class="wrap">
   <div class="hd">
-    <h1>WorkHub Studio · 全局设计规范 v2.0</h1>
+    <h1>WorkHub Studio · 全局设计规范 v2.1</h1>
     <p>参考 Codex 设计语言，对 Studio 平台做<b>信息架构 / 页面骨架 / 组件体系 / 交互范式</b>的整体升级。不是换色换字，是重构页面组织方式。</p>
-    <div class="m"><span>2026-08-07</span><span>青远（张振）</span><span>替代 v1.0</span></div>
+    <div class="m"><span>2026-08-07</span><span>青远（张振）</span><span>替代 v1.0</span><span>v2.1 新增第 8–11 章（数据浏览 / 内容展示 / 时间线与运行记录 / 高级配置控件）</span></div>
   </div>
   <div class="sec">
     <h2><span class="n">0</span>设计升级的 6 条主张</h2>
@@ -428,7 +428,233 @@ Token 用量                    ← 图表裸标题
   </div>
 
   <div class="sec">
-    <h2><span class="n">8</span>交互范式</h2>
+    <h2><span class="n">8</span>数据浏览：筛选 / 分页 / 空态</h2>
+    <p>补充规范。凡列表页数据量可能 &gt;20 条或需多条件收敛，必须按本章执行。</p>
+    <h3>8.1 筛选栏 FilterBar</h3>
+    <pre>[ 搜索关键词 ]  [ 类型 ▾ ]  [ 状态 ▾ ]  [ 时间范围 ▾ ]      [ 清空 ]</pre>
+    <ul>
+      <li>单行横排，<b>不换行不折叠</b>；超过 5 个条件时把低频项收进「更多筛选 ▾」下拉。</li>
+      <li>控件统一 32px 高，间距 8px；<b>不加 label 文字</b>，用 placeholder 表达（「全部状态」）。</li>
+      <li>有任一条件生效时，最右出现 <code>清空</code> ghost 按钮；无生效条件时隐藏。</li>
+      <li>筛选<b>即时生效</b>，无「查询」按钮。结果数展示在表格标题右侧计数 pill。</li>
+    </ul>
+    <h3>8.2 四种选择控件的选型</h3>
+    <table>
+      <thead><tr><th style="width:22%">控件</th><th style="width:26%">用于</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td><b>普通下拉</b></td><td>选项 ≤8，单选</td><td>菜单项 32px，选中项左侧 ✓，宽度贴合最长项</td></tr>
+        <tr><td><b>搜索型下拉</b></td><td>选项 &gt;8（人员/Agent/群）</td><td>顶部固定搜索框，选项右侧灰色计数；无匹配显示「无结果」</td></tr>
+        <tr><td><b>多选下拉</b></td><td>类型/标签等多值</td><td>项左 checkbox；顶部「全选 / 清除」一行 + 分割线；收起后按钮显示「类型 · 3」</td></tr>
+        <tr><td><b>时间范围</b></td><td>起止时间</td><td>见 11.2</td></tr>
+      </tbody>
+    </table>
+    <h3>8.3 分页 Pagination</h3>
+    <ul>
+      <li>位置：表格<b>容器内底部</b>，与最后一行同宽，上边框 1px。高 48px。</li>
+      <li>左侧「共 128 条」灰字；右侧「每页 20 条 ▾」+ 页码。</li>
+      <li>总页数 ≤7 全展开；&gt;7 用 <code>1 2 3 … 12</code> 省略式。当前页黑底白字 28×28 圆角 6。</li>
+      <li>事件流 / 日志等无限追加场景改用 <b>上一页 / 下一页</b> 双按钮 + 「第 3 页」文字，不算总数。</li>
+    </ul>
+    <h3>8.4 空状态 EmptyState</h3>
+    <table>
+      <thead><tr><th style="width:20%">场景</th><th style="width:28%">文案</th><th>动作</th></tr></thead>
+      <tbody>
+        <tr><td>从未创建</td><td>「还没有 XX」+ 一句价值说明</td><td>Primary 按钮「创建 XX」</td></tr>
+        <tr><td>筛选无结果</td><td>「没有符合条件的 XX」</td><td>Ghost 按钮「清空筛选」</td></tr>
+        <tr><td>无权限</td><td>「你没有查看权限」</td><td>无按钮，附联系管理员说明</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>结构：<b>线性 SVG 图标 40px（--t3 色）→ 标题 14px/600 → 说明 13px/--t2 → 按钮</b>，整体垂直居中，容器最小高 240px。</li>
+      <li><b>禁止</b>使用插画、彩色空态图。</li>
+    </ul>
+    <h3>8.5 加载态</h3>
+    <ul>
+      <li>首屏 / 换页：<b>骨架屏</b>——用 <code>--line2</code> 灰条按真实行高铺，1.2s <code>opacity .6↔1</code> 呼吸，不用 shimmer 扫光。</li>
+      <li>局部（保存中）：按钮内文字换成「保存中…」并 disabled，<b>不加 spinner</b>。</li>
+      <li>抽屉内异步加载：正文区骨架，Footer 按钮保持 disabled。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">9</span>内容展示：代码 / Markdown / 树 / 展开行</h2>
+    <h3>9.1 等宽内容块 CodeBlock</h3>
+    <pre>背景 #fafafa ｜ 边框 1px --line ｜ 圆角 8 ｜ padding 14/16
+字体 Menlo 12px / 行高 1.75 ｜ 色 #3f3f46 ｜ white-space: pre-wrap
+右上角常驻「复制」ghost 图标按钮（hover 显形，点击后 1.5s 内变 ✓）</pre>
+    <ul>
+      <li>三种用途统一同一外观：<b>JSON 原始数据</b>、<b>运行日志 / 输出</b>、<b>请求示例代码</b>。</li>
+      <li>超过 <b>16 行</b>自动折叠，底部渐隐 + 「展开全部（共 82 行）」文字按钮。</li>
+      <li>语法高亮<b>只用 3 色</b>：注释 <code>--t3</code>、关键字 <code>#0d0d0d 600</code>、字符串 <code>--ok</code>。不用彩虹配色。</li>
+      <li>多语言示例（curl/python/node）用<b>顶部段控 Tab</b>，紧贴代码块上沿，无独立容器。</li>
+    </ul>
+    <h3>9.2 Markdown 渲染块</h3>
+    <ul>
+      <li>用于展示模型输出、知识片段、Agent 回复。<b>不加外框</b>，直接排在容器内。</li>
+      <li>限定支持：h4（14px/600）、p、ul/ol、table（同全站表格样式）、a（--acc 无下划线 hover 加）、行内 code、引用块（左 3px --line 竖线）。</li>
+      <li><b>渲染 / 原始</b>两态用右上角段控切换，默认渲染态。</li>
+    </ul>
+    <h3>9.3 树形导航 Tree</h3>
+    <pre>▾ 日记                        12
+    2026-08-07.md
+    2026-08-06.md
+▸ 主题记忆                     8
+  核心档案                     3</pre>
+    <ul>
+      <li>行高 32px；缩进每级 <b>16px</b>；折叠箭头 12px，展开时旋转 90°，过渡 .15s。</li>
+      <li>目录节点右侧灰色计数（纯数字，不加背景）；叶子节点 hover <code>--hover</code>，选中 <code>--side</code> 底 + 文字加粗。</li>
+      <li>树最大宽 <b>240px</b>，作为左右分栏的左栏使用；不做多层浮动展开。</li>
+      <li>节点类型区分<b>只用图标</b>（文件夹 / 文档），<b>禁止彩色标签</b>。</li>
+    </ul>
+    <h3>9.4 表格内联展开行 ExpandableRow</h3>
+    <table>
+      <thead><tr><th style="width:26%">规则</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>何时用</td><td>需要在<b>不离开列表</b>的前提下看少量补充信息（≤1 屏）。信息量大于 1 屏一律改抽屉或详情页。</td></tr>
+        <tr><td>触发</td><td>行首 12px 折叠箭头，<b>只有箭头可点</b>；点行其余区域仍进详情页，两者不冲突。</td></tr>
+        <tr><td>外观</td><td>展开区背景 <code>--side</code>，与父行同宽，内边距 16/20，无独立圆角边框（避免卡片套卡片）。</td></tr>
+        <tr><td>互斥</td><td>同时只允许展开 <b>1 行</b>，展开新行自动收起旧行。</td></tr>
+      </tbody>
+    </table>
+    <h3>9.5 长文本编辑器</h3>
+    <ul>
+      <li>系统提示词 / 规则 / 脚本：等宽 Menlo 13px，min-height 200px，<b>纵向可拖拽</b>，边框同输入框。</li>
+      <li>顶部左侧显示文件路径 chip（如 <code>AGENTS.md</code>），右侧「恢复默认」ghost。</li>
+      <li>底部右下角显示字符数 <code>1,204 / 8,000</code>，超限变 <code>--err</code>。</li>
+      <li>放在<b>抽屉</b>内编辑，不在设置行里直接放大 textarea。</li>
+    </ul>
+    <h3>9.6 敏感值展示 SecretField</h3>
+    <ul>
+      <li>默认掩码 <code>sk-••••••••••••4f2a</code>（保留后 4 位），右侧「显示」眼睛图标 + 「复制」图标。</li>
+      <li>显示后 <b>30s 自动重新掩码</b>。复制成功 Toast「已复制」。</li>
+      <li>Webhook URL / 回调地址同样用此组件，前缀加 <code>POST</code> 灰底方法标签。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">10</span>时间线与运行记录</h2>
+    <h3>10.1 左右分栏 MasterDetail</h3>
+    <pre>┌── 左 380px ─────┬── 右 自适应 ────┐
+│ 筛选 + 记录列表  │ 选中项详情       │
+│ (可滚动)         │ (可滚动)         │
+└─────────────────┴─────────────────┘</pre>
+    <ul>
+      <li>用于：会话事件流、执行历史、记忆文件浏览。<b>内嵌布局，不是浮层抽屉</b>。</li>
+      <li>左栏定宽 380（树形浏览取 240），右栏最小 480；中间 1px <code>--line2</code> 分隔。</li>
+      <li>选中行：<code>--side</code> 底 + 左侧 2px <code>--t1</code> 竖条。</li>
+      <li>两栏<b>独立滚动</b>，页面本身不滚动。右栏空选时显示 EmptyState「从左侧选择一条记录」。</li>
+    </ul>
+    <h3>10.2 事件流 EventStream</h3>
+    <ul>
+      <li>按<b>轮次 run</b> 分组：组头一行灰字「第 3 轮 · 14:22:05 · 2.4s · 1,820 tokens」，sticky 吸顶。</li>
+      <li>事件行：<b>角色标签 + 摘要 + 右侧指标</b>，行高 40，hover 显示「定位 ⌖」。</li>
+      <li>长时间无活动插入<b>空闲分隔带</b>：一行居中灰字「空闲 2 小时 14 分」，上下 1px 虚线。</li>
+      <li>指标（耗时 / token）用<b>等宽字体</b>右对齐，保证多行数字纵向对齐。</li>
+    </ul>
+    <h3>10.3 角色标签色彩系统</h3>
+    <p>这是全站<b>唯一允许成组用色</b>的地方（因为需要快速区分 8+ 种类型）。用法：11px 文字 + 对应色，<b>不加背景块</b>，仅在必要时用 8% 透明底。</p>
+    <table>
+      <thead><tr><th style="width:16%">角色</th><th style="width:20%">色值</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>用户</td><td><code>#0d0d0d</code></td><td>用户输入</td></tr>
+        <tr><td>Agent</td><td><code>#0b6bcb</code></td><td>模型回复</td></tr>
+        <tr><td>思考</td><td><code>#8e8e96</code></td><td>推理过程</td></tr>
+        <tr><td>工具 / MCP</td><td><code>#1a7f4b</code></td><td>工具调用与返回</td></tr>
+        <tr><td>知识</td><td><code>#7c3aed</code></td><td>知识检索命中</td></tr>
+        <tr><td>系统</td><td><code>#5d5d63</code></td><td>系统事件</td></tr>
+        <tr><td>错误</td><td><code>#c8342b</code></td><td>异常中断</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>约束：</b>该色板<b>仅限事件流 / 日志</b>使用，禁止外溢到列表、表单、导航。</div>
+    <h3>10.4 运行状态语义</h3>
+    <table>
+      <thead><tr><th style="width:22%">状态</th><th style="width:18%">Dot 色</th><th>文案规则</th></tr></thead>
+      <tbody>
+        <tr><td>成功</td><td><code>--ok</code></td><td>「成功」；有重试写「成功 · 重试 1 次」</td></tr>
+        <tr><td>失败</td><td><code>--err</code></td><td>「失败」+ 详情内显示错误码与原因</td></tr>
+        <tr><td>执行中</td><td><code>--acc</code>（呼吸）</td><td>「执行中」</td></tr>
+        <tr><td>已跳过</td><td><code>--t3</code></td><td>「已跳过」+ 原因（条件不满足 / 上次未完成）</td></tr>
+        <tr><td>已停用</td><td><code>--t3</code></td><td>「已自动停用」+ 原因（连续失败 5 次）</td></tr>
+        <tr><td>依赖失效</td><td><code>--warn</code></td><td>「Agent 已被删除」等，并在列表顶部出告警条</td></tr>
+      </tbody>
+    </table>
+    <h3>10.5 运行详情</h3>
+    <ul>
+      <li>顺序固定：<b>状态与耗时 → 触发来源 → 输出内容 → 产出物 → 错误</b>。</li>
+      <li>输出用 9.1 代码块；产出物为设置行列表（图标 + 文件名 + 大小 + 下载）。</li>
+      <li>失败时错误块置顶：左 3px <code>--err</code> 竖线 + 淡红底，等宽错误码 + 中文说明 + 「重新运行」ghost。</li>
+    </ul>
+    <h3>10.6 锚点联动</h3>
+    <ul>
+      <li>右栏详情内点「定位 ⌖」→ 左栏 <code>scrollIntoView({block:"center"})</code> + 目标行黄底高亮 1.2s 渐隐。</li>
+      <li>聚焦单轮时左栏顶部出现 sticky 横幅「仅显示第 3 轮 · <u>返回全部</u>」。</li>
+    </ul>
+    <h3>10.7 告警横幅 Banner</h3>
+    <ul>
+      <li>位置：PageHeader 下方、内容区上方，与内容同宽，圆角 8，左 3px 语义色竖线 + 极淡底。</li>
+      <li>结构：图标 + 一句话 + 右侧行动文字按钮 + 关闭 ✕。<b>每页最多 1 条</b>，多条合并为「3 项配置异常，查看详情」。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">11</span>高级配置控件</h2>
+    <h3>11.1 周期设置器 Schedule</h3>
+    <ul>
+      <li>结构固定三段：<b>频率下拉 → 参数区（随频率切换） → 执行时间</b>，横排在同一行，控件间距 8px。</li>
+      <li>频率枚举：仅一次 / 每 N 分钟 / 每 N 小时 / 每天 / 工作日 / 每周 / 每双周 / 每月。</li>
+      <li>参数区形态：数字输入（N）｜ 周几 chips ｜ 日期选择（每月）｜ 无。</li>
+      <li>底部一行灰字<b>自然语言回显</b>：「每周一、三、五 09:00 执行，从 8 月 10 日起」。这是必需项。</li>
+    </ul>
+    <h3>11.2 日期与时间</h3>
+    <table>
+      <thead><tr><th style="width:24%">控件</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td><b>周几 chips</b></td><td>28×28 圆形，未选白底 <code>--line</code> 边；选中 <code>--t1</code> 黑底白字。一/二/…/日 单字</td></tr>
+        <tr><td><b>单日期</b></td><td>输入框点击弹日历 popover，单月，今天描边</td></tr>
+        <tr><td><b>日期区间</b></td><td>双月并排，区间内 <code>--side</code> 底，首尾 <code>--t1</code> 黑底且外侧圆角；底部「今天 / 近 7 天 / 近 30 天」快捷 + 「清除」</td></tr>
+        <tr><td><b>时间</b></td><td>15 分钟粒度下拉；需精确到分用原生 time 输入</td></tr>
+      </tbody>
+    </table>
+    <h3>11.3 条件构建器 RuleBuilder</h3>
+    <pre>满足以下 [全部 ▾] 条件：
+  ┌ [字段 ▾] [运算符 ▾] [值        ] ✕
+  └ [字段 ▾] [运算符 ▾] [值        ] ✕
+     + 添加条件
++ 添加条件组                    （组之间为「或」）</pre>
+    <ul>
+      <li><b>最多两层</b>：组内为「且」，组间为「或」。不支持三层嵌套。</li>
+      <li>组用左侧 2px <code>--line</code> 竖线表达层级，<b>不用嵌套边框</b>。</li>
+      <li>「添加条件 / 添加条件组」为虚线 ghost 整行按钮，高 32。</li>
+      <li>顶部一行灰字回显完整规则语义。</li>
+    </ul>
+    <h3>11.4 单选卡 RadioCard</h3>
+    <ul>
+      <li>用于「触发方式」「通知渠道」等需要<b>带说明</b>的互斥选择（2–4 项）。</li>
+      <li>整行可点，左侧 16px 圆点，标题 13/600 + 描述 12/<code>--t2</code>；选中：<code>--t1</code> 1px 边框 + <code>--hover</code> 底。</li>
+      <li>选项 &gt;4 或无需说明 → 退化为普通下拉。</li>
+      <li>选中后<b>下方展开</b>对应配置面板，不做左右分栏 Tab。</li>
+    </ul>
+    <h3>11.5 折叠区块 Accordion</h3>
+    <ul>
+      <li>只用于「高级配置」这类默认不需要的内容。标题行 40px，右侧 12px 箭头，无边框。</li>
+      <li>一屏<b>最多 1 个</b>折叠块；正常配置项一律直接展开，不许靠折叠掩盖信息过载。</li>
+    </ul>
+    <h3>11.6 输入框内引用 chips</h3>
+    <ul>
+      <li>用于在描述 / 提示词中引用 Agent、知识库、文件。触发字符 <code>@</code> 弹出搜索菜单。</li>
+      <li>chip：<code>--side</code> 底、圆角 4、12px、可点 ✕ 移除；插入后在文本流中<b>作为整体不可拆分</b>。</li>
+      <li>附件 chip 排在输入框底部独立一行，带文件图标与大小。</li>
+    </ul>
+    <h3>11.7 二级菜单</h3>
+    <ul>
+      <li>仅允许 <b>1 级</b>子菜单，hover 300ms 延时展开，向右对齐父项顶部。</li>
+      <li>子项 &gt;8 时子菜单顶部加搜索框。</li>
+      <li>移动端 / 窄屏退化为分步弹层。</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">12</span>交互范式</h2>
     <table>
       <thead><tr><th style="width:20%">场景</th><th style="width:34%">旧做法</th><th>新范式</th></tr></thead>
       <tbody>
@@ -442,7 +668,7 @@ Token 用量                    ← 图表裸标题
         <tr><td>报错</td><td>alert / 弹窗</td><td>行内红字 + 边框变红；全局失败用 Toast</td></tr>
       </tbody>
     </table>
-    <h3>8.1 键盘与效率</h3>
+    <h3>12.1 键盘与效率</h3>
     <ul>
       <li><code>Esc</code> 关闭抽屉/弹窗；<code>⌘K</code> 全局搜索；<code>⌘S</code> 保存表单。</li>
       <li>所有可点元素有 hover 态；焦点态用 1px #0d0d0d 边框，不用蓝色 outline。</li>
@@ -451,8 +677,8 @@ Token 用量                    ← 图表裸标题
   </div>
 
   <div class="sec">
-    <h2><span class="n">9</span>落地计划与验收</h2>
-    <h3>9.1 分期</h3>
+    <h2><span class="n">13</span>落地计划与验收</h2>
+    <h3>13.1 分期</h3>
     <table>
       <thead><tr><th style="width:12%">阶段</th><th style="width:30%">内容</th><th>产出</th></tr></thead>
       <tbody>
@@ -462,9 +688,10 @@ Token 用量                    ← 图表裸标题
         <tr><td>P3</td><td>样板页：<b>Agent 详情（重构版）</b></td><td>新原型，供确认</td></tr>
         <tr><td>P4</td><td>铺开：Agent 列表、MCP 管理、用量统计（租户+超管）</td><td>各页新原型</td></tr>
         <tr><td>P5</td><td>新增：模版管理（列表 + 创建 + 配置页）直接按新规范做</td><td>新原型</td></tr>
+        <tr><td>P6</td><td>数据密集页：<b>会话</b>（事件流 / 分栏 / 筛选）、<b>记忆</b>（树 / 展开行）、<b>自动化</b>（周期设置 / 执行历史）</td><td>各页新原型，验证第 8–11 章</td></tr>
       </tbody>
     </table>
-    <h3>9.2 验收清单（逐页自查）</h3>
+    <h3>13.2 验收清单（逐页自查）</h3>
     <ol>
       <li>页面内是否存在<b>卡片套卡片</b>？→ 必须为 0。</li>
       <li>是否有 ≤3 列且含操作列的表格？→ 必须改为 SettingRow。</li>
@@ -476,8 +703,15 @@ Token 用量                    ← 图表裸标题
       <li>复杂编辑是否还在居中弹窗？→ 必须改抽屉。</li>
       <li>彩色像素占比是否 &lt;2%？</li>
       <li>指标卡内信息是否 ≤3 条？</li>
+      <li>列表是否可能 &gt;20 条？→ 必须有<b>分页</b>与<b>空状态</b>两种态。</li>
+      <li>加载是否用了 spinner？→ 必须换<b>骨架屏</b>。</li>
+      <li>是否有<b>彩色角色 / 类型标签</b>？→ 仅事件流与日志允许（第 10.3 节色板），其余场景一律中性。</li>
+      <li>周期 / 规则类配置是否有<b>自然语言回显</b>？→ 必须有。</li>
+      <li>代码 / JSON / 日志展示是否统一为第 9.1 节代码块？→ 必须统一，且带复制。</li>
+      <li>树 / 展开行嵌套是否 ≤2 层？条件构建器是否 ≤2 层？</li>
+      <li>密钥类字段是否明文展示？→ 必须掩码 + 手动显示。</li>
     </ol>
-    <div class="note good"><b>下一步建议：</b>你确认本规范后，我先做 <b>P3 样板页（Agent 详情重构版）</b>，这是结构改动最大、最能验证规范的一页。样板确认后再批量铺 P4/P5。</div>
+    <div class="note good"><b>v2.1 更新说明：</b>基于对<b>记忆 / 会话 / 自动化</b>三份原型的组件盘点，新增第 8–11 章共 4 大类 24 个组件规范（数据浏览、内容展示、时间线与运行记录、高级配置控件），验收清单由 10 条扩至 17 条。原 8/9 章顺延为 12/13 章，v2.0 已确认的内容<b>未做任何改动</b>。</div>
   </div>
 
   </div>
