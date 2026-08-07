@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · MCP · v2.0 重构原型</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#fff; --side:#f4f4f5; --hover:#fafafa;
+  --line:#e8e8ea; --line2:#f0f0f2;
+  --t1:#0d0d0d; --t2:#5d5d63; --t3:#8e8e96;
+  --acc:#0b6bcb; --ok:#1a7f4b; --warn:#b45309; --err:#c8342b;
+  --sh2:0 1px 2px rgba(0,0,0,.05); --sh3:0 8px 24px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t1);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:20px 16px 48px}
+svg{display:block}
+.icon{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.icon.s14{width:14px;height:14px} .icon.s20{width:20px;height:20px}
+
+.plabel{max-width:1480px;margin:0 auto 12px;display:flex;align-items:center;gap:10px}
+.plabel .b{width:22px;height:22px;border-radius:6px;background:var(--t1);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.plabel .t{font-size:15px;font-weight:700}
+.plabel .d{font-size:12.5px;color:var(--t2)}
+
+.app{max-width:1480px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:940px;display:flex;flex-direction:column}
+
+/* TopBar */
+.top{height:52px;flex:0 0 52px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line);background:#fff}
+.brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.brand .m{width:22px;height:22px;border-radius:6px;background:var(--t1);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tsel{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;font-size:12.5px;color:var(--t2);cursor:pointer}
+.tsel:hover{background:var(--side)}
+.top .r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.gsearch{display:flex;align-items:center;gap:7px;height:30px;width:200px;padding:0 10px;border-radius:8px;background:var(--side);color:var(--t3);font-size:12.5px;cursor:pointer}
+.iconbtn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--t2);cursor:pointer;background:none;border:none}
+.iconbtn:hover{background:var(--line2);color:var(--t1)}
+.ava{width:26px;height:26px;border-radius:50%;background:var(--t1);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+/* Body */
+.wrap{flex:1;display:flex;min-height:0}
+.side{width:240px;flex:0 0 240px;background:var(--side);display:flex;flex-direction:column;padding:12px 10px}
+.sgrp{font-size:11.5px;font-weight:500;color:var(--t3);padding:14px 10px 5px}
+.sgrp:first-child{padding-top:2px}
+.sitem{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--t2);cursor:pointer}
+.sitem:hover{background:#ebebed}
+.sitem.on{background:#fff;color:var(--t1);font-weight:500;box-shadow:var(--sh2)}
+.sfoot{margin-top:auto;border-top:1px solid #e4e4e6;padding-top:10px;display:flex;align-items:center;gap:9px;padding-left:10px;font-size:12.5px;color:var(--t2)}
+.main{flex:1;overflow-y:auto;background:#fff;padding:32px 40px 64px}
+.mw{max-width:1180px;margin:0 auto}
+.mw.narrow{max-width:860px}
+
+/* PageHeader */
+.ph{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px}
+.ph .tt{font-size:24px;font-weight:700;letter-spacing:-.2px}
+.ph .sb{font-size:12.5px;color:var(--t2);margin-top:3px}
+.ph .acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+.btn.pri{background:var(--t1);color:#fff}
+.btn.pri:hover{background:#26262b}
+.btn.pri:disabled{background:var(--side);color:#b0b0b6;cursor:default}
+.btn.sec{background:#fff;color:var(--t1);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--bg);border-color:#d8d8dc}
+.btn.gh{background:none;color:var(--t2)}
+.btn.gh:hover{background:var(--line2);color:var(--t1)}
+.btn.dg{background:#fdf0ef;color:var(--err)}
+.btn.dg:hover{background:#fbe4e2}
+.btn.sm{height:28px;padding:0 11px;font-size:12.5px}
+
+/* Toolbar */
+.tb{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.tb .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;background:var(--line2);border-radius:8px;padding:3px;gap:2px}
+.seg .it{display:flex;align-items:center;gap:6px;height:26px;padding:0 14px;border-radius:6px;font-size:13px;color:var(--t2);cursor:pointer;transition:.15s}
+.seg .it:hover{color:var(--t1)}
+.seg .it.on{background:#fff;color:var(--t1);font-weight:500;box-shadow:var(--sh2)}
+.seg .it .cnt{font-size:11.5px;color:var(--t3);font-weight:400}
+.seg.sm .it{height:22px;padding:0 12px;font-size:12.5px}
+.srch{display:flex;align-items:center;gap:7px;height:32px;width:240px;padding:0 10px;border-radius:8px;background:var(--side);border:1px solid transparent;transition:.15s}
+.srch:focus-within{background:#fff;border-color:var(--t1)}
+.srch input{border:none;background:none;outline:none;font-size:13px;font-family:inherit;width:100%;color:var(--t1)}
+.srch input::placeholder{color:var(--t3)}
+.srch .ic{color:var(--t3)}
+.sel{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--t1);cursor:pointer;position:relative;white-space:nowrap}
+.sel:hover{border-color:#d8d8dc}
+.sel .cv{color:var(--t2)}
+
+/* Section */
+.sec{margin-bottom:32px}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.sec-h .cnt{background:var(--line2);color:var(--t2);border-radius:6px;font-size:11.5px;font-weight:500;padding:1px 7px}
+.sec-h .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sec-d{font-size:12.5px;color:var(--t2);margin-top:4px}
+.sec-b{margin-top:12px}
+
+/* Box + SettingRow */
+.box{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;border-bottom:1px solid var(--line2)}
+.row:last-child{border-bottom:none}
+.row.click{cursor:pointer}
+.row.click:hover{background:var(--hover)}
+.row.h48{min-height:48px}
+.row .lf{min-width:0;flex:1}
+.row .rt{margin-left:auto;display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.r-t{font-size:13.5px;font-weight:500;color:var(--t1)}
+.r-d{font-size:12.5px;color:var(--t2);margin-top:2px}
+.r-v{font-size:13px;color:var(--t2)}
+.chev{color:var(--t3)}
+
+/* Avatar block */
+.ab{width:32px;height:32px;border-radius:8px;background:var(--side);color:var(--t2);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.ab.s28{width:28px;height:28px;font-size:12px;border-radius:8px}
+.ab.s40{width:40px;height:40px;font-size:16px;border-radius:10px}
+
+/* Controls */
+.sw{width:38px;height:22px;border-radius:11px;background:#d8d8dc;position:relative;cursor:pointer;transition:.15s;flex:0 0 auto}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on{background:var(--acc)}
+.sw.on::after{left:18px}
+.cb{width:18px;height:18px;border-radius:4px;border:1.5px solid #c4c4ca;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s}
+.cb.on{background:var(--t1);border-color:var(--t1)}
+.cb .ck{display:none;color:#fff} .cb.on .ck{display:block}
+.rd{width:18px;height:18px;border-radius:50%;border:1.5px solid #c4c4ca;position:relative;cursor:pointer;flex:0 0 auto}
+.rd.on{border-color:var(--t1)}
+.rd.on::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--t1)}
+
+/* Pills / tags */
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:6px;font-size:11.5px;font-weight:500;padding:3px 8px;white-space:nowrap}
+.pill.ok{background:#eaf5ee;color:var(--ok)}
+.pill.gray{background:var(--line2);color:var(--t2)}
+.pill.warn{background:#fdf4e7;color:var(--warn)}
+.pill.blue{background:#eef4fd;color:var(--acc)}
+.tag{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--side);color:var(--t2);border-radius:6px;font-size:11.5px;padding:2px 7px;white-space:nowrap}
+.dotst{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t2)}
+.dotst i{width:6px;height:6px;border-radius:50%;background:var(--ok);display:block}
+.dotst.off i{background:#c4c4ca}
+
+/* Table */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.tbl th{background:var(--hover);font-size:12.5px;font-weight:600;color:var(--t2);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer;transition:.12s}
+.tbl tbody tr:hover{background:var(--hover)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .tm{font-size:12.5px;color:var(--t2);white-space:nowrap}
+.nm2{display:flex;align-items:center;gap:10px;min-width:0}
+.nm2 .n1{font-size:13.5px;font-weight:500;color:var(--t1)}
+.nm2 .n2{font-size:12.5px;color:var(--t2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.opcell{text-align:right;width:52px}
+
+/* Menu */
+.menu{position:absolute;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh3);padding:4px;min-width:150px;z-index:60;display:none}
+.menu.on{display:block}
+.menu .mi{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--t1);cursor:pointer}
+.menu .mi:hover{background:var(--side)}
+.menu .mi.dg{color:var(--err)}
+.menu .mi.dg:hover{background:#fdf0ef}
+.menu .sep{height:1px;background:var(--line2);margin:4px 0}
+
+/* Detail head */
+.back{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--t2);cursor:pointer;margin-bottom:14px}
+.back:hover{color:var(--t1)}
+.dh{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px}
+.dh .tt{font-size:24px;font-weight:700;letter-spacing:-.2px}
+.meta{font-size:12.5px;color:var(--t2);margin-bottom:20px}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.st{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.st .lb{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--t2)}
+.st .vl{font-size:26px;font-weight:700;letter-spacing:-.4px;font-variant-numeric:tabular-nums;margin-top:8px;line-height:1.2}
+.st .mom{font-size:12.5px;font-weight:500;margin-top:6px;display:flex;align-items:center;gap:5px}
+.st .mom.up{color:var(--err)} .st .mom.down{color:var(--ok)} .st .mom.flat{color:var(--t2)}
+.st .mom s{color:#d8d8dc;text-decoration:none}
+.tip{position:relative;color:var(--t3);cursor:help;display:inline-flex}
+.tip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 10px;border-radius:8px;width:230px;box-shadow:var(--sh3);z-index:50}
+.tip:hover::before{content:"";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--t1);z-index:50}
+
+/* Charts */
+.chart{margin-top:12px}
+.chart svg{width:100%;height:200px;overflow:visible}
+.gl{stroke:var(--line2);stroke-width:1}
+.ax{font-size:10.5px;fill:var(--t3)}
+.ln{fill:none;stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round}
+.hl{stroke:#c4c4ca;stroke-width:1;stroke-dasharray:3 3;display:none}
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-top:12px}
+.lgi{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--t2);cursor:pointer;user-select:none}
+.lgi .cb{width:15px;height:15px;border-radius:4px}
+.lgi .cb .ck{width:10px;height:10px}
+.lgi .sw2{width:12px;height:2.5px;border-radius:2px}
+.lgi.off{color:var(--t3)}
+.tt2{position:absolute;background:var(--t1);color:#fff;border-radius:8px;padding:9px 11px;font-size:12px;box-shadow:var(--sh3);pointer-events:none;display:none;z-index:50;min-width:150px}
+.tt2 .d{color:#a8a8b0;font-size:11.5px;margin-bottom:6px}
+.tt2 .r2{display:flex;align-items:center;gap:7px;margin-top:3px}
+.tt2 .r2 i{width:7px;height:7px;border-radius:50%;display:block;flex:0 0 auto}
+.tt2 .r2 b{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:500}
+
+/* Bar */
+.bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden;width:70px}
+.bar i{display:block;height:100%;background:var(--t1);border-radius:3px}
+
+/* Pager */
+.pager{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:12px;font-size:12.5px;color:var(--t2)}
+.pg{min-width:28px;height:28px;padding:0 8px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:12.5px;color:var(--t1);cursor:pointer;font-family:inherit}
+.pg:hover:not(:disabled){border-color:var(--t1)}
+.pg.on{background:var(--t1);border-color:var(--t1);color:#fff}
+.pg:disabled{color:#c4c4ca;cursor:default}
+
+/* Empty */
+.empty{border:1px solid var(--line);border-radius:12px;background:var(--hover);min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--t2);font-size:13px}
+.empty .ic{color:var(--t3)}
+
+/* Overlay / Drawer / Modal */
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.30);z-index:70;display:none;opacity:0;transition:opacity .2s}
+.ov.on{display:block;opacity:1}
+.dw{position:absolute;top:0;right:0;bottom:0;width:600px;background:#fff;border-radius:12px 0 0 12px;box-shadow:var(--sh3);z-index:80;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.2,.9,.3,1)}
+.dw.on{transform:translateX(0)}
+.dw.w760{width:760px}
+.dw-h{padding:18px 24px 14px;border-bottom:1px solid var(--line2);display:flex;align-items:flex-start;gap:12px}
+.dw-h .tt{font-size:16px;font-weight:700}
+.dw-h .sb{font-size:12.5px;color:var(--t2);margin-top:3px}
+.dw-b{flex:1;overflow-y:auto;padding:20px 24px}
+.dw-f{padding:14px 24px;border-top:1px solid var(--line2);display:flex;justify-content:flex-end;gap:8px}
+.md{position:absolute;top:50%;left:50%;transform:translate(-50%,-48%);width:440px;background:#fff;border-radius:12px;box-shadow:var(--sh3);z-index:80;display:none;opacity:0;transition:.2s}
+.md.on{display:block;opacity:1;transform:translate(-50%,-50%)}
+.md-h{padding:20px 24px 0}
+.md-h .tt{font-size:16px;font-weight:700}
+.md-h .sb{font-size:12.5px;color:var(--t2);margin-top:5px}
+.md-b{padding:16px 24px}
+.md-f{padding:14px 24px;display:flex;justify-content:flex-end;gap:8px}
+
+/* Form */
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.inp{width:100%;height:34px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:13px;font-family:inherit;background:#fff;transition:.15s;color:var(--t1)}
+textarea.inp{height:auto;min-height:88px;padding:9px 12px;resize:vertical;line-height:1.6}
+.inp:focus{outline:none;border-color:var(--t1)}
+.inp::placeholder{color:var(--t3)}
+.hint{font-size:11.5px;color:var(--t2);margin-top:6px}
+.addrow{width:100%;height:34px;background:var(--side);border:none;border-radius:8px;font-size:12.5px;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.addrow:hover{background:#ebebed}
+.chip{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;background:var(--bg);border-radius:8px;font-size:13px;margin-bottom:6px}
+.chip .x{margin-left:auto;color:var(--t3);cursor:pointer;display:flex}
+.chip .x:hover{color:var(--err)}
+.tree{padding:0}
+.tnode{display:flex;align-items:center;gap:9px;height:34px;padding:0 8px;border-radius:6px;cursor:pointer;font-size:13px}
+.tnode:hover{background:var(--side)}
+.tnode .ar{color:var(--t3);width:12px;display:flex}
+
+/* Toast */
+.toast{position:absolute;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--t1);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:var(--sh3);opacity:0;transition:.24s;pointer-events:none;z-index:90}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none !important}
+
+/* MCP additions */
+.kv{display:grid;grid-template-columns:1fr 1.4fr 32px;gap:8px;margin-bottom:8px;align-items:center}
+.kv .del{color:var(--t3);cursor:pointer;display:flex;justify-content:center}
+.kv .del:hover{color:var(--err)}
+.ro{background:var(--side);color:var(--t2);cursor:default}
+.tab2{display:flex;gap:8px;flex-wrap:wrap}
+.pk{display:flex;height:100%}
+.pk-l{flex:1;border-right:1px solid var(--line2);padding:16px;overflow-y:auto}
+.pk-r{flex:1;padding:16px;display:flex;flex-direction:column;min-width:0}
+.pki{display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;cursor:pointer;font-size:13px}
+.pki:hover{background:var(--side)}
+.pki .sub{font-size:11.5px;color:var(--t2)}
+</style>
+</head>
+<body>
+<svg style="display:none">
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-ck" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+<symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/></symbol>
+<symbol id="i-model" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></symbol>
+<symbol id="i-prompt" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></symbol>
+<symbol id="i-skill" viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></symbol>
+<symbol id="i-tool" viewBox="0 0 24 24"><path d="M14 6a4 4 0 105 5l-8 8-3-3z"/></symbol>
+<symbol id="i-mcp" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="10" rx="2"/><path d="M8 9V5M16 9V5"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5v14a2 2 0 002 2h14V7H6a2 2 0 01-2-2z"/><path d="M8 3v4"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 15a3 3 0 01-3 3H8l-4 3V6a3 3 0 013-3h10a3 3 0 013 3z"/></symbol>
+<symbol id="i-layer" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0"/><path d="M16 5.5a3.2 3.2 0 010 5M18 20a6 6 0 00-2-4.5"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M14 6l4 4"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+</svg>
+<div class="plabel">
+  <span class="b">B</span>
+  <span class="t">Studio 租户后台 · MCP · v2.0 重构</span>
+  <span class="d">去容器化 / 设置行 / 限宽居中 / 线性图标 / 抽屉优先</span>
+</div>
+
+<div class="app" id="app">
+  <div class="top">
+    <div class="brand"><span class="m">W</span>WorkHub Studio</div>
+    <div class="tsel">网易－效率工程部 <svg class="icon s14"><use href="#i-down"/></svg></div>
+    <div class="r">
+      <div class="gsearch"><svg class="icon s14"><use href="#i-search"/></svg>搜索<span style="margin-left:auto;font-size:11px">⌘K</span></div>
+      <div class="ava">张</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <aside class="side">
+      <div class="sgrp">AI 能力</div>
+      <div class="sitem"><svg class="icon"><use href="#i-model"/></svg>Models</div>
+      <div class="sitem"><svg class="icon"><use href="#i-prompt"/></svg>Prompts</div>
+      <div class="sitem"><svg class="icon"><use href="#i-skill"/></svg>Skills</div>
+      <div class="sitem"><svg class="icon"><use href="#i-tool"/></svg>工具</div>
+      <div class="sitem on"><svg class="icon"><use href="#i-mcp"/></svg>MCP</div>
+      <div class="sitem"><svg class="icon"><use href="#i-book"/></svg>知识</div>
+      <div class="sgrp">Agent 管理</div>
+      <div class="sitem"><svg class="icon"><use href="#i-bot"/></svg>Agents</div>
+      <div class="sitem"><svg class="icon"><use href="#i-box"/></svg>产物库</div>
+      <div class="sitem"><svg class="icon"><use href="#i-zap"/></svg>自动化</div>
+      <div class="sgrp">效果分析</div>
+      <div class="sitem"><svg class="icon"><use href="#i-chat"/></svg>对话</div>
+      <div class="sitem"><svg class="icon"><use href="#i-layer"/></svg>会话</div>
+      <div class="sitem"><svg class="icon"><use href="#i-chart"/></svg>评测</div>
+      <div class="sfoot"><span class="ab s28">张</span><div><div style="color:var(--t1);font-weight:500">张振</div><div style="font-size:11.5px">效率工程部</div></div></div>
+    </aside>
+    <main class="main" id="main">
+      <div id="viewList"></div>
+      <div id="viewDetail" class="hidden"></div>
+    </main>
+  </div>
+
+  <div class="ov" id="ov" onclick="closeAll()"></div>
+  <div class="dw" id="dw"><div id="dwc"></div></div>
+  <div class="md" id="md"><div id="mdc"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="menu" id="menu"></div>
+</div>
+<script>
+/* ============ DATA ============ */
+const AUTH={popo:{n:"静默授权",c:"ok"},oauth:{n:"OAuth 连接",c:"warn"},api:{n:"API Key",c:"gray"}};
+const CATS=[{id:"gen",n:"通用"},{id:"office",n:"办公协同"},{id:"data",n:"数据查询"},{id:"fin",n:"财务"},{id:"legal",n:"法务"},{id:"dev",n:"研发"}];
+const DEPTS=["财务部","人力资源部","行政部","法务部","内审部","商务采购部","企业发展部","综合业务部"];
+const PEOPLE=[{n:"张振",m:"zhangzhen@corp",d:"财务部"},{n:"朱弈",m:"zhuyi@corp",d:"财务部"},{n:"李扬",m:"liyang@corp",d:"内审部"},{n:"傅云辰",m:"fuyunchen@corp",d:"内审部"},{n:"施羽婷",m:"shiyt@corp",d:"法务部"},{n:"林锦珊",m:"linjs@corp",d:"财务部"}];
+
+const BUILTIN=[
+ {id:1,name:"POPO 云空间",desc:"读写 POPO 云文档、表格、多维表与文件夹",auth:"popo",cat:"office",agents:6,url:"https://mcp.workhub.netease.com/popo-doc/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:2,name:"POPO 日程",desc:"查询日程、预约会议与会议室、节假日查询",auth:"popo",cat:"office",agents:3,url:"https://mcp.workhub.netease.com/popo-cal/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:3,name:"POPO 任务",desc:"创建 / 更新任务与子任务、查询任务列表",auth:"popo",cat:"office",agents:2,url:"https://mcp.workhub.netease.com/popo-task/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:4,name:"易协作",desc:"协同文档、项目与流程审批的接入",auth:"popo",cat:"office",agents:1,url:"https://mcp.workhub.netease.com/yxc/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:5,name:"KM 知识管理",desc:"搜索知识、阅读文章，与 KM 系统交互",auth:"popo",cat:"gen",agents:4,url:"https://mcp.workhub.netease.com/km/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:6,name:"网易邮箱",desc:"读取邮件、搜索往来和发送邮件",auth:"oauth",cat:"office",agents:2,url:"https://mcp.workhub.netease.com/mail/sse",tp:"sse",headers:[{k:"Authorization",v:"Bearer ***"}],depts:["行政部"],users:[],on:true},
+ {id:7,name:"GitHub",desc:"查询代码、Issue、PR 和仓库信息",auth:"oauth",cat:"dev",agents:1,url:"https://mcp.workhub.netease.com/github/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:8,name:"Figma",desc:"读取设计文件、页面和组件信息",auth:"oauth",cat:"dev",agents:0,url:"https://mcp.workhub.netease.com/figma/mcp",tp:"http",headers:[],depts:[],users:[],on:false},
+ {id:9,name:"CodeMaker",desc:"调用研发代码生成与分析能力",auth:"api",cat:"dev",agents:2,url:"https://mcp.workhub.netease.com/codemaker/mcp",tp:"http",headers:[],depts:[],users:[],on:true},
+ {id:10,name:"北大法宝",desc:"检索法律法规、案例与司法解释",auth:"api",cat:"legal",agents:1,url:"https://mcp.workhub.netease.com/pkulaw/mcp",tp:"http",headers:[{k:"apikey",v:"***"}],depts:["法务部"],users:[],on:true},
+ {id:11,name:"企查查",desc:"查询企业工商、股东、风险与关系图谱",auth:"api",cat:"data",agents:3,url:"https://mcp.workhub.netease.com/qcc/mcp",tp:"http",headers:[{k:"Token",v:"***"}],depts:["财务部","法务部"],users:["张振"],on:true}
+];
+const CUSTOM=[
+ {id:101,name:"内部 CRM MCP",desc:"对接部门内部 CRM 的客户与订单数据",auth:"api",cat:"data",agents:1,url:"https://mcp.crm.internal/mcp",tp:"http",headers:[{k:"Authorization",v:"Bearer ***"}],depts:[],users:[],on:true,custom:true}
+];
+
+/* ============ STATE ============ */
+let tab="builtin", fName="", fCat="all", curId=null;
+let dw={};
+
+const $=id=>document.getElementById(id);
+const ic=(n,cl="icon")=>`<svg class="${cl}"><use href="#i-${n}"/></svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const initial=s=>s.trim()[0]||"M";
+const catName=id=>(CATS.find(c=>c.id===id)||{n:"未分类"}).n;
+const list=()=>tab==="builtin"?BUILTIN:CUSTOM;
+const byId=id=>[...BUILTIN,...CUSTOM].find(m=>m.id===id);
+const cur=()=>byId(curId);
+const targets=m=>[...(m.depts||[]),...(m.users||[])];
+
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200);}
+function closeAll(){$("ov").classList.remove("on");$("dw").classList.remove("on");$("md").classList.remove("on");$("menu").classList.remove("on");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll();});
+document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.closest("[data-menu]"))$("menu").classList.remove("on");});
+function openDrawer(html,wide){const d=$("dw");d.className="dw"+(wide?" w760":"");$("dwc").innerHTML=html;$("ov").classList.add("on");requestAnimationFrame(()=>d.classList.add("on"));}
+function openModal(html){$("mdc").innerHTML=html;$("ov").classList.add("on");$("md").classList.add("on");}
+function showMenu(el,html){const m=$("menu");m.innerHTML=html;const r=el.getBoundingClientRect(),a=$("app").getBoundingClientRect();m.style.top=(r.bottom-a.top+4)+"px";m.style.left=(r.right-a.left-160)+"px";m.classList.add("on");}
+/* ============ LIST ============ */
+function renderList(){
+  let rows=list().filter(m=>{
+    if(fName&&!m.name.toLowerCase().includes(fName.toLowerCase()))return false;
+    if(fCat!=="all"&&m.cat!==fCat)return false;
+    return true;
+  });
+  $("viewList").innerHTML=`
+  <div class="mw">
+    <div class="ph">
+      <div><div class="tt">MCP</div><div class="sb">管理租户可用的 MCP 服务，配置共用账号与分发范围</div></div>
+      <div class="acts">${tab==="custom"?`<button class="btn pri" onclick="editCustom(null)">${ic("plus","icon s14")}添加自定义 MCP</button>`:""}</div>
+    </div>
+    <div class="tb">
+      <div class="seg">
+        <div class="it ${tab==="builtin"?"on":""}" onclick="tab='builtin';renderList()">内置 MCP<span class="cnt">${BUILTIN.length}</span></div>
+        <div class="it ${tab==="custom"?"on":""}" onclick="tab='custom';renderList()">自定义 MCP<span class="cnt">${CUSTOM.length}</span></div>
+      </div>
+      <div class="rt">
+        <div class="srch">${ic("search","icon s14 ic")}<input placeholder="搜索 MCP 名称" value="${esc(fName)}" oninput="fName=this.value;renderList();this.focus()"></div>
+        <div class="sel" data-menu onclick="catMenu(this)">${fCat==="all"?"全部分类":catName(fCat)} ${ic("down","icon s14")}</div>
+      </div>
+    </div>
+    ${rows.length?`<table class="tbl">
+      <thead><tr>
+        <th>MCP</th><th style="width:110px">鉴权</th><th style="width:110px">分类</th>
+        <th style="width:150px">共用账号</th><th style="width:180px">分发范围</th>
+        <th style="width:100px" class="num">绑定 Agent</th><th style="width:52px"></th>
+      </tr></thead>
+      <tbody>${rows.map(m=>`<tr onclick="openDetail(${m.id})">
+        <td><div class="nm2"><span class="ab s28">${initial(m.name)}</span><div><div class="n1">${esc(m.name)}</div><div class="n2">${esc(m.desc)}</div></div></div></td>
+        <td><span class="pill ${AUTH[m.auth].c}">${AUTH[m.auth].n}</span></td>
+        <td><span class="tag">${catName(m.cat)}</span></td>
+        <td>${m.headers.length?`<span class="dotst"><i></i>已配置</span>`:`<span style="color:var(--t3)">未配置</span>`}</td>
+        <td>${targets(m).length?targets(m).slice(0,2).map(t=>`<span class="tag" style="margin-right:4px">${t}</span>`).join("")+(targets(m).length>2?`<span class="tag">+${targets(m).length-2}</span>`:""):`<span style="color:var(--t3)">全部成员</span>`}</td>
+        <td class="num" style="color:var(--t2)">${m.agents||"—"}</td>
+        <td class="opcell"><button class="iconbtn" data-menu onclick="event.stopPropagation();rowMenu(this,${m.id})">${ic("more")}</button></td>
+      </tr>`).join("")}</tbody>
+    </table>
+    <div class="pager"><span>共 ${rows.length} 条</span></div>`
+    :`<div class="empty">${ic("inbox","icon s20 ic")}<div>${tab==="custom"?"还没有自定义 MCP":"没有匹配的 MCP"}</div>${tab==="custom"?`<button class="btn pri" onclick="editCustom(null)">${ic("plus","icon s14")}添加自定义 MCP</button>`:""}</div>`}
+  </div>`;
+}
+function catMenu(el){
+  showMenu(el,[["all","全部分类"],...CATS.map(c=>[c.id,c.n])].map(([k,n])=>
+    `<div class="mi" onclick="fCat='${k}';closeAll();renderList()">${fCat===k?ic("ck","icon s14"):'<span style="width:14px"></span>'}${n}</div>`).join(""));
+}
+function rowMenu(el,id){
+  const m=byId(id);
+  showMenu(el,`<div class="mi" onclick="openDetail(${id});closeAll()">${ic("edit","icon s14")}配置</div>
+   <div class="mi" onclick="pickTargets(${id});closeAll()">${ic("users","icon s14")}分发范围</div>
+   <div class="mi" onclick="toggleOn(${id});closeAll()">${ic("zap","icon s14")}${m.on?"停用":"启用"}</div>
+   ${m.custom?`<div class="sep"></div><div class="mi dg" onclick="confirmDel(${id})">${ic("trash","icon s14")}删除</div>`:""}`);
+}
+function toggleOn(id){const m=byId(id);m.on=!m.on;toast(m.on?"已启用":"已停用");renderList();}
+function confirmDel(id){
+  const m=byId(id);closeAll();
+  openModal(`<div class="md-h"><div class="tt">删除 MCP</div><div class="sb">将删除「${esc(m.name)}」及其账号配置与分发范围。已绑定该 MCP 的 ${m.agents} 个 Agent 将失去该能力。</div></div>
+   <div class="md-b"><div class="fld" style="margin:0"><label>请输入 MCP 名称以确认</label><input class="inp" placeholder="${esc(m.name)}" oninput="$('dBtn').disabled=this.value!==${JSON.stringify(m.name)}"></div></div>
+   <div class="md-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn dg" id="dBtn" disabled onclick="doDel(${id})">删除</button></div>`);
+}
+function doDel(id){const i=CUSTOM.findIndex(m=>m.id===id);if(i>=0)CUSTOM.splice(i,1);closeAll();renderList();toast("已删除");}
+/* ============ DETAIL ============ */
+function openDetail(id){curId=id;$("viewList").classList.add("hidden");$("viewDetail").classList.remove("hidden");$("main").scrollTop=0;renderDetail();}
+function backList(){$("viewDetail").classList.add("hidden");$("viewList").classList.remove("hidden");$("main").scrollTop=0;renderList();}
+
+const AUTH_HINT={
+  popo:"用户以自己的 POPO 身份静默授权，无需额外配置。如需全员共用统一账号，可配置共用账号。",
+  oauth:"未配置共用账号时，每个用户首次使用需自行完成 OAuth 授权；配置后分发范围内成员免鉴权直用。",
+  api:"未配置共用账号时，每个用户需各自填写 API Key；配置后分发范围内成员免鉴权直用。"
+};
+function renderDetail(){
+  const m=cur(), tg=targets(m);
+  $("viewDetail").innerHTML=`
+  <div class="mw narrow">
+    <div class="back" onclick="backList()">${ic("left","icon s14")}MCP</div>
+    <div class="dh">
+      <span class="ab s40">${initial(m.name)}</span>
+      <div style="flex:1;min-width:0"><div class="tt">${esc(m.name)}</div></div>
+      <button class="iconbtn" data-menu onclick="rowMenu(this,${m.id})" style="margin-top:6px">${ic("more")}</button>
+    </div>
+    <div class="meta">${m.custom?"自定义 MCP":"内置 MCP"} · ${AUTH[m.auth].n} · 已绑定 ${m.agents} 个 Agent</div>
+
+    <div class="sec">
+      <div class="sec-h">基本信息</div>
+      ${m.custom?"":`<div class="sec-d">内置 MCP 的名称、描述、地址与鉴权类型由平台超管统一维护，租户不可修改。</div>`}
+      <div class="sec-b"><div class="box">
+        <div class="row"><div class="lf"><div class="r-t">名称</div></div><div class="rt"><span class="r-v">${esc(m.name)}</span>${m.custom?`<button class="btn gh sm" onclick="editCustom(${m.id})">修改</button>`:""}</div></div>
+        <div class="row"><div class="lf"><div class="r-t">描述</div><div class="r-d">${esc(m.desc)}</div></div></div>
+        <div class="row"><div class="lf"><div class="r-t">服务地址</div><div class="r-d" style="font-family:Menlo,monospace;font-size:12px">${esc(m.url)}</div></div><div class="rt"><span class="tag">${m.tp.toUpperCase()}</span></div></div>
+        <div class="row"><div class="lf"><div class="r-t">鉴权类型</div><div class="r-d">${AUTH_HINT[m.auth]}</div></div><div class="rt"><span class="pill ${AUTH[m.auth].c}">${AUTH[m.auth].n}</span></div></div>
+        <div class="row"><div class="lf"><div class="r-t">分类</div><div class="r-d">用于在 Agent 配置时按分类筛选</div></div><div class="rt"><div class="sel" data-menu onclick="setCatMenu(this)">${catName(m.cat)} ${ic("down","icon s14")}</div></div></div>
+        <div class="row"><div class="lf"><div class="r-t">启用状态</div><div class="r-d">停用后该 MCP 在本租户内不可见、不可绑定</div></div><div class="rt"><div class="sw ${m.on?"on":""}" onclick="toggleOn(${m.id});renderDetail()"></div></div></div>
+      </div></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">共用账号</div>
+      <div class="sec-d">配置后，分发范围内的成员共用该账号访问 MCP，无需各自鉴权；留空则每位成员使用时自行完成鉴权。</div>
+      <div class="sec-b"><div class="box">
+        <div class="row click" onclick="editHeaders(${m.id})">
+          <div class="lf"><div class="r-t">账号凭据（Headers）</div><div class="r-d">${m.headers.length?m.headers.map(h=>esc(h.k)).join("、"):"未配置，成员各自鉴权"}</div></div>
+          <div class="rt">${m.headers.length?`<span class="dotst"><i></i>已配置 ${m.headers.length} 项</span>`:`<span class="r-v" style="color:var(--t3)">未配置</span>`}${ic("chev","icon s14 chev")}</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">分发范围</div>
+      <div class="sec-d">${m.headers.length?"指定哪些部门 / 人员可见该 MCP 并共用已配账号。":"未配置共用账号时，该 MCP 对租户全部成员可见，成员使用时各自鉴权。"}</div>
+      <div class="sec-b"><div class="box">
+        <div class="row click" onclick="pickTargets(${m.id})">
+          <div class="lf"><div class="r-t">可见范围</div><div class="r-d">按部门或人员指定可使用该 MCP 的成员</div></div>
+          <div class="rt"><span class="r-v">${tg.length?tg.slice(0,2).join("、")+(tg.length>2?` 等 ${tg.length} 项`:""):"全部成员"}</span>${ic("chev","icon s14 chev")}</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">已绑定的 Agent <span class="cnt">${m.agents}</span></div>
+      <div class="sec-d">在 Agent 配置页绑定该 MCP 的智能体；解绑请前往对应 Agent。</div>
+      <div class="sec-b">${m.agents?`<div class="box">
+        ${["云空间–运维 agent","知识问答 Agent","周报生成助手","财务审计 Agent","合同审阅 Agent","POPO 客服助手"].slice(0,m.agents).map(n=>`
+        <div class="row h48"><span class="ab s28">${initial(n)}</span><div class="lf"><div class="r-t">${n}</div></div><div class="rt">${ic("chev","icon s14 chev")}</div></div>`).join("")}
+      </div>`:`<div class="empty">${ic("bot","icon s20 ic")}<div>还没有 Agent 绑定该 MCP</div></div>`}</div>
+    </div>
+  </div>`;
+}
+function setCatMenu(el){
+  showMenu(el,CATS.map(c=>`<div class="mi" onclick="cur().cat='${c.id}';closeAll();renderDetail();toast('已更新分类')">${cur().cat===c.id?ic("ck","icon s14"):'<span style="width:14px"></span>'}${c.n}</div>`).join(""));
+}
+/* ============ DRAWER: Headers ============ */
+function editHeaders(id){
+  const m=byId(id);
+  dw.h=m.headers.length?m.headers.map(h=>({...h})):[{k:"",v:""}];
+  dw.id=id;
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">共用账号</div><div class="sb">配置访问 ${esc(m.name)} 所需的账号凭据</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b"><div id="hBox"></div>
+     <div style="font-size:12px;color:var(--t2);background:var(--hover);border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-top:16px;line-height:1.65">
+       ${AUTH_HINT[m.auth]}<br>凭据仅用于服务端调用，保存后以掩码展示，不会明文回显。
+     </div>
+   </div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" id="hBtn" disabled onclick="saveHeaders()">保存</button></div>`);
+  renderH();
+}
+function renderH(){
+  $("hBox").innerHTML=dw.h.map((h,i)=>`<div class="kv">
+    <input class="inp" placeholder="Header 名称" value="${esc(h.k)}" oninput="dw.h[${i}].k=this.value;$('hBtn').disabled=false">
+    <input class="inp" style="font-family:Menlo,monospace;font-size:12px" placeholder="Header 值" value="${esc(h.v)}" oninput="dw.h[${i}].v=this.value;$('hBtn').disabled=false">
+    <span class="del" onclick="dw.h.splice(${i},1);if(!dw.h.length)dw.h.push({k:'',v:''});renderH();$('hBtn').disabled=false">${ic("trash","icon s14")}</span>
+  </div>`).join("")+`<button class="addrow" onclick="dw.h.push({k:'',v:''});renderH()">${ic("plus","icon s14")}添加 Header</button>`;
+}
+function saveHeaders(){
+  const m=byId(dw.id);
+  m.headers=dw.h.filter(h=>h.k.trim());
+  if(!m.headers.length){m.depts=[];m.users=[];}
+  closeAll();renderDetail();toast(m.headers.length?"已保存共用账号":"已清空共用账号");
+}
+/* ============ DRAWER: 分发范围 ============ */
+function pickTargets(id){
+  const m=byId(id);
+  dw.id=id;dw.d=[...(m.depts||[])];dw.u=[...(m.users||[])];dw.q="";
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">分发范围</div><div class="sb">选择可见该 MCP 的部门或人员；留空表示对全部成员可见</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b" style="padding:0"><div class="pk" style="height:100%">
+     <div class="pk-l">
+       <div class="srch" style="width:100%;margin-bottom:10px">${ic("search","icon s14 ic")}<input placeholder="搜索部门或人员" oninput="dw.q=this.value;renderPk()"></div>
+       <div id="pkL"></div>
+     </div>
+     <div class="pk-r">
+       <div style="font-size:13px;font-weight:500;margin-bottom:10px">已选 <span style="color:var(--t2)" id="pkC">0</span></div>
+       <div id="pkR" style="flex:1;overflow-y:auto"></div>
+     </div>
+   </div></div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" onclick="saveTargets()">确定</button></div>`,true);
+  renderPk();
+}
+function renderPk(){
+  const q=(dw.q||"").trim().toLowerCase();
+  const ds=DEPTS.filter(d=>!q||d.toLowerCase().includes(q));
+  const ps=PEOPLE.filter(p=>!q||p.n.toLowerCase().includes(q)||p.m.toLowerCase().includes(q));
+  $("pkL").innerHTML=
+    (ds.length?`<div style="font-size:11.5px;color:var(--t3);padding:8px 8px 4px">部门</div>`+ds.map(d=>`
+      <div class="pki" onclick="tgD('${d}')"><span class="cb ${dw.d.includes(d)?"on":""}">${ic("ck","icon ck")}</span><span class="ab s28">${initial(d)}</span>${d}</div>`).join(""):"")+
+    (ps.length?`<div style="font-size:11.5px;color:var(--t3);padding:12px 8px 4px">人员</div>`+ps.map(p=>`
+      <div class="pki" onclick="tgU('${p.n}')"><span class="cb ${dw.u.includes(p.n)?"on":""}">${ic("ck","icon ck")}</span><span class="ab s28">${initial(p.n)}</span><span><span>${p.n}</span><span class="sub" style="display:block">${p.m} · ${p.d}</span></span></div>`).join(""):"")
+    ||`<div class="empty" style="min-height:140px">${ic("search","icon s20 ic")}<div>无匹配结果</div></div>`;
+  const all=[...dw.d.map(x=>["d",x]),...dw.u.map(x=>["u",x])];
+  $("pkR").innerHTML=all.length?all.map(([t,n])=>`<div class="chip"><span class="ab s28">${initial(n)}</span>${n}<span class="x" onclick="${t==="d"?`tgD('${n}')`:`tgU('${n}')`}">${ic("x","icon s14")}</span></div>`).join("")
+    :`<div class="empty" style="min-height:160px">${ic("users","icon s20 ic")}<div>未选择，默认对全部成员可见</div></div>`;
+  $("pkC").textContent=all.length;
+}
+function tgD(n){const i=dw.d.indexOf(n);i<0?dw.d.push(n):dw.d.splice(i,1);renderPk();}
+function tgU(n){const i=dw.u.indexOf(n);i<0?dw.u.push(n):dw.u.splice(i,1);renderPk();}
+function saveTargets(){const m=byId(dw.id);m.depts=dw.d;m.users=dw.u;closeAll();
+  if($("viewDetail").classList.contains("hidden"))renderList();else renderDetail();
+  toast("已更新分发范围");}
+
+/* ============ DRAWER: 自定义 MCP ============ */
+function editCustom(id){
+  const m=id?byId(id):null;
+  dw.f=m?{...m,headers:m.headers.map(h=>({...h}))}:{name:"",desc:"",url:"",tp:"http",auth:"api",cat:"gen",headers:[{k:"",v:""}]};
+  dw.id=id;
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">${id?"编辑":"添加"}自定义 MCP</div><div class="sb">接入本租户自有的 MCP 服务</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b">
+     <div class="fld"><label>名称</label><input class="inp" value="${esc(dw.f.name)}" placeholder="例如：内部 CRM MCP" oninput="dw.f.name=this.value;ckF()"></div>
+     <div class="fld"><label>描述</label><textarea class="inp" style="min-height:70px" placeholder="简要说明该 MCP 提供的能力" oninput="dw.f.desc=this.value;ckF()">${esc(dw.f.desc)}</textarea></div>
+     <div class="fld"><label>传输方式</label>
+       <div class="seg">${[["http","流式 HTTP"],["sse","SSE"]].map(([k,n])=>`<div class="it ${dw.f.tp===k?"on":""}" onclick="dw.f.tp='${k}';editCustom(${id})">${n}</div>`).join("")}</div>
+     </div>
+     <div class="fld"><label>服务地址</label><input class="inp" style="font-family:Menlo,monospace;font-size:12px" value="${esc(dw.f.url)}" placeholder="https://mcp.example.com/mcp" oninput="dw.f.url=this.value;ckF()"></div>
+     <div class="fld"><label>分类</label>
+       <div class="tab2">${CATS.map(c=>`<span class="tag" style="cursor:pointer;height:28px;padding:0 12px;${dw.f.cat===c.id?"border-color:var(--t1);background:var(--hover);color:var(--t1);font-weight:500":""}" onclick="dw.f.cat='${c.id}';editCustom(${id})">${c.n}</span>`).join("")}</div>
+     </div>
+     <div class="fld" style="margin-bottom:0"><label>共用账号（可选）</label>
+       <div id="cHBox"></div>
+       <div class="hint">填写后，分发范围内成员共用该账号；留空则各自鉴权。</div>
+     </div>
+   </div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" id="cBtn" ${id?"":"disabled"} onclick="saveCustom()">保存</button></div>`);
+  renderCH();
+}
+function renderCH(){
+  $("cHBox").innerHTML=dw.f.headers.map((h,i)=>`<div class="kv">
+    <input class="inp" placeholder="Header 名称" value="${esc(h.k)}" oninput="dw.f.headers[${i}].k=this.value;ckF()">
+    <input class="inp" style="font-family:Menlo,monospace;font-size:12px" placeholder="Header 值" value="${esc(h.v)}" oninput="dw.f.headers[${i}].v=this.value;ckF()">
+    <span class="del" onclick="dw.f.headers.splice(${i},1);if(!dw.f.headers.length)dw.f.headers.push({k:'',v:''});renderCH();ckF()">${ic("trash","icon s14")}</span>
+  </div>`).join("")+`<button class="addrow" onclick="dw.f.headers.push({k:'',v:''});renderCH()">${ic("plus","icon s14")}添加 Header</button>`;
+}
+function ckF(){const b=$("cBtn");if(b)b.disabled=!(dw.f.name.trim()&&dw.f.url.trim());}
+function saveCustom(){
+  const f=dw.f;f.headers=f.headers.filter(h=>h.k.trim());
+  if(dw.id){Object.assign(byId(dw.id),f);}
+  else{CUSTOM.push({...f,id:Date.now(),agents:0,depts:[],users:[],on:true,custom:true});tab="custom";}
+  closeAll();
+  if($("viewDetail").classList.contains("hidden"))renderList();else renderDetail();
+  toast("已保存");
+}
+
+renderList();
+</script>
+</body>
+</html>
