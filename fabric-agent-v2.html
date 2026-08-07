@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · Agent 管理 · v2.0 重构原型</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#fff; --side:#f4f4f5; --hover:#fafafa;
+  --line:#e8e8ea; --line2:#f0f0f2;
+  --t1:#0d0d0d; --t2:#5d5d63; --t3:#8e8e96;
+  --acc:#0b6bcb; --ok:#1a7f4b; --warn:#b45309; --err:#c8342b;
+  --sh2:0 1px 2px rgba(0,0,0,.05); --sh3:0 8px 24px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t1);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:20px 16px 48px}
+svg{display:block}
+.icon{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.icon.s14{width:14px;height:14px} .icon.s20{width:20px;height:20px}
+
+.plabel{max-width:1480px;margin:0 auto 12px;display:flex;align-items:center;gap:10px}
+.plabel .b{width:22px;height:22px;border-radius:6px;background:var(--t1);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.plabel .t{font-size:15px;font-weight:700}
+.plabel .d{font-size:12.5px;color:var(--t2)}
+
+.app{max-width:1480px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;height:940px;display:flex;flex-direction:column}
+
+/* TopBar */
+.top{height:52px;flex:0 0 52px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line);background:#fff}
+.brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.brand .m{width:22px;height:22px;border-radius:6px;background:var(--t1);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tsel{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;font-size:12.5px;color:var(--t2);cursor:pointer}
+.tsel:hover{background:var(--side)}
+.top .r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.gsearch{display:flex;align-items:center;gap:7px;height:30px;width:200px;padding:0 10px;border-radius:8px;background:var(--side);color:var(--t3);font-size:12.5px;cursor:pointer}
+.iconbtn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--t2);cursor:pointer;background:none;border:none}
+.iconbtn:hover{background:var(--line2);color:var(--t1)}
+.ava{width:26px;height:26px;border-radius:50%;background:var(--t1);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+/* Body */
+.wrap{flex:1;display:flex;min-height:0}
+.side{width:240px;flex:0 0 240px;background:var(--side);display:flex;flex-direction:column;padding:12px 10px}
+.sgrp{font-size:11.5px;font-weight:500;color:var(--t3);padding:14px 10px 5px}
+.sgrp:first-child{padding-top:2px}
+.sitem{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--t2);cursor:pointer}
+.sitem:hover{background:#ebebed}
+.sitem.on{background:#fff;color:var(--t1);font-weight:500;box-shadow:var(--sh2)}
+.sfoot{margin-top:auto;border-top:1px solid #e4e4e6;padding-top:10px;display:flex;align-items:center;gap:9px;padding-left:10px;font-size:12.5px;color:var(--t2)}
+.main{flex:1;overflow-y:auto;background:#fff;padding:32px 40px 64px}
+.mw{max-width:1180px;margin:0 auto}
+.mw.narrow{max-width:860px}
+
+/* PageHeader */
+.ph{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px}
+.ph .tt{font-size:24px;font-weight:700;letter-spacing:-.2px}
+.ph .sb{font-size:12.5px;color:var(--t2);margin-top:3px}
+.ph .acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+.btn.pri{background:var(--t1);color:#fff}
+.btn.pri:hover{background:#26262b}
+.btn.pri:disabled{background:var(--side);color:#b0b0b6;cursor:default}
+.btn.sec{background:#fff;color:var(--t1);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--bg);border-color:#d8d8dc}
+.btn.gh{background:none;color:var(--t2)}
+.btn.gh:hover{background:var(--line2);color:var(--t1)}
+.btn.dg{background:#fdf0ef;color:var(--err)}
+.btn.dg:hover{background:#fbe4e2}
+.btn.sm{height:28px;padding:0 11px;font-size:12.5px}
+
+/* Toolbar */
+.tb{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.tb .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;background:var(--line2);border-radius:8px;padding:3px;gap:2px}
+.seg .it{display:flex;align-items:center;gap:6px;height:26px;padding:0 14px;border-radius:6px;font-size:13px;color:var(--t2);cursor:pointer;transition:.15s}
+.seg .it:hover{color:var(--t1)}
+.seg .it.on{background:#fff;color:var(--t1);font-weight:500;box-shadow:var(--sh2)}
+.seg .it .cnt{font-size:11.5px;color:var(--t3);font-weight:400}
+.seg.sm .it{height:22px;padding:0 12px;font-size:12.5px}
+.srch{display:flex;align-items:center;gap:7px;height:32px;width:240px;padding:0 10px;border-radius:8px;background:var(--side);border:1px solid transparent;transition:.15s}
+.srch:focus-within{background:#fff;border-color:var(--t1)}
+.srch input{border:none;background:none;outline:none;font-size:13px;font-family:inherit;width:100%;color:var(--t1)}
+.srch input::placeholder{color:var(--t3)}
+.srch .ic{color:var(--t3)}
+.sel{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--t1);cursor:pointer;position:relative;white-space:nowrap}
+.sel:hover{border-color:#d8d8dc}
+.sel .cv{color:var(--t2)}
+
+/* Section */
+.sec{margin-bottom:32px}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.sec-h .cnt{background:var(--line2);color:var(--t2);border-radius:6px;font-size:11.5px;font-weight:500;padding:1px 7px}
+.sec-h .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sec-d{font-size:12.5px;color:var(--t2);margin-top:4px}
+.sec-b{margin-top:12px}
+
+/* Box + SettingRow */
+.box{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;border-bottom:1px solid var(--line2)}
+.row:last-child{border-bottom:none}
+.row.click{cursor:pointer}
+.row.click:hover{background:var(--hover)}
+.row.h48{min-height:48px}
+.row .lf{min-width:0;flex:1}
+.row .rt{margin-left:auto;display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.r-t{font-size:13.5px;font-weight:500;color:var(--t1)}
+.r-d{font-size:12.5px;color:var(--t2);margin-top:2px}
+.r-v{font-size:13px;color:var(--t2)}
+.chev{color:var(--t3)}
+
+/* Avatar block */
+.ab{width:32px;height:32px;border-radius:8px;background:var(--side);color:var(--t2);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.ab.s28{width:28px;height:28px;font-size:12px;border-radius:8px}
+.ab.s40{width:40px;height:40px;font-size:16px;border-radius:10px}
+
+/* Controls */
+.sw{width:38px;height:22px;border-radius:11px;background:#d8d8dc;position:relative;cursor:pointer;transition:.15s;flex:0 0 auto}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on{background:var(--acc)}
+.sw.on::after{left:18px}
+.cb{width:18px;height:18px;border-radius:4px;border:1.5px solid #c4c4ca;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s}
+.cb.on{background:var(--t1);border-color:var(--t1)}
+.cb .ck{display:none;color:#fff} .cb.on .ck{display:block}
+.rd{width:18px;height:18px;border-radius:50%;border:1.5px solid #c4c4ca;position:relative;cursor:pointer;flex:0 0 auto}
+.rd.on{border-color:var(--t1)}
+.rd.on::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--t1)}
+
+/* Pills / tags */
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:6px;font-size:11.5px;font-weight:500;padding:3px 8px;white-space:nowrap}
+.pill.ok{background:#eaf5ee;color:var(--ok)}
+.pill.gray{background:var(--line2);color:var(--t2)}
+.pill.warn{background:#fdf4e7;color:var(--warn)}
+.pill.blue{background:#eef4fd;color:var(--acc)}
+.tag{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--side);color:var(--t2);border-radius:6px;font-size:11.5px;padding:2px 7px;white-space:nowrap}
+.dotst{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t2)}
+.dotst i{width:6px;height:6px;border-radius:50%;background:var(--ok);display:block}
+.dotst.off i{background:#c4c4ca}
+
+/* Table */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.tbl th{background:var(--hover);font-size:12.5px;font-weight:600;color:var(--t2);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer;transition:.12s}
+.tbl tbody tr:hover{background:var(--hover)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .tm{font-size:12.5px;color:var(--t2);white-space:nowrap}
+.nm2{display:flex;align-items:center;gap:10px;min-width:0}
+.nm2 .n1{font-size:13.5px;font-weight:500;color:var(--t1)}
+.nm2 .n2{font-size:12.5px;color:var(--t2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.opcell{text-align:right;width:52px}
+
+/* Menu */
+.menu{position:absolute;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh3);padding:4px;min-width:150px;z-index:60;display:none}
+.menu.on{display:block}
+.menu .mi{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;border-radius:6px;font-size:13px;color:var(--t1);cursor:pointer}
+.menu .mi:hover{background:var(--side)}
+.menu .mi.dg{color:var(--err)}
+.menu .mi.dg:hover{background:#fdf0ef}
+.menu .sep{height:1px;background:var(--line2);margin:4px 0}
+
+/* Detail head */
+.back{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--t2);cursor:pointer;margin-bottom:14px}
+.back:hover{color:var(--t1)}
+.dh{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px}
+.dh .tt{font-size:24px;font-weight:700;letter-spacing:-.2px}
+.meta{font-size:12.5px;color:var(--t2);margin-bottom:20px}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.st{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.st .lb{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--t2)}
+.st .vl{font-size:26px;font-weight:700;letter-spacing:-.4px;font-variant-numeric:tabular-nums;margin-top:8px;line-height:1.2}
+.st .mom{font-size:12.5px;font-weight:500;margin-top:6px;display:flex;align-items:center;gap:5px}
+.st .mom.up{color:var(--err)} .st .mom.down{color:var(--ok)} .st .mom.flat{color:var(--t2)}
+.st .mom s{color:#d8d8dc;text-decoration:none}
+.tip{position:relative;color:var(--t3);cursor:help;display:inline-flex}
+.tip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 10px;border-radius:8px;width:230px;box-shadow:var(--sh3);z-index:50}
+.tip:hover::before{content:"";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--t1);z-index:50}
+
+/* Charts */
+.chart{margin-top:12px}
+.chart svg{width:100%;height:200px;overflow:visible}
+.gl{stroke:var(--line2);stroke-width:1}
+.ax{font-size:10.5px;fill:var(--t3)}
+.ln{fill:none;stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round}
+.hl{stroke:#c4c4ca;stroke-width:1;stroke-dasharray:3 3;display:none}
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-top:12px}
+.lgi{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--t2);cursor:pointer;user-select:none}
+.lgi .cb{width:15px;height:15px;border-radius:4px}
+.lgi .cb .ck{width:10px;height:10px}
+.lgi .sw2{width:12px;height:2.5px;border-radius:2px}
+.lgi.off{color:var(--t3)}
+.tt2{position:absolute;background:var(--t1);color:#fff;border-radius:8px;padding:9px 11px;font-size:12px;box-shadow:var(--sh3);pointer-events:none;display:none;z-index:50;min-width:150px}
+.tt2 .d{color:#a8a8b0;font-size:11.5px;margin-bottom:6px}
+.tt2 .r2{display:flex;align-items:center;gap:7px;margin-top:3px}
+.tt2 .r2 i{width:7px;height:7px;border-radius:50%;display:block;flex:0 0 auto}
+.tt2 .r2 b{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:500}
+
+/* Bar */
+.bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden;width:70px}
+.bar i{display:block;height:100%;background:var(--t1);border-radius:3px}
+
+/* Pager */
+.pager{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:12px;font-size:12.5px;color:var(--t2)}
+.pg{min-width:28px;height:28px;padding:0 8px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:12.5px;color:var(--t1);cursor:pointer;font-family:inherit}
+.pg:hover:not(:disabled){border-color:var(--t1)}
+.pg.on{background:var(--t1);border-color:var(--t1);color:#fff}
+.pg:disabled{color:#c4c4ca;cursor:default}
+
+/* Empty */
+.empty{border:1px solid var(--line);border-radius:12px;background:var(--hover);min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--t2);font-size:13px}
+.empty .ic{color:var(--t3)}
+
+/* Overlay / Drawer / Modal */
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.30);z-index:70;display:none;opacity:0;transition:opacity .2s}
+.ov.on{display:block;opacity:1}
+.dw{position:absolute;top:0;right:0;bottom:0;width:600px;background:#fff;border-radius:12px 0 0 12px;box-shadow:var(--sh3);z-index:80;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.2,.9,.3,1)}
+.dw.on{transform:translateX(0)}
+.dw.w760{width:760px}
+.dw-h{padding:18px 24px 14px;border-bottom:1px solid var(--line2);display:flex;align-items:flex-start;gap:12px}
+.dw-h .tt{font-size:16px;font-weight:700}
+.dw-h .sb{font-size:12.5px;color:var(--t2);margin-top:3px}
+.dw-b{flex:1;overflow-y:auto;padding:20px 24px}
+.dw-f{padding:14px 24px;border-top:1px solid var(--line2);display:flex;justify-content:flex-end;gap:8px}
+.md{position:absolute;top:50%;left:50%;transform:translate(-50%,-48%);width:440px;background:#fff;border-radius:12px;box-shadow:var(--sh3);z-index:80;display:none;opacity:0;transition:.2s}
+.md.on{display:block;opacity:1;transform:translate(-50%,-50%)}
+.md-h{padding:20px 24px 0}
+.md-h .tt{font-size:16px;font-weight:700}
+.md-h .sb{font-size:12.5px;color:var(--t2);margin-top:5px}
+.md-b{padding:16px 24px}
+.md-f{padding:14px 24px;display:flex;justify-content:flex-end;gap:8px}
+
+/* Form */
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.inp{width:100%;height:34px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:13px;font-family:inherit;background:#fff;transition:.15s;color:var(--t1)}
+textarea.inp{height:auto;min-height:88px;padding:9px 12px;resize:vertical;line-height:1.6}
+.inp:focus{outline:none;border-color:var(--t1)}
+.inp::placeholder{color:var(--t3)}
+.hint{font-size:11.5px;color:var(--t2);margin-top:6px}
+.addrow{width:100%;height:34px;background:var(--side);border:none;border-radius:8px;font-size:12.5px;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.addrow:hover{background:#ebebed}
+.chip{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;background:var(--bg);border-radius:8px;font-size:13px;margin-bottom:6px}
+.chip .x{margin-left:auto;color:var(--t3);cursor:pointer;display:flex}
+.chip .x:hover{color:var(--err)}
+.tree{padding:0}
+.tnode{display:flex;align-items:center;gap:9px;height:34px;padding:0 8px;border-radius:6px;cursor:pointer;font-size:13px}
+.tnode:hover{background:var(--side)}
+.tnode .ar{color:var(--t3);width:12px;display:flex}
+
+/* Toast */
+.toast{position:absolute;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--t1);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:var(--sh3);opacity:0;transition:.24s;pointer-events:none;z-index:90}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<svg style="display:none">
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-ck" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+<symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/></symbol>
+<symbol id="i-model" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></symbol>
+<symbol id="i-prompt" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></symbol>
+<symbol id="i-skill" viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></symbol>
+<symbol id="i-tool" viewBox="0 0 24 24"><path d="M14 6a4 4 0 105 5l-8 8-3-3z"/></symbol>
+<symbol id="i-mcp" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="10" rx="2"/><path d="M8 9V5M16 9V5"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5v14a2 2 0 002 2h14V7H6a2 2 0 01-2-2z"/><path d="M8 3v4"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 15a3 3 0 01-3 3H8l-4 3V6a3 3 0 013-3h10a3 3 0 013 3z"/></symbol>
+<symbol id="i-layer" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0"/><path d="M16 5.5a3.2 3.2 0 010 5M18 20a6 6 0 00-2-4.5"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M14 6l4 4"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+</svg>
+<div class="plabel">
+  <span class="b">A</span>
+  <span class="t">Agent 管理 · v2.0 重构</span>
+  <span class="d">去容器化 / 设置行 / 限宽居中 / 线性图标 / 抽屉优先</span>
+</div>
+
+<div class="app" id="app">
+  <div class="top">
+    <div class="brand"><span class="m">W</span>WorkHub Studio</div>
+    <div class="tsel">AgentHub <svg class="icon s14"><use href="#i-down"/></svg></div>
+    <div class="r">
+      <div class="gsearch"><svg class="icon s14"><use href="#i-search"/></svg>搜索<span style="margin-left:auto;font-size:11px">⌘K</span></div>
+      <div class="ava">张</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <aside class="side">
+      <div class="sgrp">AI 能力</div>
+      <div class="sitem"><svg class="icon"><use href="#i-model"/></svg>Models</div>
+      <div class="sitem"><svg class="icon"><use href="#i-prompt"/></svg>Prompts</div>
+      <div class="sitem"><svg class="icon"><use href="#i-skill"/></svg>Skills</div>
+      <div class="sitem"><svg class="icon"><use href="#i-tool"/></svg>工具</div>
+      <div class="sitem"><svg class="icon"><use href="#i-mcp"/></svg>MCP</div>
+      <div class="sitem"><svg class="icon"><use href="#i-book"/></svg>知识</div>
+      <div class="sgrp">Agent 管理</div>
+      <div class="sitem on"><svg class="icon"><use href="#i-bot"/></svg>Agents</div>
+      <div class="sitem"><svg class="icon"><use href="#i-box"/></svg>产物库</div>
+      <div class="sitem"><svg class="icon"><use href="#i-zap"/></svg>自动化</div>
+      <div class="sgrp">效果分析</div>
+      <div class="sitem"><svg class="icon"><use href="#i-chat"/></svg>对话</div>
+      <div class="sitem"><svg class="icon"><use href="#i-layer"/></svg>会话</div>
+      <div class="sitem"><svg class="icon"><use href="#i-chart"/></svg>评测</div>
+      <div class="sfoot"><span class="ab s28">张</span><div><div style="color:var(--t1);font-weight:500">张振</div><div style="font-size:11.5px">效率工程部</div></div></div>
+    </aside>
+
+    <main class="main" id="main">
+      <div id="viewList"></div>
+      <div id="viewDetail" class="hidden"></div>
+    </main>
+  </div>
+
+  <div class="ov" id="ov" onclick="closeAll()"></div>
+  <div class="dw" id="dw"><div id="dwc"></div></div>
+  <div class="md" id="md"><div id="mdc"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="menu" id="menu"></div>
+  <div class="tt2" id="tt2"></div>
+</div>
+<script>
+/* ============ DATA ============ */
+const AGENTS=[
+ {id:1,name:"云空间–运维 agent",desc:"处理云空间日常运维与告警响应",model:"GPT-5.4",src:"Workhub Studio",kind:"self",mem:"长期记忆",on:true,owner:"张振",ct:"2026-06-12",ut:"2 小时前"},
+ {id:2,name:"POPO 客服助手",desc:"解答 POPO 使用问题与故障排查",model:"GPT-5.4",src:"AgentHub",kind:"self",mem:"会话记忆",on:true,owner:"李明",ct:"2026-05-28",ut:"1 天前"},
+ {id:3,name:"财务审计 Agent",desc:"审计凭证核对与异常识别",model:"Qwen-Max",src:"Workhub Studio",kind:"self",mem:"长期记忆",on:true,owner:"王芳",ct:"2026-06-30",ut:"3 小时前"},
+ {id:4,name:"Claude Code",desc:"三方接入的编码智能体",model:"-",src:"Claude Code",kind:"ext",mem:"-",on:true,owner:"系统",ct:"2026-04-02",ut:"5 天前"},
+ {id:5,name:"Hermes",desc:"三方接入的研发助理",model:"-",src:"Hermes",kind:"ext",mem:"-",on:false,owner:"系统",ct:"2026-04-02",ut:"12 天前"},
+ {id:6,name:"知识问答 Agent",desc:"基于 KM 知识库的问答",model:"GPT-5.4",src:"Workhub Studio",kind:"self",mem:"长期记忆",on:true,owner:"张振",ct:"2026-07-01",ut:"6 小时前"},
+ {id:7,name:"周报生成助手",desc:"汇总任务与日程生成周报",model:"Qwen-Plus",src:"AgentHub",kind:"self",mem:"会话记忆",on:true,owner:"陈晨",ct:"2026-06-18",ut:"2 天前"},
+ {id:8,name:"OpenClaw",desc:"三方接入的浏览器操作智能体",model:"-",src:"OpenClaw",kind:"ext",mem:"-",on:true,owner:"系统",ct:"2026-05-11",ut:"1 天前"},
+ {id:9,name:"Codex",desc:"三方接入的代码智能体",model:"-",src:"Codex",kind:"ext",mem:"-",on:true,owner:"系统",ct:"2026-05-11",ut:"4 小时前"},
+ {id:10,name:"合同审阅 Agent",desc:"合同条款抽取与风险提示",model:"GPT-5.4",src:"Workhub Studio",kind:"self",mem:"长期记忆",on:false,owner:"王芳",ct:"2026-07-09",ut:"8 天前"}
+];
+const GROUPS=[
+ {n:"产品讨论群",r:"smart"},{n:"项目协作群",r:"at"},{n:"AgentHub 共创群",r:"smart"}
+];
+const SCOPE_TARGETS=["技术部","产品部","张振"];
+const SCENES=[
+ {k:"total",n:"总量",c:"#0d0d0d",f:1},
+ {k:"wh",n:"Workhub",c:"#0b6bcb",f:.34},
+ {k:"pp",n:"POPO-单聊",c:"#1a7f4b",f:.28},
+ {k:"pg",n:"POPO-群聊",c:"#b45309",f:.22},
+ {k:"sdk",n:"SDK",c:"#8e8e96",f:.16}
+];
+const USERS=["张振","李明","王芳","陈晨","刘洋","赵磊","孙悦","周涛","吴敏","郑凯","冯超","蒋雯"];
+
+/* ============ STATE ============ */
+let curId=1, tab="use", listFilter="all", listSearch="";
+let scopeMode="members", scopeSel=[...SCOPE_TARGETS], groups=JSON.parse(JSON.stringify(GROUPS));
+let rule="owner", rangeDays=7, gran="day", detailPage=1;
+let trendVis={};
+["tok","sess","msg","user"].forEach(m=>{trendVis[m]={};SCENES.forEach(s=>trendVis[m][s.k]=true);});
+
+const $=id=>document.getElementById(id);
+const cur=()=>AGENTS.find(a=>a.id===curId);
+const kfmt=n=> n>=1e6?(n/1e6).toFixed(1)+"M": n>=1e3?(n/1e3).toFixed(1)+"k": ""+n;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ic=(n,cl="icon")=>`<svg class="${cl}"><use href="#i-${n}"/></svg>`;
+const initial=s=>s.trim()[0]||"A";
+
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200);}
+function closeAll(){$("ov").classList.remove("on");$("dw").classList.remove("on");$("md").classList.remove("on");$("menu").classList.remove("on");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll();});
+document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.closest("[data-menu]"))$("menu").classList.remove("on");});
+
+function openDrawer(html,wide){const d=$("dw");d.className="dw"+(wide?" w760":"");$("dwc").innerHTML=html;$("ov").classList.add("on");requestAnimationFrame(()=>d.classList.add("on"));}
+function openModal(html){$("mdc").innerHTML=html;$("ov").classList.add("on");$("md").classList.add("on");}
+function showMenu(el,html){const m=$("menu");m.innerHTML=html;const r=el.getBoundingClientRect(),a=$("app").getBoundingClientRect();m.style.top=(r.bottom-a.top+4)+"px";m.style.left=(r.right-a.left-150)+"px";m.classList.add("on");}
+/* ============ LIST VIEW ============ */
+function renderList(){
+  const all=AGENTS.length, self=AGENTS.filter(a=>a.kind==="self").length, ext=all-self;
+  let rows=AGENTS.filter(a=>listFilter==="all"||a.kind===listFilter);
+  if(listSearch) rows=rows.filter(a=>(a.name+a.owner).toLowerCase().includes(listSearch.toLowerCase()));
+  $("viewList").innerHTML=`
+  <div class="mw">
+    <div class="ph">
+      <div>
+        <div class="tt">Agents</div>
+        <div class="sb">统一管理自建与外部连接的智能体</div>
+      </div>
+      <div class="acts"><button class="btn pri" onclick="newAgent()">${ic("plus","icon s14")}创建 Agent</button></div>
+    </div>
+    <div class="tb">
+      <div class="seg">
+        ${[["all","全部",all],["self","自建",self],["ext","外部连接",ext]].map(([k,n,c])=>
+          `<div class="it ${listFilter===k?"on":""}" onclick="listFilter='${k}';renderList()">${n}<span class="cnt">${c}</span></div>`).join("")}
+      </div>
+      <div class="rt">
+        <div class="srch">${ic("search","icon s14 ic")}<input placeholder="搜索名称或创建人" value="${esc(listSearch)}" oninput="listSearch=this.value;renderList();this.focus()"></div>
+      </div>
+    </div>
+    ${rows.length?`<table class="tbl">
+      <thead><tr>
+        <th>名称</th><th style="width:110px">模型</th><th style="width:150px">来源</th>
+        <th style="width:100px">状态</th><th style="width:90px">创建人</th><th style="width:110px">更新时间</th><th style="width:52px"></th>
+      </tr></thead>
+      <tbody>${rows.map(a=>`
+        <tr onclick="openDetail(${a.id})">
+          <td><div class="nm2"><span class="ab s28">${initial(a.name)}</span><div><div class="n1">${esc(a.name)}</div><div class="n2">${esc(a.desc)}</div></div></div></td>
+          <td>${a.model==="-"?'<span style="color:var(--t3)">—</span>':`<span class="tag">${a.model}</span>`}</td>
+          <td><span class="tag">${esc(a.src)}</span></td>
+          <td><span class="dotst ${a.on?"":"off"}"><i></i>${a.on?"已启用":"已停用"}</span></td>
+          <td style="color:var(--t2)">${a.owner}</td>
+          <td class="tm">${a.ut}</td>
+          <td class="opcell"><button class="iconbtn" data-menu onclick="event.stopPropagation();rowMenu(this,${a.id})">${ic("more")}</button></td>
+        </tr>`).join("")}</tbody>
+    </table>
+    <div class="pager"><span>共 ${rows.length} 条</span><button class="pg" disabled>上一页</button><button class="pg on">1</button><button class="pg" disabled>下一页</button></div>`
+    :`<div class="empty">${ic("inbox","icon s20 ic")}<div>没有符合条件的 Agent</div><button class="btn pri" onclick="newAgent()">${ic("plus","icon s14")}创建 Agent</button></div>`}
+  </div>`;
+}
+function rowMenu(el,id){
+  showMenu(el,`<div class="mi" onclick="openDetail(${id});closeAll()">${ic("edit","icon s14")}编辑</div>
+   <div class="mi" onclick="toast('已切换状态');closeAll()">${ic("zap","icon s14")}启用 / 停用</div>
+   <div class="sep"></div>
+   <div class="mi dg" onclick="confirmDel(${id})">${ic("trash","icon s14")}删除</div>`);
+}
+function confirmDel(id){
+  const a=AGENTS.find(x=>x.id===id);closeAll();
+  openModal(`<div class="md-h"><div class="tt">删除 Agent</div><div class="sb">将永久删除「${esc(a.name)}」及其配置、记忆与用量记录，此操作不可恢复。</div></div>
+   <div class="md-b"><div class="fld"><label>请输入 Agent 名称以确认</label><input class="inp" placeholder="${esc(a.name)}" oninput="$('delBtn').disabled=this.value!==${JSON.stringify(a.name)}"></div></div>
+   <div class="md-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn dg" id="delBtn" disabled onclick="closeAll();toast('已删除')">删除</button></div>`);
+}
+function newAgent(){
+  openModal(`<div class="md-h"><div class="tt">创建 Agent</div><div class="sb">先填写基本信息，创建后可继续配置能力与使用范围。</div></div>
+   <div class="md-b">
+     <div class="fld"><label>Agent 名称</label><input class="inp" placeholder="例如：合同审阅助手" oninput="$('cBtn').disabled=!this.value.trim()"></div>
+     <div class="fld" style="margin-bottom:0"><label>一句话描述</label><input class="inp" placeholder="简要说明这个 Agent 能做什么"></div>
+   </div>
+   <div class="md-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" id="cBtn" disabled onclick="closeAll();toast('创建成功，请继续配置')">创建</button></div>`);
+}
+/* ============ DETAIL SHELL ============ */
+function openDetail(id){curId=id;tab=cur().kind==="ext"?"use":"cfg";detailPage=1;
+  $("viewList").classList.add("hidden");$("viewDetail").classList.remove("hidden");$("main").scrollTop=0;renderDetail();}
+function backList(){$("viewDetail").classList.add("hidden");$("viewList").classList.remove("hidden");$("main").scrollTop=0;}
+function setTab(t){tab=t;detailPage=1;renderDetail();$("main").scrollTop=0;}
+
+function renderDetail(){
+  const a=cur(), ext=a.kind==="ext";
+  const tabs=ext?[["use","使用"],["usage","用量"]]:[["cfg","配置"],["mem","记忆"],["use","使用"],["usage","用量"]];
+  const narrow=tab!=="usage";
+  $("viewDetail").innerHTML=`
+  <div class="mw ${narrow?"narrow":""}">
+    <div class="back" onclick="backList()">${ic("left","icon s14")}Agents</div>
+    <div class="dh">
+      <span class="ab s40">${initial(a.name)}</span>
+      <div style="flex:1;min-width:0">
+        <div class="tt">${esc(a.name)}</div>
+      </div>
+      <button class="iconbtn" data-menu onclick="rowMenu(this,${a.id})" style="margin-top:6px">${ic("more")}</button>
+    </div>
+    <div class="meta">${esc(a.src)} · 拥有者 ${a.owner} · 创建于 ${a.ct} · 更新于 ${a.ut}</div>
+    <div class="seg" style="margin-bottom:24px">
+      ${tabs.map(([k,n])=>`<div class="it ${tab===k?"on":""}" onclick="setTab('${k}')">${n}</div>`).join("")}
+    </div>
+    <div id="tabBody"></div>
+  </div>`;
+  if(tab==="cfg")renderCfg();
+  else if(tab==="mem")renderMem();
+  else if(tab==="use")renderUse();
+  else renderUsage();
+}
+/* ============ TAB: 配置 / 记忆 ============ */
+function renderCfg(){
+  const a=cur();
+  $("tabBody").innerHTML=`
+  <div class="sec">
+    <div class="sec-h">基础信息</div>
+    <div class="sec-b"><div class="box">
+      <div class="row"><div class="lf"><div class="r-t">Agent 名称</div></div><div class="rt"><span class="r-v">${esc(a.name)}</span><button class="btn gh sm">修改</button></div></div>
+      <div class="row"><div class="lf"><div class="r-t">一句话描述</div><div class="r-d">${esc(a.desc)}</div></div><div class="rt"><button class="btn gh sm">修改</button></div></div>
+      <div class="row click" onclick="editPrompt()"><div class="lf"><div class="r-t">系统提示词</div><div class="r-d">定义 Agent 的角色、语气与行为边界</div></div><div class="rt"><span class="r-v">已配置 · 428 字</span>${ic("chev","icon s14 chev")}</div></div>
+      <div class="row"><div class="lf"><div class="r-t">对话模型</div><div class="r-d">决定回复质量与 Token 成本</div></div><div class="rt"><div class="sel">${a.model} ${ic("down","icon s14")}</div></div></div>
+      <div class="row"><div class="lf"><div class="r-t">启用状态</div><div class="r-d">停用后所有入口不可见、不可对话</div></div><div class="rt"><div class="sw ${a.on?"on":""}" onclick="this.classList.toggle('on');toast('已更新')"></div></div></div>
+    </div></div>
+  </div>
+  <div class="sec">
+    <div class="sec-h">能力绑定
+      <div class="rt"><button class="btn sec sm" onclick="bindDrawer('skill')">${ic("plus","icon s14")}绑定</button></div>
+    </div>
+    <div class="sec-d">Agent 可调用的 Skill 与 MCP 工具。</div>
+    <div class="sec-b"><div class="box">
+      ${[["Popo Doc","文档创建、搜索与编辑",true],["Popo Task","任务创建与查询",true],["Km Ask","KM 知识检索",false]].map(([n,d,on])=>`
+      <div class="row"><span class="ab s28">${initial(n)}</span><div class="lf"><div class="r-t">${n}</div><div class="r-d">${d}</div></div><div class="rt"><div class="sw ${on?"on":""}" onclick="this.classList.toggle('on');toast('已更新')"></div></div></div>`).join("")}
+    </div></div>
+  </div>`;
+}
+function editPrompt(){
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">系统提示词</div><div class="sb">定义 Agent 的角色、语气与行为边界</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b"><div class="fld"><textarea class="inp" style="min-height:340px" oninput="$('pBtn').disabled=false">你是云空间运维助手，负责协助团队处理云空间的日常运维工作。
+
+职责范围：
+1. 响应云空间容量、权限、同步异常等告警
+2. 依据运维手册给出排查步骤与处置建议
+3. 无法自动处置时，输出工单摘要并提示人工介入
+
+行为约束：
+- 涉及删除、权限变更等高风险操作，必须先确认再执行
+- 回复保持简洁，优先给出可执行步骤
+- 不确定的信息明确说明，不臆测</textarea><div class="hint">提示词变更即时影响后续对话，不影响历史会话。</div></div></div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" id="pBtn" disabled onclick="closeAll();toast('已保存')">保存</button></div>`);
+}
+function bindDrawer(t){
+  const items=[["Popo Doc","文档创建、搜索与编辑",1],["Popo Task","任务创建与查询",1],["Km Ask","KM 知识检索",0],["Popo Calendar","日程与会议管理",0],["Popo IM","消息与群组管理",0]];
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">绑定 Skill</div><div class="sb">选择该 Agent 可以调用的能力</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b">
+     <div class="srch" style="width:100%;margin-bottom:14px">${ic("search","icon s14 ic")}<input placeholder="搜索 Skill"></div>
+     <div class="box">${items.map(([n,d,on])=>`
+       <div class="row"><span class="ab s28">${initial(n)}</span><div class="lf"><div class="r-t">${n}</div><div class="r-d">${d}</div></div><div class="rt"><div class="sw ${on?"on":""}" onclick="this.classList.toggle('on');$('bBtn').disabled=false"></div></div></div>`).join("")}</div>
+   </div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" id="bBtn" disabled onclick="closeAll();renderDetail();toast('已保存绑定')">保存</button></div>`);
+}
+function renderMem(){
+  $("tabBody").innerHTML=`
+  <div class="sec">
+    <div class="sec-h">记忆设置</div>
+    <div class="sec-d">控制 Agent 如何记住与用户的交互内容。</div>
+    <div class="sec-b"><div class="box">
+      <div class="row"><div class="lf"><div class="r-t">记忆类型</div><div class="r-d">长期记忆可跨会话保留用户偏好与事实</div></div><div class="rt"><div class="sel">长期记忆 ${ic("down","icon s14")}</div></div></div>
+      <div class="row"><div class="lf"><div class="r-t">记忆容量上限</div><div class="r-d">超出后自动淘汰最早、最低权重的条目</div></div><div class="rt"><div class="sel">200 条 ${ic("down","icon s14")}</div></div></div>
+      <div class="row"><div class="lf"><div class="r-t">自动提取</div><div class="r-d">从对话中自动识别并沉淀关键信息</div></div><div class="rt"><div class="sw on" onclick="this.classList.toggle('on');toast('已更新')"></div></div></div>
+      <div class="row click" onclick="toast('打开记忆列表')"><div class="lf"><div class="r-t">已存记忆</div><div class="r-d">查看与管理已沉淀的记忆条目</div></div><div class="rt"><span class="r-v">86 条</span>${ic("chev","icon s14 chev")}</div></div>
+    </div></div>
+  </div>`;
+}
+/* ============ TAB: 使用 ============ */
+const SCOPE_TXT={self:"仅自己",members:"指定成员或部门"};
+const REPLY_TXT={smart:"智能回复",at:"仅 @ 时回复"};
+function renderUse(){
+  const scopeSummary= scopeMode==="self" ? "仅拥有者可用"
+    : (scopeSel.length? scopeSel.slice(0,2).join("、")+(scopeSel.length>2?` 等 ${scopeSel.length} 项`:"") : "未设置");
+  $("tabBody").innerHTML=`
+  <div class="sec">
+    <div class="sec-h">可使用范围</div>
+    <div class="sec-d">控制谁可以发现、私聊和使用该 Agent。</div>
+    <div class="sec-b"><div class="box">
+      <div class="row">
+        <div class="lf"><div class="r-t">可使用范围</div><div class="r-d">${scopeMode==="self"?"仅拥有者可搜索、私聊、使用；加入群聊后群成员可在群内对话":"范围内成员可搜索、私聊、使用，并可将 Agent 加入群聊"}</div></div>
+        <div class="rt"><div class="sel" data-menu onclick="scopeMenu(this)">${SCOPE_TXT[scopeMode]} ${ic("down","icon s14")}</div></div>
+      </div>
+      ${scopeMode==="members"?`
+      <div class="row click" onclick="pickPeople()">
+        <div class="lf"><div class="r-t">已选范围</div><div class="r-d">按部门或人员指定可使用该 Agent 的成员</div></div>
+        <div class="rt"><span class="r-v">${esc(scopeSummary)}</span>${ic("chev","icon s14 chev")}</div>
+      </div>`:""}
+    </div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">已加入的群聊 <span class="cnt">${groups.length}</span></div>
+    <div class="sec-d">所有群聊的会话上下文与其他私聊、群聊相互隔离；加入新群请前往对应群设置。</div>
+    <div class="sec-b">${groups.length?`<div class="box">
+      ${groups.map((g,i)=>`<div class="row">
+        <span class="ab s28">${initial(g.n)}</span>
+        <div class="lf"><div class="r-t">${esc(g.n)}</div></div>
+        <div class="rt"><div class="sel" data-menu onclick="replyMenu(this,${i})">${REPLY_TXT[g.r]} ${ic("down","icon s14")}</div></div>
+      </div>`).join("")}
+    </div>`:`<div class="empty">${ic("users","icon s20 ic")}<div>该 Agent 还未加入任何群聊</div></div>`}</div>
+  </div>`;
+}
+function scopeMenu(el){
+  showMenu(el,Object.entries(SCOPE_TXT).map(([k,v])=>
+    `<div class="mi" onclick="scopeMode='${k}';closeAll();renderUse();toast('已更新可使用范围')">${scopeMode===k?ic("ck","icon s14"):'<span style="width:14px"></span>'}${v}</div>`).join(""));
+}
+function replyMenu(el,i){
+  showMenu(el,Object.entries(REPLY_TXT).map(([k,v])=>
+    `<div class="mi" onclick="groups[${i}].r='${k}';closeAll();renderUse();toast('已更新回复方式')">${groups[i].r===k?ic("ck","icon s14"):'<span style="width:14px"></span>'}${v}</div>`).join(""));
+}
+const DEPTS=[["网易",0],["效率工程部",1],["产品部",2],["技术部",2],["设计部",2],["有道",1],["网易游戏",1]];
+function pickPeople(){
+  openDrawer(`<div class="dw-h"><div style="flex:1"><div class="tt">选择人员</div><div class="sb">从组织架构中选择可使用该 Agent 的部门或人员</div></div><button class="iconbtn" onclick="closeAll()">${ic("x")}</button></div>
+   <div class="dw-b" style="display:flex;gap:0;padding:0">
+     <div style="flex:1;border-right:1px solid var(--line2);padding:16px;overflow-y:auto">
+       <div class="srch" style="width:100%;margin-bottom:10px">${ic("search","icon s14 ic")}<input placeholder="搜索部门或人员"></div>
+       <div class="tree">${DEPTS.map(([n,lv])=>`<div class="tnode" style="padding-left:${8+lv*16}px" onclick="addTarget('${n}')"><span class="ar">${ic("chev","icon s14")}</span><span class="ab s28">${initial(n)}</span>${n}</div>`).join("")}</div>
+     </div>
+     <div style="flex:1;padding:16px;display:flex;flex-direction:column">
+       <div style="font-size:13px;font-weight:500;margin-bottom:10px">已选 <span style="color:var(--t2)" id="selCnt">${scopeSel.length}</span></div>
+       <div id="selList" style="flex:1;overflow-y:auto"></div>
+     </div>
+   </div>
+   <div class="dw-f"><button class="btn sec" onclick="closeAll()">取消</button><button class="btn pri" onclick="closeAll();renderUse();toast('已更新使用范围')">确定</button></div>`,true);
+  renderSel();
+}
+let tmpSel=[];
+function renderSel(){
+  const box=$("selList");if(!box)return;
+  box.innerHTML=scopeSel.length?scopeSel.map((s,i)=>`<div class="chip"><span class="ab s28">${initial(s)}</span>${esc(s)}<span class="x" onclick="scopeSel.splice(${i},1);renderSel()">${ic("x","icon s14")}</span></div>`).join("")
+    :`<div class="empty" style="min-height:160px">${ic("users","icon s20 ic")}<div>还未选择任何部门或人员</div></div>`;
+  $("selCnt").textContent=scopeSel.length;
+}
+function addTarget(n){if(!scopeSel.includes(n))scopeSel.push(n);renderSel();}
+/* ============ TAB: 用量 ============ */
+const END=new Date(2026,6,29);
+const fmtMD=d=>`${d.getMonth()+1}/${d.getDate()}`;
+function rnd(seed){let x=Math.sin(seed*9301+49297)*233280;return x-Math.floor(x);}
+function seriesFor(days){
+  const out=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(END);d.setDate(END.getDate()-i);
+    const s=d.getMonth()*31+d.getDate()+curId*7;
+    const wd=d.getDay()===0||d.getDay()===6?0.55:1;
+    out.push({d:new Date(d),tok:Math.round((9000+rnd(s)*7000)*wd),sess:Math.round((40+rnd(s+1)*30)*wd),msg:Math.round((110+rnd(s+2)*70)*wd),user:Math.round((18+rnd(s+3)*14)*wd)});
+  }
+  return out;
+}
+function rangeText(days){const st=new Date(END);st.setDate(END.getDate()-(days-1));return `${fmtMD(st)} - ${fmtMD(END)}`;}
+function sum(arr,k){return arr.reduce((a,b)=>a+b[k],0);}
+function momHtml(cur,prev){
+  const diff=cur-prev, pct= prev?(diff/prev*100):0;
+  const av=n=>Math.abs(n)>=1000?kfmt(Math.abs(n)):Math.abs(n);
+  if(diff===0)return `<div class="mom flat">环比 0 <s>|</s> 0.0%</div>`;
+  const up=diff>0;
+  return `<div class="mom ${up?"up":"down"}" title="环比：与上一周期相比${up?"上涨":"下降"} ${av(diff)}（${Math.abs(pct).toFixed(1)}%）">环比 ${up?"▲":"▼"} ${av(diff)} <s>|</s> ${up?"":"-"}${Math.abs(pct).toFixed(1)}%</div>`;
+}
+function aggSeries(ser){
+  if(gran==="day")return ser.map(d=>({lb:fmtMD(d.d),tok:d.tok,sess:d.sess,msg:d.msg,user:d.user}));
+  const m=new Map();
+  ser.forEach(d=>{
+    let key,lb;
+    if(gran==="week"){const s=new Date(d.d);s.setDate(d.d.getDate()-((d.d.getDay()+6)%7));const e=new Date(s);e.setDate(s.getDate()+6);key=+s;lb=`${fmtMD(s)}–${fmtMD(e)}`;}
+    else{key=d.d.getFullYear()*12+d.d.getMonth();lb=`${d.d.getMonth()+1}月`;}
+    if(!m.has(key))m.set(key,{k:key,lb,tok:0,sess:0,msg:0,user:0});
+    const o=m.get(key);o.tok+=d.tok;o.sess+=d.sess;o.msg+=d.msg;o.user=Math.max(o.user,d.user);
+  });
+  return [...m.values()].sort((a,b)=>a.k-b.k);
+}
+const METRICS=[
+ {k:"tok",n:"Token 用量",cn:"总 Token 用量",fmt:kfmt,tip:"智能体使用过程中消耗的 Token 总量"},
+ {k:"sess",n:"会话数",cn:"总会话数",fmt:x=>x,tip:"用户与该智能体发起的会话总数（非消息数）"},
+ {k:"msg",n:"消息数",cn:"总消息数",fmt:x=>x,tip:"智能体成功回复的消息总数，每回复一条计 1"},
+ {k:"user",n:"用户数",cn:"总用户数",fmt:x=>x,tip:"与智能体对话过的去重用户总数"}
+];
+function renderUsage(){
+  const ext=cur().kind==="ext";
+  const ser=seriesFor(rangeDays), prev=seriesFor(rangeDays*2).slice(0,rangeDays);
+  $("tabBody").innerHTML=`
+  <div class="tb" style="margin-bottom:20px">
+    <div style="font-size:14px;font-weight:600">用量概览</div>
+    <div class="rt">
+      <span style="font-size:12.5px;color:var(--t2)">${rangeText(rangeDays)}</span>
+      <div class="sel" data-menu onclick="rangeMenu(this)">${rangeDays===7?"近 7 天":rangeDays===30?"近 30 天":"自定义"} ${ic("down","icon s14")}</div>
+    </div>
+  </div>
+  <div class="stats">
+    ${METRICS.map(m=>{
+      const c=m.k==="user"?Math.round(sum(ser,"user")/ser.length*2.4):sum(ser,m.k);
+      const p=m.k==="user"?Math.round(sum(prev,"user")/prev.length*2.4):sum(prev,m.k);
+      return `<div class="st">
+        <div class="lb">${m.cn}<span class="tip" data-tip="${m.tip}">${ic("info","icon s14")}</span></div>
+        <div class="vl">${m.fmt(c)}</div>${momHtml(c,p)}
+      </div>`;}).join("")}
+  </div>
+
+  <div class="sec" style="margin-top:32px">
+    <div class="sec-h">变化趋势
+      <div class="rt"><div class="seg sm">${[["day","日"],["week","周"],["month","月"]].map(([k,n])=>`<div class="it ${gran===k?"on":""}" onclick="gran='${k}';renderUsage()">${n}</div>`).join("")}</div></div>
+    </div>
+    <div class="sec-d">总量与各应用场景随时间的变化，可勾选场景显示 / 隐藏对应线条。</div>
+    <div class="sec-b" id="charts"></div>
+  </div>
+  ${ext?"":`
+  <div class="sec">
+    <div class="sec-h">Token 扣除规则</div>
+    <div class="sec-d">决定该 Agent 产生的 Token 从谁的额度扣除；切换即时生效，不追溯历史消耗。</div>
+    <div class="sec-b"><div class="box">
+      <div class="row">
+        <div class="lf"><div class="r-t">扣除规则</div><div class="r-d">${rule==="owner"?"无论谁使用，统一从 Agent 拥有者配置的额度扣除":"谁发起对话就扣谁的额度"}</div></div>
+        <div class="rt"><div class="sel" data-menu onclick="ruleMenu(this)">${rule==="owner"?"统一从我的额度扣除":"从提问人的额度扣除"} ${ic("down","icon s14")}</div></div>
+      </div>
+      <div class="row"><div class="lf"><div class="r-t">扣除主体</div><div class="r-d">由 Agent 来源决定：Workhub Studio 扣租户账号，AgentHub 扣个人积分</div></div><div class="rt"><span class="r-v">${rule==="owner"?(cur().src==="AgentHub"?cur().owner+" 的个人积分":"租户账号"):"各提问人个人积分"}</span></div></div>
+    </div></div>
+  </div>
+  <div class="sec">
+    <div class="sec-h">用户用量明细</div>
+    <div class="sec-d">按用户拆分的消耗与扣费归属，默认按 Token 消耗降序。</div>
+    <div class="sec-b" id="detailBox"></div>
+  </div>`}
+  `;
+  renderCharts(ser);
+  if(!ext)renderUserTable(ser);
+}
+function rangeMenu(el){
+  showMenu(el,[[7,"近 7 天"],[30,"近 30 天"],[90,"近 90 天"]].map(([d,n])=>
+    `<div class="mi" onclick="rangeDays=${d};gran='${d>30?"week":"day"}';closeAll();renderUsage()">${rangeDays===d?ic("ck","icon s14"):'<span style="width:14px"></span>'}${n}</div>`).join(""));
+}
+function ruleMenu(el){
+  showMenu(el,[["owner","统一从我的额度扣除"],["asker","从提问人的额度扣除"]].map(([k,n])=>
+    `<div class="mi" onclick="rule='${k}';closeAll();renderUsage();toast('已更新扣除规则')">${rule===k?ic("ck","icon s14"):'<span style="width:14px"></span>'}${n}</div>`).join(""));
+}
+/* ============ CHARTS ============ */
+let chartData={};
+function renderCharts(ser){
+  const agg=aggSeries(ser);
+  $("charts").innerHTML=METRICS.map(m=>`
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">${m.n}</div>
+      <div class="chart" id="ch-${m.k}"></div>
+      <div class="legend">${SCENES.map(s=>`
+        <div class="lgi ${trendVis[m.k][s.k]?"":"off"}" onclick="toggleScene('${m.k}','${s.k}')">
+          <span class="cb ${trendVis[m.k][s.k]?"on":""}">${ic("ck","icon ck")}</span>
+          <span class="sw2" style="background:${trendVis[m.k][s.k]?s.c:"#d8d8dc"}"></span>${s.n}
+        </div>`).join("")}</div>
+    </div>`).join("");
+  METRICS.forEach(m=>{chartData[m.k]=agg;drawChart(m,agg);});
+}
+function toggleScene(mk,sk){trendVis[mk][sk]=!trendVis[mk][sk];renderCharts(seriesFor(rangeDays));}
+function drawChart(m,agg){
+  const W=1080,H=200,PL=48,PR=12,PT=12,PB=26;
+  const iw=W-PL-PR, ih=H-PT-PB;
+  const vis=SCENES.filter(s=>trendVis[m.k][s.k]);
+  const vals=[];SCENES.forEach(s=>{if(trendVis[m.k][s.k])agg.forEach(d=>vals.push(d[m.k]*s.f));});
+  const max=Math.max(1,...vals)*1.15;
+  const n=agg.length;
+  const X=i=> n===1?PL+iw/2 : PL+iw*i/(n-1);
+  const Y=v=> PT+ih-(v/max)*ih;
+  let g="";
+  for(let i=0;i<=4;i++){const y=PT+ih*i/4, v=max*(1-i/4);
+    g+=`<line class="gl" x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}"/><text class="ax" x="${PL-8}" y="${y+3.5}" text-anchor="end">${m.fmt(Math.round(v))}</text>`;}
+  const step=Math.max(1,Math.ceil(n/10));
+  let ax="";agg.forEach((d,i)=>{if(i%step===0||i===n-1)ax+=`<text class="ax" x="${X(i)}" y="${H-6}" text-anchor="middle">${d.lb}</text>`;});
+  const lines=vis.map(s=>{
+    const p=agg.map((d,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(d[m.k]*s.f).toFixed(1)}`).join(" ");
+    return `<path class="ln" d="${p}" stroke="${s.c}"/>`;}).join("");
+  $("ch-"+m.k).innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"
+      onmousemove="hoverChart(event,'${m.k}',${W},${PL},${iw},${n})" onmouseleave="leaveChart('${m.k}')">
+    ${g}${ax}${lines}
+    <line class="hl" id="hl-${m.k}" y1="${PT}" y2="${PT+ih}"/>
+  </svg>`;
+}
+function hoverChart(e,mk,W,PL,iw,n){
+  const svg=e.currentTarget, r=svg.getBoundingClientRect();
+  const px=(e.clientX-r.left)/r.width*W;
+  let i=Math.round((px-PL)/(iw/Math.max(1,n-1)));
+  i=Math.max(0,Math.min(n-1,i));
+  const X= n===1?PL+iw/2:PL+iw*i/(n-1);
+  const hl=$("hl-"+mk);hl.style.display="block";hl.setAttribute("x1",X);hl.setAttribute("x2",X);
+  const d=chartData[mk][i], m=METRICS.find(x=>x.k===mk);
+  const t=$("tt2"), a=$("app").getBoundingClientRect();
+  t.innerHTML=`<div class="d">${d.lb}</div>`+SCENES.filter(s=>trendVis[mk][s.k]).map(s=>
+    `<div class="r2"><i style="background:${s.c}"></i>${s.n}<b>${m.fmt(Math.round(d[mk]*s.f))}</b></div>`).join("");
+  t.style.display="block";
+  const lx=r.left-a.left+X/W*r.width+14;
+  t.style.left=Math.min(lx,a.width-190)+"px";
+  t.style.top=(r.top-a.top+10)+"px";
+}
+function leaveChart(mk){$("hl-"+mk).style.display="none";$("tt2").style.display="none";}
+
+/* ============ USER TABLE ============ */
+function userScenes(name){
+  const h=[...name].reduce((a,c)=>a+c.charCodeAt(0),0);
+  const pool=SCENES.slice(1);
+  const cnt=1+h%2;
+  return Array.from({length:cnt},(_,i)=>pool[(h+i*3)%pool.length]);
+}
+function renderUserTable(ser){
+  const total=sum(ser,"tok");
+  const rows=USERS.map((u,i)=>{
+    const w=(USERS.length-i)/((USERS.length*(USERS.length+1))/2);
+    return {u,tok:Math.round(total*w),sess:Math.round(sum(ser,"sess")*w),msg:Math.round(sum(ser,"msg")*w),p:w};
+  });
+  const per=10, pages=Math.ceil(rows.length/per);
+  const view=rows.slice((detailPage-1)*per,detailPage*per);
+  $("detailBox").innerHTML=`
+  <table class="tbl">
+    <thead><tr><th>用户</th><th style="width:110px" class="num">Token</th><th style="width:80px" class="num">会话</th><th style="width:80px" class="num">消息</th><th style="width:190px">应用场景</th><th style="width:130px">占比</th><th style="width:130px">扣除归属</th></tr></thead>
+    <tbody>${view.map(r=>`<tr>
+      <td><div class="nm2"><span class="ab s28">${initial(r.u)}</span><span class="n1">${r.u}</span></div></td>
+      <td class="num">${kfmt(r.tok)}</td><td class="num">${r.sess}</td><td class="num">${r.msg}</td>
+      <td>${userScenes(r.u).map(s=>`<span class="tag" style="margin-right:4px">${s.n}</span>`).join("")}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><span class="bar"><i style="width:${(r.p*100*2.6).toFixed(0)}%"></i></span><span style="font-size:12.5px;color:var(--t2);font-variant-numeric:tabular-nums">${(r.p*100).toFixed(1)}%</span></div></td>
+      <td style="color:var(--t2)">${rule==="owner"?cur().owner:r.u}</td>
+    </tr>`).join("")}</tbody>
+  </table>
+  <div class="pager">
+    <span>共 ${rows.length} 条</span>
+    <button class="pg" ${detailPage===1?"disabled":""} onclick="detailPage--;renderUsage()">上一页</button>
+    ${Array.from({length:pages},(_,i)=>`<button class="pg ${detailPage===i+1?"on":""}" onclick="detailPage=${i+1};renderUsage()">${i+1}</button>`).join("")}
+    <button class="pg" ${detailPage===pages?"disabled":""} onclick="detailPage++;renderUsage()">下一页</button>
+  </div>`;
+}
+
+renderList();
+</script>
+</body>
+</html>
