@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>易协作 × WorkHub · Agent 产品架构大图</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f7fa;color:#1f2937;padding:30px 22px;line-height:1.6}
+  .wrap{max-width:1280px;margin:0 auto}
+  .hd{background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;padding:26px 30px;border-radius:16px;margin-bottom:18px}
+  .hd h1{font-size:23px;font-weight:700;margin-bottom:6px}
+  .hd p{font-size:13.5px;opacity:.93}
+  .hd .meta{display:flex;gap:20px;font-size:12.5px;opacity:.9;margin-top:11px;flex-wrap:wrap}
+  .sec{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px 24px;margin-bottom:16px}
+  .st{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:700;color:#0f172a;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid #f1f5f9}
+  .st .n{width:23px;height:23px;background:#6366f1;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+  h3{font-size:14.5px;font-weight:700;color:#0f172a;margin:16px 0 8px;padding-left:9px;border-left:3px solid #6366f1}
+  p{font-size:13.5px;color:#374151;margin-bottom:7px}
+  ul{padding-left:20px;font-size:13.5px;color:#374151}
+  li{margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;margin:9px 0;font-size:12.8px}
+  th,td{border:1px solid #e5e7eb;padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#f8fafc;font-weight:600;color:#475569}
+  code{background:#eef2ff;padding:1px 6px;border-radius:4px;font-size:12px;color:#4338ca}
+  .callout{border-radius:10px;padding:11px 15px;margin:9px 0;border-left:4px solid;font-size:13.5px}
+  .callout.key{background:#eef2ff;border-color:#6366f1;color:#3730a3}
+  .callout.warn{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+  .callout.tip{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+  .callout .t{font-weight:700;font-size:12.5px;margin-bottom:3px}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:700}
+  .pill.i{background:#ede9fe;color:#6d28d9}
+  .pill.b{background:#dbeafe;color:#1d4ed8}
+  .pill.g{background:#dcfce7;color:#16a34a}
+  .pill.a{background:#fef3c7;color:#b45309}
+  .pill.r{background:#fee2e2;color:#b91c1c}
+  /* 架构图 */
+  .arch{background:#0f172a;border-radius:14px;padding:22px;overflow-x:auto}
+  .layer{margin-bottom:14px}
+  .layer:last-child{margin-bottom:0}
+  .lname{font-size:11.5px;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-bottom:7px}
+  .lbox{border:1.5px solid #334155;border-radius:11px;padding:13px;background:#1e293b}
+  .lbox.hl{border-color:#6366f1;background:#1e1b4b}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .card{flex:1;min-width:180px;background:#0f172a;border:1px solid #334155;border-radius:9px;padding:11px 13px}
+  .card.on{border-color:#818cf8;background:#312e81}
+  .card .ct{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .card .cd{font-size:11.5px;color:#94a3b8;line-height:1.65}
+  .card .cd b{color:#c7d2fe}
+  .tag{font-size:9.5px;padding:1px 6px;border-radius:10px;font-weight:700}
+  .tag.s{background:#4f46e5;color:#fff}
+  .tag.h{background:#0891b2;color:#fff}
+  .tag.y{background:#d97706;color:#fff}
+  .arrow{text-align:center;color:#6366f1;font-size:17px;margin:6px 0;letter-spacing:3px}
+  .arrow span{font-size:11px;color:#a5b4fc;letter-spacing:0;margin-left:6px}
+  .flow{background:#0f172a;color:#cbd5e1;border-radius:10px;padding:13px 17px;font-family:Menlo,monospace;font-size:12px;line-height:1.95;margin:9px 0;overflow-x:auto}
+  .flow b{color:#a5b4fc}
+  .flow i{color:#fcd34d;font-style:normal}
+  .ft{text-align:center;color:#94a3b8;font-size:12px;padding:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd">
+    <h1>易协作 × WorkHub · Agent 产品架构大图</h1>
+    <p>易协作作为租户入驻 Studio，以「模版 → 按实例批量初始化 → PM 项目级定制」三段式，把标准化 Agent 能力下发到各实例的项目 PM。</p>
+    <div class="meta">
+      <span>📅 2026-08-12</span><span>🏷️ v0.1 架构草案</span><span>👤 青远（张振）</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">1</span>核心定位</div>
+    <table>
+      <thead><tr><th style="width:16%">平台</th><th style="width:18%">面向对象</th><th>核心职责</th></tr></thead>
+      <tbody>
+        <tr><td><b>WorkHub Studio</b><br><span class="pill i">供给侧</span></td><td>易协作平台方<br>（租户管理员）</td><td>提供内置工具 / Skill / MCP；配置 <b>PM Agent 模版</b>；<b>按实例批量初始化</b> Agent；平台维度统一管理与审计。</td></tr>
+        <tr><td><b>AgentHub</b><br><span class="pill b">消费侧</span></td><td>项目 PM / 项目成员</td><td>发现归属实例的 <b>初始化 PM Agent</b>；直接使用；按项目定制配置；引用其<b>另建项目级 Agent</b>；分享给团队。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><div class="t">🔑 一句话</div>Studio 管「标准化供给」，AgentHub 管「场景化消费」；两端操作同一批 Agent 资产，资产始终归属<b>易协作租户</b>。</div>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">2</span>产品架构分层图</div>
+    <div class="arch">
+
+      <div class="layer">
+        <div class="lname">L0 · 数据源</div>
+        <div class="lbox">
+          <div class="row">
+            <div class="card"><div class="ct">📋 易协作工单平台 <span class="tag y">外部系统</span></div>
+              <div class="cd">提供 <b>实例 - 项目 - 成员</b> 组织关系；Studio 定时/事件同步<b>实例清单</b>与<b>成员归属</b>，作为批量初始化与可见性判定的输入。</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">↓<span>同步实例信息（仅打标，Studio 不新增实例层级）</span></div>
+
+      <div class="layer">
+        <div class="lname">L1 · 供给侧 · WORKHUB STUDIO（易协作租户）</div>
+        <div class="lbox hl">
+          <div class="row">
+            <div class="card on"><div class="ct">🧩 PM Agent 模版 <span class="tag s">Studio</span></div>
+              <div class="cd">统一配置<b>提示词 / Skill / MCP / 知识</b>。模版是标准能力的<b>唯一事实源</b>，变更后以<b>增量合并</b>方式下发。</div></div>
+            <div class="card on"><div class="ct">⚙️ 批量初始化引擎 <span class="tag s">Studio</span></div>
+              <div class="cd">读取实例清单 → <b>按实例批量生成</b>初始化 PM Agent → 自动<b>打实例标签</b> <code>instance_id</code>，并按实例成员设定可使用范围。</div></div>
+            <div class="card on"><div class="ct">🛠 能力供给池 <span class="tag s">Studio</span></div>
+              <div class="cd">内置工具、Skill 库、MCP 库、知识库。既供模版引用，也是 PM 在 AgentHub 侧可选的能力白名单来源。</div></div>
+            <div class="card on"><div class="ct">🔍 统一管理与审计 <span class="tag s">Studio</span></div>
+              <div class="cd">Agent 列表（可按<b>实例标签</b>筛选）、使用范围管控、<b>用量与成本</b>（租户/实例/Agent 维度）、扣费规则、上下架。<b>含 PM 自建的项目级 Agent</b>。</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">↓<span>定向分发：按实例标签 + 成员归属决定可见性</span></div>
+
+      <div class="layer">
+        <div class="lname">L2 · 消费侧 · AGENTHUB（个人视角）</div>
+        <div class="lbox">
+          <div class="row">
+            <div class="card"><div class="ct">👀 发现 <span class="tag h">AgentHub</span></div>
+              <div class="cd">PM / 成员登录后，仅看到<b>自己所属实例</b>的初始化 PM Agent，其他实例不可见。</div></div>
+            <div class="card"><div class="ct">💬 直接使用 <span class="tag h">AgentHub</span></div>
+              <div class="cd">零配置开箱即用，走易协作标准能力（工单查询、制单、排期等）。</div></div>
+            <div class="card"><div class="ct">✏️ 项目级定制 <span class="tag h">AgentHub</span></div>
+              <div class="cd">PM 在初始化 Agent 上<b>叠加</b>本项目的 Skill / MCP / 知识、微调提示词。改动记为<b>PM 覆盖层</b>，模版更新时<b>只增不减、不覆盖</b>。</div></div>
+            <div class="card"><div class="ct">➕ 引用另建 <span class="tag h">AgentHub</span></div>
+              <div class="cd">以初始化 Agent 为蓝本<b>复制</b>出项目级新 Agent，<b>复制即断开继承</b>，后续模版变更不再影响它。仍归属易协作租户。</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">↑<span>全部 Agent 资产回流 Studio，供平台方统一管理与审计</span></div>
+
+      <div class="layer">
+        <div class="lname">L3 · 资产归属</div>
+        <div class="lbox">
+          <div class="row">
+            <div class="card"><div class="ct">🏢 易协作租户</div>
+              <div class="cd">模版、初始化 PM Agent、<b>PM 引用另建的项目级 Agent</b> —— 三类资产<b>全部归属易协作租户</b>，Studio 侧可见可管，成本记在租户账号。</div></div>
+            <div class="card"><div class="ct">👤 AgentHub 租户（对照）</div>
+              <div class="cd">承载个人用户<b>完全自建</b>的 Agent，与本方案链路无关；扣费走个人积分。用于区分边界。</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">3</span>四个关键机制（已确认口径）</div>
+
+    <h3>3.1 实例落地方式：Agent 维度打标，不改 Studio 层级模型</h3>
+    <p>Studio <b>不新增「实例」层级</b>。从易协作工单平台同步实例信息后，以 <code>instance_id / instance_name</code> 作为 <b>Agent 属性标签</b> 落地。</p>
+    <ul>
+      <li><b>批量初始化</b>：按实例标签成组生成，一实例一个初始化 PM Agent。</li>
+      <li><b>可见性</b>：AgentHub 侧比对「当前用户所属实例」与「Agent 实例标签」，命中才可见。</li>
+      <li><b>管理与统计</b>：Studio 列表、用量统计均可按实例标签筛选、分组。</li>
+    </ul>
+    <div class="callout tip"><div class="t">好处</div>零改造 Studio 核心模型，可复用现有租户/Agent/用量体系；后续其他平台方（非易协作）入驻可套用同一套「外部组织维度打标」范式。</div>
+
+    <h3>3.2 资产归属：初始化 Agent 与 PM 另建 Agent 均归易协作租户</h3>
+    <table>
+      <thead><tr><th style="width:26%">对象</th><th style="width:20%">归属租户</th><th style="width:24%">Studio 可管</th><th>成本扣除</th></tr></thead>
+      <tbody>
+        <tr><td>PM Agent 模版</td><td>易协作</td><td><span class="pill g">是</span></td><td>—</td></tr>
+        <tr><td>初始化 PM Agent（按实例）</td><td>易协作</td><td><span class="pill g">是</span></td><td>易协作租户账号</td></tr>
+        <tr><td>PM 引用另建的项目级 Agent</td><td>易协作</td><td><span class="pill g">是</span></td><td>易协作租户账号</td></tr>
+        <tr><td>个人在 AgentHub 完全自建 Agent</td><td>AgentHub</td><td><span class="pill a">是（AgentHub 租户下）</span></td><td>个人积分</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="t">⚠️ 待定</div>PM 在 AgentHub 另建的项目级 Agent 也计入易协作租户成本 —— 需确认易协作是否接受「PM 自由创建即产生平台方成本」，是否需要<b>配额上限</b>或<b>创建审批</b>。</div>
+
+    <h3>3.3 模版继承：增量合并（只增不减、不覆盖）</h3>
+    <div class="flow">
+<b>模版变更</b>（新增 Skill A / 新增 MCP B / 改提示词）
+   ↓
+<b>下发到全部「未断开继承」的初始化 PM Agent</b>
+   ↓
+Skill / MCP / 知识 →  <i>追加</i>，不删除 PM 已加的，也不移除 PM 停用的
+提示词           →  <i>PM 未改过</i> 则同步更新；<i>PM 已改过</i> 则保留 PM 版本
+   ↓
+<b>PM 覆盖层永不丢失</b>
+    </div>
+    <ul>
+      <li><b>只增不减</b>：模版<b>删除</b>某能力时，不从已生成 Agent 中移除（避免误伤 PM 依赖）；如需强制回收另做「批量强制重设」动作，且需二次确认。</li>
+      <li><b>断开继承</b>：PM 引用另建的 Agent 为一次性快照，此后与模版无关。</li>
+    </ul>
+    <div class="callout warn"><div class="t">⚠️ 待定</div>增量合并长期运行后，Agent 配置会「只增不减」持续膨胀。是否需要：① 模版变更前的<b>影响面预览</b>（将影响 N 个 Agent）；② 平台方可见的<b>偏离度视图</b>（哪些 Agent 偏离模版最多）。</div>
+
+    <h3>3.4 权限与角色</h3>
+    <table>
+      <thead><tr><th style="width:18%">角色</th><th style="width:16%">主阵地</th><th>权限范围</th></tr></thead>
+      <tbody>
+        <tr><td>易协作平台方</td><td>Studio</td><td>管模版、批量初始化、看全部实例 Agent、用量审计、上下架；<b>不介入</b>单个项目的日常配置。</td></tr>
+        <tr><td>项目 PM</td><td>AgentHub</td><td>用 / 改本实例初始化 Agent、引用另建项目级 Agent、共享给项目成员。</td></tr>
+        <tr><td>项目成员</td><td>AgentHub</td><td>使用本实例及项目内被共享的 Agent，<b>不可改配置</b>。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">4</span>端到端主链路</div>
+    <div class="flow">
+<b>① 配模版</b>      易协作平台方在 Studio 配置 PM Agent 模版（提示词 / Skill / MCP / 知识）
+                     ↓
+<b>② 拉实例</b>      Studio 同步易协作工单平台的实例清单与成员归属
+                     ↓
+<b>③ 批量初始化</b>  按实例批量生成初始化 PM Agent，自动打 <i>instance_id</i> 标签 + 设定可使用范围
+                     ↓
+<b>④ 定向可见</b>    PM / 成员在 AgentHub「发现智能体」看到<i>本实例</i>的 PM Agent
+                     ↓
+<b>⑤ 用与改</b>      直接使用  ｜  叠加项目 Skill/MCP/知识（PM 覆盖层）  ｜  引用另建项目级 Agent（断开继承）
+                     ↓
+<b>⑥ 回流管理</b>    全部 Agent 在 Studio 可查、可审计、可统计用量（按实例 / Agent / 用户维度）
+                     ↓
+<b>⑦ 持续下发</b>    模版更新 → <i>增量合并</i>到未断开继承的初始化 Agent，PM 定制不丢失
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">5</span>本方案对 Studio 的改造点</div>
+    <table>
+      <thead><tr><th style="width:24%">模块</th><th style="width:14%">改造量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>模版管理</td><td><span class="pill a">中</span></td><td>已有超管模版管理，需下沉到<b>租户维度</b>（易协作自己管模版），并支持<b>模版 → 批量实例化</b>。</td></tr>
+        <tr><td>外部实例同步</td><td><span class="pill r">新增</span></td><td>对接易协作工单平台，同步实例与成员；需定义同步频率、实例新增/下线的处理策略。</td></tr>
+        <tr><td>批量初始化引擎</td><td><span class="pill r">新增</span></td><td>按实例成批生成 Agent、打标、设可见范围；支持增量（新实例自动补建）。</td></tr>
+        <tr><td>继承与增量合并</td><td><span class="pill r">新增</span></td><td>模版与实例 Agent 的绑定关系、PM 覆盖层记录、合并规则、断开继承标记。</td></tr>
+        <tr><td>Agent 列表 / 用量</td><td><span class="pill g">小</span></td><td>增加<b>实例标签</b>筛选与分组维度，其余复用现有能力。</td></tr>
+        <tr><td>AgentHub 侧</td><td><span class="pill a">中</span></td><td>发现按实例过滤；初始化 Agent 的<b>编辑权限</b>与覆盖层交互；<b>引用另建</b>入口。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="st"><span class="n">6</span>待你拍板的开放问题</div>
+    <ul>
+      <li><b>成本与配额</b>：PM 另建的项目级 Agent 记易协作租户账号，是否需要按实例/PM 设<b>创建数量上限</b>或<b>额度上限</b>？</li>
+      <li><b>实例变更</b>：实例下线 / 成员调岗时，对应 Agent 是<b>自动下架</b>、<b>转归档</b>还是保留待人工处理？</li>
+      <li><b>新实例补建</b>：易协作新增实例后，初始化 Agent 是<b>自动补建</b>还是平台方手动触发？</li>
+      <li><b>模版多版本</b>：是否需要多套模版（如按业务线区分），实例与模版是 1:1 还是 N:1？</li>
+      <li><b>PM 修改边界</b>：提示词是否允许 PM 全量改写，还是仅允许<b>追加段落</b>（保护平台方标准约束）？</li>
+      <li><b>共享范围</b>：PM 把项目级 Agent 共享给成员，是否限定在<b>本项目</b>内，能否跨项目？</li>
+    </ul>
+  </div>
+
+  <div class="ft">易协作 × WorkHub · Agent 产品架构大图 v0.1 · 青远（张振）</div>
+</div>
+</body>
+</html>
