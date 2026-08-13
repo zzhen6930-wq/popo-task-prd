@@ -41,6 +41,8 @@
   .tg.src{ background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; }
   .tg.inst{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
   .kind-b{ font-size:11px; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#475569; border:1px solid var(--line); }
+  .tg.kind{ background:#f1f5f9; color:#475569; border-color:#e2e8f0; }
+  .tg.inst{ background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
   .kind-i{ font-size:11px; padding:2px 8px; border-radius:6px; background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
   .hub-on{ font-size:11.5px; color:var(--ok); font-weight:700; }
   .hub-off{ font-size:11.5px; color:var(--mut); }
@@ -567,11 +569,6 @@
       <div class="tpl-tip">💡 模板由租户维护，供 Agenthub 用户创建 Agent。<b>实例模板</b>由「自动化任务 · 易协作系统」通过 Webhook 自动派生，配置<b>始终跟随母版</b>，仅展示标签独立。</div>
       <div class="list-tools">
         <input class="search-inp" id="tplSearch" placeholder="🔍 搜索模板名称 / 创建人" oninput="renderTpl()">
-        <select class="src-filter" id="tplKind" onchange="renderTpl()">
-          <option value="">全部类型</option>
-          <option value="base">母版</option>
-          <option value="inst">实例模板</option>
-        </select>
         <select class="src-filter" id="tplCat" onchange="renderTpl()"><option value="">全部分类</option></select>
         <select class="src-filter" id="tplTag" onchange="renderTpl()"><option value="">全部展示标签</option></select>
         <select class="src-filter" id="tplHub" onchange="renderTpl()">
@@ -584,13 +581,13 @@
         <table class="table list-table">
           <thead><tr>
             <th style="width:20%">模板名称</th>
-            <th style="width:8%">类型</th>
             <th style="width:8%">分类</th>
-            <th style="width:24%">展示标签</th>
-            <th style="width:11%">模型</th>
+            <th style="width:22%">展示标签</th>
             <th style="width:8%">Agenthub</th>
-            <th style="width:7%">创建人</th>
-            <th style="width:14%">操作</th>
+            <th style="width:8%">创建人</th>
+            <th style="width:11%">创建时间</th>
+            <th style="width:11%">更新时间</th>
+            <th style="width:12%">操作</th>
           </tr></thead>
           <tbody id="tplRows"></tbody>
         </table>
@@ -756,21 +753,26 @@ const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
 
 /* ===== 模板模块数据 ===== */
 let templates=[
- {id:1,name:"Echo 系统答疑",kind:"base",cat:"kf",tags:["POPO"],model:"kimi-k2.6-inhouse",hub:"off",by:"张振",
+ {id:1,name:"Echo 系统答疑",kind:"base",cat:"",tags:["母版"],model:"kimi-k2.6-inhouse",hub:"off",by:"张振",
+  ct:"2026-07-02 10:24",ut:"2026-08-11 15:40",
   desc:"面向系统使用者的智能答疑模板",prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
   tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:null},
- {id:2,name:"Echo 系统答疑 · H72",kind:"inst",cat:"kf",tags:["POPO","来源：Echo 系统答疑","H72"],
+ {id:2,name:"Echo 系统答疑 · H72",kind:"inst",cat:"",tags:["实例模板","H72"],
+  ct:"2026-07-18 09:12",ut:"2026-08-11 15:40",
   model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
   prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
   tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
- {id:3,name:"Echo 系统答疑 · 大话西游",kind:"inst",cat:"kf",tags:["POPO","来源：Echo 系统答疑","大话西游"],
+ {id:3,name:"Echo 系统答疑 · 大话西游",kind:"inst",cat:"",tags:["实例模板","大话西游"],
+  ct:"2026-07-25 14:03",ut:"2026-08-11 15:40",
   model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
   prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
   tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
- {id:4,name:"项目周报助手",kind:"base",cat:"yx",tags:["易协作"],model:"deepseek-v3.2",hub:"off",by:"张振",
+ {id:4,name:"项目周报助手",kind:"base",cat:"",tags:["母版"],model:"deepseek-v3.2",hub:"off",by:"张振",
+  ct:"2026-06-15 16:47",ut:"2026-08-06 11:22",
   desc:"自动汇总项目进展生成周报",prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
   tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:null},
- {id:5,name:"项目周报助手 · H72",kind:"inst",cat:"yx",tags:["易协作","来源：项目周报助手","H72"],
+ {id:5,name:"项目周报助手 · H72",kind:"inst",cat:"",tags:["实例模板","H72"],
+  ct:"2026-07-30 08:55",ut:"2026-08-06 11:22",
   model:"deepseek-v3.2",hub:"off",by:"Webhook · 易协作",desc:"自动汇总项目进展生成周报",
   prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
   tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:4}
@@ -790,7 +792,7 @@ const MCPS=["brainmaker 知识库","易协作 GCP","里程碑 MMP","创意 DMP",
 let curAgent=agents[0];
 
 function catChip(k){ const c=CATS.find(x=>x.k===k); return c?`<span class="cat-dot"><i style="background:${c.c}"></i>${c.n}</span>`:'<span class="muted-cell">-</span>'; }
-function tagChips(list){ return (list&&list.length)?list.map(t=>`<span class="tg${t.startsWith('来源：')?' src':''}">${t}</span>`).join(''):'<span class="muted-cell">-</span>'; }
+function tagChips(list){ return (list&&list.length)?list.map(t=>{ const k=t==='母版'?' kind':(t==='实例模板'?' inst':(t.startsWith('来源：')?' src':'')); return `<span class="tg${k}">${t}</span>`; }).join(''):'<span class="muted-cell">-</span>'; }
 function hubChip(v){ return v==='on'?'<span class="hub-on">● 已上架</span>':'<span class="hub-off">○ 未上架</span>'; }
 function fillSel(id,opts,ph){ const el=document.getElementById(id); if(!el)return; el.innerHTML=`<option value="">${ph}</option>`+opts; }
 
@@ -1211,8 +1213,9 @@ document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id=
 function initTplModule(){
   const catOpts=CATS.map(c=>`<option value="${c.k}">${c.n}</option>`).join('');
   const tagOpts=TAGS.concat(["H72","大话西游"]).map(t=>`<option value="${t}">${t}</option>`).join('');
+  const tplTagOpts=["母版","实例模板","H72","大话西游"].map(t=>`<option value="${t}">${t}</option>`).join('');
   fillSel('agCat',catOpts,'全部分类'); fillSel('agTag',tagOpts,'全部展示标签');
-  fillSel('tplCat',catOpts,'全部分类'); fillSel('tplTag',tagOpts,'全部展示标签');
+  fillSel('tplCat',catOpts,'全部分类'); fillSel('tplTag',tplTagOpts,'全部展示标签');
   document.getElementById('tfCat').innerHTML='<option value="">请选择分类</option>'+catOpts;
   renderList(); renderTpl();
 }
@@ -1225,21 +1228,21 @@ function goNav(k,el){
 }
 function renderTpl(){
   const q=(document.getElementById('tplSearch').value||"").toLowerCase();
-  const kf=document.getElementById('tplKind').value;
+  const kf=document.getElementById('tplTag').value;
   const cf=document.getElementById('tplCat').value;
-  const tf=document.getElementById('tplTag').value;
+  const tf="";
   const hf=document.getElementById('tplHub').value;
   const rows=templates.filter(t=>(!q||t.name.toLowerCase().includes(q)||t.by.toLowerCase().includes(q))
-    &&(!kf||t.kind===kf)&&(!cf||t.cat===cf)&&(!tf||t.tags.includes(tf))&&(!hf||t.hub===hf));
+    &&(!kf||t.tags.includes(kf))&&(!cf||t.cat===cf)&&(!tf||t.tags.includes(tf))&&(!hf||t.hub===hf));
   document.getElementById('tplRows').innerHTML=rows.length?rows.map(t=>`
     <tr onclick="openTplCfg(${t.id})">
       <td><span class="ag-name">${t.name}</span></td>
-      <td>${t.kind==='base'?'<span class="kind-b">母版</span>':'<span class="kind-i">实例模板</span>'}</td>
       <td>${catChip(t.cat)}</td>
       <td>${tagChips(t.tags)}</td>
-      <td><span class="model-tag">${t.model}</span></td>
       <td>${hubChip(t.hub)}</td>
       <td>${t.by}</td>
+      <td class="muted-cell">${t.ct}</td>
+      <td class="muted-cell">${t.ut}</td>
       <td class="op-cell" onclick="event.stopPropagation()">
         <span class="op-lnk ${t.hub==='on'?'warn':''}" onclick="toggleTplHub(${t.id})">${t.hub==='on'?'下架':'上架'}</span>
         <span class="op-lnk" onclick="openTplCfg(${t.id})">${t.kind==='base'?'编辑':'查看'}</span>
@@ -1290,17 +1293,18 @@ function saveTpl(){
   if(!nm){ alert('请填写模板名称'); return; }
   const cat=document.getElementById('tfCat').value;
   const pick=box=>[...document.querySelectorAll('#'+box+' .chk')].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim());
+  const now=new Date().toISOString().slice(0,16).replace('T',' ');
   if(curTpl){
-    Object.assign(curTpl,{name:nm,desc:document.getElementById('tfDesc').value,cat,
+    Object.assign(curTpl,{name:nm,desc:document.getElementById('tfDesc').value,cat,ut:now,
       prompt:document.getElementById('tfPrompt').value,model:document.getElementById('tfModel').value,
       tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp')});
     templates.filter(x=>x.parent===curTpl.id).forEach(c=>{
-      Object.assign(c,{desc:curTpl.desc,cat:curTpl.cat,prompt:curTpl.prompt,model:curTpl.model,
+      Object.assign(c,{desc:curTpl.desc,cat:curTpl.cat,prompt:curTpl.prompt,model:curTpl.model,ut:now,
         tools:[...curTpl.tools],skills:[...curTpl.skills],mcps:[...curTpl.mcps]});
     });
   }else{
-    templates.push({id:Date.now(),name:nm,kind:"base",cat,tags:[],model:document.getElementById('tfModel').value,
-      hub:"off",by:"张振",desc:document.getElementById('tfDesc').value,prompt:document.getElementById('tfPrompt').value,
+    templates.push({id:Date.now(),name:nm,kind:"base",cat,tags:["母版"],model:document.getElementById('tfModel').value,
+      hub:"off",by:"张振",ct:now,ut:now,desc:document.getElementById('tfDesc').value,prompt:document.getElementById('tfPrompt').value,
       tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp'),parent:null});
   }
   backToTpl();
