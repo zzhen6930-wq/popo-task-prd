@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PRD · Workhub Studio 模板中心与 Agent 分发（易协作场景）</title>
+<style>
+  :root{
+    --ink:#0f172a; --txt:#334155; --sub:#475569; --mut:#94a3b8;
+    --line:#e2e8f0; --line-2:#f1f5f9; --bg:#f8fafc;
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#8b5cf6;
+    --ok:#16a34a; --warn:#d97706; --danger:#dc2626;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px; line-height:1.75; }
+  .wrap{ display:flex; max-width:1440px; margin:0 auto; }
+
+  /* 目录 */
+  .toc{ width:250px; flex:0 0 250px; position:sticky; top:0; height:100vh; overflow:auto;
+    background:#fff; border-right:1px solid var(--line); padding:22px 16px; }
+  .toc .tt{ font-size:13px; font-weight:800; color:var(--ink); padding:0 8px 12px; }
+  .toc a{ display:block; padding:6px 10px; font-size:13px; color:var(--sub);
+    text-decoration:none; border-radius:7px; }
+  .toc a:hover{ background:var(--line-2); color:var(--indigo-d); }
+  .toc a.sub{ padding-left:22px; font-size:12.5px; color:var(--mut); }
+
+  /* 正文 */
+  .doc{ flex:1; padding:36px 46px 90px; min-width:0; }
+  .cover{ background:linear-gradient(135deg,#4f46e5,#8b5cf6); color:#fff;
+    border-radius:18px; padding:34px 38px; margin-bottom:30px; }
+  .cover h1{ margin:0 0 10px; font-size:27px; letter-spacing:.5px; }
+  .cover .sub{ font-size:14px; opacity:.9; }
+  .meta{ display:flex; flex-wrap:wrap; gap:10px 30px; margin-top:20px;
+    padding-top:18px; border-top:1px solid rgba(255,255,255,.25); font-size:13px; }
+  .meta b{ opacity:.75; font-weight:500; margin-right:6px; }
+
+  h2{ font-size:20px; color:var(--ink); margin:44px 0 14px; padding-bottom:10px;
+    border-bottom:2px solid var(--line); }
+  h2 .no{ color:var(--indigo); margin-right:10px; }
+  h3{ font-size:16px; color:var(--ink); margin:28px 0 10px; }
+  h4{ font-size:14.5px; color:var(--ink); margin:20px 0 8px; }
+  p{ margin:9px 0; }
+  ul,ol{ margin:9px 0; padding-left:22px; }
+  li{ margin:5px 0; }
+  code{ background:#eef2ff; color:var(--indigo-d); padding:1px 6px; border-radius:5px;
+    font-family:"JetBrains Mono",Menlo,monospace; font-size:12.5px; }
+
+  .card{ background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px 24px; margin:16px 0; }
+  .note{ background:#eef2ff; border-left:4px solid var(--indigo); border-radius:0 10px 10px 0;
+    padding:13px 18px; margin:14px 0; font-size:13.5px; color:#3730a3; }
+  .warn{ background:#fffbeb; border-left:4px solid #f59e0b; border-radius:0 10px 10px 0;
+    padding:13px 18px; margin:14px 0; font-size:13.5px; color:#92400e; }
+  .danger{ background:#fef2f2; border-left:4px solid #ef4444; border-radius:0 10px 10px 0;
+    padding:13px 18px; margin:14px 0; font-size:13.5px; color:#991b1b; }
+
+  table{ width:100%; border-collapse:collapse; margin:14px 0; background:#fff;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:13px; }
+  th{ background:#f8fafc; color:#475569; font-weight:700; text-align:left;
+    padding:11px 14px; border-bottom:1px solid var(--line); font-size:12.5px; }
+  td{ padding:11px 14px; border-bottom:1px solid var(--line-2); vertical-align:top; }
+  tr:last-child td{ border-bottom:none; }
+  td b{ color:var(--ink); }
+
+  .tag{ display:inline-block; font-size:11px; padding:2px 9px; border-radius:20px;
+    font-weight:700; white-space:nowrap; }
+  .t-p0{ background:#fee2e2; color:#b91c1c; }
+  .t-p1{ background:#ffedd5; color:#c2410c; }
+  .t-p2{ background:#f1f5f9; color:#64748b; }
+  .t-new{ background:#dcfce7; color:#15803d; }
+  .t-chg{ background:#dbeafe; color:#1d4ed8; }
+
+  .flow{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin:16px 0; }
+  .flow-step{ display:flex; gap:14px; padding:11px 0; border-bottom:1px dashed var(--line-2); }
+  .flow-step:last-child{ border-bottom:none; }
+  .flow-no{ flex:0 0 26px; height:26px; border-radius:50%; background:var(--indigo);
+    color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center;
+    justify-content:center; }
+  .flow-b{ flex:1; }
+  .flow-b .h{ font-weight:700; color:var(--ink); }
+  .flow-b .d{ font-size:13px; color:var(--sub); margin-top:2px; }
+  .actor{ font-size:11px; background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe;
+    border-radius:5px; padding:1px 7px; margin-left:8px; }
+
+  .kv{ display:grid; grid-template-columns:130px 1fr; gap:8px 16px; font-size:13.5px; }
+  .kv .k{ color:var(--mut); }
+
+  .er{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px; margin:16px 0;
+    font-family:"JetBrains Mono",Menlo,monospace; font-size:12.5px; color:var(--sub);
+    white-space:pre; overflow-x:auto; line-height:1.9; }
+
+  .q{ background:#fff; border:1px solid var(--line); border-left:4px solid var(--violet);
+    border-radius:0 10px 10px 0; padding:14px 18px; margin:12px 0; }
+  .q .qq{ font-weight:700; color:var(--ink); }
+  .q .aa{ margin-top:5px; font-size:13.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc">
+  <div class="tt">目录</div>
+  <a href="#s1">1. 背景与目标</a>
+  <a href="#s2">2. 产品定位与角色</a>
+  <a href="#s3">3. 核心概念与数据模型</a>
+  <a href="#s31" class="sub">3.1 对象定义</a>
+  <a href="#s32" class="sub">3.2 关系模型</a>
+  <a href="#s33" class="sub">3.3 分类与展示标签</a>
+  <a href="#s4">4. 核心业务流程</a>
+  <a href="#s41" class="sub">4.1 初始化链路</a>
+  <a href="#s42" class="sub">4.2 增量链路</a>
+  <a href="#s43" class="sub">4.3 母版变更链路</a>
+  <a href="#s44" class="sub">4.4 用户使用链路</a>
+  <a href="#s5">5. 功能需求</a>
+  <a href="#s51" class="sub">5.1 模板管理</a>
+  <a href="#s52" class="sub">5.2 Agent 管理</a>
+  <a href="#s53" class="sub">5.3 分类与标签字典</a>
+  <a href="#s54" class="sub">5.4 上架 Agenthub</a>
+  <a href="#s55" class="sub">5.5 实例关系数据</a>
+  <a href="#s6">6. 开放能力</a>
+  <a href="#s7">7. 权限与可见性规则</a>
+  <a href="#s8">8. 状态与生命周期</a>
+  <a href="#s9">9. 异常与边界</a>
+  <a href="#s10">10. 埋点与度量</a>
+  <a href="#s11">11. 非功能性要求</a>
+  <a href="#s12">12. 需求清单与优先级</a>
+  <a href="#s13">13. 待确认问题</a>
+</nav>
+
+<main class="doc">
+
+<div class="cover">
+  <h1>Workhub Studio 模板中心与 Agent 分发</h1>
+  <div class="sub">以易协作场景为首个落地对象，建立「母版 → 实例模板 → 实例 Agent」的标准化分发链路</div>
+  <div class="meta">
+    <span><b>文档版本</b>v1.0</span>
+    <span><b>状态</b>待评审</span>
+    <span><b>产品</b>张振</span>
+    <span><b>关联原型</b>Studio 租户后台 · Agent 管理 / 模板</span>
+    <span><b>更新日期</b>2026-08-13</span>
+  </div>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1"><span class="no">01</span>背景与目标</h2>
+
+<h3>1.1 业务背景</h3>
+<p>易协作是网易内部的项目协作平台，其组织形态为「实例 → 项目 → 用户」三层结构：一个易协作实例对应一个业务方（如 H72、大话西游），实例下有多个项目，项目下有管理员与普通成员。</p>
+<p>易协作希望为每个项目提供一个 PM 助理 Agent，帮助项目成员完成周报汇总、进度问答、文档生成等工作。这带来两个诉求：</p>
+<ul>
+  <li><b>规模化交付</b>——实例数量随业务扩张持续增长，逐个手工创建 Agent 不可持续；</li>
+  <li><b>统一管控</b>——所有项目 Agent 的提示词、模型、工具、Skills、MCP 需由平台方统一定义与升级，不能各自漂移。</li>
+</ul>
+
+<h3>1.2 现状问题</h3>
+<table>
+  <tr><th style="width:22%">问题</th><th>说明</th></tr>
+  <tr><td><b>模板能力错位</b></td><td>模板此前在超管后台维护，租户无法自主定义面向自己业务的模板，平台方成为交付瓶颈。</td></tr>
+  <tr><td><b>无法批量分发</b></td><td>缺少将一个模板按业务实例快速铺开的机制，新实例接入需人工重复配置。</td></tr>
+  <tr><td><b>缺少归属与可见性</b></td><td>Agent 没有业务归属信息，Agenthub 无法判断某个用户应当看到哪些 Agent、能否修改。</td></tr>
+  <tr><td><b>配置无法统一升级</b></td><td>母版提示词或工具变更后，已交付的 Agent 无法批量同步，长期形成版本分裂。</td></tr>
+</table>
+
+<h3>1.3 产品目标</h3>
+<ol>
+  <li>将模板管理下沉到<b>租户后台</b>，由租户自主维护面向 Agenthub 用户的模板资产（替换原超管后台模板管理）。</li>
+  <li>建立<b>母版 → 实例模板 → 实例 Agent</b> 的三级派生链路，支持易协作通过接口自动化完成初始化与增量接入。</li>
+  <li>沉淀<b>实例—项目—成员</b>关系数据，为 Agenthub 提供可见性与权限判定依据。</li>
+  <li>通过<b>上架 Agenthub</b> 机制，让业务 PM 能直接使用 Agent 或基于模板自建 Agent。</li>
+  <li>母版配置变更可<b>强联动</b>下发到全部实例模板与实例 Agent，保证配置一致性与可审计。</li>
+</ol>
+
+<h3>1.4 成功指标</h3>
+<table>
+  <tr><th style="width:26%">指标</th><th style="width:24%">目标值</th><th>口径</th></tr>
+  <tr><td>实例接入自动化率</td><td>≥ 95%</td><td>通过接口生成的实例模板数 / 实例模板总数</td></tr>
+  <tr><td>新实例接入时长</td><td>≤ 5 分钟</td><td>易协作发起调用 → 实例 Agent 可用</td></tr>
+  <tr><td>母版下发成功率</td><td>≥ 99%</td><td>母版变更后同步成功的实例数 / 应同步实例数</td></tr>
+  <tr><td>Agent 使用覆盖率</td><td>首期 ≥ 60%</td><td>产生过会话的实例 Agent 数 / 已上架实例 Agent 数</td></tr>
+</table>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2"><span class="no">02</span>产品定位与角色</h2>
+
+<h3>2.1 产品分工</h3>
+<table>
+  <tr><th style="width:16%">产品</th><th style="width:18%">面向对象</th><th>核心能力</th></tr>
+  <tr>
+    <td><b>Workhub Studio</b><br><span class="tag t-p2">供给侧</span></td>
+    <td>易协作平台方<br>（租户管理员）</td>
+    <td>
+      <ul style="margin:0;padding-left:18px">
+        <li>维护统一的 <b>PM Agent 母版</b>：提示词、模型、内置工具、Skills、MCP 的初始化能力</li>
+        <li>按易协作实例派生 <b>实例模板</b>，维护实例与 Agent 的归属关系</li>
+        <li>在平台维度统一管理、升级、审计由该模板派生出的全部 Agent</li>
+        <li>沉淀「实例—项目—成员」关系数据并对外提供查询</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><b>Agenthub</b><br><span class="tag t-p2">消费侧</span></td>
+    <td>业务 PM 与<br>项目成员</td>
+    <td>
+      <ul style="margin:0;padding-left:18px">
+        <li>面向用户的项目 Agent：由实例 Agent 初始化而来，是用户直接交互的入口</li>
+        <li>项目管理员可管理与修改项目 Agent，实现项目自定义配置</li>
+        <li>普通成员仅可使用，不可配置</li>
+        <li>可查询已上架的模板，自建 Agent</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><b>易协作工单平台</b><br><span class="tag t-p2">数据源</span></td>
+    <td>—</td>
+    <td>实例、项目、成员及成员角色的权威数据源；通过接口驱动 Studio 完成实例模板与实例 Agent 的创建</td>
+  </tr>
+</table>
+
+<h3>2.2 角色与职责</h3>
+<table>
+  <tr><th style="width:20%">角色</th><th style="width:20%">所在系统</th><th>职责</th></tr>
+  <tr><td><b>租户管理员</b></td><td>Workhub Studio</td><td>创建与维护母版、维护分类与标签字典、决定模板与 Agent 是否上架</td></tr>
+  <tr><td><b>易协作系统</b></td><td>易协作工单平台</td><td>以系统身份调用 Studio 接口，完成实例模板与实例 Agent 的初始化和增量创建</td></tr>
+  <tr><td><b>项目管理员</b></td><td>Agenthub</td><td>使用项目 Agent；在允许范围内修改项目 Agent 配置</td></tr>
+  <tr><td><b>普通成员</b></td><td>Agenthub</td><td>仅使用归属实例下的 Agent，不可配置</td></tr>
+  <tr><td><b>业务 PM</b></td><td>Agenthub</td><td>使用已上架 Agent，或引用已上架模板自建 Agent</td></tr>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3"><span class="no">03</span>核心概念与数据模型</h2>
+
+<h3 id="s31">3.1 对象定义</h3>
+<table>
+  <tr><th style="width:16%">对象</th><th style="width:12%">归属</th><th>定义</th></tr>
+  <tr>
+    <td><b>母版</b><br><span class="tag t-p2">PM Agent 模板</span></td><td>Studio 租户</td>
+    <td>租户手工创建的标准模板，是一切实例的配置来源。包含名称、描述、系统提示词、模型、内置工具、Skills 绑定、MCP 绑定（含 brainmaker 知识库）。母版是<b>唯一的配置真源</b>。</td>
+  </tr>
+  <tr>
+    <td><b>实例模板</b></td><td>Studio 租户</td>
+    <td>由母版按易协作实例派生。<b>本质是在母版基础上打上实例标签</b>，全部配置继承自母版且保持联动，仅展示标签（实例标识）为自身独有。与易协作实例 <b>1:1</b>。</td>
+  </tr>
+  <tr>
+    <td><b>实例 Agent</b></td><td>Studio 租户</td>
+    <td>由实例模板生成的 Agent，与实例模板 <b>1:1</b>。本质是在 Agent 上打了实例标签，归属 Studio 租户，在 Agent 管理下统一维护。</td>
+  </tr>
+  <tr>
+    <td><b>项目 Agent</b></td><td>Agenthub</td>
+    <td>用户在 Agenthub 中实际交互的对象，由实例 Agent 初始化而来。项目管理员可在允许范围内做项目级自定义。</td>
+  </tr>
+  <tr>
+    <td><b>易协作实例</b></td><td>易协作</td>
+    <td>业务方维度的隔离单元（如 H72、大话西游）。实例是<b>可见性判定的基本单位</b>。</td>
+  </tr>
+  <tr>
+    <td><b>易协作项目</b></td><td>易协作</td>
+    <td>实例下的协作单元，是用户使用 Agent 的业务上下文。</td>
+  </tr>
+  <tr>
+    <td><b>成员</b></td><td>易协作</td>
+    <td>项目下的用户，带角色属性：<code>管理员</code> / <code>普通成员</code>，是<b>操作权限判定的依据</b>。</td>
+  </tr>
+</table>
+
+<h3 id="s32">3.2 关系模型</h3>
+<div class="er">Workhub Studio                              易协作
+┌────────────────────────┐          ┌──────────────────┐
+│  母版（PM Agent 模板）   │          │                  │
+│        │ 1               │          │                  │
+│        │ 派生（配置联动）   │          │                  │
+│        ↓ n               │   1:1    │                  │
+│  实例模板  ───────────────┼─────────→│   易协作实例       │
+│        │ 1               │          │        │ 1        │
+│        │ 生成（配置联动）   │          │        ↓ n        │
+│        ↓ 1               │          │   易协作项目       │
+│  实例 Agent               │          │        │ 1        │
+│        │                 │          │        ↓ n        │
+└────────┼─────────────────┘          │   成员（角色）     │
+         │ 初始化                      └──────────────────┘
+         ↓
+Agenthub · 项目 Agent</div>
+
+<table>
+  <tr><th style="width:34%">关系</th><th style="width:10%">基数</th><th>说明</th></tr>
+  <tr><td>母版 → 实例模板</td><td>1 : n</td><td>一个母版可派生多个实例模板，配置强联动</td></tr>
+  <tr><td>实例模板 → 易协作实例</td><td>1 : 1</td><td>一个实例模板唯一对应一个易协作实例</td></tr>
+  <tr><td>实例模板 → 实例 Agent</td><td>1 : 1</td><td>由易协作调用生成 Agent 接口创建</td></tr>
+  <tr><td>易协作实例 → 项目</td><td>1 : n</td><td>关系数据由 Studio 记录</td></tr>
+  <tr><td>易协作项目 → 成员</td><td>1 : n</td><td>成员带角色，关系数据由 Studio 记录</td></tr>
+  <tr><td>母版 / 实例模板 → Skills、MCP</td><td>1 : n</td><td>母版构建内置级 MCP 与 Skill，实例模板继承</td></tr>
+</table>
+
+<div class="note">
+  <b>关键理解：</b>实例模板与实例 Agent 都不是"新的一份配置"，而是<b>母版配置 + 实例标签</b>的组合。配置的唯一来源始终是母版，实例层只承载"归属于哪个实例"这一身份信息。
+</div>
+
+<h3 id="s33">3.3 分类与展示标签</h3>
+<table>
+  <tr><th style="width:14%">维度</th><th style="width:12%">选择方式</th><th style="width:16%">字典归属</th><th>业务含义</th></tr>
+  <tr>
+    <td><b>分类</b></td><td>单选</td><td>租户字典<br>（Agent 与模板共用）</td>
+    <td>业务领域归类，用于列表检索与统计，<b>不参与权限判定</b></td>
+  </tr>
+  <tr>
+    <td><b>展示标签</b></td><td>多选</td><td>官方字典</td>
+    <td>承载<b>实例标识</b>（如 H72、大话西游），是 Agenthub 判定可见范围的核心依据。同时用系统标记区分<code>母版</code> / <code>实例模板</code></td>
+  </tr>
+</table>
+<ul>
+  <li>母版与实例模板的分类由母版决定，实例模板不可单独修改。</li>
+  <li>展示标签中的<code>母版</code>、<code>实例模板</code>为系统标记，由派生逻辑自动写入，不可人工增删。</li>
+  <li>实例标签在实例模板派生时由易协作传入的实例信息自动写入，并随实例 Agent 一起带出。</li>
+  <li>字典的增删改由租户在「管理分类 / 管理标签」中维护；删除字典项时，引用该项的对象自动解除引用。</li>
+</ul>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4"><span class="no">04</span>核心业务流程</h2>
+
+<h3 id="s41">4.1 初始化链路：存量实例批量接入</h3>
+<div class="flow">
+  <div class="flow-step"><div class="flow-no">1</div><div class="flow-b">
+    <div class="h">创建母版<span class="actor">租户管理员</span></div>
+    <div class="d">在 Studio 租户后台「Agent 管理 → 模板」创建 PM Agent 母版，配置名称、描述、系统提示词、模型、内置工具、Skills、MCP（含 brainmaker 知识库），并设置分类。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">2</div><div class="flow-b">
+    <div class="h">批量创建实例模板<span class="actor">易协作系统</span></div>
+    <div class="d">易协作遍历全部存量实例，调用 Studio「创建实例模板」接口，传入母版标识与实例信息。Studio 按实例逐个派生实例模板，写入实例展示标签，配置全部继承母版。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">3</div><div class="flow-b">
+    <div class="h">生成实例 Agent<span class="actor">易协作系统</span></div>
+    <div class="d">实例模板创建成功后，易协作以返回的实例模板标识调用「生成 Agent」接口，按 1:1 生成实例 Agent，Agent 归属 Studio 租户，自动带入实例模板的分类与展示标签。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">4</div><div class="flow-b">
+    <div class="h">同步关系数据<span class="actor">易协作系统</span></div>
+    <div class="d">易协作同步该实例下的「项目」与「成员（含角色）」关系至 Studio。关系数据仅落库存储，暂不在 Studio 界面展示。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">5</div><div class="flow-b">
+    <div class="h">上架 Agenthub<span class="actor">租户管理员</span></div>
+    <div class="d">在模板列表或 Agent 列表中执行上架，使其对 Agenthub 可查询。上架为<b>可查询</b>语义，不做数据推送。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">6</div><div class="flow-b">
+    <div class="h">初始化项目 Agent<span class="actor">Agenthub</span></div>
+    <div class="d">Agenthub 基于已上架的实例 Agent 初始化项目 Agent，用户即可开始使用。</div>
+  </div></div>
+</div>
+
+<h3 id="s42">4.2 增量链路：新实例自动接入</h3>
+<div class="flow">
+  <div class="flow-step"><div class="flow-no">1</div><div class="flow-b">
+    <div class="h">实例新建事件<span class="actor">易协作</span></div>
+    <div class="d">易协作工单平台新增实例，触发对接事件。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">2</div><div class="flow-b">
+    <div class="h">Webhook 调用 Studio<span class="actor">易协作系统</span></div>
+    <div class="d">易协作通过 Studio 提供的 Webhook 自动调用「创建实例模板」，链路与初始化完全一致，无需人工介入。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">3</div><div class="flow-b">
+    <div class="h">生成实例 Agent 并同步关系<span class="actor">易协作系统</span></div>
+    <div class="d">同 4.1 步骤 3、4。上架状态默认为<b>未上架</b>，由租户管理员确认后上架。</div>
+  </div></div>
+</div>
+<div class="note">初始化与增量走<b>同一套接口</b>，差异仅在于触发方式：初始化为易协作侧批量遍历发起，增量为实例创建事件驱动。Studio 不区分两种来源。</div>
+
+<h3 id="s43">4.3 母版变更链路：配置强联动下发</h3>
+<div class="flow">
+  <div class="flow-step"><div class="flow-no">1</div><div class="flow-b">
+    <div class="h">母版配置变更<span class="actor">租户管理员</span></div>
+    <div class="d">修改母版的描述、系统提示词、模型、内置工具、Skills、MCP 或分类并保存。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">2</div><div class="flow-b">
+    <div class="h">变更影响提示<span class="actor">Studio</span></div>
+    <div class="d">保存前提示本次变更将同步至 N 个实例模板与 N 个实例 Agent，需管理员确认。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">3</div><div class="flow-b">
+    <div class="h">全链路同步<span class="actor">Studio</span></div>
+    <div class="d">同步覆盖全部实例模板与实例 Agent 的对应配置项；各自的展示标签（实例标识）保持不变。同步结果写入变更记录，支持审计。</div>
+  </div></div>
+</div>
+<div class="warn">
+  <b>覆盖策略：</b>母版为唯一配置真源。项目管理员在 Agenthub 侧对项目 Agent 所做的自定义配置，在母版下发时<b>会被覆盖</b>。Agenthub 需在管理员编辑入口明确提示该风险。字段级冲突保护策略见第 13 节待确认问题。
+</div>
+
+<h3 id="s44">4.4 用户使用链路</h3>
+<div class="flow">
+  <div class="flow-step"><div class="flow-no">1</div><div class="flow-b">
+    <div class="h">用户进入 Agenthub<span class="actor">项目成员</span></div>
+    <div class="d">Agenthub 携带用户身份向 Studio 查询该用户所属的实例与角色。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">2</div><div class="flow-b">
+    <div class="h">可见性判定<span class="actor">Agenthub</span></div>
+    <div class="d">以「展示标签 = 实例」为条件，筛选出用户归属实例下、且已上架的 Agent 与模板。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">3</div><div class="flow-b">
+    <div class="h">操作权限判定<span class="actor">Agenthub</span></div>
+    <div class="d">普通成员仅可使用；实例下管理员既可使用也可管理与配置。</div>
+  </div></div>
+  <div class="flow-step"><div class="flow-no">4</div><div class="flow-b">
+    <div class="h">使用或自建<span class="actor">业务 PM</span></div>
+    <div class="d">直接使用已上架 Agent；或引用已上架模板自建 Agent，新建的 Agent 归属易协作租户，在 Studio 的 Agent 管理下可见可审计。</div>
+  </div></div>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5"><span class="no">05</span>功能需求</h2>
+
+<h3 id="s51">5.1 模板管理</h3>
+<p>入口：Studio 租户后台「Agent 管理 → 模板」，与 Agents 平级。本模块<b>替换</b>原超管后台的模版管理，模板资产改由租户自主维护。</p>
+
+<h4>5.1.1 模板列表</h4>
+<table>
+  <tr><th style="width:20%">功能项</th><th>需求描述</th><th style="width:8%">优先级</th></tr>
+  <tr><td>列表字段</td><td>模板名称、分类、展示标签、Agenthub 状态、创建人、创建时间、更新人、更新时间</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>层级表达</td><td>母版与实例模板<b>同层平铺</b>，通过展示标签中的系统标记<code>母版</code> / <code>实例模板</code>区分，不做树形嵌套</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>筛选</td><td>支持按名称/创建人搜索，按分类、展示标签、Agenthub 状态筛选</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>行内设置</td><td>分类与展示标签支持在列表直接修改，无需进入详情</td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>创建入口</td><td>仅支持创建母版；实例模板<b>只能</b>由易协作通过接口派生，界面不提供手工派生入口</td><td><span class="tag t-p0">P0</span></td></tr>
+</table>
+
+<h4>5.1.2 模板配置</h4>
+<table>
+  <tr><th style="width:18%">配置分组</th><th>配置项</th><th style="width:12%">母版</th><th style="width:14%">实例模板</th></tr>
+  <tr><td><b>基础信息</b></td><td>名称、一句话描述、系统提示词、模型；分类（单选）、展示标签（多选）</td><td>可编辑</td><td>只读<br>（标签除外）</td></tr>
+  <tr><td><b>内置工具</b></td><td>联网搜索、调用子 Agent、保存产物、思考记录、浏览器自动化、Fabric 业务调用，逐项启停</td><td>可编辑</td><td>只读</td></tr>
+  <tr><td><b>Skills 绑定</b></td><td>从租户已有 Skills 中多选绑定</td><td>可编辑</td><td>只读</td></tr>
+  <tr><td><b>MCP 绑定</b></td><td>从租户已配置 MCP 中多选绑定，含 brainmaker 知识库</td><td>可编辑</td><td>只读</td></tr>
+</table>
+<ul>
+  <li>名称、描述、系统提示词、模型为必填项。</li>
+  <li>实例模板打开时全部配置只读，并提示其继承的母版，支持跳转至母版。</li>
+  <li>实例模板的展示标签中，实例标识由派生时写入；系统标记不可修改。</li>
+</ul>
+
+<h4>5.1.3 模板删除</h4>
+<ul>
+  <li>母版存在关联实例模板时<b>禁止删除</b>，需先处理实例模板。</li>
+  <li>实例模板删除后，其对应的实例 Agent 不自动删除，但会失去配置来源，需二次确认。</li>
+  <li>已上架的模板需先下架才能删除。</li>
+</ul>
+
+<h3 id="s52">5.2 Agent 管理</h3>
+<table>
+  <tr><th style="width:20%">功能项</th><th>需求描述</th><th style="width:8%">优先级</th></tr>
+  <tr><td>属性扩展</td><td>Agent 增加<b>分类</b>与<b>展示标签</b>属性；由模板生成时自动带入模板的分类与实例标签</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>列表字段</td><td>名称、模型、来源、分类、展示标签、Agenthub 状态、记忆、状态、创建人、创建时间、更新人、更新时间</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>来源</td><td>取值收敛为 <code>Workhub Studio</code> 与 <code>Agenthub</code> 两类，标识该 Agent 由哪一侧创建</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>筛选</td><td>支持按来源、<b>分类</b>、<b>展示标签</b>、Agenthub 状态筛选</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>行内设置</td><td>分类与展示标签支持在列表直接修改</td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>归属</td><td>由实例模板生成的 Agent、以及 Agenthub 用户引用模板自建的 Agent，<b>统一归属易协作租户</b>，在 Agent 管理下可查、可管、可审计</td><td><span class="tag t-p0">P0</span></td></tr>
+</table>
+
+<h3 id="s53">5.3 分类与标签字典</h3>
+<table>
+  <tr><th style="width:20%">功能项</th><th>需求描述</th></tr>
+  <tr><td>入口</td><td>模板列表与 Agent 列表右上角均提供「管理分类」「管理标签」</td></tr>
+  <tr><td>分类字典</td><td>租户级，<b>Agent 与模板共用同一套</b>；支持新增、改名、删除；每项带颜色标识</td></tr>
+  <tr><td>标签字典</td><td>官方展示标签字典；支持新增、改名、删除</td></tr>
+  <tr><td>联动</td><td>字典项改名时，全部引用该项的模板与 Agent 同步更新；删除时，引用对象自动解除该引用</td></tr>
+  <tr><td>保护</td><td><code>母版</code> / <code>实例模板</code>系统标记不在可维护范围内</td></tr>
+</table>
+
+<h3 id="s54">5.4 上架 Agenthub</h3>
+<div class="note"><b>上架语义：</b>上架不是把数据推送到 Agenthub，而是<b>允许 Agenthub 查询到该对象</b>。未上架的模板与 Agent 对 Agenthub 完全不可见。</div>
+<table>
+  <tr><th style="width:20%">功能项</th><th>需求描述</th></tr>
+  <tr><td>状态定义</td><td>两态：<code>已上架</code> / <code>未上架</code>，模板与 Agent 各自独立维护</td></tr>
+  <tr><td>操作入口</td><td>列表每行操作列提供「上架 / 下架」切换</td></tr>
+  <tr><td>批量上架</td><td>实例模板支持手动批量上架 <span class="tag t-p1">P1</span></td></tr>
+  <tr><td>默认值</td><td>新建母版、接口派生的实例模板与实例 Agent，默认均为<b>未上架</b></td></tr>
+  <tr><td>确认提示</td><td>母版首次上架需二次确认，明确"Agenthub 用户将可基于它创建 Agent"</td></tr>
+  <tr><td>下架影响</td><td>下架后 Agenthub 不再可查询到该对象；已由其创建的 Agent 不受影响</td></tr>
+</table>
+
+<h3 id="s55">5.5 实例关系数据</h3>
+<table>
+  <tr><th style="width:22%">功能项</th><th>需求描述</th></tr>
+  <tr><td>数据内容</td><td>易协作实例、实例下项目、项目下成员及成员角色（<code>管理员</code> / <code>普通成员</code>）</td></tr>
+  <tr><td>数据来源</td><td>易协作工单平台，通过接口同步至 Studio</td></tr>
+  <tr><td>存储要求</td><td>Studio 落库存储并维护更新，保留实例—项目—成员的完整关系链</td></tr>
+  <tr><td>界面展示</td><td><b>本期不在 Studio 界面展示</b>，仅作为底层数据支撑</td></tr>
+  <tr><td>对外能力</td><td>提供查询接口供 Agenthub 判定用户可见范围与操作权限</td></tr>
+  <tr><td>更新方式</td><td>易协作侧关系变更时同步更新；成员离职/退出项目需能反映到查询结果</td></tr>
+</table>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6"><span class="no">06</span>开放能力</h2>
+<p>Studio 面向易协作与 Agenthub 提供以下能力，均以系统身份鉴权调用。此处描述<b>业务语义</b>，接口协议细节由技术方案定义。</p>
+
+<table>
+  <tr><th style="width:22%">能力</th><th style="width:14%">调用方</th><th>业务语义</th></tr>
+  <tr>
+    <td><b>创建实例模板</b></td><td>易协作系统</td>
+    <td>输入母版标识 + 实例信息（实例标识、实例名称）。Studio 按实例派生实例模板，写入实例展示标签，配置继承母版，返回实例模板标识。<b>同一实例重复调用应幂等</b>，返回已存在的实例模板。</td>
+  </tr>
+  <tr>
+    <td><b>生成实例 Agent</b></td><td>易协作系统</td>
+    <td>输入实例模板标识。Studio 按 1:1 生成实例 Agent，归属易协作租户，自动带入分类与实例标签。同一实例模板重复调用应幂等。</td>
+  </tr>
+  <tr>
+    <td><b>同步实例关系</b></td><td>易协作系统</td>
+    <td>输入实例下的项目与成员（含角色）关系，Studio 落库存储与更新。</td>
+  </tr>
+  <tr>
+    <td><b>查询用户可见范围</b></td><td>Agenthub</td>
+    <td>输入用户标识，返回该用户归属的实例列表及其在各实例下的角色，供 Agenthub 判定可见与可操作范围。</td>
+  </tr>
+  <tr>
+    <td><b>查询已上架模板 / Agent</b></td><td>Agenthub</td>
+    <td>按展示标签（实例）等条件查询已上架的模板与 Agent。未上架对象不返回。</td>
+  </tr>
+</table>
+
+<div class="note">
+  <b>Webhook：</b>Studio 提供 Webhook 供易协作在实例新增时自动触发实例模板创建。初始化与增量共用同一套能力，Studio 不区分调用来源。
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7"><span class="no">07</span>权限与可见性规则</h2>
+
+<h3>7.1 判定模型</h3>
+<p>Agenthub 侧的权限由<b>两个维度</b>共同决定，两者均来自 Studio 记录的「实例—项目—成员」关系：</p>
+<div class="card">
+  <div class="kv">
+    <div class="k">维度一 · 归属</div><div>用户是否归属于该 Agent 的展示标签所标识的<b>实例</b> → 决定<b>能否看见</b></div>
+    <div class="k">维度二 · 角色</div><div>用户在该实例下是否为<b>管理员</b> → 决定<b>能否管理与配置</b></div>
+  </div>
+</div>
+
+<h3>7.2 权限矩阵</h3>
+<table>
+  <tr><th style="width:26%">用户与该实例的关系</th><th style="width:14%">可见</th><th style="width:14%">可使用</th><th style="width:18%">可管理 / 配置</th><th>说明</th></tr>
+  <tr><td>不归属该实例</td><td>否</td><td>否</td><td>否</td><td>展示标签不匹配，查询结果中不返回</td></tr>
+  <tr><td>归属该实例 · 普通成员</td><td>是</td><td>是</td><td><b>否</b></td><td>只能用，不能改</td></tr>
+  <tr><td>归属该实例 · 管理员</td><td>是</td><td>是</td><td><b>是</b></td><td>可管理与配置项目 Agent</td></tr>
+</table>
+
+<h3>7.3 前置条件</h3>
+<ul>
+  <li>上述判定的前提是该模板 / Agent 处于<b>已上架</b>状态；未上架对象对所有 Agenthub 用户均不可见。</li>
+  <li>分类不参与权限判定，仅用于检索与统计。</li>
+  <li>Studio 租户后台的管理权限沿用现有租户权限体系，不受本规则影响。</li>
+</ul>
+
+<!-- ============ 8 ============ -->
+<h2 id="s8"><span class="no">08</span>状态与生命周期</h2>
+
+<h3>8.1 Agenthub 上架状态</h3>
+<table>
+  <tr><th style="width:16%">当前状态</th><th style="width:16%">动作</th><th style="width:16%">目标状态</th><th>业务影响</th></tr>
+  <tr><td>未上架</td><td>上架</td><td>已上架</td><td>Agenthub 可查询到该对象；模板可被引用创建 Agent</td></tr>
+  <tr><td>已上架</td><td>下架</td><td>未上架</td><td>Agenthub 不再可查询；已创建的 Agent 不受影响</td></tr>
+</table>
+
+<h3>8.2 对象生命周期</h3>
+<table>
+  <tr><th style="width:14%">阶段</th><th style="width:26%">母版</th><th style="width:26%">实例模板</th><th>实例 Agent</th></tr>
+  <tr><td>创建</td><td>租户手工创建</td><td>易协作接口派生</td><td>易协作接口生成</td></tr>
+  <tr><td>变更</td><td>租户编辑</td><td>跟随母版；仅展示标签自治</td><td>跟随母版</td></tr>
+  <tr><td>上架</td><td>租户操作</td><td>租户操作（支持批量）</td><td>租户操作</td></tr>
+  <tr><td>删除</td><td>有实例模板时禁止</td><td>需二次确认</td><td>需二次确认</td></tr>
+</table>
+
+<!-- ============ 9 ============ -->
+<h2 id="s9"><span class="no">09</span>异常与边界</h2>
+<table>
+  <tr><th style="width:28%">场景</th><th>处理策略</th></tr>
+  <tr><td>同一实例重复触发创建</td><td>幂等处理，返回已存在的实例模板，不重复派生</td></tr>
+  <tr><td>母版不存在或已删除</td><td>拒绝派生并返回明确错误，易协作侧可重试</td></tr>
+  <tr><td>实例模板已存在但 Agent 未生成</td><td>允许单独调用生成 Agent 接口补齐</td></tr>
+  <tr><td>母版下发部分失败</td><td>记录失败实例清单，支持重试；不因个别失败中断整体下发</td></tr>
+  <tr><td>易协作实例被删除</td><td>对应实例模板与实例 Agent 保留但标记失效，需人工确认后清理（本期以人工处理为准）</td></tr>
+  <tr><td>成员退出项目/实例</td><td>关系数据同步更新后，该用户在 Agenthub 侧立即失去对应可见性</td></tr>
+  <tr><td>展示标签字典中删除了实例标签</td><td>引用该标签的对象自动解除引用，将导致相关用户失去可见性，删除前需二次确认并提示影响范围</td></tr>
+  <tr><td>Agenthub 管理员的自定义配置与母版冲突</td><td>本期以母版覆盖为准，Agenthub 侧需提示；字段级保护见待确认问题</td></tr>
+</table>
+
+<!-- ============ 10 ============ -->
+<h2 id="s10"><span class="no">10</span>埋点与度量</h2>
+<table>
+  <tr><th style="width:24%">观测对象</th><th>指标</th></tr>
+  <tr><td>模板资产</td><td>母版数量、实例模板数量、已上架数量、平均每母版派生实例数</td></tr>
+  <tr><td>接口调用</td><td>创建实例模板/生成 Agent 的调用量、成功率、失败原因分布、平均耗时</td></tr>
+  <tr><td>母版下发</td><td>下发次数、影响实例数、同步成功率、失败重试次数</td></tr>
+  <tr><td>Agent 使用</td><td>实例 Agent 的会话数、活跃用户数、使用覆盖率</td></tr>
+  <tr><td>Agenthub 自建</td><td>引用模板自建的 Agent 数量、按模板分布</td></tr>
+  <tr><td>权限查询</td><td>可见范围查询 QPS、命中实例数分布</td></tr>
+</table>
+
+<!-- ============ 11 ============ -->
+<h2 id="s11"><span class="no">11</span>非功能性要求</h2>
+<table>
+  <tr><th style="width:20%">类别</th><th>要求</th></tr>
+  <tr><td>批量能力</td><td>初始化阶段需支撑存量实例的批量接入，单批调用不应因数量增长而超时失败</td></tr>
+  <tr><td>幂等性</td><td>创建实例模板、生成 Agent、同步关系数据均需幂等，允许易协作侧安全重试</td></tr>
+  <tr><td>一致性</td><td>母版下发需保证最终一致，允许短暂延迟，但需可观测、可重试</td></tr>
+  <tr><td>可审计</td><td>模板与 Agent 的创建、变更、上架/下架、下发均需留痕，含操作人（含系统身份）与时间</td></tr>
+  <tr><td>安全</td><td>开放接口需鉴权，限定易协作与 Agenthub 的系统身份；关系数据涉及人员信息，需限定访问范围</td></tr>
+</table>
+
+<!-- ============ 12 ============ -->
+<h2 id="s12"><span class="no">12</span>需求清单与优先级</h2>
+<table>
+  <tr><th style="width:8%">编号</th><th style="width:14%">模块</th><th>需求</th><th style="width:8%">类型</th><th style="width:8%">优先级</th></tr>
+  <tr><td>R-01</td><td>模板管理</td><td>租户后台新增模板模块，支持创建与维护母版（名称、描述、提示词、模型、内置工具、Skills、MCP）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-02</td><td>模板管理</td><td>母版与实例模板同层展示，通过展示标签区分类型</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-03</td><td>模板管理</td><td>实例模板配置继承母版且强联动，仅展示标签自治，界面只读</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-04</td><td>模板管理</td><td>母版变更强联动下发至全部实例模板与实例 Agent</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-05</td><td>开放能力</td><td>提供创建实例模板接口（与实例 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-06</td><td>开放能力</td><td>提供生成实例 Agent 接口（与实例模板 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-07</td><td>开放能力</td><td>提供 Webhook 供易协作在实例新增时自动触发</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-08</td><td>关系数据</td><td>存储实例—项目—成员（含角色）关系，本期不展示</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-09</td><td>关系数据</td><td>提供用户可见范围与角色查询接口供 Agenthub 使用</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-10</td><td>Agent 管理</td><td>Agent 增加分类与展示标签属性，由模板生成时自动带入</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-11</td><td>Agent 管理</td><td>Agent 列表支持按分类、展示标签筛选</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-12</td><td>上架</td><td>模板与 Agent 增加 Agenthub 上架状态字段与上架/下架操作</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-13</td><td>上架</td><td>Agenthub 按上架状态 + 展示标签 + 成员角色进行可见与可操作判定</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-14</td><td>字典</td><td>租户可维护分类字典（Agent 与模板共用）与官方展示标签字典</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>R-15</td><td>上架</td><td>实例模板支持手动批量上架</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>R-16</td><td>模板/Agent</td><td>列表内直接修改分类与展示标签</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>R-17</td><td>模板管理</td><td>下线超管后台模版管理，能力迁移至租户后台</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p1">P1</span></td></tr>
+  <tr><td>R-18</td><td>可观测</td><td>母版下发结果可查询、失败可重试</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p2">P2</span></td></tr>
+</table>
+
+<!-- ============ 13 ============ -->
+<h2 id="s13"><span class="no">13</span>待确认问题</h2>
+
+<div class="q">
+  <div class="qq">Q1 · Agenthub 管理员的项目级自定义与母版强联动如何共存？</div>
+  <div class="aa">当前结论为母版覆盖优先。但图示中 Agenthub 具备"项目管理员管理和修改项目 Agent，实现项目自定义配置"的能力，两者存在冲突。<b>建议</b>：定义字段级策略——提示词、模型、工具、Skills、MCP 由母版强管控；项目 Agent 的名称、欢迎语等展示层字段允许项目自治且不被覆盖。需与 Agenthub 侧对齐。</div>
+</div>
+
+<div class="q">
+  <div class="qq">Q2 · 一个易协作实例是否可能对应多个母版？</div>
+  <div class="aa">当前按"实例模板与实例 1:1"设计。若未来同一实例需要多种角色的 Agent（如 PM 助理 + 测试助理），则实例与实例模板将变为 1:n，需在派生时增加母版维度的唯一性约束。需确认是否纳入本期设计。</div>
+</div>
+
+<div class="q">
+  <div class="qq">Q3 · 项目维度是否需要进入 Agent 归属链路？</div>
+  <div class="aa">本期实例 Agent 按实例 1:1 生成，项目仅作为关系数据存储。若后续需要项目级的差异化配置或用量统计，需明确项目 Agent 与实例 Agent 的对应关系及其数据归属。</div>
+</div>
+
+<div class="q">
+  <div class="qq">Q4 · 关系数据的同步时效与触发方式？</div>
+  <div class="aa">成员变动直接影响可见性。需确认是实时事件同步还是定时全量同步，以及可接受的延迟上限。</div>
+</div>
+
+<div class="q">
+  <div class="qq">Q5 · 存量超管模板的迁移方案？</div>
+  <div class="aa">超管后台模版管理下线后，已有模板及其派生的 Agent 如何迁移到租户后台，是否需要数据迁移脚本与灰度期并行。</div>
+</div>
+
+</main>
+</div>
+</body>
+</html>
