@@ -42,6 +42,35 @@
   .tg.inst{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
   .kind-b{ font-size:11px; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#475569; border:1px solid var(--line); }
   .dict-modal{ width:480px; }
+  .req{ color:#ef4444; margin-right:4px; }
+  #tpane-base .frow{ flex-direction:column; align-items:stretch; gap:7px; margin-bottom:18px; }
+  #tpane-base .frow label{ width:auto; font-size:13.5px; font-weight:700; color:var(--ink); }
+  #tpane-base .frow .input{ width:100%; }
+  #tpane-base .frow .ta{ min-height:130px; }
+  #tpane-base .hint-inline{ font-size:12px; color:var(--mut); }
+  #view-tplcfg .cfg-foot{ justify-content:flex-start; border-top:none; padding:6px 0 0; margin-top:4px; }
+  .cfg-sec-s{ font-size:12.5px; color:var(--mut); margin-top:2px; }
+  .tool-head{ display:flex; align-items:center; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line-2); margin-bottom:14px; }
+  .tool-head .ti{ width:38px; height:38px; border-radius:10px; background:#ecfdf5; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .tool-row{ display:flex; align-items:center; gap:14px; background:#f8fafc; border:1px solid var(--line-2); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .tool-row .tn{ font-size:14px; font-weight:700; color:var(--ink); }
+  .tool-row .td{ font-size:12.5px; color:var(--mut); margin-top:3px; }
+  .sw{ width:44px; height:24px; border-radius:12px; background:#cbd5e1; flex:none; margin-left:auto; position:relative; cursor:pointer; transition:.15s; }
+  .sw::after{ content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.15s; }
+  .sw.on{ background:var(--indigo-d); }
+  .sw.on::after{ left:22px; }
+  .sw.ro{ opacity:.55; cursor:not-allowed; }
+  .tsf{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .tsf-l,.tsf-r{ border:1px solid var(--line); border-radius:12px; padding:14px; min-height:300px; display:flex; flex-direction:column; }
+  .tsf-search{ border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13px; outline:none; margin-bottom:10px; }
+  .tsf-bar{ display:flex; align-items:center; font-size:12.5px; color:var(--mut); margin-bottom:8px; }
+  .tsf-bar .act{ margin-left:auto; color:var(--indigo-d); cursor:pointer; }
+  .tsf-list{ overflow:auto; max-height:250px; }
+  .tsf-item{ display:flex; align-items:center; gap:9px; padding:7px 2px; font-size:13.5px; color:var(--ink); cursor:pointer; }
+  .tsf-item input{ width:15px; height:15px; }
+  .tsf-empty{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--mut); font-size:13px; gap:8px; }
+  .tsf-chip{ display:inline-flex; align-items:center; gap:6px; background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; border-radius:8px; padding:5px 10px; font-size:12.5px; margin:0 6px 6px 0; }
+  .tsf-chip b{ cursor:pointer; font-weight:400; opacity:.6; }
   .dict-desc{ font-size:13px; color:var(--mut); margin-bottom:14px; }
   .dict-add{ border:1px dashed var(--line); border-radius:10px; padding:13px; text-align:center; font-size:13.5px; color:var(--ink); cursor:pointer; margin-bottom:14px; }
   .dict-add:hover{ border-color:var(--indigo); color:var(--indigo-d); background:#f8fafc; }
@@ -623,56 +652,66 @@
         🔒 这是<b>实例模板</b>，配置继承自母版 <span id="tParent" class="lnk"></span> 并<b>保持联动</b>，此处只读；仅<b>展示标签</b>可独立维护。
       </div>
 
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">基础信息</div>
-        <div class="frow"><label>模板名称</label><input class="input" id="tfName" placeholder="给模板起一个名称" maxlength="20"></div>
-        <div class="frow"><label>描述</label><input class="input" id="tfDesc" placeholder="说明这个模板能帮助谁完成什么工作" maxlength="100"></div>
-        <div class="frow"><label>分类</label>
-          <select class="input" id="tfCat" style="width:220px"></select>
-          <span class="hint-inline">单选，复用 Skills 分类字典</span>
-        </div>
-        <div class="frow"><label>展示标签</label>
-          <div style="flex:1">
-            <div class="tagbox" id="tfTags"></div>
-            <div class="hint">多选，取自官方展示标签字典；<b>展示标签决定该模板在 Agenthub 的可见范围</b>。实例模板会额外带上「来源」与实例标签。</div>
+      <div class="tabs" id="tTabs">
+        <div class="tab on" onclick="tplTab('base',this)">基础信息</div>
+        <div class="tab" onclick="tplTab('tool',this)">内置工具</div>
+        <div class="tab" onclick="tplTab('skill',this)">Skill 绑定</div>
+        <div class="tab" onclick="tplTab('mcp',this)">MCP 绑定</div>
+      </div>
+
+      <div class="pane on" id="tpane-base">
+        <div class="cfg-sec">
+          <div class="frow"><label><span class="req">*</span>名称</label><input class="input" id="tfName" placeholder="给模板起一个名称" maxlength="20"></div>
+          <div class="frow"><label><span class="req">*</span>一句话描述</label><input class="input" id="tfDesc" placeholder="说明这个模板能帮助谁完成什么工作" maxlength="100"></div>
+          <div class="frow"><label><span class="req">*</span>系统提示词</label>
+            <div style="flex:1">
+              <textarea class="input ta" id="tfPrompt" placeholder="你是一个有帮助的AI助手。"></textarea>
+              <div class="hint">定义模板 Agent 的角色与行为准则，租户基于该模板创建 Agent 时会继承。</div>
+            </div>
           </div>
+          <div class="frow"><label><span class="req">*</span>模型</label>
+            <select class="input" id="tfModel" style="width:280px">
+              <option>kimi-k2.6-inhouse</option>
+              <option>deepseek-v3.2</option>
+              <option>qwen3-max</option>
+              <option>gpt-4o-inhouse</option>
+            </select>
+          </div>
+          <div class="frow"><label>分类</label>
+            <select class="input" id="tfCat" style="width:220px"></select>
+            <span class="hint-inline">单选，复用分类字典</span>
+          </div>
+          <div class="frow"><label>展示标签</label>
+            <div style="flex:1">
+              <div class="tagbox" id="tfTags"></div>
+              <div class="hint">多选，取自官方展示标签字典；<b>展示标签决定该模板在 Agenthub 的可见范围</b>。</div>
+            </div>
+          </div>
+          <div class="cfg-foot"><button class="btn primary" onclick="saveTpl()">💾 保存</button></div>
         </div>
       </div>
 
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">Prompt</div>
-        <textarea class="input ta" id="tfPrompt" placeholder="定义模板 Agent 的角色与行为准则，基于该模板创建的 Agent 会继承"></textarea>
+      <div class="pane" id="tpane-tool">
+        <div class="cfg-sec">
+          <div class="tool-head"><span class="ti">🔧</span><div><div class="cfg-sec-t">内置工具</div><div class="cfg-sec-s">启用或禁用 Agent 可调用的内置工具</div></div></div>
+          <div id="tfTools"></div>
+          <div class="cfg-foot"><button class="btn primary" onclick="saveTpl()">💾 保存</button></div>
+        </div>
       </div>
 
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">模型</div>
-        <select class="input" id="tfModel" style="width:280px">
-          <option>kimi-k2.6-inhouse</option>
-          <option>deepseek-v3.2</option>
-          <option>qwen3-max</option>
-          <option>gpt-4o-inhouse</option>
-        </select>
+      <div class="pane" id="tpane-skill">
+        <div class="cfg-sec">
+          <div class="tsf" id="tfSkills"></div>
+          <div class="cfg-foot"><button class="btn primary" onclick="saveTpl()">💾 保存绑定</button></div>
+        </div>
       </div>
 
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">内置工具</div>
-        <div class="chkgrid" id="tfTools"></div>
-      </div>
-
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">Skills 绑定</div>
-        <div class="chkgrid" id="tfSkills"></div>
-      </div>
-
-      <div class="cfg-sec">
-        <div class="cfg-sec-t">MCP 绑定</div>
-        <div class="chkgrid" id="tfMcp"></div>
-        <div class="note">📌 含 <b>brainmaker 知识库</b>；MCP 列表取自当前租户已配置的 MCP</div>
-      </div>
-
-      <div class="cfg-foot">
-        <button class="btn ghost" onclick="backToTpl()">取消</button>
-        <button class="btn primary" onclick="saveTpl()">保存</button>
+      <div class="pane" id="tpane-mcp">
+        <div class="cfg-sec">
+          <div class="tsf" id="tfMcp"></div>
+          <div class="note">📌 MCP 列表取自当前租户已配置的 MCP，含 <b>知识库检索</b>（brainmaker 知识库）</div>
+          <div class="cfg-foot"><button class="btn primary" onclick="saveTpl()">💾 保存绑定</button></div>
+        </div>
       </div>
     </div><!-- /view-tplcfg -->
 
@@ -784,26 +823,26 @@ let templates=[
  {id:1,name:"PM AgentAI助手",kind:"base",cat:"",tags:["母版"],model:"kimi-k2.6-inhouse",hub:"off",by:"张振",
   ct:"2026-07-02 10:24",ub:"张振",ut:"2026-08-11 15:40",
   desc:"面向系统使用者的智能答疑模板",prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
-  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:null},
+  tools:["联网搜索","保存产物"],skills:["KM知识问答","echo-answer-record"],mcps:["知识库检索","内部搜索"],parent:null},
  {id:2,name:"PM AgentAI助手 · H72",kind:"inst",cat:"",tags:["实例模板","H72"],
   ct:"2026-07-18 09:12",ub:"张振",ut:"2026-08-11 15:40",
   model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
   prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
-  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
+  tools:["联网搜索","保存产物"],skills:["KM知识问答","echo-answer-record"],mcps:["知识库检索","内部搜索"],parent:1},
  {id:3,name:"PM AgentAI助手 · 大话西游",kind:"inst",cat:"",tags:["实例模板","大话西游"],
   ct:"2026-07-25 14:03",ub:"张振",ut:"2026-08-11 15:40",
   model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
   prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
-  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
+  tools:["联网搜索","保存产物"],skills:["KM知识问答","echo-answer-record"],mcps:["知识库检索","内部搜索"],parent:1},
  {id:4,name:"项目周报助手",kind:"base",cat:"",tags:["母版"],model:"deepseek-v3.2",hub:"off",by:"张振",
   ct:"2026-06-15 16:47",ub:"李蕾",ut:"2026-08-06 11:22",
   desc:"自动汇总项目进展生成周报",prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
-  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:null},
+  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task","日报周报助手"],mcps:["POPO 任务","易协作"],parent:null},
  {id:5,name:"项目周报助手 · H72",kind:"inst",cat:"",tags:["实例模板","H72"],
   ct:"2026-07-30 08:55",ub:"李蕾",ut:"2026-08-06 11:22",
   model:"deepseek-v3.2",hub:"off",by:"Webhook · 易协作",desc:"自动汇总项目进展生成周报",
   prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
-  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:4}
+  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task","日报周报助手"],mcps:["POPO 任务","易协作"],parent:4}
 ];
 let curTpl=null;
 
@@ -816,8 +855,16 @@ const CATS=[
 const TAGS=["POPO","易协作","云音乐","游戏","雷火","互娱"];
 const TPLTAGS=["母版","实例模板","H72","大话西游"];
 const TOOLS=["联网搜索","调用子 Agent","保存产物","思考记录","浏览器自动化","Fabric 业务调用"];
-const SKILLS=["popo-doc","popo-task","popo-im","km-ask","translation","pm-mcp"];
-const MCPS=["brainmaker 知识库","易协作 GCP","里程碑 MMP","创意 DMP","POPO 开放平台"];
+const TOOLDESC={
+  "联网搜索":"允许 Agent 使用 Tavily 联网搜索最新信息，适合需要实时数据、新闻、事实核查的场景",
+  "调用子 Agent":"允许 Agent 拆解任务并调用其他 Agent 协同完成",
+  "保存产物":"允许 Agent 将生成的文件上传到 S3 或保存在线文档链接，供用户下载查看",
+  "思考记录":"允许 Agent 在复杂任务中记录阶段性反思与下一步策略，不执行外部副作用",
+  "浏览器自动化":"允许 Agent 使用 Playwright 执行浏览器自动化操作，适合网页抓取、截图、表单填写等场景",
+  "Fabric 业务调用":"允许 Agent 调用 Fabric 平台的业务接口完成内部系统操作"
+};
+const SKILLS=["echo-group-response-gate","考勤-CLI","专项保洁智能排班助手","工程改造联系单制单助手","楼栋物资耗品管理助手","人事Skill","hrs-employee-岳喜春测试","echo-answer-record","KM知识问答","popo-doc","popo-task","popo-im","翻译助手","会议纪要生成","日报周报助手"];
+const MCPS=["POPO 云空间","POPO 日程","POPO 任务","易协作","邮件助手","知识库检索","内部搜索"];
 let curAgent=agents[0];
 
 function catChip(k){ const c=CATS.find(x=>x.k===k); return c?`<span class="cat-dot"><i style="background:${c.c}"></i>${c.n}</span>`:'<span class="muted-cell">-</span>'; }
@@ -1345,6 +1392,51 @@ function chkList(box,opts,checked,ro){
   document.getElementById(box).innerHTML=opts.map(o=>
     `<label class="chk"><input type="checkbox" ${checked.includes(o)?'checked':''} ${ro?'disabled':''}>${o}</label>`).join('');
 }
+let tplDraft={tools:[],skills:[],mcps:[]}, tplRO=false;
+function tplTab(k,el){
+  document.querySelectorAll('#tTabs .tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['base','tool','skill','mcp'].forEach(p=>document.getElementById('tpane-'+p).classList.toggle('on',p===k));
+}
+function renderTools(){
+  document.getElementById('tfTools').innerHTML=TOOLS.map(t=>`
+    <div class="tool-row">
+      <div><div class="tn">${t}</div><div class="td">${TOOLDESC[t]||''}</div></div>
+      <div class="sw ${tplDraft.tools.includes(t)?'on':''} ${tplRO?'ro':''}" onclick="toggleTool('${t}')"></div>
+    </div>`).join('');
+}
+function toggleTool(t){
+  if(tplRO) return;
+  const i=tplDraft.tools.indexOf(t);
+  if(i<0) tplDraft.tools.push(t); else tplDraft.tools.splice(i,1);
+  renderTools();
+}
+function renderTsf(box,key,opts,q){
+  const sel=tplDraft[key], kw=(q||'').toLowerCase();
+  const list=opts.filter(o=>!kw||o.toLowerCase().includes(kw));
+  document.getElementById(box).innerHTML=`
+    <div class="tsf-l">
+      <input class="tsf-search" placeholder="🔍 请输入" value="${q||''}" oninput="tsfSearch('${box}','${key}',this.value)">
+      <div class="tsf-bar">共 ${list.length} 项 <span class="act" onclick="tsfAll('${box}','${key}')">${tplRO?'':'全选'}</span></div>
+      <div class="tsf-list">${list.map(o=>`
+        <label class="tsf-item"><input type="checkbox" ${sel.includes(o)?'checked':''} ${tplRO?'disabled':''} onchange="tsfPick('${box}','${key}',this.value)" value="${o}">${o}</label>`).join('')}</div>
+    </div>
+    <div class="tsf-r">
+      <div class="tsf-bar">共 ${sel.length} 项 <span class="act" onclick="tsfClear('${box}','${key}')">${tplRO?'':'清空'}</span></div>
+      ${sel.length?`<div class="tsf-list">${sel.map(o=>`<span class="tsf-chip">${o}${tplRO?'':`<b onclick="tsfPick('${box}','${key}','${o}')">×</b>`}</span>`).join('')}</div>`
+        :`<div class="tsf-empty"><div style="font-size:26px">🗒️</div>暂无内容，可从左侧勾选</div>`}
+    </div>`;
+}
+function tsfOpts(key){ return key==='skills'?SKILLS:MCPS; }
+function tsfSearch(box,key,v){ renderTsf(box,key,tsfOpts(key),v); const i=document.querySelector('#'+box+' .tsf-search'); if(i){ i.focus(); i.setSelectionRange(v.length,v.length); } }
+function tsfPick(box,key,v){
+  if(tplRO) return;
+  const a=tplDraft[key], i=a.indexOf(v);
+  if(i<0) a.push(v); else a.splice(i,1);
+  renderTsf(box,key,tsfOpts(key),document.querySelector('#'+box+' .tsf-search').value);
+}
+function tsfAll(box,key){ if(tplRO) return; tplDraft[key]=[...tsfOpts(key)]; renderTsf(box,key,tsfOpts(key),''); }
+function tsfClear(box,key){ if(tplRO) return; tplDraft[key]=[]; renderTsf(box,key,tsfOpts(key),document.querySelector('#'+box+' .tsf-search').value); }
 function openTplCfg(id){
   curTpl=id?templates.find(t=>t.id===id):null;
   ['view-list','view-detail','view-tpl'].forEach(v=>document.getElementById(v).style.display='none');
@@ -1362,21 +1454,24 @@ function openTplCfg(id){
   document.getElementById('tfModel').value=t?t.model:'kimi-k2.6-inhouse';
   document.getElementById('tfTags').innerHTML=t?tagChips(t.tags):'<span class="muted-cell" style="font-size:12px">点击选择展示标签（原型占位）</span>';
   ['tfName','tfDesc','tfCat','tfPrompt','tfModel'].forEach(i=>document.getElementById(i).disabled=ro);
-  chkList('tfTools',TOOLS,t?t.tools:[],ro);
-  chkList('tfSkills',SKILLS,t?t.skills:[],ro);
-  chkList('tfMcp',MCPS,t?t.mcps:[],ro);
-  document.querySelector('#view-tplcfg .cfg-foot').style.display=ro?'none':'flex';
+  tplRO=ro;
+  tplDraft={tools:t?[...t.tools]:[],skills:t?[...t.skills]:[],mcps:t?[...t.mcps]:[]};
+  renderTools();
+  renderTsf('tfSkills','skills',SKILLS,'');
+  renderTsf('tfMcp','mcps',MCPS,'');
+  document.querySelectorAll('#view-tplcfg .cfg-foot').forEach(f=>f.style.display=ro?'none':'flex');
+  document.querySelector('#tTabs .tab').click();
 }
 function saveTpl(){
   const nm=document.getElementById('tfName').value.trim();
   if(!nm){ alert('请填写模板名称'); return; }
   const cat=document.getElementById('tfCat').value;
-  const pick=box=>[...document.querySelectorAll('#'+box+' .chk')].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim());
+  const pick=key=>[...tplDraft[key]];
   const now=new Date().toISOString().slice(0,16).replace('T',' ');
   if(curTpl){
     Object.assign(curTpl,{name:nm,desc:document.getElementById('tfDesc').value,cat,ut:now,ub:"张振",
       prompt:document.getElementById('tfPrompt').value,model:document.getElementById('tfModel').value,
-      tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp')});
+      tools:pick('tools'),skills:pick('skills'),mcps:pick('mcps')});
     templates.filter(x=>x.parent===curTpl.id).forEach(c=>{
       Object.assign(c,{desc:curTpl.desc,cat:curTpl.cat,prompt:curTpl.prompt,model:curTpl.model,ut:now,ub:"张振",
         tools:[...curTpl.tools],skills:[...curTpl.skills],mcps:[...curTpl.mcps]});
@@ -1384,7 +1479,7 @@ function saveTpl(){
   }else{
     templates.push({id:Date.now(),name:nm,kind:"base",cat,tags:["母版"],model:document.getElementById('tfModel').value,
       hub:"off",by:"张振",ct:now,ut:now,ub:"张振",desc:document.getElementById('tfDesc').value,prompt:document.getElementById('tfPrompt').value,
-      tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp'),parent:null});
+      tools:pick('tools'),skills:pick('skills'),mcps:pick('mcps'),parent:null});
   }
   backToTpl();
 }
