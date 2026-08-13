@@ -1,4 +1,4 @@
-()f<!DOCTYPE html>
+()fze<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -423,7 +423,11 @@
     <div id="view-list">
       <div class="list-head">
         <div class="list-title">Agents</div>
-        <button class="btn primary" onclick="alert('新建 Agent（原型占位）')">＋ 新建 Agent</button>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn ghost" onclick="openDict('cat')">管理分类</button>
+          <button class="btn ghost" onclick="openDict('agtag')">管理标签</button>
+          <button class="btn primary" onclick="alert('新建 Agent（原型占位）')">＋ 新建 Agent</button>
+        </div>
       </div>
       <div class="list-tools">
         <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 创建人" oninput="renderList()">
@@ -852,7 +856,7 @@ const CATS=[
   {k:"cs",n:"财税",c:"#f59e0b"},
   {k:"kf2",n:"开放平台",c:"#10b981"}
 ];
-const TAGS=["POPO","易协作","云音乐","游戏","雷火","互娱"];
+const TAGS=["POPO","易协作","云音乐","游戏","雷火","互娱","H72"];
 const TPLTAGS=["母版","实例模板","H72","大话西游"];
 const TOOLS=["联网搜索","调用子 Agent","保存产物","思考记录","浏览器自动化","Fabric 业务调用"];
 const TOOLDESC={
@@ -1346,12 +1350,14 @@ const DICT_COLORS=["#0ea5e9","#8b5cf6","#f59e0b","#10b981","#ef4444","#64748b"];
 let dictMode='cat';
 function openDict(m){
   dictMode=m;
-  document.getElementById('dictTitle').textContent=m==='cat'?'管理分类':'管理标签';
-  document.getElementById('dictDesc').textContent=m==='cat'?'创建和管理模板分类':'创建和管理官方展示标签，绑定模板时只能选择官方标签。';
-  document.getElementById('dictAddTxt').textContent=m==='cat'?'添加分类':'添加标签';
+  const isCat=m==='cat';
+  document.getElementById('dictTitle').textContent=isCat?'管理分类':'管理标签';
+  document.getElementById('dictDesc').textContent=isCat?'创建和管理分类，Agent 与模板共用同一套分类字典':'创建和管理官方展示标签，绑定时只能选择官方标签。';
+  document.getElementById('dictAddTxt').textContent=isCat?'添加分类':'添加标签';
   renderDict();
   document.getElementById('dictOverlay').classList.add('on');
 }
+function dictTags(){ return dictMode==='agtag'?TAGS:TPLTAGS; }
 function closeDict(){ document.getElementById('dictOverlay').classList.remove('on'); initTplModule(); }
 function renderDict(){
   const box=document.getElementById('dictList');
@@ -1360,7 +1366,7 @@ function renderDict(){
       <span class="dot" style="background:${c.c}"></span><span class="nm">${c.n}</span>
       <span class="ico" onclick="editDict(${i})">✎</span><span class="ico" onclick="delDict(${i})">🗑</span></div>`).join('');
   }else{
-    box.innerHTML=TPLTAGS.map((t,i)=>`<div class="dict-row">
+    box.innerHTML=dictTags().map((t,i)=>`<div class="dict-row">
       <span class="nm">${t} <span class="off">官方</span></span>
       <span class="ico" onclick="editDict(${i})">✎</span><span class="ico" onclick="delDict(${i})">🗑</span></div>`).join('');
   }
@@ -1369,23 +1375,33 @@ function addDict(){
   const v=prompt(dictMode==='cat'?'输入分类名称':'输入标签名称');
   if(!v||!v.trim()) return;
   if(dictMode==='cat') CATS.push({k:'c'+Date.now(),n:v.trim(),c:DICT_COLORS[CATS.length%DICT_COLORS.length]});
-  else TPLTAGS.push(v.trim());
+  else dictTags().push(v.trim());
   renderDict();
 }
 function editDict(i){
-  const old=dictMode==='cat'?CATS[i].n:TPLTAGS[i];
+  const old=dictMode==='cat'?CATS[i].n:dictTags()[i];
   const v=prompt('修改名称',old);
   if(!v||!v.trim()) return;
   if(dictMode==='cat') CATS[i].n=v.trim();
-  else{ TPLTAGS[i]=v.trim(); templates.forEach(t=>t.tags=t.tags.map(x=>x===old?v.trim():x)); }
-  renderDict(); renderTpl();
+  else{
+    dictTags()[i]=v.trim();
+    const rows=dictMode==='agtag'?agents:templates;
+    rows.forEach(t=>t.tags=(t.tags||[]).map(x=>x===old?v.trim():x));
+  }
+  renderDict(); renderTpl(); renderList();
 }
 function delDict(i){
-  const nm=dictMode==='cat'?CATS[i].n:TPLTAGS[i];
+  const nm=dictMode==='cat'?CATS[i].n:dictTags()[i];
   if(!confirm('确认删除「'+nm+'」？')) return;
-  if(dictMode==='cat'){ const k=CATS[i].k; CATS.splice(i,1); templates.forEach(t=>{ if(t.cat===k) t.cat=''; }); }
-  else{ TPLTAGS.splice(i,1); templates.forEach(t=>t.tags=t.tags.filter(x=>x!==nm)); }
-  renderDict(); renderTpl();
+  if(dictMode==='cat'){
+    const k=CATS[i].k; CATS.splice(i,1);
+    templates.concat(agents).forEach(t=>{ if(t.cat===k) t.cat=''; });
+  }else{
+    dictTags().splice(i,1);
+    const rows=dictMode==='agtag'?agents:templates;
+    rows.forEach(t=>t.tags=(t.tags||[]).filter(x=>x!==nm));
+  }
+  renderDict(); renderTpl(); renderList();
 }
 document.getElementById('dictOverlay').addEventListener('click',e=>{ if(e.target.id==='dictOverlay') closeDict(); });
 
