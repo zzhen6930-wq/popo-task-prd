@@ -42,6 +42,15 @@
   .tg.inst{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
   .kind-b{ font-size:11px; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#475569; border:1px solid var(--line); }
   .dict-modal{ width:480px; }
+  .set-modal{ width:560px; }
+  .set-grid{ display:flex; flex-wrap:wrap; gap:10px 12px; }
+  .set-opt{ display:inline-flex; align-items:center; gap:7px; border:1px solid transparent; border-radius:9px; padding:7px 12px; font-size:13.5px; color:var(--txt); cursor:pointer; }
+  .set-opt i{ width:10px; height:10px; border-radius:50%; display:inline-block; background:#94a3b8; }
+  .set-opt:hover{ background:#f8fafc; }
+  .set-opt.on{ background:#eef2ff; border-color:#c7d2fe; color:var(--indigo-d); font-weight:700; }
+  .edit-ico{ margin-left:6px; cursor:pointer; opacity:.45; font-size:12px; }
+  tr:hover .edit-ico{ opacity:.9; }
+  .cell-edit{ cursor:pointer; }
   .req{ color:#ef4444; margin-right:4px; }
   #tpane-base .frow{ flex-direction:column; align-items:stretch; gap:7px; margin-bottom:18px; }
   #tpane-base .frow label{ width:auto; font-size:13.5px; font-weight:700; color:var(--ink); }
@@ -810,6 +819,18 @@
   </div>
 </div>
 
+<!-- 设置分类 / 设置展示标签 -->
+<div class="overlay" id="setOverlay">
+  <div class="modal set-modal">
+    <div class="modal-head"><div class="mt" id="setTitle">设置分类</div><span class="x" onclick="closeSet()">×</span></div>
+    <div class="modal-body">
+      <div class="dict-desc" id="setDesc">选择要绑定到该对象的分类</div>
+      <div class="set-grid" id="setGrid"></div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" onclick="closeSet()">取消</button><button class="btn primary" onclick="saveSet()">保存</button></div>
+  </div>
+</div>
+
 <script>
 function switchTab(p,el){
   document.querySelectorAll('#dTabs .tab').forEach(t=>t.classList.remove('on'));
@@ -898,8 +919,8 @@ function renderList(){
       <td><span class="ag-name">${a.name}</span></td>
       <td>${a.model==='-'?'<span class="muted-cell">-</span>':`<span class="model-tag">${a.model}</span>`}</td>
       <td><span class="src-tag ${srcClass[a.srcType]}">${a.src}</span></td>
-      <td>${catChip(a.cat)}</td>
-      <td>${tagChips(a.tags)}</td>
+      <td class="cell-edit" onclick="event.stopPropagation();openSet('ag','cat',${a.id})">${catChip(a.cat)}<span class="edit-ico">🏷</span></td>
+      <td class="cell-edit" onclick="event.stopPropagation();openSet('ag','tag',${a.id})">${tagChips(a.tags)}<span class="edit-ico">🏷</span></td>
       <td>${hubChip(a.hub)}</td>
       <td>${a.model==='-'&&a.srcType==='ext'?'<span class="muted-cell">-</span>':(a.mem?'<span class="mem-on">开启</span>':'<span class="mem-off">关闭</span>')}</td>
       <td>${a.status==='on'?'<span class="st-on">启用</span>':'<span class="st-off">停用</span>'}</td>
@@ -1329,8 +1350,8 @@ function renderTpl(){
   document.getElementById('tplRows').innerHTML=rows.length?rows.map(t=>`
     <tr onclick="openTplCfg(${t.id})">
       <td><span class="ag-name">${t.name}</span></td>
-      <td>${catChip(t.cat)}</td>
-      <td>${tagChips(t.tags)}</td>
+      <td class="cell-edit" onclick="event.stopPropagation();openSet('tpl','cat',${t.id})">${catChip(t.cat)}<span class="edit-ico">🏷</span></td>
+      <td class="cell-edit" onclick="event.stopPropagation();openSet('tpl','tag',${t.id})">${tagChips(t.tags)}<span class="edit-ico">🏷</span></td>
       <td>${hubChip(t.hub)}</td>
       <td>${t.by}</td>
       <td class="muted-cell">${t.ct}</td>
@@ -1355,6 +1376,46 @@ function delTpl(id){
   if(confirm('确认删除「'+t.name+'」？')){ templates.splice(templates.indexOf(t),1); renderTpl(); }
 }
 function backToTpl(){ document.getElementById('view-tplcfg').style.display='none'; document.getElementById('view-tpl').style.display='block'; renderTpl(); }
+
+/* ===== 行内设置分类 / 展示标签 ===== */
+const SYS_TAGS=["母版","实例模板"];
+let setCtx={scope:'ag',kind:'cat',id:null,val:null};
+function setTarget(){ return setCtx.scope==='ag'?agents.find(x=>x.id===setCtx.id):templates.find(x=>x.id===setCtx.id); }
+function openSet(scope,kind,id){
+  setCtx={scope,kind,id,val:null};
+  const t=setTarget();
+  if(scope==='tpl'&&kind==='cat'&&t.kind==='inst'){ alert('实例模板的分类跟随母版，请到母版修改。'); return; }
+  setCtx.val=kind==='cat'?t.cat:(t.tags||[]).filter(x=>!SYS_TAGS.includes(x));
+  document.getElementById('setTitle').textContent=(kind==='cat'?'设置分类 — ':'设置展示标签 — ')+t.name;
+  document.getElementById('setDesc').textContent=kind==='cat'
+    ? '单选，选择要绑定到该'+(scope==='ag'?'Agent':'模板')+'的分类'
+    : '多选，只能选择官方展示标签'+(scope==='tpl'?'；母版/实例模板为系统标记，不可修改':'');
+  renderSet();
+  document.getElementById('setOverlay').classList.add('on');
+}
+function renderSet(){
+  const box=document.getElementById('setGrid');
+  if(setCtx.kind==='cat'){
+    box.innerHTML=CATS.map(c=>`<span class="set-opt ${setCtx.val===c.k?'on':''}" onclick="pickSet('${c.k}')"><i style="background:${c.c}"></i>${c.n}</span>`).join('');
+  }else{
+    const opts=setCtx.scope==='ag'?TAGS:TPLTAGS.filter(x=>!SYS_TAGS.includes(x));
+    box.innerHTML=opts.map(t=>`<span class="set-opt ${setCtx.val.includes(t)?'on':''}" onclick="pickSet('${t}')">${t}</span>`).join('');
+  }
+}
+function pickSet(v){
+  if(setCtx.kind==='cat') setCtx.val=setCtx.val===v?'':v;
+  else{ const i=setCtx.val.indexOf(v); if(i<0) setCtx.val.push(v); else setCtx.val.splice(i,1); }
+  renderSet();
+}
+function closeSet(){ document.getElementById('setOverlay').classList.remove('on'); }
+function saveSet(){
+  const t=setTarget();
+  if(setCtx.kind==='cat'){ t.cat=setCtx.val; if(setCtx.scope==='tpl') templates.filter(x=>x.parent===t.id).forEach(c=>c.cat=t.cat); }
+  else t.tags=(t.tags||[]).filter(x=>SYS_TAGS.includes(x)).concat(setCtx.val);
+  closeSet();
+  setCtx.scope==='ag'?renderList():renderTpl();
+}
+document.getElementById('setOverlay').addEventListener('click',e=>{ if(e.target.id==='setOverlay') closeSet(); });
 
 /* ===== 分类 / 标签字典管理 ===== */
 const DICT_COLORS=["#0ea5e9","#8b5cf6","#f59e0b","#10b981","#ef4444","#64748b"];
