@@ -452,10 +452,10 @@
         <table class="table list-table">
           <thead><tr>
             <th style="width:14%">名称</th>
-            <th style="width:8%">分类</th>
-            <th style="width:13%">展示标签</th>
             <th style="width:9%">模型</th>
             <th style="width:9%">来源</th>
+            <th style="width:8%">分类</th>
+            <th style="width:13%">展示标签</th>
             <th style="width:8%">Agenthub</th>
             <th style="width:5%">记忆</th>
             <th style="width:5%">状态</th>
@@ -883,10 +883,10 @@ function renderList(){
   document.getElementById('agRows').innerHTML=rows.map(a=>`
     <tr onclick="openDetail(${a.id})">
       <td><span class="ag-name">${a.name}</span></td>
-      <td>${catChip(a.cat)}</td>
-      <td>${tagChips(a.tags)}</td>
       <td>${a.model==='-'?'<span class="muted-cell">-</span>':`<span class="model-tag">${a.model}</span>`}</td>
       <td><span class="src-tag ${srcClass[a.srcType]}">${a.src}</span></td>
+      <td>${catChip(a.cat)}</td>
+      <td>${tagChips(a.tags)}</td>
       <td>${hubChip(a.hub)}</td>
       <td>${a.model==='-'&&a.srcType==='ext'?'<span class="muted-cell">-</span>':(a.mem?'<span class="mem-on">开启</span>':'<span class="mem-off">关闭</span>')}</td>
       <td>${a.status==='on'?'<span class="st-on">启用</span>':'<span class="st-off">停用</span>'}</td>
