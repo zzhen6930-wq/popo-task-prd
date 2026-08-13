@@ -811,14 +811,14 @@ function switchTab(p,el){
 
 /* ===== Agent 列表 ===== */
 const agents=[
-  { id:1, name:"云空间-运维 agent", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"云", extName:"" , cat:"kf", tags:["POPO"], hub:"on" },
-  { id:2, name:"Echo Agent-icare", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"E", extName:"" , cat:"yx", tags:["易协作","H72"], hub:"on" },
-  { id:3, name:"Echo Agent-网易KM", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"E", extName:"" , cat:"kf2", tags:["POPO"], hub:"off" },
-  { id:4, name:"我的有道龙虾", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"🦞", extName:"OpenClaw" , cat:"cs", tags:["易协作"], hub:"off" },
-  { id:5, name:"研发助理 CC", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"🤖", extName:"Claude Code" , cat:"yx", tags:["云音乐"], hub:"on" },
-  { id:6, name:"Hermes 分析体", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"🪽", extName:"Hermes" , cat:"", tags:[], hub:"off" },
-  { id:7, name:"Codex 编码体", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"⌨️", extName:"Codex" , cat:"", tags:[], hub:"off" },
-  { id:8, name:"HR 智能问答", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"H", extName:"" , cat:"yx", tags:["POPO","易协作"], hub:"on" }
+  { id:1, name:"PM AgentAI助手", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"P", extName:"" , cat:"", tags:[], hub:"on" },
+  { id:2, name:"PM AgentAI助手 · H72", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"P", extName:"" , cat:"", tags:["H72"], hub:"on" },
+  { id:3, name:"PM AgentAI助手 · 大话西游", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"off" },
+  { id:4, name:"项目周报助手", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"周", extName:"OpenClaw" , cat:"", tags:[], hub:"off" },
+  { id:5, name:"项目周报助手 · H72", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"周", extName:"Claude Code" , cat:"", tags:["H72"], hub:"on" },
+  { id:6, name:"PM AgentAI助手 · H72", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"P", extName:"Hermes" , cat:"", tags:["H72"], hub:"off" },
+  { id:7, name:"项目周报助手 · H72", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"周", extName:"Codex" , cat:"", tags:["H72"], hub:"off" },
+  { id:8, name:"PM AgentAI助手 · 大话西游", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"on" }
 ];
 const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
 
@@ -856,7 +856,7 @@ const CATS=[
   {k:"cs",n:"财税",c:"#f59e0b"},
   {k:"kf2",n:"开放平台",c:"#10b981"}
 ];
-const TAGS=["POPO","易协作","云音乐","游戏","雷火","互娱","H72"];
+const TAGS=["H72","大话西游"];
 const TPLTAGS=["母版","实例模板","H72","大话西游"];
 const TOOLS=["联网搜索","调用子 Agent","保存产物","思考记录","浏览器自动化","Fabric 业务调用"];
 const TOOLDESC={
@@ -1293,7 +1293,7 @@ document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id=
 /* ===== 模板模块逻辑 ===== */
 function initTplModule(){
   const catOpts=CATS.map(c=>`<option value="${c.k}">${c.n}</option>`).join('');
-  const tagOpts=TAGS.concat(["H72","大话西游"]).map(t=>`<option value="${t}">${t}</option>`).join('');
+  const tagOpts=["H72","大话西游"].map(t=>`<option value="${t}">${t}</option>`).join('');
   const tplTagOpts=TPLTAGS.map(t=>`<option value="${t}">${t}</option>`).join('');
   fillSel('agCat',catOpts,'全部分类'); fillSel('agTag',tagOpts,'全部展示标签');
   fillSel('tplCat',catOpts,'全部分类'); fillSel('tplTag',tplTagOpts,'全部展示标签');
