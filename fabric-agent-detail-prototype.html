@@ -32,6 +32,38 @@
   .side-item{ display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:2px; }
   .side-item:hover{ background:#f1f5f9; }
   .side-item.on{ background:#ede9fe; color:var(--indigo-d); font-weight:700; }
+
+  /* ===== 模板模块 ===== */
+  .tpl-tip{ background:#eef2ff; border:1px solid #c7d2fe; color:#4338ca; font-size:12.5px; border-radius:10px; padding:9px 14px; margin-bottom:12px; }
+  .cat-dot{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; }
+  .cat-dot i{ width:7px; height:7px; border-radius:50%; display:inline-block; font-style:normal; }
+  .tg{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; margin:2px 4px 2px 0; }
+  .tg.src{ background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; }
+  .tg.inst{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
+  .kind-b{ font-size:11px; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#475569; border:1px solid var(--line); }
+  .kind-i{ font-size:11px; padding:2px 8px; border-radius:6px; background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
+  .hub-on{ font-size:11.5px; color:var(--ok); font-weight:700; }
+  .hub-off{ font-size:11.5px; color:var(--mut); }
+  .op-lnk{ font-size:12px; color:var(--indigo-d); cursor:pointer; margin-right:10px; }
+  .op-lnk.warn{ color:var(--warn); }
+  .op-lnk.del{ color:var(--danger); }
+  .inst-bar{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:12.5px; border-radius:10px; padding:9px 14px; margin-bottom:14px; }
+  .lnk{ color:var(--indigo-d); font-weight:700; cursor:pointer; }
+  .cfg-sec{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; background:#fff; }
+  .cfg-sec-t{ font-size:13.5px; font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .frow{ display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
+  .frow>label{ width:78px; flex:none; font-size:12.5px; color:var(--sub); padding-top:7px; }
+  .input{ border:1px solid #d1d5db; border-radius:8px; padding:7px 10px; font-size:13px; flex:1; font-family:inherit; }
+  .input:focus{ outline:none; border-color:var(--indigo); }
+  .ta{ width:100%; min-height:110px; resize:vertical; line-height:1.7; }
+  .hint{ font-size:11.5px; color:var(--mut); margin-top:6px; }
+  .hint-inline{ font-size:11.5px; color:var(--mut); align-self:center; }
+  .tagbox{ border:1px solid #d1d5db; border-radius:8px; padding:7px 10px; min-height:36px; }
+  .chkgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px; }
+  .chk{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--txt); cursor:pointer; }
+  .note{ font-size:11.5px; color:var(--warn); background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:7px 10px; margin-top:12px; }
+  .cfg-foot{ display:flex; justify-content:flex-end; gap:10px; padding-bottom:20px; }
+  .btn.ghost{ background:#fff; border:1px solid var(--line); color:var(--txt); }
   .side-item .ci{ font-size:15px; width:18px; text-align:center; }
 
   .topbar{ height:56px; background:#fff; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 20px; gap:16px; }
@@ -333,7 +365,8 @@
     <div class="side-item"><span class="ci">🔌</span>MCP</div>
     <div class="side-item"><span class="ci">📖</span>知识</div>
     <div class="side-group">Agent 管理</div>
-    <div class="side-item on"><span class="ci">🧠</span>Agents</div>
+    <div class="side-item on" onclick="goNav('agents',this)"><span class="ci">🧠</span>Agents</div>
+    <div class="side-item" onclick="goNav('tpl',this)"><span class="ci">🧩</span>模板</div>
     <div class="side-item"><span class="ci">💾</span>产物库</div>
     <div class="side-item"><span class="ci">⚡</span>自动化</div>
     <div class="side-group">效果分析</div>
@@ -361,20 +394,32 @@
           <option value="OpenClaw">OpenClaw</option>
           <option value="Codex">Codex</option>
         </select>
+        <select class="src-filter" id="agCat" onchange="renderList()">
+          <option value="">全部分类</option>
+        </select>
+        <select class="src-filter" id="agTag" onchange="renderList()">
+          <option value="">全部展示标签</option>
+        </select>
+        <select class="src-filter" id="agHub" onchange="renderList()">
+          <option value="">Agenthub 全部状态</option>
+          <option value="on">已上架</option>
+          <option value="off">未上架</option>
+        </select>
       </div>
       <div class="list-card">
         <table class="table list-table">
           <thead><tr>
-            <th style="width:15%">名称</th>
-            <th style="width:11%">模型</th>
-            <th style="width:11%">来源</th>
-            <th style="width:6%">记忆</th>
-            <th style="width:6%">状态</th>
-            <th style="width:7%">创建人</th>
-            <th style="width:11%">创建时间</th>
-            <th style="width:7%">更新人</th>
-            <th style="width:11%">更新时间</th>
-            <th style="width:8%">操作</th>
+            <th style="width:14%">名称</th>
+            <th style="width:8%">分类</th>
+            <th style="width:13%">展示标签</th>
+            <th style="width:9%">模型</th>
+            <th style="width:9%">来源</th>
+            <th style="width:8%">Agenthub</th>
+            <th style="width:5%">记忆</th>
+            <th style="width:5%">状态</th>
+            <th style="width:6%">创建人</th>
+            <th style="width:10%">创建时间</th>
+            <th style="width:7%">操作</th>
           </tr></thead>
           <tbody id="agRows"></tbody>
         </table>
@@ -513,6 +558,112 @@
 
     </div><!-- /view-detail -->
 
+    <!-- ===== 模板列表页 ===== -->
+    <div id="view-tpl" style="display:none;">
+      <div class="list-head">
+        <div class="list-title">模板</div>
+        <button class="btn primary" onclick="openTplCfg(null)">＋ 新建模板</button>
+      </div>
+      <div class="tpl-tip">💡 模板由租户维护，供 Agenthub 用户创建 Agent。<b>实例模板</b>由「自动化任务 · 易协作系统」通过 Webhook 自动派生，配置<b>始终跟随母版</b>，仅展示标签独立。</div>
+      <div class="list-tools">
+        <input class="search-inp" id="tplSearch" placeholder="🔍 搜索模板名称 / 创建人" oninput="renderTpl()">
+        <select class="src-filter" id="tplKind" onchange="renderTpl()">
+          <option value="">全部类型</option>
+          <option value="base">母版</option>
+          <option value="inst">实例模板</option>
+        </select>
+        <select class="src-filter" id="tplCat" onchange="renderTpl()"><option value="">全部分类</option></select>
+        <select class="src-filter" id="tplTag" onchange="renderTpl()"><option value="">全部展示标签</option></select>
+        <select class="src-filter" id="tplHub" onchange="renderTpl()">
+          <option value="">Agenthub 全部状态</option>
+          <option value="on">已上架</option>
+          <option value="off">未上架</option>
+        </select>
+      </div>
+      <div class="list-card">
+        <table class="table list-table">
+          <thead><tr>
+            <th style="width:20%">模板名称</th>
+            <th style="width:8%">类型</th>
+            <th style="width:8%">分类</th>
+            <th style="width:24%">展示标签</th>
+            <th style="width:11%">模型</th>
+            <th style="width:8%">Agenthub</th>
+            <th style="width:7%">创建人</th>
+            <th style="width:14%">操作</th>
+          </tr></thead>
+          <tbody id="tplRows"></tbody>
+        </table>
+      </div>
+    </div><!-- /view-tpl -->
+
+    <!-- ===== 模板配置页 ===== -->
+    <div id="view-tplcfg" style="display:none;">
+      <div class="back" onclick="backToTpl()">← 返回 模板</div>
+      <div class="agent-head">
+        <div class="agent-ico" id="tIco">🧩</div>
+        <div>
+          <div class="agent-name" id="tName">新建模板</div>
+          <div class="agent-desc" id="tDesc">模板配置</div>
+        </div>
+      </div>
+      <div id="tInstBar" class="inst-bar" style="display:none;">
+        🔒 这是<b>实例模板</b>，配置继承自母版 <span id="tParent" class="lnk"></span> 并<b>保持联动</b>，此处只读；仅<b>展示标签</b>可独立维护。
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">基础信息</div>
+        <div class="frow"><label>模板名称</label><input class="input" id="tfName" placeholder="给模板起一个名称" maxlength="20"></div>
+        <div class="frow"><label>描述</label><input class="input" id="tfDesc" placeholder="说明这个模板能帮助谁完成什么工作" maxlength="100"></div>
+        <div class="frow"><label>分类</label>
+          <select class="input" id="tfCat" style="width:220px"></select>
+          <span class="hint-inline">单选，复用 Skills 分类字典</span>
+        </div>
+        <div class="frow"><label>展示标签</label>
+          <div style="flex:1">
+            <div class="tagbox" id="tfTags"></div>
+            <div class="hint">多选，取自官方展示标签字典；<b>展示标签决定该模板在 Agenthub 的可见范围</b>。实例模板会额外带上「来源」与实例标签。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">Prompt</div>
+        <textarea class="input ta" id="tfPrompt" placeholder="定义模板 Agent 的角色与行为准则，基于该模板创建的 Agent 会继承"></textarea>
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">模型</div>
+        <select class="input" id="tfModel" style="width:280px">
+          <option>kimi-k2.6-inhouse</option>
+          <option>deepseek-v3.2</option>
+          <option>qwen3-max</option>
+          <option>gpt-4o-inhouse</option>
+        </select>
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">内置工具</div>
+        <div class="chkgrid" id="tfTools"></div>
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">Skills 绑定</div>
+        <div class="chkgrid" id="tfSkills"></div>
+      </div>
+
+      <div class="cfg-sec">
+        <div class="cfg-sec-t">MCP 绑定</div>
+        <div class="chkgrid" id="tfMcp"></div>
+        <div class="note">📌 含 <b>brainmaker 知识库</b>；MCP 列表取自当前租户已配置的 MCP</div>
+      </div>
+
+      <div class="cfg-foot">
+        <button class="btn ghost" onclick="backToTpl()">取消</button>
+        <button class="btn primary" onclick="saveTpl()">保存</button>
+      </div>
+    </div><!-- /view-tplcfg -->
+
 
 
   </div><!-- /body-wrap -->
@@ -592,39 +743,84 @@ function switchTab(p,el){
 
 /* ===== Agent 列表 ===== */
 const agents=[
-  { id:1, name:"云空间-运维 agent", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"云", extName:"" },
-  { id:2, name:"Echo Agent-icare", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"E", extName:"" },
-  { id:3, name:"Echo Agent-网易KM", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"E", extName:"" },
-  { id:4, name:"我的有道龙虾", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"🦞", extName:"OpenClaw" },
-  { id:5, name:"研发助理 CC", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"🤖", extName:"Claude Code" },
-  { id:6, name:"Hermes 分析体", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"🪽", extName:"Hermes" },
-  { id:7, name:"Codex 编码体", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"⌨️", extName:"Codex" },
-  { id:8, name:"HR 智能问答", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"H", extName:"" }
+  { id:1, name:"云空间-运维 agent", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"云", extName:"" , cat:"kf", tags:["POPO"], hub:"on" },
+  { id:2, name:"Echo Agent-icare", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"E", extName:"" , cat:"yx", tags:["易协作","H72"], hub:"on" },
+  { id:3, name:"Echo Agent-网易KM", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"E", extName:"" , cat:"kf2", tags:["POPO"], hub:"off" },
+  { id:4, name:"我的有道龙虾", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"🦞", extName:"OpenClaw" , cat:"cs", tags:["易协作"], hub:"off" },
+  { id:5, name:"研发助理 CC", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"🤖", extName:"Claude Code" , cat:"yx", tags:["云音乐"], hub:"on" },
+  { id:6, name:"Hermes 分析体", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"🪽", extName:"Hermes" , cat:"", tags:[], hub:"off" },
+  { id:7, name:"Codex 编码体", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"⌨️", extName:"Codex" , cat:"", tags:[], hub:"off" },
+  { id:8, name:"HR 智能问答", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"H", extName:"" , cat:"yx", tags:["POPO","易协作"], hub:"on" }
 ];
 const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
+
+/* ===== 模板模块数据 ===== */
+let templates=[
+ {id:1,name:"Echo 系统答疑",kind:"base",cat:"kf",tags:["POPO"],model:"kimi-k2.6-inhouse",hub:"off",by:"张振",
+  desc:"面向系统使用者的智能答疑模板",prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
+  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:null},
+ {id:2,name:"Echo 系统答疑 · H72",kind:"inst",cat:"kf",tags:["POPO","来源：Echo 系统答疑","H72"],
+  model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
+  prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
+  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
+ {id:3,name:"Echo 系统答疑 · 大话西游",kind:"inst",cat:"kf",tags:["POPO","来源：Echo 系统答疑","大话西游"],
+  model:"kimi-k2.6-inhouse",hub:"on",by:"Webhook · 易协作",desc:"面向系统使用者的智能答疑模板",
+  prompt:"你是系统答疑助手，基于知识库回答用户问题，答案需给出来源。",
+  tools:["联网搜索","保存产物"],skills:["km-ask"],mcps:["brainmaker 知识库"],parent:1},
+ {id:4,name:"项目周报助手",kind:"base",cat:"yx",tags:["易协作"],model:"deepseek-v3.2",hub:"off",by:"张振",
+  desc:"自动汇总项目进展生成周报",prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
+  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:null},
+ {id:5,name:"项目周报助手 · H72",kind:"inst",cat:"yx",tags:["易协作","来源：项目周报助手","H72"],
+  model:"deepseek-v3.2",hub:"off",by:"Webhook · 易协作",desc:"自动汇总项目进展生成周报",
+  prompt:"你是项目周报助手，汇总本周进展、风险与下周计划。",
+  tools:["调用子 Agent","保存产物"],skills:["popo-doc","popo-task"],mcps:["易协作 GCP","里程碑 MMP"],parent:4}
+];
+let curTpl=null;
+
+const CATS=[
+  {k:"kf",n:"客服",c:"#0ea5e9"},
+  {k:"yx",n:"运效",c:"#8b5cf6"},
+  {k:"cs",n:"财税",c:"#f59e0b"},
+  {k:"kf2",n:"开放平台",c:"#10b981"}
+];
+const TAGS=["POPO","易协作","云音乐","游戏","雷火","互娱"];
+const TOOLS=["联网搜索","调用子 Agent","保存产物","思考记录","浏览器自动化","Fabric 业务调用"];
+const SKILLS=["popo-doc","popo-task","popo-im","km-ask","translation","pm-mcp"];
+const MCPS=["brainmaker 知识库","易协作 GCP","里程碑 MMP","创意 DMP","POPO 开放平台"];
 let curAgent=agents[0];
+
+function catChip(k){ const c=CATS.find(x=>x.k===k); return c?`<span class="cat-dot"><i style="background:${c.c}"></i>${c.n}</span>`:'<span class="muted-cell">-</span>'; }
+function tagChips(list){ return (list&&list.length)?list.map(t=>`<span class="tg${t.startsWith('来源：')?' src':''}">${t}</span>`).join(''):'<span class="muted-cell">-</span>'; }
+function hubChip(v){ return v==='on'?'<span class="hub-on">● 已上架</span>':'<span class="hub-off">○ 未上架</span>'; }
+function fillSel(id,opts,ph){ const el=document.getElementById(id); if(!el)return; el.innerHTML=`<option value="">${ph}</option>`+opts; }
 
 function renderList(){
   const q=(document.getElementById('agSearch').value||"").toLowerCase();
   const sf=document.getElementById('agSrc').value;
-  const rows=agents.filter(a=>(!q||a.name.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q))&&(!sf||a.src===sf));
+  const cf=document.getElementById('agCat').value;
+  const tf=document.getElementById('agTag').value;
+  const hf=document.getElementById('agHub').value;
+  const rows=agents.filter(a=>(!q||a.name.toLowerCase().includes(q)||a.owner.toLowerCase().includes(q))
+    &&(!sf||a.src===sf)&&(!cf||a.cat===cf)&&(!tf||(a.tags||[]).includes(tf))&&(!hf||a.hub===hf));
   document.getElementById('agRows').innerHTML=rows.map(a=>`
     <tr onclick="openDetail(${a.id})">
       <td><span class="ag-name">${a.name}</span></td>
+      <td>${catChip(a.cat)}</td>
+      <td>${tagChips(a.tags)}</td>
       <td>${a.model==='-'?'<span class="muted-cell">-</span>':`<span class="model-tag">${a.model}</span>`}</td>
       <td><span class="src-tag ${srcClass[a.srcType]}">${a.src}</span></td>
+      <td>${hubChip(a.hub)}</td>
       <td>${a.model==='-'&&a.srcType==='ext'?'<span class="muted-cell">-</span>':(a.mem?'<span class="mem-on">开启</span>':'<span class="mem-off">关闭</span>')}</td>
       <td>${a.status==='on'?'<span class="st-on">启用</span>':'<span class="st-off">停用</span>'}</td>
       <td>${a.owner}</td>
       <td class="time-cell">${a.ct}</td>
-      <td>${a.uu}</td>
-      <td class="time-cell">${a.ut}</td>
       <td class="op-cell" onclick="event.stopPropagation()">
-        <span class="op-btn edit" title="编辑" onclick="alert('编辑：${a.name}（原型占位）')">✎</span>
+        <span class="op-lnk ${a.hub==='on'?'warn':''}" onclick="toggleAgHub(${a.id})">${a.hub==='on'?'下架':'上架'}</span>
         <span class="op-btn del" title="删除" onclick="delAgent(${a.id})">🗑</span>
       </td>
     </tr>`).join("");
 }
+function toggleAgHub(id){ const a=agents.find(x=>x.id===id); a.hub=a.hub==='on'?'off':'on'; renderList(); }
 function backToList(){ document.getElementById('view-detail').style.display='none'; document.getElementById('view-list').style.display='block'; }
 function delAgent(id){ const a=agents.find(x=>x.id===id); if(confirm('确认删除「'+a.name+'」？')){ const i=agents.indexOf(a); agents.splice(i,1); renderList(); } }
 function openDetail(id){
@@ -1011,9 +1207,108 @@ function saveRule(){ rule=ruleTmp; renderUsage(); closeRule(); }
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeRule(); });
 
 /* init */
+/* ===== 模板模块逻辑 ===== */
+function initTplModule(){
+  const catOpts=CATS.map(c=>`<option value="${c.k}">${c.n}</option>`).join('');
+  const tagOpts=TAGS.concat(["H72","大话西游"]).map(t=>`<option value="${t}">${t}</option>`).join('');
+  fillSel('agCat',catOpts,'全部分类'); fillSel('agTag',tagOpts,'全部展示标签');
+  fillSel('tplCat',catOpts,'全部分类'); fillSel('tplTag',tagOpts,'全部展示标签');
+  document.getElementById('tfCat').innerHTML='<option value="">请选择分类</option>'+catOpts;
+  renderList(); renderTpl();
+}
+function goNav(k,el){
+  document.querySelectorAll('.sidebar .side-item').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  ['view-list','view-detail','view-tpl','view-tplcfg'].forEach(v=>document.getElementById(v).style.display='none');
+  document.getElementById(k==='tpl'?'view-tpl':'view-list').style.display='block';
+  if(k==='tpl') renderTpl();
+}
+function renderTpl(){
+  const q=(document.getElementById('tplSearch').value||"").toLowerCase();
+  const kf=document.getElementById('tplKind').value;
+  const cf=document.getElementById('tplCat').value;
+  const tf=document.getElementById('tplTag').value;
+  const hf=document.getElementById('tplHub').value;
+  const rows=templates.filter(t=>(!q||t.name.toLowerCase().includes(q)||t.by.toLowerCase().includes(q))
+    &&(!kf||t.kind===kf)&&(!cf||t.cat===cf)&&(!tf||t.tags.includes(tf))&&(!hf||t.hub===hf));
+  document.getElementById('tplRows').innerHTML=rows.length?rows.map(t=>`
+    <tr onclick="openTplCfg(${t.id})">
+      <td><span class="ag-name">${t.name}</span></td>
+      <td>${t.kind==='base'?'<span class="kind-b">母版</span>':'<span class="kind-i">实例模板</span>'}</td>
+      <td>${catChip(t.cat)}</td>
+      <td>${tagChips(t.tags)}</td>
+      <td><span class="model-tag">${t.model}</span></td>
+      <td>${hubChip(t.hub)}</td>
+      <td>${t.by}</td>
+      <td class="op-cell" onclick="event.stopPropagation()">
+        <span class="op-lnk ${t.hub==='on'?'warn':''}" onclick="toggleTplHub(${t.id})">${t.hub==='on'?'下架':'上架'}</span>
+        <span class="op-lnk" onclick="openTplCfg(${t.id})">${t.kind==='base'?'编辑':'查看'}</span>
+        <span class="op-lnk del" onclick="delTpl(${t.id})">删除</span>
+      </td>
+    </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:40px">暂无模板</td></tr>`;
+}
+function toggleTplHub(id){
+  const t=templates.find(x=>x.id===id);
+  if(t.kind==='base'&&t.hub==='off'){ if(!confirm('母版上架后 Agenthub 用户即可查询并基于它创建 Agent，确认上架？')) return; }
+  t.hub=t.hub==='on'?'off':'on'; renderTpl();
+}
+function delTpl(id){
+  const t=templates.find(x=>x.id===id);
+  const kids=templates.filter(x=>x.parent===id);
+  if(kids.length){ alert(`「${t.name}」已派生 ${kids.length} 个实例模板，需先删除实例模板。`); return; }
+  if(confirm('确认删除「'+t.name+'」？')){ templates.splice(templates.indexOf(t),1); renderTpl(); }
+}
+function backToTpl(){ document.getElementById('view-tplcfg').style.display='none'; document.getElementById('view-tpl').style.display='block'; renderTpl(); }
+function chkList(box,opts,checked,ro){
+  document.getElementById(box).innerHTML=opts.map(o=>
+    `<label class="chk"><input type="checkbox" ${checked.includes(o)?'checked':''} ${ro?'disabled':''}>${o}</label>`).join('');
+}
+function openTplCfg(id){
+  curTpl=id?templates.find(t=>t.id===id):null;
+  ['view-list','view-detail','view-tpl'].forEach(v=>document.getElementById(v).style.display='none');
+  document.getElementById('view-tplcfg').style.display='block';
+  const t=curTpl, inst=t&&t.kind==='inst', ro=!!inst;
+  document.getElementById('tName').textContent=t?t.name:'新建模板';
+  document.getElementById('tDesc').textContent=t?(inst?'实例模板 · 配置继承自母版':'母版 · 可编辑'):'模板配置';
+  const bar=document.getElementById('tInstBar');
+  bar.style.display=inst?'block':'none';
+  if(inst){ const p=templates.find(x=>x.id===t.parent); document.getElementById('tParent').textContent=p?p.name:'-'; }
+  document.getElementById('tfName').value=t?t.name:'';
+  document.getElementById('tfDesc').value=t?t.desc:'';
+  document.getElementById('tfCat').value=t?t.cat:'';
+  document.getElementById('tfPrompt').value=t?t.prompt:'';
+  document.getElementById('tfModel').value=t?t.model:'kimi-k2.6-inhouse';
+  document.getElementById('tfTags').innerHTML=t?tagChips(t.tags):'<span class="muted-cell" style="font-size:12px">点击选择展示标签（原型占位）</span>';
+  ['tfName','tfDesc','tfCat','tfPrompt','tfModel'].forEach(i=>document.getElementById(i).disabled=ro);
+  chkList('tfTools',TOOLS,t?t.tools:[],ro);
+  chkList('tfSkills',SKILLS,t?t.skills:[],ro);
+  chkList('tfMcp',MCPS,t?t.mcps:[],ro);
+  document.querySelector('#view-tplcfg .cfg-foot').style.display=ro?'none':'flex';
+}
+function saveTpl(){
+  const nm=document.getElementById('tfName').value.trim();
+  if(!nm){ alert('请填写模板名称'); return; }
+  const cat=document.getElementById('tfCat').value;
+  const pick=box=>[...document.querySelectorAll('#'+box+' .chk')].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim());
+  if(curTpl){
+    Object.assign(curTpl,{name:nm,desc:document.getElementById('tfDesc').value,cat,
+      prompt:document.getElementById('tfPrompt').value,model:document.getElementById('tfModel').value,
+      tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp')});
+    templates.filter(x=>x.parent===curTpl.id).forEach(c=>{
+      Object.assign(c,{desc:curTpl.desc,cat:curTpl.cat,prompt:curTpl.prompt,model:curTpl.model,
+        tools:[...curTpl.tools],skills:[...curTpl.skills],mcps:[...curTpl.mcps]});
+    });
+  }else{
+    templates.push({id:Date.now(),name:nm,kind:"base",cat,tags:[],model:document.getElementById('tfModel').value,
+      hub:"off",by:"张振",desc:document.getElementById('tfDesc').value,prompt:document.getElementById('tfPrompt').value,
+      tools:pick('tfTools'),skills:pick('tfSkills'),mcps:pick('tfMcp'),parent:null});
+  }
+  backToTpl();
+}
+
 /* init */
 document.getElementById('rangeLabel').textContent=rangeText(7);
-renderList(); renderGroups(); renderUsage();
+renderList(); renderGroups(); renderUsage(); initTplModule();
 </script>
 </body>
 </html>
