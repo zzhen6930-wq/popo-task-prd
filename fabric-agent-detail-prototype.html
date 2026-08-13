@@ -894,6 +894,7 @@ function renderList(){
       <td class="time-cell">${a.ct}</td>
       <td class="op-cell" onclick="event.stopPropagation()">
         <span class="op-lnk ${a.hub==='on'?'warn':''}" onclick="toggleAgHub(${a.id})">${a.hub==='on'?'下架':'上架'}</span>
+        <span class="op-lnk" onclick="openDetail(${a.id})">编辑</span>
         <span class="op-btn del" title="删除" onclick="delAgent(${a.id})">🗑</span>
       </td>
     </tr>`).join("");
