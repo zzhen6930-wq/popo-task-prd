@@ -449,12 +449,8 @@
         <input class="search-inp" id="agSearch" placeholder="🔍 搜索 Agent 名称 / 创建人" oninput="renderList()">
         <select class="src-filter" id="agSrc" onchange="renderList()">
           <option value="">全部来源</option>
-          <option value="AgentHub">AgentHub</option>
+          <option value="Agenthub">Agenthub</option>
           <option value="Workhub Studio">Workhub Studio</option>
-          <option value="Claude Code">Claude Code</option>
-          <option value="Hermes">Hermes</option>
-          <option value="OpenClaw">OpenClaw</option>
-          <option value="Codex">Codex</option>
         </select>
         <select class="src-filter" id="agCat" onchange="renderList()">
           <option value="">全部分类</option>
@@ -842,13 +838,13 @@ function switchTab(p,el){
 /* ===== Agent 列表 ===== */
 const agents=[
   { id:1, name:"PM AgentAI助手", model:"deepseek-v4-pro", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"张振", ct:"2026-07-12 09:20", uu:"张振", ut:"2026-07-28 16:40", ico:"P", extName:"" , cat:"", tags:[], hub:"on" },
-  { id:2, name:"PM AgentAI助手 · H72", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"P", extName:"" , cat:"", tags:["H72"], hub:"on" },
-  { id:3, name:"PM AgentAI助手 · 大话西游", model:"deepseek-v4-flash", srcType:"agenthub", src:"AgentHub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"off" },
-  { id:4, name:"项目周报助手", model:"-", srcType:"ext", src:"OpenClaw", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"周", extName:"OpenClaw" , cat:"", tags:[], hub:"off" },
-  { id:5, name:"项目周报助手 · H72", model:"-", srcType:"ext", src:"Claude Code", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"周", extName:"Claude Code" , cat:"", tags:["H72"], hub:"on" },
-  { id:6, name:"PM AgentAI助手 · H72", model:"-", srcType:"ext", src:"Hermes", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"P", extName:"Hermes" , cat:"", tags:["H72"], hub:"off" },
-  { id:7, name:"项目周报助手 · H72", model:"-", srcType:"ext", src:"Codex", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"周", extName:"Codex" , cat:"", tags:["H72"], hub:"off" },
-  { id:8, name:"PM AgentAI助手 · 大话西游", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"on" }
+  { id:2, name:"PM AgentAI助手 · H72", model:"deepseek-v4-flash", srcType:"agenthub", src:"Agenthub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-30 10:05", uu:"陈杰", ut:"2026-07-25 11:12", ico:"P", extName:"" , cat:"", tags:["H72"], hub:"on" },
+  { id:3, name:"PM AgentAI助手 · 大话西游", model:"deepseek-v4-flash", srcType:"agenthub", src:"Agenthub", mem:false, status:"on", owner:"陈杰", ct:"2026-06-28 14:30", uu:"李扬", ut:"2026-07-24 09:48", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"off" },
+  { id:4, name:"项目周报助手", model:"kimi-k2.6-inhouse", srcType:"studio", src:"Workhub Studio", mem:false, status:"on", owner:"张大力", ct:"2026-07-18 13:47", uu:"张大力", ut:"2026-07-29 10:22", ico:"周", extName:"" , cat:"", tags:[], hub:"off" },
+  { id:5, name:"项目周报助手 · H72", model:"kimi-k2.6-inhouse", srcType:"agenthub", src:"Agenthub", mem:false, status:"on", owner:"傅云辰", ct:"2026-07-15 08:10", uu:"傅云辰", ut:"2026-07-27 19:03", ico:"周", extName:"" , cat:"", tags:["H72"], hub:"on" },
+  { id:6, name:"PM AgentAI助手 · H72", model:"qwen3-max", srcType:"agenthub", src:"Agenthub", mem:false, status:"off", owner:"施羽婷", ct:"2026-07-10 16:22", uu:"施羽婷", ut:"2026-07-20 12:00", ico:"P", extName:"" , cat:"", tags:["H72"], hub:"off" },
+  { id:7, name:"项目周报助手 · H72", model:"deepseek-v3.2", srcType:"studio", src:"Workhub Studio", mem:false, status:"on", owner:"朱弈", ct:"2026-07-08 11:40", uu:"朱弈", ut:"2026-07-26 15:31", ico:"周", extName:"" , cat:"", tags:["H72"], hub:"off" },
+  { id:8, name:"PM AgentAI助手 · 大话西游", model:"kimi-k2.6-inhouse", srcType:"agenthub", src:"Agenthub", mem:true, status:"on", owner:"汪晓东", ct:"2026-07-05 09:00", uu:"汪晓东", ut:"2026-07-22 14:18", ico:"P", extName:"" , cat:"", tags:["大话西游"], hub:"on" }
 ];
 const srcClass={ agenthub:"src-agenthub", studio:"src-studio", ext:"src-ext" };
 
