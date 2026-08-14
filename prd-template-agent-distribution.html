@@ -169,7 +169,7 @@
   <li>建立<b>母版 → 实例模板 → 实例 Agent</b> 的三级派生链路，支持易协作通过接口自动化完成初始化与增量接入。</li>
   <li>沉淀<b>实例—项目—成员</b>关系数据，为 Agenthub 提供可见性与权限判定依据。</li>
   <li>通过<b>上架 Agenthub</b> 机制，让项目成员能直接使用 Agent 或基于模板自建 Agent。</li>
-  <li>母版配置变更可<b>强联动</b>下发到全部实例模板与实例 Agent，保证配置一致性与可审计。</li>
+  <li>母版配置变更可<b>覆盖下发</b>到全部实例模板与实例 Agent，保证配置的统一升级能力；实例层仍可单独调整。</li>
 </ol>
 
 <!-- ============ 2 ============ -->
@@ -230,7 +230,7 @@
   </tr>
   <tr>
     <td><b>实例模板</b></td><td>Studio 租户</td>
-    <td>由母版按易协作实例派生。<b>本质是在母版基础上打上实例标签</b>，全部配置继承自母版且保持联动，仅展示标签（实例标识）为自身独有。与易协作实例 <b>1:1</b>。</td>
+    <td>由母版按易协作实例派生，与易协作实例 <b>1:1</b>。派生时继承母版全部配置并写入实例标签。母版变更会<b>覆盖下发</b>至实例模板；实例模板<b>也可单独修改</b>，用于承载实例级的差异化配置。</td>
   </tr>
   <tr>
     <td><b>实例 Agent</b></td><td>Studio 租户</td>
@@ -255,11 +255,11 @@
 ┌────────────────────────┐          ┌──────────────────┐
 │  母版（PM Agent 模板）   │          │                  │
 │        │ 1               │          │                  │
-│        │ 派生（配置联动）   │          │                  │
+│        │ 派生（覆盖下发）   │          │                  │
 │        ↓ n               │   1:1    │                  │
 │  实例模板  ───────────────┼─────────→│   易协作实例       │
 │        │ 1               │          │        │ 1        │
-│        │ 生成（配置联动）   │          │        ↓ n        │
+│        │ 生成（覆盖下发）   │          │        ↓ n        │
 │        ↓ 1               │          │   易协作项目       │
 │  实例 Agent               │          │        │ 1        │
 │        │                 │          │        ↓ n        │
@@ -270,7 +270,7 @@ Agenthub · 项目 Agent</div>
 
 <table>
   <tr><th style="width:34%">关系</th><th style="width:10%">基数</th><th>说明</th></tr>
-  <tr><td>母版 → 实例模板</td><td>1 : n</td><td>一个母版可派生多个实例模板，配置强联动</td></tr>
+  <tr><td>母版 → 实例模板</td><td>1 : n</td><td>一个母版可派生多个实例模板，母版变更覆盖下发，实例可单独调整</td></tr>
   <tr><td>实例模板 → 易协作实例</td><td>1 : 1</td><td>一个实例模板唯一对应一个易协作实例</td></tr>
   <tr><td>实例模板 → 实例 Agent</td><td>1 : 1</td><td>由易协作调用生成 Agent 接口创建</td></tr>
   <tr><td>易协作实例 → 项目</td><td>1 : n</td><td>关系数据由 Studio 记录</td></tr>
@@ -344,12 +344,12 @@ Agenthub · 项目 Agent</div>
   </div></div>
   <div class="flow-step"><div class="flow-no">3</div><div class="flow-b">
     <div class="h">生成实例 Agent 并同步关系<span class="actor">易协作系统</span></div>
-    <div class="d">同 4.1 步骤 3、4。上架状态默认为<b>未上架</b>，由租户管理员确认后上架。</div>
+    <div class="d">同 4.1 步骤 3、4。上架状态默认为<b>未上架</b>，由租户管理员确认后上架，也可通过接口改为上架。</div>
   </div></div>
 </div>
 <div class="note">初始化与增量走<b>同一套接口</b>，差异仅在于触发方式：初始化为易协作侧批量遍历发起，增量为实例创建事件驱动。Studio 不区分两种来源。</div>
 
-<h3 id="s43">4.3 母版变更链路：配置强联动下发</h3>
+<h3 id="s43">4.3 母版变更链路：配置覆盖下发</h3>
 <div class="flow">
   <div class="flow-step"><div class="flow-no">1</div><div class="flow-b">
     <div class="h">母版配置变更<span class="actor">租户管理员</span></div>
@@ -365,7 +365,7 @@ Agenthub · 项目 Agent</div>
   </div></div>
 </div>
 <div class="warn">
-  <b>覆盖策略：</b>母版为唯一配置真源。项目管理员在 Agenthub 侧对项目 Agent 所做的自定义配置，在母版下发时<b>会被覆盖</b>。Agenthub 需在管理员编辑入口明确提示该风险。字段级冲突保护策略见第 13 节待确认问题。
+  <b>覆盖策略：</b>母版下发以<b>覆盖</b>方式生效，实例模板、实例 Agent 及 Agenthub 侧项目 Agent 上的单独修改会被覆盖。编辑入口需明确提示该风险。字段级冲突保护策略见第 13 节待确认问题。
 </div>
 
 <h3 id="s44">4.4 用户使用链路</h3>
@@ -398,8 +398,7 @@ Agenthub · 项目 Agent</div>
 <table>
   <tr><th style="width:20%">功能项</th><th>需求描述</th><th style="width:8%">优先级</th></tr>
   <tr><td>列表字段</td><td>模板名称、分类、展示标签、Agenthub 状态、创建人、创建时间、更新人、更新时间</td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>层级表达</td><td>母版与实例模板<b>同层平铺</b>，通过展示标签中的系统标记<code>母版</code> / <code>实例模板</code>区分，不做树形嵌套</td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>筛选</td><td>支持按名称/创建人搜索，按分类、展示标签、Agenthub 状态筛选</td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>层级表达</td><td>母版与实例模板<b>同层平铺</b>，通过展示标签中的系统标记<code>母版</code> / <code>实例模板</code>区分，不做树形嵌套</td><td><span class="tag t-p0">P0</span></td></tr>  <tr><td>筛选</td><td>支持按名称/创建人搜索，按分类、展示标签、Agenthub 状态筛选</td><td><span class="tag t-p0">P0</span></td></tr>
   <tr><td>行内设置</td><td>分类与展示标签支持在列表直接修改，无需进入详情</td><td><span class="tag t-p1">P1</span></td></tr>
   <tr><td>创建入口</td><td>仅支持创建母版；实例模板<b>只能</b>由易协作通过接口派生，界面不提供手工派生入口</td><td><span class="tag t-p0">P0</span></td></tr>
 </table>
@@ -407,21 +406,15 @@ Agenthub · 项目 Agent</div>
 <h4>5.1.2 模板配置</h4>
 <table>
   <tr><th style="width:18%">配置分组</th><th>配置项</th><th style="width:12%">母版</th><th style="width:14%">实例模板</th></tr>
-  <tr><td><b>基础信息</b></td><td>名称、一句话描述、系统提示词、模型；分类（多选）、展示标签（多选）</td><td>可编辑</td><td>只读<br>（标签除外）</td></tr>
-  <tr><td><b>内置工具</b></td><td>联网搜索、调用子 Agent、保存产物、思考记录、浏览器自动化、Fabric 业务调用，逐项启停</td><td>可编辑</td><td>只读</td></tr>
-  <tr><td><b>Skills 绑定</b></td><td>从租户已有 Skills 中多选绑定</td><td>可编辑</td><td>只读</td></tr>
-  <tr><td><b>MCP 绑定</b></td><td>从租户已配置 MCP 中多选绑定，含 brainmaker 知识库</td><td>可编辑</td><td>只读</td></tr>
+  <tr><td><b>基础信息</b></td><td>名称、一句话描述、系统提示词、模型；分类（多选）、展示标签（多选）</td><td>可编辑</td><td>可编辑</td></tr>
+  <tr><td><b>内置工具</b></td><td>联网搜索、调用子 Agent、保存产物、思考记录、浏览器自动化、Fabric 业务调用，逐项启停</td><td>可编辑</td><td>可编辑</td></tr>
+  <tr><td><b>Skills 绑定</b></td><td>从租户已有 Skills 中多选绑定</td><td>可编辑</td><td>可编辑</td></tr>
+  <tr><td><b>MCP 绑定</b></td><td>从租户已配置 MCP 中多选绑定，含 brainmaker 知识库</td><td>可编辑</td><td>可编辑</td></tr>
 </table>
-<ul>
-  <li>名称、描述、系统提示词、模型为必填项。</li>
-  <li>实例模板打开时全部配置只读，并提示其继承的母版，支持跳转至母版。</li>
-  <li>实例模板的展示标签中，实例标识由派生时写入；系统标记不可修改。</li>
-</ul>
 
 <h4>5.1.3 模板删除</h4>
 <ul>
-  <li>母版存在关联实例模板时<b>禁止删除</b>，需先处理实例模板。</li>
-  <li>实例模板删除后，其对应的实例 Agent 不自动删除，但会失去配置来源，需二次确认。</li>
+  <li>实例模板删除后，其对应的实例 Agent 不自动删除。</li>
   <li>已上架的模板需先下架才能删除。</li>
 </ul>
 
@@ -542,7 +535,7 @@ Agenthub · 项目 Agent</div>
 <table>
   <tr><th style="width:14%">阶段</th><th style="width:26%">母版</th><th style="width:26%">实例模板</th><th>实例 Agent</th></tr>
   <tr><td>创建</td><td>租户手工创建</td><td>易协作接口派生</td><td>易协作接口生成</td></tr>
-  <tr><td>变更</td><td>租户编辑</td><td>跟随母版；仅展示标签自治</td><td>跟随母版</td></tr>
+  <tr><td>变更</td><td>租户编辑</td><td>接受母版覆盖，也可单独编辑</td><td>接受母版覆盖，也可单独编辑</td></tr>
   <tr><td>上架</td><td>租户操作</td><td>租户操作（支持批量）</td><td>租户操作</td></tr>
   <tr><td>删除</td><td>有实例模板时禁止</td><td>需二次确认</td><td>需二次确认</td></tr>
 </table>
@@ -590,8 +583,8 @@ Agenthub · 项目 Agent</div>
   <tr><th style="width:8%">编号</th><th style="width:14%">模块</th><th>需求</th><th style="width:8%">类型</th><th style="width:8%">优先级</th></tr>
   <tr><td>R-01</td><td>模板管理</td><td>租户后台新增模板模块，支持创建与维护母版（名称、描述、提示词、模型、内置工具、Skills、MCP）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
   <tr><td>R-02</td><td>模板管理</td><td>母版与实例模板同层展示，通过展示标签区分类型</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-03</td><td>模板管理</td><td>实例模板配置继承母版且强联动，仅展示标签自治，界面只读</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-04</td><td>模板管理</td><td>母版变更强联动下发至全部实例模板与实例 Agent</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-03</td><td>模板管理</td><td>实例模板派生时继承母版配置，接受母版覆盖下发，同时支持单独编辑</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
+  <tr><td>R-04</td><td>模板管理</td><td>母版变更覆盖下发至全部实例模板与实例 Agent</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
   <tr><td>R-05</td><td>开放能力</td><td>提供创建实例模板接口（与实例 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
   <tr><td>R-06</td><td>开放能力</td><td>提供生成实例 Agent 接口（与实例模板 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
   <tr><td>R-07</td><td>开放能力</td><td>提供 Webhook 供易协作在实例新增时自动触发</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
@@ -612,8 +605,8 @@ Agenthub · 项目 Agent</div>
 <h2 id="s13"><span class="no">13</span>待确认问题</h2>
 
 <div class="q">
-  <div class="qq">Q1 · Agenthub 管理员的项目级自定义与母版强联动如何共存？</div>
-  <div class="aa">当前结论为母版覆盖优先。但图示中 Agenthub 具备"项目管理员管理和修改项目 Agent，实现项目自定义配置"的能力，两者存在冲突。<b>建议</b>：定义字段级策略——提示词、模型、工具、Skills、MCP 由母版强管控；项目 Agent 的名称、欢迎语等展示层字段允许项目自治且不被覆盖。需与 Agenthub 侧对齐。</div>
+  <div class="qq">Q1 · 实例层自定义配置与母版覆盖下发如何共存？</div>
+  <div class="aa">实例模板、实例 Agent 与 Agenthub 侧项目 Agent 均可单独修改，而母版变更会覆盖下发，二者存在冲突。当前结论为母版覆盖优先。<b>建议</b>：一是定义字段级策略，提示词、模型、工具、Skills、MCP 由母版管控，名称、描述等展示层字段允许实例自治；二是下发时对已被单独修改过的实例给出差异提示，由管理员选择是否覆盖。需与 Agenthub 侧对齐。</div>
 </div>
 
 <div class="q">
