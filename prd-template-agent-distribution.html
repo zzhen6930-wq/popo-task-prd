@@ -151,7 +151,7 @@
 <p>易协作希望为每个项目提供一个 PM 助理 Agent，帮助项目成员完成周报汇总、进度问答、文档生成等工作。这带来两个诉求：</p>
 <ul>
   <li><b>规模化交付</b>——实例数量随业务扩张持续增长，逐个手工创建 Agent 不可持续；</li>
-  <li><b>统一管控</b>——所有项目 Agent 的提示词、模型、工具、Skills、MCP 需由平台方统一定义与升级，不能各自漂移。</li>
+  <li><b>统一管控</b>——所有初始化的实例 Agent 的提示词、模型、工具、Skills、MCP 需由平台方统一定义与升级。</li>
 </ul>
 
 <h3>1.2 现状问题</h3>
@@ -168,18 +168,9 @@
   <li>将模板管理下沉到<b>租户后台</b>，由租户自主维护面向 Agenthub 用户的模板资产（替换原超管后台模板管理）。</li>
   <li>建立<b>母版 → 实例模板 → 实例 Agent</b> 的三级派生链路，支持易协作通过接口自动化完成初始化与增量接入。</li>
   <li>沉淀<b>实例—项目—成员</b>关系数据，为 Agenthub 提供可见性与权限判定依据。</li>
-  <li>通过<b>上架 Agenthub</b> 机制，让业务 PM 能直接使用 Agent 或基于模板自建 Agent。</li>
+  <li>通过<b>上架 Agenthub</b> 机制，让项目成员能直接使用 Agent 或基于模板自建 Agent。</li>
   <li>母版配置变更可<b>强联动</b>下发到全部实例模板与实例 Agent，保证配置一致性与可审计。</li>
 </ol>
-
-<h3>1.4 成功指标</h3>
-<table>
-  <tr><th style="width:26%">指标</th><th style="width:24%">目标值</th><th>口径</th></tr>
-  <tr><td>实例接入自动化率</td><td>≥ 95%</td><td>通过接口生成的实例模板数 / 实例模板总数</td></tr>
-  <tr><td>新实例接入时长</td><td>≤ 5 分钟</td><td>易协作发起调用 → 实例 Agent 可用</td></tr>
-  <tr><td>母版下发成功率</td><td>≥ 99%</td><td>母版变更后同步成功的实例数 / 应同步实例数</td></tr>
-  <tr><td>Agent 使用覆盖率</td><td>首期 ≥ 60%</td><td>产生过会话的实例 Agent 数 / 已上架实例 Agent 数</td></tr>
-</table>
 
 <!-- ============ 2 ============ -->
 <h2 id="s2"><span class="no">02</span>产品定位与角色</h2>
@@ -201,7 +192,7 @@
   </tr>
   <tr>
     <td><b>Agenthub</b><br><span class="tag t-p2">消费侧</span></td>
-    <td>业务 PM 与<br>项目成员</td>
+    <td>项目管理员与<br>普通成员</td>
     <td>
       <ul style="margin:0;padding-left:18px">
         <li>面向用户的项目 Agent：由实例 Agent 初始化而来，是用户直接交互的入口</li>
@@ -223,9 +214,8 @@
   <tr><th style="width:20%">角色</th><th style="width:20%">所在系统</th><th>职责</th></tr>
   <tr><td><b>租户管理员</b></td><td>Workhub Studio</td><td>创建与维护母版、维护分类与标签字典、决定模板与 Agent 是否上架</td></tr>
   <tr><td><b>易协作系统</b></td><td>易协作工单平台</td><td>以系统身份调用 Studio 接口，完成实例模板与实例 Agent 的初始化和增量创建</td></tr>
-  <tr><td><b>项目管理员</b></td><td>Agenthub</td><td>使用项目 Agent；在允许范围内修改项目 Agent 配置</td></tr>
+  <tr><td><b>项目管理员</b></td><td>Agenthub</td><td>使用项目 Agent；在允许范围内修改项目 Agent 配置、或引用已上架模板自建 Agent</td></tr>
   <tr><td><b>普通成员</b></td><td>Agenthub</td><td>仅使用归属实例下的 Agent，不可配置</td></tr>
-  <tr><td><b>业务 PM</b></td><td>Agenthub</td><td>使用已上架 Agent，或引用已上架模板自建 Agent</td></tr>
 </table>
 
 <!-- ============ 3 ============ -->
@@ -253,10 +243,6 @@
   <tr>
     <td><b>易协作实例</b></td><td>易协作</td>
     <td>业务方维度的隔离单元（如 H72、大话西游）。实例是<b>可见性判定的基本单位</b>。</td>
-  </tr>
-  <tr>
-    <td><b>易协作项目</b></td><td>易协作</td>
-    <td>实例下的协作单元，是用户使用 Agent 的业务上下文。</td>
   </tr>
   <tr>
     <td><b>成员</b></td><td>易协作</td>
@@ -300,7 +286,7 @@ Agenthub · 项目 Agent</div>
 <table>
   <tr><th style="width:14%">维度</th><th style="width:12%">选择方式</th><th style="width:16%">字典归属</th><th>业务含义</th></tr>
   <tr>
-    <td><b>分类</b></td><td>单选</td><td>租户字典<br>（Agent 与模板共用）</td>
+    <td><b>分类</b></td><td>多选</td><td>租户字典<br>（Agent 与模板共用）</td>
     <td>业务领域归类，用于列表检索与统计，<b>不参与权限判定</b></td>
   </tr>
   <tr>
@@ -310,7 +296,7 @@ Agenthub · 项目 Agent</div>
 </table>
 <ul>
   <li>母版与实例模板的分类由母版决定，实例模板不可单独修改。</li>
-  <li>展示标签中的<code>母版</code>、<code>实例模板</code>为系统标记，由派生逻辑自动写入，不可人工增删。</li>
+  <li>展示标签中的<code>母版</code>、<code>实例模板</code>为系统标记，由派生逻辑自动写入，可人工增删。</li>
   <li>实例标签在实例模板派生时由易协作传入的实例信息自动写入，并随实例 Agent 一起带出。</li>
   <li>字典的增删改由租户在「管理分类 / 管理标签」中维护；删除字典项时，引用该项的对象自动解除引用。</li>
 </ul>
@@ -341,8 +327,8 @@ Agenthub · 项目 Agent</div>
     <div class="d">在模板列表或 Agent 列表中执行上架，使其对 Agenthub 可查询。上架为<b>可查询</b>语义，不做数据推送。</div>
   </div></div>
   <div class="flow-step"><div class="flow-no">6</div><div class="flow-b">
-    <div class="h">初始化项目 Agent<span class="actor">Agenthub</span></div>
-    <div class="d">Agenthub 基于已上架的实例 Agent 初始化项目 Agent，用户即可开始使用。</div>
+    <div class="h">初始化实例 Agent<span class="actor">Agenthub</span></div>
+    <div class="d">Agenthub 基于 Studio 已上架的实例 Agent 给用户分发实例 Agent，用户即可开始使用。</div>
   </div></div>
 </div>
 
@@ -397,7 +383,7 @@ Agenthub · 项目 Agent</div>
     <div class="d">普通成员仅可使用；实例下管理员既可使用也可管理与配置。</div>
   </div></div>
   <div class="flow-step"><div class="flow-no">4</div><div class="flow-b">
-    <div class="h">使用或自建<span class="actor">业务 PM</span></div>
+    <div class="h">使用或自建<span class="actor">项目管理员</span></div>
     <div class="d">直接使用已上架 Agent；或引用已上架模板自建 Agent，新建的 Agent 归属易协作租户，在 Studio 的 Agent 管理下可见可审计。</div>
   </div></div>
 </div>
@@ -421,7 +407,7 @@ Agenthub · 项目 Agent</div>
 <h4>5.1.2 模板配置</h4>
 <table>
   <tr><th style="width:18%">配置分组</th><th>配置项</th><th style="width:12%">母版</th><th style="width:14%">实例模板</th></tr>
-  <tr><td><b>基础信息</b></td><td>名称、一句话描述、系统提示词、模型；分类（单选）、展示标签（多选）</td><td>可编辑</td><td>只读<br>（标签除外）</td></tr>
+  <tr><td><b>基础信息</b></td><td>名称、一句话描述、系统提示词、模型；分类（多选）、展示标签（多选）</td><td>可编辑</td><td>只读<br>（标签除外）</td></tr>
   <tr><td><b>内置工具</b></td><td>联网搜索、调用子 Agent、保存产物、思考记录、浏览器自动化、Fabric 业务调用，逐项启停</td><td>可编辑</td><td>只读</td></tr>
   <tr><td><b>Skills 绑定</b></td><td>从租户已有 Skills 中多选绑定</td><td>可编辑</td><td>只读</td></tr>
   <tr><td><b>MCP 绑定</b></td><td>从租户已配置 MCP 中多选绑定，含 brainmaker 知识库</td><td>可编辑</td><td>只读</td></tr>
