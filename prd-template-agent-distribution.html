@@ -120,13 +120,10 @@
   <a href="#s54" class="sub">5.4 上架 Agenthub</a>
   <a href="#s55" class="sub">5.5 实例关系数据</a>
   <a href="#s6">6. 开放能力</a>
-  <a href="#s7">7. 权限与可见性规则</a>
+  <a href="#s7">7. 实例 Agent 权限与可见性规则</a>
   <a href="#s8">8. 状态与生命周期</a>
   <a href="#s9">9. 异常与边界</a>
   <a href="#s10">10. 埋点与度量</a>
-  <a href="#s11">11. 非功能性要求</a>
-  <a href="#s12">12. 需求清单与优先级</a>
-  <a href="#s13">13. 待确认问题</a>
 </nav>
 
 <main class="doc">
@@ -365,7 +362,7 @@ Agenthub · 项目 Agent</div>
   </div></div>
 </div>
 <div class="warn">
-  <b>覆盖策略：</b>母版下发以<b>覆盖</b>方式生效，实例模板、实例 Agent 及 Agenthub 侧项目 Agent 上的单独修改会被覆盖。编辑入口需明确提示该风险。字段级冲突保护策略见第 13 节待确认问题。
+  <b>覆盖策略：</b>母版下发以<b>覆盖</b>方式生效，实例模板、实例 Agent 及 Agenthub 侧项目 Agent 上的单独修改会被覆盖。编辑入口需明确提示该风险。
 </div>
 
 <h3 id="s44">4.4 用户使用链路</h3>
@@ -436,7 +433,6 @@ Agenthub · 项目 Agent</div>
   <tr><td>分类字典</td><td>租户级，<b>Agent 与模板共用同一套</b>；支持新增、改名、删除；每项带颜色标识</td></tr>
   <tr><td>标签字典</td><td>官方展示标签字典；支持新增、改名、删除</td></tr>
   <tr><td>联动</td><td>字典项改名时，全部引用该项的模板与 Agent 同步更新；删除时，引用对象自动解除该引用</td></tr>
-  <tr><td>保护</td><td><code>母版</code> / <code>实例模板</code>系统标记不在可维护范围内</td></tr>
 </table>
 
 <h3 id="s54">5.4 上架 Agenthub</h3>
@@ -445,7 +441,7 @@ Agenthub · 项目 Agent</div>
   <tr><th style="width:20%">功能项</th><th>需求描述</th></tr>
   <tr><td>状态定义</td><td>两态：<code>已上架</code> / <code>未上架</code>，模板与 Agent 各自独立维护</td></tr>
   <tr><td>操作入口</td><td>列表每行操作列提供「上架 / 下架」切换</td></tr>
-  <tr><td>批量上架</td><td>实例模板支持手动批量上架 <span class="tag t-p1">P1</span></td></tr>
+  <tr><td>上架</td><td>实例模板支持接口维度批量上架和 Studio 页面手动上架 <span class="tag t-p1">P1</span></td></tr>
   <tr><td>默认值</td><td>新建母版、接口派生的实例模板与实例 Agent，默认均为<b>未上架</b></td></tr>
   <tr><td>确认提示</td><td>母版首次上架需二次确认，明确"Agenthub 用户将可基于它创建 Agent"</td></tr>
   <tr><td>下架影响</td><td>下架后 Agenthub 不再可查询到该对象；已由其创建的 Agent 不受影响</td></tr>
@@ -495,7 +491,7 @@ Agenthub · 项目 Agent</div>
 </div>
 
 <!-- ============ 7 ============ -->
-<h2 id="s7"><span class="no">07</span>权限与可见性规则</h2>
+<h2 id="s7"><span class="no">07</span>实例 Agent 权限与可见性规则</h2>
 
 <h3>7.1 判定模型</h3>
 <p>Agenthub 侧的权限由<b>两个维度</b>共同决定，两者均来自 Studio 记录的「实例—项目—成员」关系：</p>
@@ -531,15 +527,6 @@ Agenthub · 项目 Agent</div>
   <tr><td>已上架</td><td>下架</td><td>未上架</td><td>Agenthub 不再可查询；已创建的 Agent 不受影响</td></tr>
 </table>
 
-<h3>8.2 对象生命周期</h3>
-<table>
-  <tr><th style="width:14%">阶段</th><th style="width:26%">母版</th><th style="width:26%">实例模板</th><th>实例 Agent</th></tr>
-  <tr><td>创建</td><td>租户手工创建</td><td>易协作接口派生</td><td>易协作接口生成</td></tr>
-  <tr><td>变更</td><td>租户编辑</td><td>接受母版覆盖，也可单独编辑</td><td>接受母版覆盖，也可单独编辑</td></tr>
-  <tr><td>上架</td><td>租户操作</td><td>租户操作（支持批量）</td><td>租户操作</td></tr>
-  <tr><td>删除</td><td>有实例模板时禁止</td><td>需二次确认</td><td>需二次确认</td></tr>
-</table>
-
 <!-- ============ 9 ============ -->
 <h2 id="s9"><span class="no">09</span>异常与边界</h2>
 <table>
@@ -551,7 +538,7 @@ Agenthub · 项目 Agent</div>
   <tr><td>易协作实例被删除</td><td>对应实例模板与实例 Agent 保留但标记失效，需人工确认后清理（本期以人工处理为准）</td></tr>
   <tr><td>成员退出项目/实例</td><td>关系数据同步更新后，该用户在 Agenthub 侧立即失去对应可见性</td></tr>
   <tr><td>展示标签字典中删除了实例标签</td><td>引用该标签的对象自动解除引用，将导致相关用户失去可见性，删除前需二次确认并提示影响范围</td></tr>
-  <tr><td>Agenthub 管理员的自定义配置与母版冲突</td><td>本期以母版覆盖为准，Agenthub 侧需提示；字段级保护见待确认问题</td></tr>
+  <tr><td>Agenthub 管理员的自定义配置与母版冲突</td><td>本期以母版覆盖为准，Agenthub 侧需提示</td></tr>
 </table>
 
 <!-- ============ 10 ============ -->
@@ -566,68 +553,6 @@ Agenthub · 项目 Agent</div>
   <tr><td>权限查询</td><td>可见范围查询 QPS、命中实例数分布</td></tr>
 </table>
 
-<!-- ============ 11 ============ -->
-<h2 id="s11"><span class="no">11</span>非功能性要求</h2>
-<table>
-  <tr><th style="width:20%">类别</th><th>要求</th></tr>
-  <tr><td>批量能力</td><td>初始化阶段需支撑存量实例的批量接入，单批调用不应因数量增长而超时失败</td></tr>
-  <tr><td>幂等性</td><td>创建实例模板、生成 Agent、同步关系数据均需幂等，允许易协作侧安全重试</td></tr>
-  <tr><td>一致性</td><td>母版下发需保证最终一致，允许短暂延迟，但需可观测、可重试</td></tr>
-  <tr><td>可审计</td><td>模板与 Agent 的创建、变更、上架/下架、下发均需留痕，含操作人（含系统身份）与时间</td></tr>
-  <tr><td>安全</td><td>开放接口需鉴权，限定易协作与 Agenthub 的系统身份；关系数据涉及人员信息，需限定访问范围</td></tr>
-</table>
-
-<!-- ============ 12 ============ -->
-<h2 id="s12"><span class="no">12</span>需求清单与优先级</h2>
-<table>
-  <tr><th style="width:8%">编号</th><th style="width:14%">模块</th><th>需求</th><th style="width:8%">类型</th><th style="width:8%">优先级</th></tr>
-  <tr><td>R-01</td><td>模板管理</td><td>租户后台新增模板模块，支持创建与维护母版（名称、描述、提示词、模型、内置工具、Skills、MCP）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-02</td><td>模板管理</td><td>母版与实例模板同层展示，通过展示标签区分类型</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-03</td><td>模板管理</td><td>实例模板派生时继承母版配置，接受母版覆盖下发，同时支持单独编辑</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-04</td><td>模板管理</td><td>母版变更覆盖下发至全部实例模板与实例 Agent</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-05</td><td>开放能力</td><td>提供创建实例模板接口（与实例 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-06</td><td>开放能力</td><td>提供生成实例 Agent 接口（与实例模板 1:1、幂等）</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-07</td><td>开放能力</td><td>提供 Webhook 供易协作在实例新增时自动触发</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-08</td><td>关系数据</td><td>存储实例—项目—成员（含角色）关系，本期不展示</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-09</td><td>关系数据</td><td>提供用户可见范围与角色查询接口供 Agenthub 使用</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-10</td><td>Agent 管理</td><td>Agent 增加分类与展示标签属性，由模板生成时自动带入</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-11</td><td>Agent 管理</td><td>Agent 列表支持按分类、展示标签筛选</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-12</td><td>上架</td><td>模板与 Agent 增加 Agenthub 上架状态字段与上架/下架操作</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-13</td><td>上架</td><td>Agenthub 按上架状态 + 展示标签 + 成员角色进行可见与可操作判定</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p0">P0</span></td></tr>
-  <tr><td>R-14</td><td>字典</td><td>租户可维护分类字典（Agent 与模板共用）与官方展示标签字典</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
-  <tr><td>R-15</td><td>上架</td><td>实例模板支持手动批量上架</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
-  <tr><td>R-16</td><td>模板/Agent</td><td>列表内直接修改分类与展示标签</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p1">P1</span></td></tr>
-  <tr><td>R-17</td><td>模板管理</td><td>下线超管后台模版管理，能力迁移至租户后台</td><td><span class="tag t-chg">调整</span></td><td><span class="tag t-p1">P1</span></td></tr>
-  <tr><td>R-18</td><td>可观测</td><td>母版下发结果可查询、失败可重试</td><td><span class="tag t-new">新增</span></td><td><span class="tag t-p2">P2</span></td></tr>
-</table>
-
-<!-- ============ 13 ============ -->
-<h2 id="s13"><span class="no">13</span>待确认问题</h2>
-
-<div class="q">
-  <div class="qq">Q1 · 实例层自定义配置与母版覆盖下发如何共存？</div>
-  <div class="aa">实例模板、实例 Agent 与 Agenthub 侧项目 Agent 均可单独修改，而母版变更会覆盖下发，二者存在冲突。当前结论为母版覆盖优先。<b>建议</b>：一是定义字段级策略，提示词、模型、工具、Skills、MCP 由母版管控，名称、描述等展示层字段允许实例自治；二是下发时对已被单独修改过的实例给出差异提示，由管理员选择是否覆盖。需与 Agenthub 侧对齐。</div>
-</div>
-
-<div class="q">
-  <div class="qq">Q2 · 一个易协作实例是否可能对应多个母版？</div>
-  <div class="aa">当前按"实例模板与实例 1:1"设计。若未来同一实例需要多种角色的 Agent（如 PM 助理 + 测试助理），则实例与实例模板将变为 1:n，需在派生时增加母版维度的唯一性约束。需确认是否纳入本期设计。</div>
-</div>
-
-<div class="q">
-  <div class="qq">Q3 · 项目维度是否需要进入 Agent 归属链路？</div>
-  <div class="aa">本期实例 Agent 按实例 1:1 生成，项目仅作为关系数据存储。若后续需要项目级的差异化配置或用量统计，需明确项目 Agent 与实例 Agent 的对应关系及其数据归属。</div>
-</div>
-
-<div class="q">
-  <div class="qq">Q4 · 关系数据的同步时效与触发方式？</div>
-  <div class="aa">成员变动直接影响可见性。需确认是实时事件同步还是定时全量同步，以及可接受的延迟上限。</div>
-</div>
-
-<div class="q">
-  <div class="qq">Q5 · 存量超管模板的迁移方案？</div>
-  <div class="aa">超管后台模版管理下线后，已有模板及其派生的 Agent 如何迁移到租户后台，是否需要数据迁移脚本与灰度期并行。</div>
-</div>
 
 </main>
 </div>
