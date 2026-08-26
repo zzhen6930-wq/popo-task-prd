@@ -186,10 +186,15 @@
     <table>
       <thead><tr><th style="width:180px">检测项</th><th>判定条件</th><th style="width:130px">不满足时</th></tr></thead>
       <tbody>
+        <tr><td>账号类型</td><td>为正式内部员工账号（<b>外部账号、GRP 账号除外</b>）</td><td>不检测、不安装、不推送</td></tr>
         <tr><td>是否已安装 POPO-CLI</td><td>本机未安装 POPO-CLI</td><td>终止流程，不安装不推送</td></tr>
         <tr><td>是否存在已支持的 Agent</td><td>本机存在至少一个受支持的 Agent 工具配置</td><td>不安装，走分支 B 推送</td></tr>
       </tbody>
     </table>
+    <div class="callout warn">
+      <div class="title">⚠ 账号范围</div>
+      <b>外部账号</b>与 <b>GRP 账号</b>不在本次覆盖范围内：不执行环境检测、不执行默认安装、不推送任何卡片。账号类型判定为检测流程的第一道前置校验，不满足则直接终止，不进入后续检测项。
+    </div>
 
     <h4>4.3 支持的 Agent 工具</h4>
     <p>已支持：</p>
@@ -355,6 +360,7 @@
     <table>
       <thead><tr><th style="width:220px">场景</th><th>处理方式</th></tr></thead>
       <tbody>
+        <tr><td>外部账号 / GRP 账号</td><td>不检测、不安装、不推送</td></tr>
         <tr><td>本机已安装 POPO-CLI</td><td>不检测、不安装、不推送</td></tr>
         <tr><td>默认安装执行失败</td><td>不推送卡片，当日不再重试，次日重新判定</td></tr>
         <tr><td>安装成功但推送失败</td><td>不标记「已推送」，次日重新推送（仍受每人一次约束）</td></tr>
