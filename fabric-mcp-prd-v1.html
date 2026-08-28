@@ -208,6 +208,11 @@
     </table>
     <p><b>免鉴权分发路径</b>：租户在 Studio 内置 MCP 配好 Headers 并用展示标签分发后，被分发的 C 端用户在创建 Agent 时可见该 MCP，添加即免鉴权直用，无需以自己账号授权。</p>
 
+    <figure style="margin:14px 0;padding:14px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;">
+      <img src="mcp-share-auth.png" alt="分享他人后，他人账号授权设计稿" style="width:100%;display:block;border-radius:8px;">
+      <figcaption style="font-size:12px;color:#64748b;margin-top:8px;text-align:center;">图：Agent 分享给他人后，他人以自己账号授权连接（左：OAuth连接「授权连接→已连接」；右：自定义API Key「粘贴 API Key 验证并连接→已连接」）</figcaption>
+    </figure>
+
     <h3>5.2 场景 2：直接使用 B 端已创建好的 Agent</h3>
     <table>
       <thead><tr><th style="width:14%">鉴权类型</th><th>B 端配了公共账号（Headers）</th><th>B 端未配</th></tr></thead>
