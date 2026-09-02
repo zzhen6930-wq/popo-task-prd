@@ -67,7 +67,7 @@
 
   <div class="header">
     <h1>POPO-CLI 默认安装与引导</h1>
-    <div class="sub">POPO 客户端检测本地 Agent 环境，默认安装 POPO-CLI 并通过机器人卡片完成告知、授权与自助安装引导</div>
+    <div class="sub">POPO 客户端检测本地 Agent 环境，默认安装 POPO-CLI 并通过机器人卡片完成告知与授权</div>
     <div class="meta">
       <span>📅 2026-08-26</span>
       <span>🏷️ v1.0</span>
@@ -87,8 +87,7 @@
     <a href="#s6">6. 卡片推送规则</a>
     <a href="#s7">7. 卡片内容规范</a>
     <a href="#s8">8. 授权流程</a>
-    <a href="#s9">9. 自助安装引导</a>
-    <a href="#s10">10. 异常与边界</a>
+    <a href="#s9">9. 异常与边界</a>
   </div>
 
   <!-- 1 背景与目标 -->
@@ -104,13 +103,13 @@
     <h4>1.2 目标</h4>
     <ul>
       <li>对已具备 Agent 环境的用户，由客户端<b>默认完成安装</b>，将上手成本降为「一次授权」</li>
-      <li>对暂无 Agent 环境的用户，通过卡片完成<b>一次性认知触达</b>，并提供自助安装入口</li>
+      <li>卡片仅在<b>已完成默认安装</b>时推送，做到「推送即可用」，不做无法立即使用的宣传型触达</li>
       <li>全流程<b>每台设备只打扰一次</b>，不做多轮触达、不做管理后台</li>
     </ul>
 
     <div class="callout tip">
       <div class="title">💡 一句话需求</div>
-      客户端检测到已支持的 Agent 就默认装好 POPO-CLI，然后由机器人推一张卡片告诉用户「这是什么、能干什么、点一下授权就能用」；没有 Agent 的用户，推一张介绍卡片引导自助安装，不装也不再打扰。
+      客户端检测到已支持的 Agent 就默认装好 POPO-CLI，然后由机器人推一张卡片告诉用户「装在哪台设备、接入了哪些 Agent、能干什么、点一下授权就能用」；<b>本地没有已支持 Agent 的用户不安装、也不推送任何卡片</b>。
     </div>
   </div>
 
@@ -137,9 +136,9 @@
       <div class="flow-arrow">→</div>
       <div class="flow-node"><b>② 默认安装 CLI</b><p>三项全满足则默认安装 POPO-CLI；不满足则不安装</p></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-node"><b>③ 机器人推送卡片</b><p>按设备推送并标注设备号：安装后推授权卡片，未安装推自助安装卡片</p></div>
+      <div class="flow-node"><b>③ 机器人推送卡片</b><p>安装成功后按设备推送授权卡片，卡片标注设备信息与已接入的 Agent</p></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-node"><b>④ 用户授权 / 自助安装</b><p>卡片按钮触发登录+授权，或跳转 KM 文章自助安装</p></div>
+      <div class="flow-node"><b>④ 用户授权</b><p>点击卡片「立即授权」，完成 Open ID 登录与授权后即可使用</p></div>
     </div>
 
     <div class="branch">
@@ -147,8 +146,8 @@
         <h5>分支 A：本地存在已支持的 Agent</h5>
         <ul>
           <li>客户端<b>默认安装</b> POPO-CLI，无需用户交互</li>
-          <li>安装成功后推送<b>已接入卡片</b></li>
-          <li>卡片主按钮「授权」，触发 Open ID 登录 + 授权</li>
+          <li>安装成功后推送<b>已接入卡片</b>（唯一一种卡片）</li>
+          <li>卡片主按钮「立即授权」，触发 Open ID 登录 + 授权</li>
           <li>授权完成后即可在 Agent 中使用</li>
         </ul>
       </div>
@@ -156,11 +155,15 @@
         <h5>分支 B：本地不存在已支持的 Agent</h5>
         <ul>
           <li><b>不执行</b>默认安装</li>
-          <li>推送<b>能力介绍卡片</b>，说明 POPO-CLI 是什么、支持哪些能力</li>
-          <li>卡片主按钮「查看安装方法」，跳转 KM 文章</li>
-          <li>用户不安装则不再触达，流程终止</li>
+          <li><b>不推送</b>任何卡片，流程直接终止</li>
+          <li>不做宣传型触达、不做自助安装引导</li>
+          <li>用户如自行安装，走 POPO-CLI 既有安装与授权逻辑</li>
         </ul>
       </div>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠ 范围收敛</div>
+      本期<b>只推送「可立即使用」的卡片</b>。无授权按钮的宣传型卡片（原分支 B 能力介绍卡片）<b>本期不做</b>：用户收到后无法当场完成任何动作，转化低且构成打扰。
     </div>
   </div>
 
@@ -180,7 +183,7 @@
     </table>
     <div class="callout warn">
       <div class="title">⚠ 注意</div>
-      「已推送过卡片」为<b>设备级</b>终止开关：无论用户是否授权、是否自助安装，该设备均不再重复检测与推送。标记需服务端按「<b>账号 + 设备号</b>」持久化，设备之间互不影响。
+      「已推送过卡片」为<b>设备级</b>终止开关：无论用户是否授权，该设备均不再重复检测与推送。标记需服务端按「<b>账号 + 设备号</b>」持久化，设备之间互不影响。
     </div>
 
     <h4>4.2 检测事项</h4>
@@ -202,8 +205,8 @@
       <thead><tr><th style="width:210px">判定结果</th><th style="width:110px">默认安装</th><th style="width:150px">卡片推送</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td><b>不满足 ①</b> 或 <b>不满足 ②</b></td><td>不安装</td><td>不推送</td><td>直接终止流程，不进入后续判定</td></tr>
-        <tr><td>① ② ③ <b>全部满足</b></td><td><b>触发安装</b></td><td>推送<b>授权卡片</b></td><td>分支 A，卡片主按钮「授权」</td></tr>
-        <tr><td>满足 ① ②，<b>不满足 ③</b></td><td>不安装</td><td>推送<b>自助安装卡片</b></td><td>分支 B，卡片主按钮「查看安装方法」</td></tr>
+        <tr><td>① ② ③ <b>全部满足</b></td><td><b>触发安装</b></td><td>推送<b>授权卡片</b></td><td>分支 A，卡片主按钮「立即授权」</td></tr>
+        <tr><td>满足 ① ②，<b>不满足 ③</b></td><td>不安装</td><td><b>不推送</b></td><td>分支 B，流程终止，不做任何触达</td></tr>
       </tbody>
     </table>
 
@@ -239,10 +242,10 @@
       <tbody>
         <tr><td>安装条件</td><td>未安装 POPO-CLI（不含已卸载）、账号为正式内部员工账号 <b>且</b> 本机存在至少一个已支持的 Agent 工具</td></tr>
         <tr><td>安装维度</td><td>按<b>设备</b>执行，同一账号下不同设备各自独立判定与安装</td></tr>
-        <tr><td>安装范围</td><td>为<b>检测到的全部已支持 Agent</b> 完成安装写入</td></tr>
+        <tr><td>安装范围</td><td>为<b>检测到的全部已支持 Agent</b> 完成安装写入，并<b>记录安装成功的 Agent 名称</b>用于卡片展示</td></tr>
         <tr><td>用户交互</td><td><b>无</b>。安装过程静默执行，不弹窗、不阻塞客户端使用</td></tr>
-        <tr><td>不满足条件</td><td>不执行安装，进入分支 B 推送流程</td></tr>
-        <tr><td>安装失败</td><td>不推送已接入卡片，当日不再重试，次日按检测频次重新判定</td></tr>
+        <tr><td>不满足条件</td><td>不执行安装，<b>也不推送任何卡片</b>，流程终止</td></tr>
+        <tr><td>安装失败</td><td>不推送卡片，当日不再重试，次日按检测频次重新判定</td></tr>
       </tbody>
     </table>
     <div class="callout danger">
@@ -258,11 +261,11 @@
       <thead><tr><th style="width:170px">规则项</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td>推送渠道</td><td>POPO-CLI 小助手机器人，单聊推送</td></tr>
-        <tr><td>推送维度</td><td><b>按设备维度推送</b>。同一账号下每台满足条件的设备各推一张卡片，卡片上<b>展示对应的设备号</b>（POPO 客户端登录设备号）</td></tr>
+        <tr><td>推送前提</td><td><b>仅在默认安装成功后推送</b>。未安装成功的设备一律不推送，不存在无授权按钮的宣传型卡片</td></tr>
+        <tr><td>卡片类型</td><td>本期<b>只有一种卡片</b>：已接入卡片（含「立即授权」按钮）</td></tr>
+        <tr><td>推送维度</td><td><b>按设备维度推送</b>。同一账号下每台安装成功的设备各推一张卡片，卡片上<b>展示对应的设备信息</b></td></tr>
         <tr><td>推送次数</td><td>每台设备<b>仅推送一次</b>，推送后该设备不再检测</td></tr>
-        <tr><td>分支 A 时机</td><td>该设备默认安装<b>成功后</b>推送「已接入卡片」</td></tr>
-        <tr><td>分支 B 时机</td><td>该设备检测判定不满足安装条件后，推送「能力介绍卡片」</td></tr>
-        <tr><td>已安装设备</td><td>已安装（或曾安装后卸载）POPO-CLI 的设备<b>不推送</b></td></tr>
+        <tr><td>不推送场景</td><td>本地无已支持 Agent、已安装（或曾卸载）POPO-CLI、外部/GRP 账号、安装执行失败</td></tr>
         <tr><td>用户无响应</td><td>不做二次触达、不做提醒，流程自然终止</td></tr>
       </tbody>
     </table>
@@ -271,17 +274,14 @@
     <table>
       <thead><tr><th style="width:230px">场景</th><th style="width:120px">推送数量</th><th>卡片内容</th></tr></thead>
       <tbody>
-        <tr><td>用户 A 有 2 台设备：<br>01 已安装 CLI，02 满足推送条件</td><td class="center"><b>1 张</b></td><td>卡片显示 <b>02 设备号</b></td></tr>
-        <tr><td>用户 A 有 2 台设备：<br>01、02 均满足推送条件</td><td class="center"><b>2 张</b></td><td>卡片 1 显示 <b>01 设备号</b><br>卡片 2 显示 <b>02 设备号</b></td></tr>
+        <tr><td>用户 A 有 2 台设备：<br>01 已安装 CLI，02 安装成功</td><td class="center"><b>1 张</b></td><td>卡片显示 <b>02 设备信息</b></td></tr>
+        <tr><td>用户 A 有 2 台设备：<br>01、02 均安装成功</td><td class="center"><b>2 张</b></td><td>卡片 1 显示 <b>01 设备信息</b><br>卡片 2 显示 <b>02 设备信息</b></td></tr>
+        <tr><td>用户 A 有 2 台设备：<br>01 安装成功，02 无已支持 Agent</td><td class="center"><b>1 张</b></td><td>仅 01 推送，02 <b>不推送</b></td></tr>
       </tbody>
     </table>
     <div class="callout tip">
       <div class="title">💡 为什么按设备推送</div>
-      POPO-CLI 安装在<b>本地电脑</b>，不同设备的 Agent 环境与安装状态互相独立。按设备推送并标注设备号，用户才能明确「这张卡片对应哪台电脑」，避免在 A 电脑收到卡片却以为 B 电脑已可用。
-    </div>
-    <div class="callout warn">
-      <div class="title">⚠ 设备号展示要求</div>
-      设备号取 <b>POPO 客户端登录设备标识</b>，展示为用户可辨认的形式（如设备名 / 设备号），不展示内部 UUID。多张卡片在同一会话内按推送时间先后排列。
+      POPO-CLI 安装在<b>本地电脑</b>，不同设备的 Agent 环境与安装状态互相独立。按设备推送并标注设备信息，用户才能明确「这张卡片对应哪台电脑」，避免在 A 电脑收到卡片却以为 B 电脑已可用。
     </div>
   </div>
 
@@ -289,47 +289,68 @@
   <div class="section" id="s7">
     <div class="section-title"><span class="num">7</span>卡片内容规范<span class="tag p0">P0</span></div>
 
-    <h4>7.1 分支 A · 已接入卡片</h4>
+    <h4>7.1 已接入卡片（本期唯一卡片）</h4>
     <div class="card-spec">
       <div class="card-spec-head">POPO-CLI 小助手 · 已接入卡片</div>
       <div class="card-spec-body">
-        <div class="card-line"><div class="k">卡片头</div><div class="v">✦ POPO 能力已接入你的 AI Agent</div></div>
-        <div class="card-line"><div class="k">设备标识</div><div class="v">展示本张卡片对应的<b>设备号</b>（POPO 客户端登录设备），如：<code>设备：MacBook-Pro-张振</code></div></div>
-        <div class="card-line"><div class="k">首句说明</div><div class="v">POPO 客户端已支持将 POPO-CLI 接入本地 AI Agent，由 Agent 替你发消息、写文档、约日程。</div></div>
+        <div class="card-line"><div class="k">卡片头</div><div class="v">POPO-CLI 已接入你的 AI Agent</div></div>
+        <div class="card-line"><div class="k">首句说明</div><div class="v">你的 <b>{操作系统}</b> 设备 <b>{POPO 客户端设备号}</b> 的 Agent 已具备 POPO 办公能力<br>示例：<code>你的 Mac 设备 HIH-L-X32884 的 Agent 已具备 POPO 办公能力</code></div></div>
         <div class="card-line"><div class="k">支持的能力</div><div class="v">
-          IM：搜消息、发私聊/群聊、查员工与群信息、建群与管理成员<br>
-          云文档 · 表格：创建与编辑文档、读写在线表格与多维表、上传文件<br>
-          日程 · 任务：查忙闲、约日程与会议室、创建与跟进待办任务<br>
-          知识：KM 文章检索与摘要、查询/创建/管理知识本<br>
-          易协作：查询、创建、修改与处理工单
+          IM：搜消息、发消息、查群信息、创建群组、管理成员<br>
+          云文档 / 表格：创建文档、编辑文档、读写表格、上传文件<br>
+          日程 / 任务：查忙闲、预约日程、预约会议室、创建任务、跟进待办<br>
+          知识：检索 KM 文章、总结摘要、查询/创建/管理知识本<br>
+          易协作：查询、创建、处理工单
         </div></div>
-        <div class="card-line"><div class="k">使用方法</div><div class="v">打开你的 Agent，直接用自然语言下达指令<br>示例：<code>结合用户场景案例，给我介绍下 POPO-CLI 都有哪些能力</code></div></div>
-        <div class="card-line"><div class="k">按钮提示</div><div class="v">完成授权后即可使用 POPO-CLI 能力。</div></div>
-        <div class="card-line"><div class="k">主按钮</div><div class="v"><b>授权</b>（通栏）→ 触发 Open ID 登录 + 授权</div></div>
-        <div class="card-line"><div class="k">次按钮</div><div class="v"><b>查看完整介绍</b>（通栏）→ 打开 KM 文章</div></div>
+        <div class="card-line"><div class="k">接入的 Agent</div><div class="v">展示<b>本次实际完成 Skill 安装</b>的 Agent 名称，以标签（chip）形式横排<br>示例：<code>CodeMaker</code> <code>Codex</code> <code>OpenClaw</code></div></div>
+        <div class="card-line"><div class="k">使用方法</div><div class="v">
+          ① 点击下方「立即授权」按钮完成授权<br>
+          ② 打开你的 Agent<br>
+          ③ 自然语言下达指令，如：<code>结合用户场景案例，给我介绍下 POPO-CLI 都有哪些能力</code>
+        </div></div>
+        <div class="card-line"><div class="k">主按钮</div><div class="v"><b>立即授权</b> → 触发 Open ID 登录 + 授权</div></div>
+        <div class="card-line"><div class="k">次按钮</div><div class="v"><b>查看完整介绍</b> → 打开 KM 文章 <code>https://km.netease.com/v4/detail/blog/269031</code></div></div>
       </div>
     </div>
-    <p><b>信息顺序原则</b>：是什么 → 能干什么 → 怎么用 → 授权收口。不在卡片内解释安装动作，避免增加理解层级。</p>
+    <p><b>信息顺序原则</b>：装在哪台设备 → 能干什么 → 接入了哪些 Agent → 怎么用 → 授权收口。不在卡片内解释安装动作，避免增加理解层级。</p>
 
-    <h4>7.2 分支 B · 能力介绍卡片</h4>
-    <div class="card-spec">
-      <div class="card-spec-head">POPO-CLI 小助手 · 能力介绍卡片</div>
-      <div class="card-spec-body">
-        <div class="card-line"><div class="k">卡片头</div><div class="v">✦ 让 AI Agent 替你在 POPO 里办事</div></div>
-        <div class="card-line"><div class="k">设备标识</div><div class="v">同 7.1，展示本张卡片对应的<b>设备号</b></div></div>
-        <div class="card-line"><div class="k">首句说明</div><div class="v">POPO-CLI 可将 POPO 接入本地 AI Agent，安装后由 Agent 替你发消息、写文档、约日程。</div></div>
-        <div class="card-line"><div class="k">支持的能力</div><div class="v">同 7.1（IM / 云文档·表格 / 日程·任务 / 知识 / 易协作）</div></div>
-        <div class="card-line"><div class="k">使用方法</div><div class="v">安装后打开你的 Agent，直接用自然语言下达指令，如：<br><code>查询「POPO CLI 互助交流群」最近 3 天的用户问题，整理成《用户使用问题文档》上传到我的云空间，并在群里 @所有人 通知。</code><br>一句话 Agent 自动完成：检索群消息 → 归纳分类 → 生成云文档 → 群内通知</div></div>
-        <div class="card-line"><div class="k">主按钮</div><div class="v"><b>查看安装方法</b>（通栏）→ 打开 KM 文章 <code>https://km.netease.com/v4/detail/blog/269031</code></div></div>
-      </div>
-    </div>
+    <h4>7.2 设备信息展示规范</h4>
+    <p>卡片首句需同时展示<b>两项</b>设备信息，用于让用户定位「是哪台电脑」：</p>
+    <table>
+      <thead><tr><th style="width:190px">字段</th><th style="width:180px">取值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>操作系统</td><td><code>Mac</code> / <code>Windows</code></td><td>按设备实际系统展示，不展示版本号</td></tr>
+        <tr><td>POPO 客户端设备号</td><td>如 <code>HIH-L-X32884</code></td><td>取 POPO 客户端登录设备标识，展示用户可辨认的设备号，<b>不展示内部 UUID</b></td></tr>
+      </tbody>
+    </table>
+    <p>多张卡片在同一会话内按推送时间先后排列，用户可通过设备信息区分。</p>
+
+    <h4>7.3 「接入的 Agent」展示规范</h4>
+    <table>
+      <thead><tr><th style="width:190px">规则项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>展示内容</td><td><b>本次实际完成 Skill 安装的 Agent</b>。给哪些 Agent 装了就显示哪些，未安装成功的不展示</td></tr>
+        <tr><td>展示形式</td><td>标签（chip）横排，label 与 chip 同行，label <b>不加冒号</b></td></tr>
+        <tr><td>换行规则</td><td>流式布局：一行放得下即同行；放不下自动折行，label 保留在第一行，折行 chip 与首个 chip 左对齐</td></tr>
+        <tr><td>数量上限</td><td>最多展示 5 个，超出时末尾以灰字补 <code>等 N 个</code>，不可点击</td></tr>
+        <tr><td>名称写法</td><td>使用官方写法，如 <code>CodeMaker</code>、<code>Codex</code>、<code>OpenClaw</code>、<code>Claude Code</code>，大小写不得自造</td></tr>
+      </tbody>
+    </table>
+
+    <h4>7.4 排版一致性要求</h4>
+    <ul>
+      <li><b>块级小标题不加冒号</b>：「支持的能力」「接入的 Agent」「使用方法」统一无冒号</li>
+      <li><b>同行续写加冒号</b>：能力清单内的「IM：」「云文档 / 表格：」等保留冒号，与块级标题形成层级区分</li>
+      <li>左侧竖线标记<b>仅用于能力清单</b>，「接入的 Agent」不带竖线，避免被误读为能力清单的一项</li>
+      <li>产品名统一写作 <code>POPO-CLI</code>（半角连字符），不得使用 <code>POPO–CLI</code> 等其他字符</li>
+    </ul>
   </div>
 
   <!-- 8 授权 -->
   <div class="section" id="s8">
     <div class="section-title"><span class="num">8</span>授权流程<span class="tag p0">P0</span></div>
     <ol>
-      <li>用户点击卡片「授权」按钮</li>
+      <li>用户点击卡片「立即授权」按钮</li>
       <li>客户端拉起浏览器，打开 Open ID 登录页</li>
       <li>用户完成 POPO 账号登录并确认授权范围</li>
       <li>授权成功后回调客户端，卡片按钮态更新为「✓ 已授权」，提示文案更新为「已完成登录授权，现在可以在 Agent 中直接使用 POPO-CLI 能力」</li>
@@ -341,10 +362,10 @@
     <table>
       <thead><tr><th style="width:180px">状态</th><th>按钮表现</th><th>提示文案</th></tr></thead>
       <tbody>
-        <tr><td>未授权</td><td>蓝色主按钮「授权」</td><td>完成授权后即可使用 POPO-CLI 能力。</td></tr>
+        <tr><td>未授权</td><td>蓝色主按钮「立即授权」</td><td>完成授权后即可使用 POPO-CLI 能力。</td></tr>
         <tr><td>授权中</td><td>置灰「正在打开 Open ID 登录…」</td><td>保持不变</td></tr>
         <tr><td>已授权</td><td>绿色「✓ 已授权」，不可再次点击</td><td>已完成登录授权，现在可以在 Agent 中直接使用 POPO-CLI 能力。</td></tr>
-        <tr><td>授权失败/取消</td><td>恢复为「授权」可点击态</td><td>保持不变，可重新发起</td></tr>
+        <tr><td>授权失败/取消</td><td>恢复为「立即授权」可点击态</td><td>保持不变，可重新发起</td></tr>
       </tbody>
     </table>
 
@@ -368,39 +389,24 @@
     </ul>
   </div>
 
-  <!-- 9 自助安装 -->
+  <!-- 9 异常 -->
   <div class="section" id="s9">
-    <div class="section-title"><span class="num">9</span>自助安装引导<span class="tag p1">P1</span></div>
-    <p>分支 B 用户点击「查看安装方法」后跳转 KM 文章，文章需覆盖两条路径：</p>
-    <table>
-      <thead><tr><th style="width:190px">路径</th><th>说明</th></tr></thead>
-      <tbody>
-        <tr><td>方式一 · Agent 自助安装</td><td>用户复制固定指令发送给自己的 Agent，由 Agent 完成安装：<br><code>参考 https://popo.update.netease.com/popo-cli-installation-guide.md 帮我安装 popo-cli 到当前的 Agent 环境</code></td></tr>
-        <tr><td>方式二 · 手动安装到指定路径</td><td>下载安装包，按文章说明安装到目标 Agent 的配置目录</td></tr>
-      </tbody>
-    </table>
-    <p>两种方式安装完成后，均自动弹出 Open ID 登录页完成授权，授权成功后 POPO-CLI 可用。</p>
-    <div class="callout warn">
-      <div class="title">⚠ 边界</div>
-      分支 B 用户若始终未安装，不做任何追加触达。若其后续自行完成安装并授权，走 POPO-CLI 既有的安全提示逻辑，不再复用本方案卡片。
-    </div>
-  </div>
-
-  <!-- 10 异常 -->
-  <div class="section" id="s10">
-    <div class="section-title"><span class="num">10</span>异常与边界</div>
+    <div class="section-title"><span class="num">9</span>异常与边界</div>
     <table>
       <thead><tr><th style="width:220px">场景</th><th>处理方式</th></tr></thead>
       <tbody>
         <tr><td>外部账号 / GRP 账号</td><td>不检测、不安装、不推送</td></tr>
         <tr><td>本机已安装 POPO-CLI</td><td>不检测、不安装、不推送</td></tr>
         <tr><td>曾安装后卸载 POPO-CLI</td><td>视为已覆盖，不重新纳入：不安装、不推送</td></tr>
+        <tr><td><b>本机无已支持的 Agent</b></td><td>不安装、<b>不推送任何卡片</b>，流程终止（本期不做宣传型触达与自助安装引导）</td></tr>
         <tr><td>默认安装执行失败</td><td>不推送卡片，当日不再重试，次日重新判定</td></tr>
+        <tr><td>部分 Agent 安装成功、部分失败</td><td>正常推送卡片，「接入的 Agent」<b>只展示安装成功的</b>，失败的不展示、不提示</td></tr>
         <tr><td>安装成功但推送失败</td><td>不标记该设备「已推送」，次日重新推送（仍受每设备一次约束）</td></tr>
         <tr><td>用户未点击授权</td><td>不追加提醒；用户首次调用 POPO-CLI 时按既有逻辑拉起授权</td></tr>
-        <tr><td>用户多设备登录</td><td>按<b>设备</b>维度检测、安装与推送：几台设备满足条件就推几张卡片，每张卡片标注对应设备号</td></tr>
+        <tr><td>用户多设备登录</td><td>按<b>设备</b>维度检测、安装与推送：几台设备安装成功就推几张卡片，每张卡片标注对应设备信息</td></tr>
+        <tr><td>用户新装 Agent</td><td>若该设备已推送过卡片，不重新检测、不补装、不重推</td></tr>
         <tr><td>用户卸载 Agent 或 CLI</td><td>本期不做卸载后重推，不回收卡片</td></tr>
-        <tr><td>移动端点击「授权」</td><td>不执行授权，弹提示引导用户前往电脑端完成授权</td></tr>
+        <tr><td>移动端点击「立即授权」</td><td>不执行授权，弹提示引导用户前往电脑端完成授权</td></tr>
         <tr><td>检测过程耗时较长</td><td>后台异步执行，不阻塞客户端启动与使用</td></tr>
       </tbody>
     </table>
