@@ -158,23 +158,22 @@
   .btn-g{ border:1px solid var(--line); background:#fff; border-radius:10px; padding:11px 20px; font-size:13.5px; color:var(--txt); cursor:pointer; font-family:inherit; }
   .btn-g:hover{ border-color:#cbd5e1; }
   .recruited{ text-align:center; padding:6px 0 0; }
-  .rd-ico{ width:56px; height:56px; margin:0 auto 14px; border-radius:50%; background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; display:flex; align-items:center; justify-content:center; font-size:26px; }
   .rd-t{ font-size:16px; font-weight:800; color:var(--ink); }
   .rd-d{ font-size:13px; color:var(--sub); margin-top:7px; }
-  .rd-name{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; border:1px solid #ddd6fe; background:#f5f3ff; border-radius:10px; padding:9px 16px; font-size:14px; font-weight:700; color:#6d28d9; }
+  .rd-name{ display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; border:1px solid #ddd6fe; background:#f5f3ff; border-radius:12px; padding:12px 22px; font-size:16px; font-weight:800; color:#6d28d9; }
   .rd-hint{ font-size:12px; color:var(--mut); margin-top:14px; line-height:1.6; }
 
   /* 弹窗 · 扫码绑定 POPO 机器人 */
-  .qr-panel{ background:#0f172a; border-radius:14px; padding:26px 22px 22px; text-align:center; }
-  .qr-t{ font-size:17px; font-weight:800; color:#fff; }
-  .qr-box{ width:190px; height:190px; margin:18px auto 0; background:#fff; border-radius:12px; padding:11px; }
+  .qr-panel{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px 22px 22px; text-align:center; }
+  .qr-t{ font-size:17px; font-weight:800; color:var(--ink); }
+  .qr-box{ width:190px; height:190px; margin:18px auto 0; background:#fff; border:1px solid var(--line); border-radius:12px; padding:11px; }
   .qr-grid{ width:100%; height:100%; display:grid; grid-template-columns:repeat(25,1fr); grid-template-rows:repeat(25,1fr); }
   .qr-grid i{ background:#0f172a; }
-  .qr-wait{ display:flex; align-items:center; justify-content:center; gap:9px; color:#cbd5e1; font-size:13px; margin-top:16px; }
-  .qr-wait .s{ width:14px; height:14px; border:2px solid rgba(203,213,225,.35); border-top-color:#cbd5e1; border-radius:50%; animation:sp .8s linear infinite; }
-  .qr-cancel{ color:#e2e8f0; font-size:13.5px; margin-top:14px; cursor:pointer; }
-  .qr-cancel:hover{ color:#fff; text-decoration:underline; }
-  .qr-hint{ font-size:11.5px; color:#64748b; margin-top:16px; line-height:1.6; }
+  .qr-wait{ display:flex; align-items:center; justify-content:center; gap:9px; color:var(--sub); font-size:13px; margin-top:16px; }
+  .qr-wait .s{ width:14px; height:14px; border:2px solid #e2e8f0; border-top-color:var(--indigo-d); border-radius:50%; animation:sp .8s linear infinite; }
+  .qr-cancel{ color:var(--sub); font-size:13.5px; margin-top:14px; cursor:pointer; }
+  .qr-cancel:hover{ color:var(--indigo-d); text-decoration:underline; }
+  .qr-hint{ font-size:11.5px; color:var(--mut); margin-top:16px; line-height:1.6; }
   .warn-box{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:12.5px; border-radius:10px; padding:10px 13px; margin-bottom:14px; line-height:1.6; }
 
   /* toast */
@@ -329,7 +328,7 @@
       </div>
       <div class="mtabs">
         <div class="mtab on" id="mt-ai" onclick="setMTab('ai')">✨ 招募智能体 <span class="rec-b">推荐</span></div>
-        <div class="mtab" id="mt-bot" onclick="setMTab('bot')">📷 扫码绑定 POPO 机器人</div>
+        <div class="mtab" id="mt-bot" onclick="setMTab('bot')">📷 绑定 POPO 机器人</div>
       </div>
 
       <div class="mbody">
@@ -347,7 +346,7 @@
             <div class="rec-li"><span class="ck">✓</span> App ID / Key / Secret 与 Callback 由平台下发，免手工填写</div>
             <div class="rec-li"><span class="ck">✓</span> 招募后可随时在本页更换为其他身份</div>
           </div>
-          <div class="rec-tip">💡 若本 Agent 已在老 Fabric 平台创建过 POPO 机器人，希望继续使用原机器人（保留原有群聊与会话），请切换到「扫码绑定 POPO 机器人」。</div>
+          <div class="rec-tip">💡 若本 Agent 已在老 Fabric 平台创建过 POPO 机器人，希望继续使用原机器人（保留原有群聊与会话），请切换到「绑定 POPO 机器人」。</div>
           <div class="m-foot">
             <span class="fill"></span>
             <button class="btn-g" onclick="closeModal()">取消</button>
@@ -358,11 +357,10 @@
         <!-- Tab1 · 已招募（换绑场景） -->
         <div id="mp-ai-done" class="hidden">
           <div class="recruited">
-            <div class="rd-ico">✓</div>
-            <div class="rd-t">已招募智能体</div>
-            <div class="rd-d">本 Agent 已拥有平台智能体身份，无需重新招募</div>
             <div class="rd-name">🤖 <span id="doneName">易协作助手</span></div>
-            <div class="rd-hint">如需改用老版 POPO 机器人，请切换到「扫码绑定 POPO 机器人」重新扫码。<br>换绑后当前智能体身份将被解绑。</div>
+            <div class="rd-t">已招募智能体，无需重新招募</div>
+            <div class="rd-d">本 Agent 已拥有平台智能体身份</div>
+            <div class="rd-hint">如需改用 POPO 机器人，请切换到「绑定 POPO 机器人」重新扫码。<br>换绑后当前智能体身份将被解绑。</div>
           </div>
           <div class="m-foot">
             <span class="fill"></span>
@@ -372,7 +370,7 @@
 
         <!-- Tab2 · 扫码绑定 -->
         <div id="mp-bot" class="hidden">
-          <div class="warn-box" id="botWarn">⚠️ 当前已绑定「<b id="warnCur">智能体</b>」，扫码绑定成功后原身份将被<b>解绑</b>，群聊需重新邀请新机器人加入。</div>
+          <div class="warn-box" id="botWarn">⚠️ 当前已绑定「<b id="warnCur">易协作助手</b>」，扫码重绑后当前智能体将被<b>解绑</b>，群聊需重新邀请新机器人加入。</div>
           <div class="qr-panel">
             <div class="qr-t">请使用 POPO 扫描下方二维码</div>
             <div class="qr-box"><div class="qr-grid" id="qrGrid"></div></div>
@@ -415,20 +413,20 @@ function render() {
   const tag = document.getElementById('bbTag');
   tag.textContent = isAI ? '智能体' : '老版 POPO 机器人';
   tag.className = 'id-tag ' + (isAI ? 'ai' : 'bot');
-  document.getElementById('bbBtn').textContent = isAI ? '更换身份' : '更换机器人';
+  document.getElementById('bbBtn').textContent = '更换机器人';
   document.getElementById('credTitle').innerHTML = (isAI ? '智能体凭证' : '机器人凭证') + '<span>绑定后自动填入，不可编辑</span>';
 }
 
 function openModal(mode) {
   modalMode = mode;
   const bound = state.bind !== null;
-  document.getElementById('mTitle').textContent = bound ? '更换对外身份' : '绑定对外身份';
-  document.getElementById('mDesc').textContent = bound
-    ? '智能体与老版 POPO 机器人互斥，切换后原身份将被解绑。'
-    : '招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。';
+  document.getElementById('mTitle').textContent = bound ? '更换机器人' : '绑定对外身份';
+  const md = document.getElementById('mDesc');
+  md.textContent = '招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。';
+  md.classList.toggle('hidden', bound);
   document.getElementById('recName').textContent = AGENT_NAME;
   document.getElementById('doneName').textContent = AGENT_NAME;
-  document.getElementById('warnCur').textContent = state.bind === 'ai' ? '智能体 · ' + AGENT_NAME : state.botId;
+  document.getElementById('warnCur').textContent = state.bind === 'ai' ? AGENT_NAME : state.botId;
   document.getElementById('botWarn').classList.toggle('hidden', !bound);
   drawQR();
   setMTab(state.bind === 'bot' ? 'bot' : 'ai');
