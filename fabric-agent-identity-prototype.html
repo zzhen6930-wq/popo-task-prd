@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WorkHub Studio · Agent 对外身份绑定（招募智能体 / 兼容 POPO 机器人）· 高保真原型</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e5e7eb; --line-2:#f1f5f9; --bg:#f8fafc; --bg-2:#eef2f7;
+    --ok:#16a34a; --warn:#b45309; --danger:#ef4444; --blue:#2563eb;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.08);
+    --shadow-lg:0 20px 60px rgba(15,23,42,.22);
+    --r:10px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg-2); color:var(--txt); padding:20px 16px 60px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+  /* ===== 场景切换（原型演示用，非产品功能） ===== */
+  .demo-bar{ max-width:1480px; margin:0 auto 14px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; box-shadow:var(--shadow-sm); }
+  .demo-bar .dl{ font-size:12px; font-weight:800; color:var(--mut); letter-spacing:.5px; }
+  .demo-btn{ font-size:13px; padding:7px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--txt); cursor:pointer; }
+  .demo-btn:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .demo-btn.on{ background:#ede9fe; border-color:#c7d2fe; color:var(--indigo-d); font-weight:700; }
+  .demo-note{ font-size:12px; color:var(--mut); margin-left:auto; }
+
+  .app{ max-width:1480px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:880px; position:relative; }
+
+  /* ===== 顶栏 ===== */
+  .topbar{ height:52px; border-bottom:1px solid var(--line-2); display:flex; align-items:center; gap:12px; padding:0 16px; }
+  .tb-brand{ display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:800; color:var(--ink); }
+  .tb-brand .bi{ width:24px; height:24px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+  .tb-space{ display:flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:9px; padding:5px 11px; font-size:13px; color:var(--txt); margin-left:8px; }
+  .tb-space .car{ color:var(--mut); font-size:10px; }
+  .tb-right{ margin-left:auto; display:flex; align-items:center; gap:14px; color:var(--mut); font-size:14px; }
+  .tb-ava{ width:26px; height:26px; border-radius:50%; background:#e2e8f0; color:#475569; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
+
+  .main-row{ display:flex; align-items:stretch; min-height:826px; }
+  .sidebar{ width:186px; flex:0 0 186px; border-right:1px solid var(--line-2); padding:14px 12px 16px; background:#fff; }
+  .side-new{ display:flex; align-items:center; justify-content:center; gap:7px; border:1px solid var(--line); border-radius:9px; padding:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:14px; }
+  .side-new:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+  .side-group{ font-size:11px; font-weight:800; color:var(--mut); letter-spacing:.5px; padding:12px 10px 6px; }
+  .side-item{ display:flex; align-items:center; gap:9px; padding:8px 11px; border-radius:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:2px; }
+  .side-item:hover{ background:#f1f5f9; }
+  .side-item.on{ background:#ede9fe; color:var(--indigo-d); font-weight:700; }
+
+  .content{ flex:1; padding:20px 28px 40px; min-width:0; }
+  .back{ font-size:13px; color:var(--sub); cursor:pointer; }
+  .back:hover{ color:var(--indigo-d); }
+
+  /* ===== Agent 头 ===== */
+  .ag-head{ margin:14px 0 18px; }
+  .ag-head h1{ font-size:23px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .ag-meta{ font-size:12.5px; color:var(--mut); margin-top:5px; }
+  .ag-meta .sep{ margin:0 8px; opacity:.5; }
+  .ag-id{ font-size:12px; color:var(--mut); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-top:2px; }
+
+  .tabs{ display:flex; gap:26px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .tab{ font-size:14px; color:var(--sub); padding:9px 1px 11px; cursor:pointer; border-bottom:2px solid transparent; }
+  .tab.on{ color:var(--ink); font-weight:700; border-bottom-color:var(--ink); }
+
+  .subtabs{ display:flex; gap:6px; margin-bottom:16px; }
+  .subtab{ font-size:13px; color:var(--sub); padding:7px 15px; border:1px solid var(--line); border-radius:8px 8px 0 0; background:#f8fafc; cursor:pointer; margin-bottom:-1px; }
+  .subtab.on{ background:#fff; color:var(--blue); font-weight:700; border-bottom-color:#fff; }
+
+  /* ===== 空状态（未绑定：突出智能体） ===== */
+  .empty{ border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg,#fbfaff,#f8fafc); padding:44px 32px 40px; text-align:center; }
+  .em-ico{ width:64px; height:64px; margin:0 auto 16px; border-radius:18px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow:0 8px 22px rgba(99,102,241,.32); }
+  .em-t{ font-size:19px; font-weight:800; color:var(--ink); }
+  .em-d{ font-size:13.5px; color:var(--sub); margin-top:8px; max-width:560px; margin-left:auto; margin-right:auto; }
+  .em-btn{ display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); color:#fff; border:none; border-radius:11px; padding:12px 30px; font-size:14.5px; font-weight:700; cursor:pointer; box-shadow:0 6px 18px rgba(99,102,241,.3); font-family:inherit; }
+  .em-btn:hover{ filter:brightness(1.07); }
+  .em-legacy{ font-size:12.5px; color:var(--mut); margin-top:14px; }
+  .em-legacy b{ color:var(--sub); }
+  .em-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:720px; margin:26px auto 0; }
+  .em-card{ background:#fff; border:1px solid var(--line-2); border-radius:11px; padding:14px 14px; text-align:left; }
+  .em-card .ci{ font-size:17px; }
+  .em-card .cn{ font-size:13px; font-weight:700; color:var(--ink); margin-top:6px; }
+  .em-card .cd{ font-size:12px; color:var(--mut); margin-top:3px; line-height:1.5; }
+
+  /* ===== 招募中 ===== */
+  .loading{ border:1px solid var(--line); border-radius:14px; background:#fbfaff; padding:70px 32px; text-align:center; }
+  .spin{ width:44px; height:44px; margin:0 auto 18px; border:3px solid #ddd6fe; border-top-color:var(--indigo-d); border-radius:50%; animation:sp .8s linear infinite; }
+  @keyframes sp{ to{ transform:rotate(360deg); } }
+  .ld-t{ font-size:16px; font-weight:700; color:var(--ink); }
+  .ld-d{ font-size:13px; color:var(--mut); margin-top:7px; }
+  .ld-steps{ max-width:330px; margin:20px auto 0; text-align:left; }
+  .ld-step{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--mut); padding:5px 0; }
+  .ld-step .dot{ width:16px; height:16px; border-radius:50%; border:1.5px solid var(--line); flex:none; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; }
+  .ld-step.done{ color:var(--txt); }
+  .ld-step.done .dot{ background:var(--ok); border-color:var(--ok); }
+  .ld-step.act{ color:var(--indigo-d); font-weight:700; }
+  .ld-step.act .dot{ border-color:var(--indigo-d); border-style:dashed; }
+
+  /* ===== 已绑定 ===== */
+  .bound-bar{ border:1px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:12px; margin-bottom:16px; background:#fff; }
+  .bound-bar .bdot{ width:8px; height:8px; border-radius:50%; background:var(--ok); flex:none; }
+  .bb-l{ font-size:12.5px; color:var(--sub); }
+  .bb-n{ font-size:14.5px; font-weight:700; color:var(--ink); margin-top:1px; display:flex; align-items:center; gap:8px; }
+  .id-tag{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; }
+  .id-tag.ai{ background:#ede9fe; color:#6d28d9; border:1px solid #ddd6fe; }
+  .id-tag.bot{ background:#f1f5f9; color:#475569; border:1px solid var(--line); }
+  .ghost{ margin-left:auto; font-size:13px; border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 16px; color:var(--txt); cursor:pointer; font-family:inherit; }
+  .ghost:hover{ border-color:#c7d2fe; color:var(--indigo-d); }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .mini{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; }
+  .mini .mt{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .mini .md{ font-size:12.5px; color:var(--mut); margin-top:3px; }
+  .pill-ok{ margin-left:auto; font-size:11px; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:6px; padding:2px 8px; flex:none; }
+  .sw{ width:42px; height:23px; border-radius:12px; background:#cbd5e1; flex:none; margin-left:auto; position:relative; cursor:pointer; transition:.15s; }
+  .sw::after{ content:""; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; transition:.15s; }
+  .sw.on{ background:var(--indigo-d); }
+  .sw.on::after{ left:21px; }
+
+  .sec-t{ font-size:13.5px; font-weight:700; color:var(--ink); margin:4px 0 12px; }
+  .sec-t span{ font-weight:400; font-size:12px; color:var(--mut); margin-left:6px; }
+  .fgrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 22px; margin-bottom:22px; }
+  .fld label{ display:block; font-size:12.5px; color:var(--sub); margin-bottom:6px; }
+  .fbox{ display:flex; align-items:center; gap:8px; }
+  .ro{ flex:1; min-width:0; border:1px solid var(--line); background:#f8fafc; border-radius:9px; padding:9px 12px; font-size:13px; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .act-s{ font-size:12px; color:var(--blue); cursor:pointer; flex:none; }
+  .act-s:hover{ text-decoration:underline; }
+
+  .grp-sec{ border-top:1px solid var(--line-2); padding-top:20px; }
+  .grp-empty{ text-align:center; padding:34px 10px; color:var(--mut); }
+  .grp-empty .gt{ font-size:13.5px; font-weight:700; color:var(--sub); }
+  .grp-empty .gd{ font-size:12.5px; margin-top:4px; }
+
+  /* ===== 弹窗 ===== */
+  .mask{ position:absolute; inset:0; background:rgba(15,23,42,.5); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .mask.show{ display:flex; }
+  .modal{ width:600px; max-width:100%; background:#fff; border-radius:16px; box-shadow:var(--shadow-lg); overflow:hidden; }
+  .mh{ padding:18px 22px 0; }
+  .mh-t{ font-size:16.5px; font-weight:800; color:var(--ink); }
+  .mh-d{ font-size:12.5px; color:var(--mut); margin-top:4px; }
+  .m-x{ float:right; font-size:20px; color:var(--mut); cursor:pointer; line-height:1; }
+  .mtabs{ display:flex; gap:24px; padding:0 22px; border-bottom:1px solid var(--line); margin-top:14px; }
+  .mtab{ font-size:13.5px; color:var(--sub); padding:9px 1px 11px; cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:6px; }
+  .mtab.on{ color:var(--indigo-d); font-weight:700; border-bottom-color:var(--indigo-d); }
+  .mtab .rec-b{ font-size:10px; background:#ede9fe; color:#6d28d9; border-radius:5px; padding:1px 6px; font-weight:700; }
+  .mbody{ padding:22px; }
+
+  /* 弹窗 · 招募智能体 */
+  .rec-card{ border:1px solid #ddd6fe; background:linear-gradient(180deg,#f5f3ff,#fbfaff); border-radius:13px; padding:18px; display:flex; align-items:center; gap:14px; }
+  .rec-ava{ width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex:none; box-shadow:0 5px 14px rgba(99,102,241,.3); }
+  .rec-n{ font-size:15px; font-weight:800; color:var(--ink); }
+  .rec-d{ font-size:12.5px; color:var(--sub); margin-top:3px; }
+  .rec-list{ margin:16px 0 0; }
+  .rec-li{ display:flex; align-items:flex-start; gap:9px; font-size:13px; color:var(--txt); padding:6px 0; }
+  .rec-li .ck{ color:var(--ok); flex:none; font-weight:800; }
+  .rec-tip{ background:#f8fafc; border:1px solid var(--line-2); border-radius:10px; padding:11px 13px; font-size:12px; color:var(--mut); margin-top:14px; line-height:1.6; }
+  .m-foot{ display:flex; align-items:center; gap:10px; margin-top:20px; }
+  .m-foot .fill{ flex:1; }
+  .btn-p{ background:linear-gradient(135deg,var(--indigo-d),var(--violet)); color:#fff; border:none; border-radius:10px; padding:11px 26px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 5px 14px rgba(99,102,241,.28); }
+  .btn-p:hover{ filter:brightness(1.07); }
+  .btn-g{ border:1px solid var(--line); background:#fff; border-radius:10px; padding:11px 20px; font-size:13.5px; color:var(--txt); cursor:pointer; font-family:inherit; }
+  .btn-g:hover{ border-color:#cbd5e1; }
+  .recruited{ text-align:center; padding:6px 0 0; }
+  .rd-ico{ width:56px; height:56px; margin:0 auto 14px; border-radius:50%; background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .rd-t{ font-size:16px; font-weight:800; color:var(--ink); }
+  .rd-d{ font-size:13px; color:var(--sub); margin-top:7px; }
+  .rd-name{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; border:1px solid #ddd6fe; background:#f5f3ff; border-radius:10px; padding:9px 16px; font-size:14px; font-weight:700; color:#6d28d9; }
+  .rd-hint{ font-size:12px; color:var(--mut); margin-top:14px; line-height:1.6; }
+
+  /* 弹窗 · 扫码绑定 POPO 机器人 */
+  .qr-panel{ background:#0f172a; border-radius:14px; padding:26px 22px 22px; text-align:center; }
+  .qr-t{ font-size:17px; font-weight:800; color:#fff; }
+  .qr-box{ width:190px; height:190px; margin:18px auto 0; background:#fff; border-radius:12px; padding:11px; }
+  .qr-grid{ width:100%; height:100%; display:grid; grid-template-columns:repeat(25,1fr); grid-template-rows:repeat(25,1fr); }
+  .qr-grid i{ background:#0f172a; }
+  .qr-wait{ display:flex; align-items:center; justify-content:center; gap:9px; color:#cbd5e1; font-size:13px; margin-top:16px; }
+  .qr-wait .s{ width:14px; height:14px; border:2px solid rgba(203,213,225,.35); border-top-color:#cbd5e1; border-radius:50%; animation:sp .8s linear infinite; }
+  .qr-cancel{ color:#e2e8f0; font-size:13.5px; margin-top:14px; cursor:pointer; }
+  .qr-cancel:hover{ color:#fff; text-decoration:underline; }
+  .qr-hint{ font-size:11.5px; color:#64748b; margin-top:16px; line-height:1.6; }
+  .warn-box{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:12.5px; border-radius:10px; padding:10px 13px; margin-bottom:14px; line-height:1.6; }
+
+  /* toast */
+  .toast{ position:fixed; left:50%; bottom:44px; transform:translateX(-50%) translateY(14px); background:var(--ink); color:#fff; font-size:13.5px; padding:11px 22px; border-radius:11px; opacity:0; transition:.22s; pointer-events:none; z-index:99; box-shadow:var(--shadow-lg); }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <span class="dl">原型演示场景</span>
+  <button class="demo-btn on" id="sc-new" onclick="setScene('new')">① 新建 Agent · 已默认招募智能体</button>
+  <button class="demo-btn" id="sc-legacy" onclick="setScene('legacy')">② 老平台迁移 Agent · 未绑定</button>
+  <button class="demo-btn" id="sc-bot" onclick="setScene('bot')">③ 老 Agent · 已绑老版 POPO 机器人</button>
+  <span class="demo-note">切换场景查看不同初始状态（非产品功能）</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="tb-brand"><span class="bi">W</span> WorkHub Studio</div>
+    <div class="tb-space">🏢 易协作 <span class="car">▾</span></div>
+    <div class="tb-right"><span>◫</span><span>🔔</span><span class="tb-ava">张</span></div>
+  </div>
+
+  <div class="main-row">
+    <div class="sidebar">
+      <div class="side-new">＋ 新对话</div>
+      <div class="side-group">工作台</div>
+      <div class="side-item on">👤 Agent</div>
+      <div class="side-item">🧬 模板</div>
+      <div class="side-group">工具箱</div>
+      <div class="side-item">🔑 MCP</div>
+      <div class="side-item">⚡ 自动化</div>
+      <div class="side-group">效果分析</div>
+      <div class="side-item">🕘 会话</div>
+    </div>
+
+    <div class="content">
+      <div class="back">← 返回 Agents</div>
+
+      <div class="ag-head">
+        <h1 id="agName">易协作助手</h1>
+        <div class="ag-meta">拥有者：欧恩日 <span class="sep">·</span> 来源：<span id="agSrc">Workhub Studio</span></div>
+        <div class="ag-id">0593fab4-e673-4494-8816-c04733d535a6</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab on">配置</div>
+        <div class="tab">记忆</div>
+        <div class="tab">使用</div>
+        <div class="tab">用量</div>
+      </div>
+
+      <div class="subtabs">
+        <div class="subtab">基础信息</div>
+        <div class="subtab">内置工具</div>
+        <div class="subtab">Prompt</div>
+        <div class="subtab">Skill</div>
+        <div class="subtab">MCP</div>
+        <div class="subtab on">POPO</div>
+      </div>
+
+      <!-- ========== A. 未绑定（突出智能体） ========== -->
+      <div id="paneEmpty" class="hidden">
+        <div class="empty">
+          <div class="em-ico">🤖</div>
+          <div class="em-t">尚未招募智能体</div>
+          <div class="em-d">智能体是本 Agent 在 POPO 中的<b>对外身份</b>。招募后即可被同事单聊、拉入群聊，凭证与回调由平台自动完成，无需手工配置。</div>
+          <button class="em-btn" onclick="openModal('recruit')">✨ 招募智能体</button>
+          <div class="em-legacy">已有老版 POPO 机器人？<b>可在弹窗第二个 Tab 扫码绑定既有机器人</b></div>
+          <div class="em-cards">
+            <div class="em-card"><div class="ci">⚡</div><div class="cn">一键招募</div><div class="cd">无需填写任何信息，名称与头像继承本 Agent</div></div>
+            <div class="em-card"><div class="ci">🔐</div><div class="cn">免配置凭证</div><div class="cd">App ID / Key / Secret 与回调地址平台自动下发</div></div>
+            <div class="em-card"><div class="ci">💬</div><div class="cn">即刻可用</div><div class="cd">招募成功后可单聊、可入群，回复规则沿用现有设置</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== B. 招募中 ========== -->
+      <div id="paneLoading" class="hidden">
+        <div class="loading">
+          <div class="spin"></div>
+          <div class="ld-t">智能体招募中…</div>
+          <div class="ld-d">平台正在为本 Agent 创建对外身份，预计 10 秒内完成，请勿关闭页面</div>
+          <div class="ld-steps">
+            <div class="ld-step act" id="st1"><span class="dot">✓</span> 创建智能体身份</div>
+            <div class="ld-step" id="st2"><span class="dot">✓</span> 下发凭证与回调地址</div>
+            <div class="ld-step" id="st3"><span class="dot">✓</span> 注册消息通道</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== C. 已绑定（智能体 / 老机器人 共用，图3 已有页面） ========== -->
+      <div id="paneBound" class="hidden">
+        <div class="bound-bar">
+          <span class="bdot"></span>
+          <div>
+            <div class="bb-l" id="bbLabel">已招募智能体</div>
+            <div class="bb-n"><span id="bbName">易协作助手</span><span class="id-tag ai" id="bbTag">智能体</span></div>
+          </div>
+          <button class="ghost" onclick="openModal('change')" id="bbBtn">更换机器人</button>
+        </div>
+
+        <div class="two-col">
+          <div class="mini">
+            <div>
+              <div class="mt">回调配置</div>
+              <div class="md">已注册回调地址，消息可正常接收</div>
+            </div>
+            <span class="pill-ok">已连接</span>
+          </div>
+          <div class="mini">
+            <div>
+              <div class="mt">每日新会话</div>
+              <div class="md">当前不会自动刷新会话</div>
+            </div>
+            <div class="sw" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <div class="sec-t" id="credTitle">智能体凭证<span>绑定后自动填入，不可编辑</span></div>
+        <div class="fgrid">
+          <div class="fld"><label>POPO 开放平台域名</label><div class="fbox"><div class="ro">测试环境</div></div></div>
+          <div class="fld"><label>POPO App ID</label><div class="fbox"><div class="ro" id="cAppId">578285400</div></div></div>
+          <div class="fld"><label>POPO 卡片模板 UUID</label><div class="fbox"><div class="ro">series_3901423</div></div></div>
+          <div class="fld"><label>POPO App Key</label><div class="fbox"><div class="ro">hDUZZKLrMUHXvC8xhDAj</div></div></div>
+          <div class="fld"><label>POPO App Secret</label><div class="fbox"><div class="ro">••••••••••••••••••••••••••••••••</div><span class="act-s" onclick="toast('已显示明文')">查看</span></div></div>
+          <div class="fld"><label>Callback URL</label><div class="fbox"><div class="ro">https://int-test-fabric.netease.com/workhub/api/v1/agent/popo/callback/bot_b305880e9cbb</div><span class="act-s" onclick="toast('已复制')">复制</span></div></div>
+          <div class="fld"><label>Callback Token</label><div class="fbox"><div class="ro">••••••••••••••••••••••••••••</div><span class="act-s" onclick="toast('已复制')">复制</span></div></div>
+          <div class="fld"><label>Callback AES Key</label><div class="fbox"><div class="ro">••••••••••••••••••••••••••••</div><span class="act-s" onclick="toast('已复制')">复制</span></div></div>
+        </div>
+
+        <div class="grp-sec">
+          <div class="sec-t">已加入的群聊 (0)<span>回复规则在 Agenthub 设置，此处仅展示当前生效规则</span></div>
+          <div class="grp-empty">
+            <div class="gt">暂无已加入的群聊</div>
+            <div class="gd">加入群聊后可在此查看按群生效的回复规则</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 弹窗 ========== -->
+  <div class="mask" id="mask">
+    <div class="modal">
+      <div class="mh">
+        <span class="m-x" onclick="closeModal()">×</span>
+        <div class="mh-t" id="mTitle">绑定对外身份</div>
+        <div class="mh-d" id="mDesc">招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。</div>
+      </div>
+      <div class="mtabs">
+        <div class="mtab on" id="mt-ai" onclick="setMTab('ai')">✨ 招募智能体 <span class="rec-b">推荐</span></div>
+        <div class="mtab" id="mt-bot" onclick="setMTab('bot')">📷 扫码绑定 POPO 机器人</div>
+      </div>
+
+      <div class="mbody">
+        <!-- Tab1 · 未招募 -->
+        <div id="mp-ai">
+          <div class="rec-card">
+            <div class="rec-ava">🤖</div>
+            <div>
+              <div class="rec-n" id="recName">易协作助手</div>
+              <div class="rec-d">名称与头像继承本 Agent，无需填写任何信息</div>
+            </div>
+          </div>
+          <div class="rec-list">
+            <div class="rec-li"><span class="ck">✓</span> 自动创建 POPO 对外身份，可被单聊、可拉入群聊</div>
+            <div class="rec-li"><span class="ck">✓</span> App ID / Key / Secret 与 Callback 由平台下发，免手工填写</div>
+            <div class="rec-li"><span class="ck">✓</span> 招募后可随时在本页更换为其他身份</div>
+          </div>
+          <div class="rec-tip">💡 若本 Agent 已在老 Fabric 平台创建过 POPO 机器人，希望继续使用原机器人（保留原有群聊与会话），请切换到「扫码绑定 POPO 机器人」。</div>
+          <div class="m-foot">
+            <span class="fill"></span>
+            <button class="btn-g" onclick="closeModal()">取消</button>
+            <button class="btn-p" onclick="doRecruit()">招募智能体</button>
+          </div>
+        </div>
+
+        <!-- Tab1 · 已招募（换绑场景） -->
+        <div id="mp-ai-done" class="hidden">
+          <div class="recruited">
+            <div class="rd-ico">✓</div>
+            <div class="rd-t">已招募智能体</div>
+            <div class="rd-d">本 Agent 已拥有平台智能体身份，无需重新招募</div>
+            <div class="rd-name">🤖 <span id="doneName">易协作助手</span></div>
+            <div class="rd-hint">如需改用老版 POPO 机器人，请切换到「扫码绑定 POPO 机器人」重新扫码。<br>换绑后当前智能体身份将被解绑。</div>
+          </div>
+          <div class="m-foot">
+            <span class="fill"></span>
+            <button class="btn-g" onclick="closeModal()">关闭</button>
+          </div>
+        </div>
+
+        <!-- Tab2 · 扫码绑定 -->
+        <div id="mp-bot" class="hidden">
+          <div class="warn-box" id="botWarn">⚠️ 当前已绑定「<b id="warnCur">智能体</b>」，扫码绑定成功后原身份将被<b>解绑</b>，群聊需重新邀请新机器人加入。</div>
+          <div class="qr-panel">
+            <div class="qr-t">请使用 POPO 扫描下方二维码</div>
+            <div class="qr-box"><div class="qr-grid" id="qrGrid"></div></div>
+            <div class="qr-wait"><span class="s"></span> 等待扫码绑定…</div>
+            <div class="qr-cancel" onclick="closeModal()">取消</div>
+            <div class="qr-hint">扫码后将打开机器人创建页面，完成后 appid / appkey / appsecret<br>会自动回填，回调到配置页面</div>
+          </div>
+          <div class="m-foot">
+            <span class="fill"></span>
+            <button class="btn-g" onclick="simScan()">模拟扫码成功（演示）</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AGENT_NAME = "易协作助手";
+// state.bind: null | 'ai' | 'bot'
+let state = { bind: 'ai', botId: 'Bot 578285400 · 测试环境' };
+let mTab = 'ai', modalMode = 'recruit';
+
+function setScene(s) {
+  ['new','legacy','bot'].forEach(k => document.getElementById('sc-'+k).classList.toggle('on', k===s));
+  document.getElementById('agSrc').textContent = s === 'new' ? 'Workhub Studio' : '老 Fabric 平台（迁移）';
+  state.bind = s === 'new' ? 'ai' : (s === 'bot' ? 'bot' : null);
+  render();
+}
+
+function render() {
+  ['paneEmpty','paneLoading','paneBound'].forEach(id => document.getElementById(id).classList.add('hidden'));
+  if (state.bind === null) { document.getElementById('paneEmpty').classList.remove('hidden'); return; }
+  document.getElementById('paneBound').classList.remove('hidden');
+  const isAI = state.bind === 'ai';
+  document.getElementById('bbLabel').textContent = isAI ? '已招募智能体' : '已绑定机器人';
+  document.getElementById('bbName').textContent  = isAI ? AGENT_NAME : state.botId;
+  const tag = document.getElementById('bbTag');
+  tag.textContent = isAI ? '智能体' : '老版 POPO 机器人';
+  tag.className = 'id-tag ' + (isAI ? 'ai' : 'bot');
+  document.getElementById('bbBtn').textContent = isAI ? '更换身份' : '更换机器人';
+  document.getElementById('credTitle').innerHTML = (isAI ? '智能体凭证' : '机器人凭证') + '<span>绑定后自动填入，不可编辑</span>';
+}
+
+function openModal(mode) {
+  modalMode = mode;
+  const bound = state.bind !== null;
+  document.getElementById('mTitle').textContent = bound ? '更换对外身份' : '绑定对外身份';
+  document.getElementById('mDesc').textContent = bound
+    ? '智能体与老版 POPO 机器人互斥，切换后原身份将被解绑。'
+    : '招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。';
+  document.getElementById('recName').textContent = AGENT_NAME;
+  document.getElementById('doneName').textContent = AGENT_NAME;
+  document.getElementById('warnCur').textContent = state.bind === 'ai' ? '智能体 · ' + AGENT_NAME : state.botId;
+  document.getElementById('botWarn').classList.toggle('hidden', !bound);
+  drawQR();
+  setMTab(state.bind === 'bot' ? 'bot' : 'ai');
+  document.getElementById('mask').classList.add('show');
+}
+function closeModal() { document.getElementById('mask').classList.remove('show'); }
+
+function setMTab(t) {
+  mTab = t;
+  document.getElementById('mt-ai').classList.toggle('on', t === 'ai');
+  document.getElementById('mt-bot').classList.toggle('on', t === 'bot');
+  const recruited = state.bind === 'ai';
+  document.getElementById('mp-ai').classList.toggle('hidden', t !== 'ai' || recruited);
+  document.getElementById('mp-ai-done').classList.toggle('hidden', t !== 'ai' || !recruited);
+  document.getElementById('mp-bot').classList.toggle('hidden', t !== 'bot');
+}
+
+function doRecruit() {
+  closeModal();
+  document.getElementById('paneEmpty').classList.add('hidden');
+  document.getElementById('paneBound').classList.add('hidden');
+  document.getElementById('paneLoading').classList.remove('hidden');
+  ['st1','st2','st3'].forEach(id => document.getElementById(id).className = 'ld-step');
+  document.getElementById('st1').className = 'ld-step act';
+  setTimeout(() => { document.getElementById('st1').className = 'ld-step done'; document.getElementById('st2').className = 'ld-step act'; }, 1100);
+  setTimeout(() => { document.getElementById('st2').className = 'ld-step done'; document.getElementById('st3').className = 'ld-step act'; }, 2100);
+  setTimeout(() => {
+    document.getElementById('st3').className = 'ld-step done';
+    state.bind = 'ai'; render(); toast('🎉 智能体招募成功，已可在 POPO 中使用');
+  }, 3000);
+}
+
+function simScan() {
+  closeModal();
+  state.bind = 'bot';
+  state.botId = 'Bot ' + (570000000 + Math.floor(Math.random() * 9999999)) + ' · 测试环境';
+  render(); toast('已绑定 POPO 机器人，凭证已自动回填');
+}
+
+function drawQR() {
+  const N = 25, g = document.getElementById('qrGrid');
+  let seed = 20260907, cells = [];
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const finder = (r, c) => {
+    for (const [br, bc] of [[0,0],[0,N-7],[N-7,0]]) {
+      if (r >= br && r < br+7 && c >= bc && c < bc+7) {
+        const dr = r-br, dc = c-bc;
+        const edge = dr===0||dr===6||dc===0||dc===6;
+        const core = dr>=2&&dr<=4&&dc>=2&&dc<=4;
+        return edge || core;
+      }
+    }
+    return null;
+  };
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const f = finder(r, c);
+    cells.push(f === null ? rnd() > 0.52 : f);
+  }
+  g.innerHTML = cells.map(v => `<i style="background:${v ? '#0f172a' : '#fff'}"></i>`).join('');
+}
+
+let tt;
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('mask').addEventListener('click', e => { if (e.target.id === 'mask') closeModal(); });
+render();
+</script>
+</body>
+</html>
