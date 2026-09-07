@@ -240,15 +240,14 @@
       <!-- ========== A. 未绑定（突出智能体） ========== -->
       <div id="paneEmpty" class="hidden">
         <div class="empty">
-          <div class="em-ico">🤖</div>
           <div class="em-t">尚未招募智能体</div>
-          <div class="em-d">智能体是本 Agent 在 POPO 中的<b>对外身份</b>。招募后即可被同事单聊、拉入群聊，凭证与回调由平台自动完成，无需手工配置。</div>
+          <div class="em-d">招募后本智能体可在 POPO 单聊、群聊场景中使用。</div>
           <button class="em-btn" onclick="openModal('recruit')">✨ 招募智能体</button>
           <div class="em-legacy">已有老版 POPO 机器人？<b>可在弹窗第二个 Tab 扫码绑定既有机器人</b></div>
           <div class="em-cards">
             <div class="em-card"><div class="ci">⚡</div><div class="cn">一键招募</div><div class="cd">无需填写任何信息，名称与头像继承本 Agent</div></div>
             <div class="em-card"><div class="ci">🔐</div><div class="cn">免配置凭证</div><div class="cd">App ID / Key / Secret 与回调地址平台自动下发</div></div>
-            <div class="em-card"><div class="ci">💬</div><div class="cn">即刻可用</div><div class="cd">招募成功后可单聊、可入群，回复规则沿用现有设置</div></div>
+            <div class="em-card"><div class="ci">💬</div><div class="cn">即刻可用</div><div class="cd">招募成功后可在单聊、群聊场景中使用</div></div>
           </div>
         </div>
       </div>
@@ -323,8 +322,7 @@
     <div class="modal">
       <div class="mh">
         <span class="m-x" onclick="closeModal()">×</span>
-        <div class="mh-t" id="mTitle">绑定对外身份</div>
-        <div class="mh-d" id="mDesc">招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。</div>
+        <div class="mh-t" id="mTitle">绑定智能体</div>
       </div>
       <div class="mtabs">
         <div class="mtab on" id="mt-ai" onclick="setMTab('ai')">✨ 招募智能体 <span class="rec-b">推荐</span></div>
@@ -342,9 +340,8 @@
             </div>
           </div>
           <div class="rec-list">
-            <div class="rec-li"><span class="ck">✓</span> 自动创建 POPO 对外身份，可被单聊、可拉入群聊</div>
+            <div class="rec-li"><span class="ck">✓</span> 自动创建智能体，可在 POPO 单聊、群聊场景中使用</div>
             <div class="rec-li"><span class="ck">✓</span> App ID / Key / Secret 与 Callback 由平台下发，免手工填写</div>
-            <div class="rec-li"><span class="ck">✓</span> 招募后可随时在本页更换为其他身份</div>
           </div>
           <div class="rec-tip">💡 若本 Agent 已在老 Fabric 平台创建过 POPO 机器人，希望继续使用原机器人（保留原有群聊与会话），请切换到「绑定 POPO 机器人」。</div>
           <div class="m-foot">
@@ -419,10 +416,7 @@ function render() {
 function openModal(mode) {
   modalMode = mode;
   const bound = state.bind !== null;
-  document.getElementById('mTitle').textContent = bound ? '更换机器人' : '绑定对外身份';
-  const md = document.getElementById('mDesc');
-  md.textContent = '招募平台智能体，或扫码绑定已有的老版 POPO 机器人。两者互斥，同一 Agent 仅能绑定其中一个。';
-  md.classList.toggle('hidden', bound);
+  document.getElementById('mTitle').textContent = bound ? '更换机器人' : '绑定智能体';
   document.getElementById('recName').textContent = AGENT_NAME;
   document.getElementById('doneName').textContent = AGENT_NAME;
   document.getElementById('warnCur').textContent = state.bind === 'ai' ? AGENT_NAME : state.botId;
