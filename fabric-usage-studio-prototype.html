@@ -52,7 +52,7 @@
   .filters{ display:flex; align-items:center; gap:10px; }
   .filters select{ border:1px solid var(--line); border-radius:9px; padding:8px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; cursor:pointer; }
   .range-label{ font-size:12.5px; color:var(--mut); }
-  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
   .stat-card{ border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff; }
   .stat-card .lb{ font-size:13px; font-weight:600; color:var(--sub); display:inline-flex; align-items:center; gap:4px; }
   .tip-ic{ font-size:12px; color:var(--mut); cursor:help; position:relative; font-weight:400; }
@@ -256,16 +256,25 @@ function renderUsage(){
   const sceneRows=(total,fmt)=> scenes.map(s=>`<div class="sc-row"><span class="sc-nm">${s.name}</span><span class="sc-v">${fmt(Math.round(total*s.frac))}</span><span class="sc-p">${(s.frac*100).toFixed(0)}%</span></div>`).join("");
   const idF=x=>x;
   const scope= curTenant==="all" ? "全部租户" : curTenant;
+  const tf=tenantFactor(curTenant);
+  const agentTotal=Math.max(6,Math.round(128*tf));
+  const agentParts=[["Agenthub 创建",0.46],["Studio 创建",0.38],["本地接入",0.16]];
+  const imTotal=Math.max(4,Math.round(86*tf));
+  const imParts=[["加入群聊",0.62],["加入单聊",0.38]];
+  const pAgent=Math.max(1,Math.round(agentTotal*0.92)), pIm=Math.max(1,Math.round(imTotal*0.89));
+  const partRows=(total,parts,fmt)=> parts.map(([nm,fr])=>`<div class="sc-row"><span class="sc-nm">${nm}</span><span class="sc-v">${fmt(Math.round(total*fr))}</span><span class="sc-p">${(fr*100).toFixed(0)}%</span></div>`).join("");
   document.getElementById('statGrid').innerHTML=[
-    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok),`${scope}下全部 Agent 使用过程中消耗的 Token 总量`],
-    ["总会话数",sess,idF,mom(sess,pSess),`用户与${scope}下全部 Agent 发起的会话总数（非消息数）`],
-    ["总消息数",dlg,idF,mom(dlg,pDlg),`${scope}下全部 Agent 成功回复的消息总数，每回复一条计 1`],
-    ["总用户数",usersN,idF,mom(usersN,pUsers),`与${scope}下 Agent 对话过的去重用户总数`]
-  ].map(([lb,vl,fmt,mo,tip])=>`<div class="stat-card">
+    ["总 Token 用量",totTok,kfmt,mom(totTok,pTok),`${scope}下全部 Agent 使用过程中消耗的 Token 总量`,null],
+    ["总会话数",sess,idF,mom(sess,pSess),`用户与${scope}下全部 Agent 发起的会话总数（非消息数）`,null],
+    ["总消息数",dlg,idF,mom(dlg,pDlg),`${scope}下全部 Agent 成功回复的消息总数，每回复一条计 1`,null],
+    ["总用户数",usersN,idF,mom(usersN,pUsers),`与${scope}下 Agent 对话过的去重用户总数`,null],
+    ["总 Agent 数",agentTotal,idF,mom(agentTotal,pAgent),`${scope}下已创建的 Agent 总数量，按创建来源拆分为 Agenthub 创建、Studio 创建、本地接入`,agentParts],
+    ["IM 接入数",imTotal,idF,mom(imTotal,pIm),`${scope}下全部 Agent 加入 POPO 群聊与单聊的数量总和`,imParts]
+  ].map(([lb,vl,fmt,mo,tip,parts])=>`<div class="stat-card">
       <div class="lb">${lb}<span class="tip-ic" data-tip="${tip}">ⓘ</span></div>
       <div class="stat-main"><div class="vl">${fmt(vl)}</div>${mo}</div>
       <div class="stat-div"></div>
-      ${sceneRows(vl,fmt)}
+      ${parts? partRows(vl,parts,fmt) : sceneRows(vl,fmt)}
     </div>`).join("");
   detailPage=1; renderDetail(); renderTrends();
 }
