@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>原型 · 租户供给技能与工具到 AgentHub 发现页</title>
+<style>
+  :root{
+    --indigo:#6366f1; --indigo-d:#4f46e5; --violet:#7c3aed; --blue:#2563eb;
+    --ink:#0f172a; --txt:#334155; --sub:#64748b; --mut:#94a3b8;
+    --line:#e2e8f0; --line-2:#eef2f6; --bg:#f1f5f9;
+    --r:10px; --shadow-md:0 6px 24px rgba(15,23,42,.08); --shadow-lg:0 18px 50px rgba(15,23,42,.18);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--txt); padding:22px 18px 60px; }
+
+  .page-label{ max-width:1480px; margin:6px auto 12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .page-label .b-num{ background:#dc2626; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .page-label .b-title{ font-size:17px; font-weight:800; color:var(--ink); }
+  .page-label .b-desc{ font-size:12.5px; color:var(--sub); }
+
+  .switcher{ max-width:1480px; margin:0 auto 14px; display:flex; gap:8px; flex-wrap:wrap; }
+  .sw-btn{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:9px 16px; font-size:13px; font-weight:700; color:var(--txt); cursor:pointer; }
+  .sw-btn.on{ background:var(--indigo); border-color:var(--indigo); color:#fff; }
+
+  .app{ max-width:1480px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--line); min-height:840px; }
+
+  /* topbar */
+  .topbar{ height:56px; border-bottom:1px solid var(--line-2); display:flex; align-items:center; padding:0 18px; gap:14px; }
+  .tb-brand{ display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; color:var(--ink); width:186px; flex:0 0 186px; }
+  .tb-brand .bi{ width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,var(--indigo-d),var(--violet)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; }
+  .tenant-sel{ display:flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:9px; padding:6px 12px; font-size:13px; font-weight:700; color:var(--txt); background:#fff; }
+  .tenant-sel .caret{ font-size:11px; color:var(--mut); }
+  .tb-right{ margin-left:auto; display:flex; align-items:center; gap:14px; font-size:13px; color:var(--txt); font-weight:600; }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#fb923c,#f472b6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+
+  .main-row{ display:flex; align-items:stretch; }
+  .sidebar{ width:186px; flex:0 0 186px; border-right:1px solid var(--line-2); padding:12px 10px 20px; }
+  .side-group{ font-size:11px; font-weight:800; color:var(--mut); letter-spacing:.4px; padding:12px 12px 6px; }
+  .side-item{ display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:9px; font-size:13.5px; color:var(--txt); cursor:pointer; margin-bottom:2px; }
+  .side-item:hover{ background:#f5f7fa; }
+  .side-item.on{ background:#ede9fe; color:var(--indigo-d); font-weight:700; }
+  .side-item .ci{ width:18px; text-align:center; font-size:14px; }
+  .content{ flex:1; min-width:0; padding:20px 26px 40px; }
+
+  /* head */
+  .p-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:12px; flex-wrap:wrap; }
+  .p-title{ font-size:21px; font-weight:800; color:var(--ink); }
+  .p-sub{ font-size:12.5px; color:var(--sub); margin-top:3px; }
+  .h-tools{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .btn{ border:none; border-radius:9px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .btn.primary{ background:var(--indigo); color:#fff; }
+  .btn.ghost{ background:#fff; border:1px solid var(--line); color:var(--txt); }
+  .btn.line{ background:#fff; border:1px solid #bfdbfe; color:var(--blue); }
+  .btn.sm{ padding:5px 11px; font-size:12px; border-radius:7px; }
+
+  .filters{ display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .inp{ border:1px solid var(--line); border-radius:9px; padding:8px 13px; font-size:13px; font-family:inherit; color:var(--txt); }
+  .inp:focus{ outline:none; border-color:#c7d2fe; }
+  .sel{ border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-size:13px; font-family:inherit; color:var(--txt); background:#fff; cursor:pointer; }
+
+  /* table */
+  .tcard{ border:1px solid var(--line); border-radius:12px; overflow:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:1120px; }
+  th{ background:#f8fafc; font-size:12px; font-weight:700; color:var(--sub); text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  td{ padding:13px 12px; border-bottom:1px solid var(--line-2); font-size:13px; color:var(--txt); vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:#fafbff; }
+  .nm{ font-weight:700; color:var(--blue); }
+  .nm-sub{ font-size:11.5px; color:var(--mut); margin-top:2px; }
+  .tag{ font-size:11px; padding:2px 8px; border-radius:20px; font-weight:700; white-space:nowrap; }
+  .tag.act{ background:#dcfce7; color:#16a34a; }
+  .tag.gray{ background:#f1f5f9; color:#64748b; }
+  .tag.blue{ background:#dbeafe; color:#1d4ed8; }
+  .tag.amber{ background:#fef3c7; color:#b45309; }
+  .tag.violet{ background:#ede9fe; color:#6d28d9; }
+  .tag.red{ background:#fee2e2; color:#dc2626; }
+  .mono{ font-family:"JetBrains Mono",Menlo,monospace; font-size:12px; color:var(--sub); }
+  .muted{ color:var(--mut); }
+  .ops{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .icob{ width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; color:var(--blue); cursor:pointer; }
+  .icob:hover{ background:#eff6ff; }
+  .icob.del{ color:#dc2626; } .icob.del:hover{ background:#fef2f2; }
+  .pub-btn{ border:1px solid #bfdbfe; background:#fff; color:var(--blue); border-radius:7px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; }
+  .pub-btn.off{ border-color:#fecaca; color:#dc2626; }
+  .pager{ display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:14px; font-size:12.5px; color:var(--sub); }
+
+  .note{ border-radius:10px; padding:11px 14px; font-size:12.5px; margin-bottom:14px; border-left:4px solid var(--indigo); background:#eef2ff; color:#3730a3; }
+  .note b{ font-weight:800; }
+
+  /* ============ AgentHub ============ */
+  .ah-wrap{ display:flex; gap:16px; background:#f5f7fb; padding:16px; border-radius:14px; }
+  .ah-left{ width:280px; flex:0 0 280px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; }
+  .ah-ava{ width:104px; height:104px; border-radius:50%; margin:6px auto 12px; background:linear-gradient(135deg,#c7d2fe,#fbcfe8); display:flex; align-items:center; justify-content:center; font-size:40px; }
+  .ah-nm{ font-size:18px; font-weight:800; color:var(--ink); }
+  .ah-meta{ display:flex; justify-content:space-around; margin:16px 0; }
+  .ah-meta div{ font-size:12px; color:var(--mut); }
+  .ah-meta b{ display:block; font-size:14px; color:var(--ink); font-weight:800; margin-bottom:2px; }
+  .ah-btn{ display:block; width:100%; border-radius:10px; padding:10px; font-size:13.5px; font-weight:700; margin-bottom:9px; cursor:pointer; border:none; font-family:inherit; }
+  .ah-btn.b1{ background:#3b82f6; color:#fff; }
+  .ah-btn.b2{ background:#f1f5f9; color:var(--txt); }
+  .ah-tenant{ margin-top:14px; padding-top:14px; border-top:1px solid var(--line-2); font-size:12px; color:var(--sub); text-align:left; }
+  .ah-tenant .lb{ font-weight:800; color:var(--ink); font-size:12px; margin-bottom:6px; }
+  .ah-right{ flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:14px; }
+  .ah-tabs{ display:flex; gap:22px; padding:14px 22px 0; border-bottom:1px solid var(--line-2); }
+  .ah-tab{ font-size:14px; font-weight:700; color:var(--mut); padding-bottom:11px; cursor:pointer; }
+  .ah-tab.on{ color:var(--ink); border-bottom:2px solid #111827; }
+  .ah-body{ padding:20px 22px 30px; }
+  .ah-h{ font-size:16px; font-weight:800; color:var(--ink); }
+  .ah-hs{ font-size:12.5px; color:var(--sub); margin:3px 0 16px; }
+  .seg{ display:inline-flex; background:#f1f5f9; border-radius:10px; padding:3px; }
+  .seg span{ padding:7px 26px; font-size:13.5px; font-weight:700; color:var(--sub); border-radius:8px; cursor:pointer; }
+  .seg span.on{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(15,23,42,.1); }
+  .seg-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .cap-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cap{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; display:flex; gap:11px; align-items:flex-start; background:#fff; }
+  .cap .ic{ width:34px; height:34px; flex:0 0 34px; border-radius:9px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .cap .ct{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .cap .cd{ font-size:11.5px; color:var(--sub); margin-top:3px; line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cap.tenant{ background:#fffdf5; border-color:#fde68a; }
+  .empty{ text-align:center; padding:60px 0; color:var(--mut); font-size:13px; }
+  .empty .ei{ font-size:44px; margin-bottom:12px; }
+
+  /* modal */
+  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:60; padding:20px; }
+  .overlay.on{ display:flex; }
+  .modal{ background:#fff; border-radius:18px; width:900px; max-width:100%; max-height:88vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden; }
+  .modal.sm{ width:440px; }
+  .m-head{ padding:20px 24px 14px; display:flex; align-items:center; justify-content:space-between; }
+  .m-head .mt{ font-size:18px; font-weight:800; color:var(--ink); }
+  .m-head .x{ font-size:22px; color:var(--mut); cursor:pointer; line-height:1; }
+  .m-tools{ padding:0 24px 12px; display:flex; align-items:center; gap:12px; }
+  .m-tools .seg span{ padding:7px 24px; }
+  .m-tools .grow{ margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .cat-tabs{ display:flex; gap:4px; padding:0 24px; border-bottom:1px solid var(--line-2); overflow-x:auto; }
+  .cat{ padding:9px 13px; font-size:13px; font-weight:700; color:var(--sub); cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; }
+  .cat.on{ color:var(--ink); border-bottom-color:#111827; }
+  .cat.tenant{ color:#b45309; }
+  .cat.tenant.on{ color:#b45309; border-bottom-color:#f59e0b; }
+  .m-body{ padding:16px 24px 22px; overflow:auto; }
+  .pick{ border:1px solid var(--line); border-radius:12px; padding:11px 13px; display:flex; gap:11px; align-items:center; }
+  .pick .ic{ width:34px; height:34px; flex:0 0 34px; border-radius:9px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .pick .tx{ flex:1; min-width:0; }
+  .pick .pt{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .pick .pd{ font-size:11.5px; color:var(--sub); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pick.tenant{ background:#fffdf5; border-color:#fde68a; }
+  .rnd{ width:28px; height:28px; flex:0 0 28px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--sub); cursor:pointer; background:#fff; }
+  .rnd:hover{ border-color:#a5b4fc; color:var(--indigo-d); }
+  .rnd.added{ color:#dc2626; }
+  .src-div{ display:flex; align-items:center; gap:10px; margin:16px 0 10px; }
+  .src-div .ln{ flex:1; height:1px; background:var(--line-2); }
+  .src-div .lb{ font-size:11.5px; font-weight:800; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:20px; padding:3px 11px; }
+  .m-foot{ padding:14px 24px; border-top:1px solid var(--line-2); display:flex; justify-content:flex-end; gap:10px; }
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:34px; background:#0f172a; color:#fff; font-size:13px; padding:10px 18px; border-radius:10px; opacity:0; pointer-events:none; transition:.25s; z-index:99; }
+  .toast.on{ opacity:1; bottom:44px; }
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  <span class="b-num">P</span>
+  <span class="b-title">租户供给技能与工具到 AgentHub 发现页</span>
+  <span class="b-desc">① Studio·Skills 上架 ② Studio·MCP 上架 ③ AgentHub 发现页（按 Agent 归属租户隔离）</span>
+</div>
+
+<div class="switcher">
+  <button class="sw-btn on" id="sw1" onclick="goView('skills',this)">① Studio 后台 · Skills 管理</button>
+  <button class="sw-btn" id="sw2" onclick="goView('mcp',this)">② Studio 后台 · MCP 管理</button>
+  <button class="sw-btn" id="sw3" onclick="goView('agenthub',this)">③ AgentHub · 技能和工具（发现页）</button>
+</div>
+
+<div class="app">
+
+  <!-- ===== Studio 视图 ===== -->
+  <div id="v-studio">
+    <div class="topbar">
+      <div class="tb-brand"><span class="bi">W</span>WorkHub Studio</div>
+      <div class="tenant-sel">🏢 易协作 <span class="caret">▾</span></div>
+      <div class="tb-right"><span>服务导航</span><span class="avatar">张</span></div>
+    </div>
+    <div class="main-row">
+      <aside class="sidebar">
+        <div class="side-group">AI 工厂</div>
+        <div class="side-item"><span class="ci">💬</span>对话</div>
+        <div class="side-item"><span class="ci">🧁</span>Bots</div>
+        <div class="side-item"><span class="ci">🧠</span>Agents</div>
+        <div class="side-item"><span class="ci">👥</span>Teams</div>
+        <div class="side-item"><span class="ci">🧬</span>Models</div>
+        <div class="side-item"><span class="ci">📝</span>Prompts</div>
+        <div class="side-item" id="nav-skills" onclick="goView('skills',document.getElementById('sw1'))"><span class="ci">✨</span>Skills</div>
+        <div class="side-item"><span class="ci">🗂️</span>记忆</div>
+        <div class="side-item" id="nav-mcp" onclick="goView('mcp',document.getElementById('sw2'))"><span class="ci">🔧</span>工具 / MCP</div>
+        <div class="side-item"><span class="ci">📒</span>会话</div>
+        <div class="side-group">接入管理</div>
+        <div class="side-item"><span class="ci">🧩</span>应用管理</div>
+        <div class="side-group">组织管理</div>
+        <div class="side-item"><span class="ci">🏢</span>组织架构</div>
+        <div class="side-group">系统设置</div>
+        <div class="side-item"><span class="ci">⚙️</span>基础配置</div>
+      </aside>
+
+      <div class="content">
+        <!-- Skills -->
+        <div id="pane-skills">
+          <div class="p-head">
+            <div>
+              <div class="p-title">Skills</div>
+              <div class="p-sub">易协作租户 · 技能管理；上架至 AgentHub 后仅本租户 Agent 的发现页可见</div>
+            </div>
+            <div class="h-tools">
+              <button class="btn line">管理分类</button>
+              <button class="btn line">管理标签</button>
+              <button class="btn ghost">批量设置标签</button>
+              <button class="btn primary">＋ 创建技能</button>
+            </div>
+          </div>
+          <div class="note">新增字段 <b>AgentHub 状态</b>（默认<b>未上架</b>）；操作列新增 <b>上架 / 下架</b> 按钮。上架后该技能进入本租户 Agent 的发现页，归入以租户名命名的分类 Tab（易协作）。</div>
+          <div class="filters">
+            <input class="inp" style="width:280px" id="skQ" placeholder="🔍 搜索技能名称" oninput="renderSkills()">
+            <select class="sel" id="skCat" onchange="renderSkills()"><option value="">分类 ▾</option><option>工单</option><option>排期</option><option>需求</option><option>通用</option></select>
+            <select class="sel" id="skAH" onchange="renderSkills()"><option value="">AgentHub 状态：全部</option><option value="1">已上架</option><option value="0">未上架</option></select>
+          </div>
+          <div class="tcard">
+            <table>
+              <thead><tr>
+                <th style="min-width:190px">名称</th><th>描述</th><th>版本</th><th>可见性</th><th>状态</th><th>开发者</th><th>分类</th><th>展示标签</th>
+                <th>AgentHub 状态</th><th style="min-width:190px">操作</th>
+              </tr></thead>
+              <tbody id="skRows"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>共 <b id="skCount">7</b> 条</span><span>10 条/页</span><span>‹ 1 ›</span></div>
+        </div>
+
+        <!-- MCP -->
+        <div id="pane-mcp" style="display:none;">
+          <div class="p-head">
+            <div>
+              <div class="p-title">MCP</div>
+              <div class="p-sub">易协作租户 · 工具管理；上架至 AgentHub 后混排在 POPO 官方工具之后</div>
+            </div>
+            <div class="h-tools"><button class="btn primary">＋ 添加 MCP</button></div>
+          </div>
+          <div class="note">新增字段 <b>AgentHub 状态</b>（默认<b>未上架</b>）；操作列新增 <b>上架 / 下架</b> 按钮。上架后该 MCP 出现在本租户 Agent 发现页「添加工具」列表，<b>紧随 POPO 官方 MCP 之后</b>。</div>
+          <div class="filters">
+            <input class="inp" style="width:280px" id="mcQ" placeholder="🔍 搜索 MCP 名称" oninput="renderMcps()">
+            <select class="sel" id="mcSt" onchange="renderMcps()"><option value="">全部状态</option><option>正常</option><option>发现失败</option></select>
+            <select class="sel" id="mcAH" onchange="renderMcps()"><option value="">AgentHub 状态：全部</option><option value="1">已上架</option><option value="0">未上架</option></select>
+          </div>
+          <div class="tcard">
+            <table>
+              <thead><tr>
+                <th style="min-width:200px">名称</th><th>类型</th><th>归属</th><th>创建人</th><th>认证方式</th><th>状态</th><th>绑定 Agent 数量</th>
+                <th>AgentHub 状态</th><th style="min-width:210px">操作</th>
+              </tr></thead>
+              <tbody id="mcRows"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>共 <b id="mcCount">7</b> 条</span><span>10 条/页</span><span>‹ 1 ›</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AgentHub 视图 ===== -->
+  <div id="v-agenthub" style="display:none;">
+    <div class="topbar">
+      <div class="tb-brand"><span class="bi">A</span>AgentHub</div>
+      <div class="tenant-sel">🙂 工作伙伴 <span class="caret">▾</span></div>
+      <div class="tb-right"><span id="ahTenantTop">当前 Agent 归属：易协作</span><span class="avatar">张</span></div>
+    </div>
+    <div class="content" style="padding:18px 20px 34px;">
+      <div class="note" id="ahNote"></div>
+      <div class="ah-wrap">
+        <div class="ah-left">
+          <div class="ah-ava" id="ahIco">🧑‍💼</div>
+          <div class="ah-nm" id="ahName">易协作·交付助手</div>
+          <div class="ah-meta">
+            <div><b>张振</b>创建人</div><div><b>12次</b>对话数</div><div><b>2026.9.10</b>创建时间</div>
+          </div>
+          <button class="ah-btn b1">💬 去 POPO 对话</button>
+          <button class="ah-btn b2">＋ 新任务</button>
+          <div class="ah-tenant">
+            <div class="lb">Agent 归属租户（演示切换）</div>
+            <select class="sel" style="width:100%" id="ahTenant" onchange="switchTenant()">
+              <option value="yxz">易协作</option>
+              <option value="popo">POPO（官方租户）</option>
+            </select>
+          </div>
+        </div>
+        <div class="ah-right">
+          <div class="ah-tabs">
+            <span class="ah-tab">伙伴档案</span>
+            <span class="ah-tab on">技能和工具</span>
+            <span class="ah-tab">使用范围</span>
+            <span class="ah-tab">自动化</span>
+            <span class="ah-tab">用量</span>
+          </div>
+          <div class="ah-body">
+            <div class="ah-h">技能和工具</div>
+            <div class="ah-hs">为工作伙伴添加技能和工具</div>
+            <div class="seg-row">
+              <div class="seg">
+                <span class="on" id="segSkill" onclick="switchCap('skill')">技能</span>
+                <span id="segTool" onclick="switchCap('tool')">工具</span>
+              </div>
+              <button class="btn primary" id="addBtn" onclick="openDiscover()">＋ 添加技能</button>
+            </div>
+            <div id="boundWrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 发现页弹窗 -->
+<div class="overlay" id="dsOverlay">
+  <div class="modal">
+    <div class="m-head"><div class="mt" id="dsTitle">添加技能</div><span class="x" onclick="closeDiscover()">×</span></div>
+    <div class="m-tools">
+      <div class="seg"><span class="on">发现</span><span>自定义</span></div>
+      <div class="grow">
+        <input class="inp" style="width:230px" id="dsQ" placeholder="🔍 搜索" oninput="renderDiscover()">
+        <button class="btn primary" id="dsUp">⬆ 上传技能</button>
+      </div>
+    </div>
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="m-body" id="dsBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+const skills=[
+  { id:1, name:"域名续费任务提醒", priv:true, desc:"域名续费到期自动提醒与建单", ver:"26.9.2.1", dev:"许明亮", cat:"通用", tags:"许工(许明亮)", ah:false, ico:"⏰" },
+  { id:2, name:"工单快速处理", priv:false, desc:"按模板快速处理易协作工单，自动补全字段", ver:"26.8.14.2", dev:"欧思日", cat:"工单", tags:"—", ah:false, ico:"🎫" },
+  { id:3, name:"团队负载查询", priv:false, desc:"查询团队成员当前排期负载与可用工时", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"📈" },
+  { id:4, name:"预排期规划", priv:false, desc:"依据需求池与人力自动生成预排期方案", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"🗓️" },
+  { id:5, name:"需求拆单建单", priv:false, desc:"把需求描述拆解为子任务并批量建单", ver:"26.7.29.1", dev:"欧思日", cat:"需求", tags:"—", ah:false, ico:"🧾" },
+  { id:6, name:"popo-doc", priv:false, desc:"云文档创建、编辑与搜索", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"📄" },
+  { id:7, name:"popo-im", priv:false, desc:"消息发送、找人与群组信息查询", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"💬" }
+];
+const mcps=[
+  { id:1, name:"易协作·工单查询", desc:"查询易协作工单状态、流转与处理人", auth:"自定义 Header", st:"正常", bind:3, ah:false, ico:"🧩" },
+  { id:2, name:"易协作·排期推演", desc:"读取排期数据并推演交付时间", auth:"自定义 Header", st:"正常", bind:2, ah:false, ico:"🗂️" },
+  { id:3, name:"易协作·里程碑", desc:"里程碑计划查询与更新", auth:"无需认证", st:"正常", bind:1, ah:false, ico:"🚩" },
+  { id:4, name:"易协作·需求池", desc:"需求池检索、标签与优先级维护", auth:"自定义 Header", st:"正常", bind:0, ah:false, ico:"📥" },
+  { id:5, name:"rongli 的 mcp", desc:"—", auth:"自定义 Header", st:"发现失败", bind:0, ah:false, ico:"🔌" },
+  { id:6, name:"echo message", desc:"—", auth:"无需认证", st:"发现失败", bind:0, ah:false, ico:"🔌" },
+  { id:7, name:"测试飞书", desc:"—", auth:"自定义 Header", st:"发现失败", bind:0, ah:false, ico:"🔌" }
+];
+/* POPO 官方供给（固定） */
+const popoSkills={
+  "通用":[
+    {n:"工作总结",d:"整合工作数据（如消息、文档、日程等），梳理…",i:"📝"},
+    {n:"日程预定",d:"预约会议、预订会议室，查看、修改、取消日程…",i:"📅"},
+    {n:"小U助手",d:"一站式游戏数据智能助手，支持查数分析、舆情…",i:"🎮"},
+    {n:"搜集行业资讯",d:"追踪特定领域的最新动态并提炼要点，生成资讯…",i:"🔍"},
+    {n:"KM知识问答",d:"支持 KM 知识库智能问答检索，自动提炼要点…",i:"📚"},
+    {n:"深度研究",d:"针对特定主题进行全方位深度研究，输出结构化…",i:"🧪"},
+    {n:"头脑风暴",d:"围绕特定业务痛点发散思维，提供多维度创新…",i:"⚡"},
+    {n:"创建技能",d:"将工作方法和流程生成可复用的 AI 技能，支持…",i:"🧩"}
+  ],
+  "写云文档":[{n:"云文档撰写",d:"按提纲生成结构化云文档并插入图表",i:"📄"},{n:"文档润色",d:"对已有文档做语言润色与结构优化",i:"🖊️"}],
+  "数据分析":[{n:"数据洞察",d:"上传数据自动生成洞察结论与图表",i:"📊"},{n:"指标追踪",d:"跟踪核心指标波动并给出归因",i:"📈"}],
+  "创建多维表格":[{n:"多维表搭建",d:"依据业务场景自动生成多维表结构",i:"🗃️"}],
+  "HR":[{n:"OA助手",d:"支持快速定位网易 OA 平台上的流程入口（如考…",i:"🧑‍💼"},{n:"招聘助手",d:"简历初筛与面试问题生成",i:"📋"}],
+  "法务":[{n:"合同审查",d:"合同条款风险点识别与修订建议",i:"⚖️"},{n:"法律检索",d:"法规、法条与判例智能检索",i:"📕"}]
+};
+const popoTools=[
+  {n:"天眼查",d:"通过天眼查 MCP 查询多维度企业数据。支持工…",i:"🔎"},
+  {n:"互娱ELK",d:"ELK MCP Server 服务于 ELK 日志平台 API 访…",i:"📊"},
+  {n:"北大法宝·法律智能检索",d:"使用北大法宝权威法律数据检索法规、法条与…",i:"⚖️"},
+  {n:"企查查·企业工商信息",d:"查询企业工商、股东、高管及基础经营信息。…",i:"🏢"},
+  {n:"Figma",d:"读取和维护 Figma 文件、评论、组件库与 Dev…",i:"🎨"},
+  {n:"GitHub",d:"管理 GitHub 仓库、Issue 与协作内容。",i:"🐙"},
+  {n:"网易Corp邮箱",d:"连接网易 Corp 企业邮箱的 IMAP 与 SMTP 能…",i:"📮"},
+  {n:"arXiv",d:"搜索和读取 arXiv 的公开论文元数据。",i:"📄"}
+];
+const TENANT_NAME="易协作";
+
+/* 状态 */
+let curView="skills";
+let capKind="skill";           // skill | tool
+let agentTenant="yxz";         // yxz | popo
+let curCat="通用";
+let boundSkills=["日程预定","创建技能"];
+let boundTools=[];
+
+/* ================= 视图切换 ================= */
+function goView(v,btn){
+  curView=v;
+  document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const studio=(v==='skills'||v==='mcp');
+  document.getElementById('v-studio').style.display=studio?'block':'none';
+  document.getElementById('v-agenthub').style.display=studio?'none':'block';
+  if(studio){
+    document.getElementById('pane-skills').style.display=v==='skills'?'block':'none';
+    document.getElementById('pane-mcp').style.display=v==='mcp'?'block':'none';
+    document.getElementById('nav-skills').classList.toggle('on',v==='skills');
+    document.getElementById('nav-mcp').classList.toggle('on',v==='mcp');
+  }else{
+    renderAgentHub();
+  }
+}
+
+/* ================= Studio · Skills ================= */
+function renderSkills(){
+  const q=(document.getElementById('skQ').value||"").toLowerCase();
+  const c=document.getElementById('skCat').value;
+  const a=document.getElementById('skAH').value;
+  const rows=skills.filter(s=>(!q||s.name.toLowerCase().includes(q))&&(!c||s.cat===c)&&(a===""||String(s.ah?1:0)===a));
+  document.getElementById('skCount').textContent=rows.length;
+  document.getElementById('skRows').innerHTML=rows.map(s=>`
+    <tr>
+      <td><div class="nm">${s.name} ${s.priv?'<span class="tag gray">私有</span>':''}</div></td>
+      <td class="muted" style="max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.desc}</td>
+      <td class="mono">${s.ver}</td>
+      <td class="muted">-</td>
+      <td><span class="tag act">激活</span></td>
+      <td>${s.dev}</td>
+      <td><span class="tag violet">${s.cat}</span></td>
+      <td class="muted">${s.tags}</td>
+      <td>${s.ah?'<span class="tag blue">已上架</span>':'<span class="tag gray">未上架</span>'}</td>
+      <td><div class="ops">
+        <span class="icob" title="编辑">✎</span>
+        <span class="icob" title="发布">⬆</span>
+        <span class="icob" title="设置">⚙</span>
+        <span class="icob del" title="删除">🗑</span>
+        <button class="pub-btn ${s.ah?'off':''}" onclick="toggleSkill(${s.id})">${s.ah?'下架':'上架'}</button>
+      </div></td>
+    </tr>`).join("");
+}
+function toggleSkill(id){
+  const s=skills.find(x=>x.id===id);
+  if(s.ah){ if(!confirm('确认将「'+s.name+'」从 AgentHub 下架？\n\n下架后发现页不再展示，已绑定该技能的 Agent 仍可正常使用。')) return; }
+  s.ah=!s.ah; renderSkills();
+  toast(s.ah?('「'+s.name+'」已上架至 AgentHub · 归入「'+TENANT_NAME+'」分类'):('「'+s.name+'」已从 AgentHub 下架'));
+}
+
+/* ================= Studio · MCP ================= */
+function renderMcps(){
+  const q=(document.getElementById('mcQ').value||"").toLowerCase();
+  const st=document.getElementById('mcSt').value;
+  const a=document.getElementById('mcAH').value;
+  const rows=mcps.filter(m=>(!q||m.name.toLowerCase().includes(q))&&(!st||m.st===st)&&(a===""||String(m.ah?1:0)===a));
+  document.getElementById('mcCount').textContent=rows.length;
+  document.getElementById('mcRows').innerHTML=rows.map(m=>`
+    <tr>
+      <td><div class="nm">${m.name}</div><div class="nm-sub">${m.desc}</div></td>
+      <td>MCP Server</td>
+      <td>空间自建</td>
+      <td class="muted">—</td>
+      <td>${m.auth}</td>
+      <td>${m.st==='正常'?'<span class="tag act">正常</span>':'<span class="tag red">发现失败</span>'}</td>
+      <td>${m.bind}</td>
+      <td>${m.ah?'<span class="tag blue">已上架</span>':'<span class="tag gray">未上架</span>'}</td>
+      <td><div class="ops">
+        <span class="icob" title="详情">详</span>
+        <span class="icob" title="编辑">✎</span>
+        <span class="icob del" title="删除">🗑</span>
+        <button class="pub-btn ${m.ah?'off':''}" onclick="toggleMcp(${m.id})">${m.ah?'下架':'上架'}</button>
+      </div></td>
+    </tr>`).join("");
+}
+function toggleMcp(id){
+  const m=mcps.find(x=>x.id===id);
+  if(!m.ah && m.st!=='正常'){ toast('「'+m.name+'」当前为发现失败状态，不可上架'); return; }
+  if(m.ah){ if(!confirm('确认将「'+m.name+'」从 AgentHub 下架？\n\n下架后发现页不再展示，已绑定该工具的 Agent 仍可正常使用。')) return; }
+  m.ah=!m.ah; renderMcps();
+  toast(m.ah?('「'+m.name+'」已上架至 AgentHub · 排在 POPO 工具之后'):('「'+m.name+'」已从 AgentHub 下架'));
+}
+
+/* ================= AgentHub ================= */
+function tenantSkills(){ return agentTenant==='yxz'?skills.filter(s=>s.ah):[]; }
+function tenantTools(){ return agentTenant==='yxz'?mcps.filter(m=>m.ah):[]; }
+
+function switchTenant(){
+  agentTenant=document.getElementById('ahTenant').value;
+  const y=agentTenant==='yxz';
+  document.getElementById('ahIco').textContent=y?'🧑‍💼':'👩';
+  document.getElementById('ahName').textContent=y?'易协作·交付助手':'测试1';
+  document.getElementById('ahTenantTop').textContent='当前 Agent 归属：'+(y?'易协作':'POPO');
+  renderAgentHub();
+}
+function switchCap(k){
+  capKind=k;
+  document.getElementById('segSkill').classList.toggle('on',k==='skill');
+  document.getElementById('segTool').classList.toggle('on',k==='tool');
+  document.getElementById('addBtn').textContent=k==='skill'?'＋ 添加技能':'＋ 添加工具';
+  renderAgentHub();
+}
+function renderAgentHub(){
+  const y=agentTenant==='yxz';
+  const ts=tenantSkills(), tt=tenantTools();
+  document.getElementById('ahNote').innerHTML= y
+    ? `Agent 归属租户 = <b>易协作</b>。发现页供给 = <b>POPO 官方</b> + <b>易协作已上架能力</b>（当前易协作已上架：技能 <b>${ts.length}</b> 个、工具 <b>${tt.length}</b> 个）。若为 0，请先到视图 ① / ② 点「上架」。`
+    : `Agent 归属租户 = <b>POPO</b>。发现页<b>仅展示 POPO 官方供给</b>，与线上现状一致；<b>看不到易协作租户的能力</b>（租户隔离）。`;
+  // 已绑定列表
+  const wrap=document.getElementById('boundWrap');
+  if(capKind==='skill'){
+    const list=boundSkills;
+    wrap.innerHTML = list.length ? `<div class="cap-grid">`+list.map(n=>{
+      const t=ts.find(s=>s.name===n);
+      return `<div class="cap ${t?'tenant':''}"><div class="ic">${t?t.ico:iconOfPopoSkill(n)}</div><div style="min-width:0"><div class="ct">${n} ${t?'<span class="tag amber">易协作</span>':''}</div><div class="cd">${t?t.desc:descOfPopoSkill(n)}</div></div></div>`;
+    }).join("")+`</div>`
+    : `<div class="empty"><div class="ei">🧩</div>添加技能，让工作伙伴掌握更多方法</div>`;
+  }else{
+    const list=boundTools;
+    wrap.innerHTML = list.length ? `<div class="cap-grid">`+list.map(n=>{
+      const t=tt.find(m=>m.name===n);
+      const p=popoTools.find(m=>m.n===n);
+      return `<div class="cap ${t?'tenant':''}"><div class="ic">${t?t.ico:(p?p.i:'🔧')}</div><div style="min-width:0"><div class="ct">${n} ${t?'<span class="tag amber">易协作</span>':''}</div><div class="cd">${t?t.desc:(p?p.d:'—')}</div></div></div>`;
+    }).join("")+`</div>`
+    : `<div class="empty"><div class="ei">🔧</div>添加工具，让工作伙伴连接更多能力，高效完成任务</div>`;
+  }
+}
+function iconOfPopoSkill(n){ for(const k in popoSkills){ const f=popoSkills[k].find(s=>s.n===n); if(f) return f.i; } return '✨'; }
+function descOfPopoSkill(n){ for(const k in popoSkills){ const f=popoSkills[k].find(s=>s.n===n); if(f) return f.d; } return '—'; }
+
+/* ============ 发现页弹窗 ============ */
+function openDiscover(){
+  document.getElementById('dsTitle').textContent=capKind==='skill'?'添加技能':'添加工具';
+  document.getElementById('dsUp').textContent=capKind==='skill'?'⬆ 上传技能':'＋ 自定义工具';
+  document.getElementById('dsQ').value="";
+  curCat="通用";
+  document.getElementById('dsOverlay').classList.add('on');
+  renderCatTabs(); renderDiscover();
+}
+function closeDiscover(){ document.getElementById('dsOverlay').classList.remove('on'); renderAgentHub(); }
+document.getElementById('dsOverlay').addEventListener('click',e=>{ if(e.target.id==='dsOverlay') closeDiscover(); });
+
+function renderCatTabs(){
+  const box=document.getElementById('catTabs');
+  if(capKind!=='skill'){ box.style.display='none'; return; }   // 工具无分类 Tab
+  box.style.display='flex';
+  const cats=Object.keys(popoSkills);
+  const ts=tenantSkills();
+  let html=cats.map(c=>`<div class="cat ${curCat===c?'on':''}" onclick="pickCat('${c}')">${c}</div>`).join("");
+  if(ts.length) html+=`<div class="cat tenant ${curCat===TENANT_NAME?'on':''}" onclick="pickCat('${TENANT_NAME}')">${TENANT_NAME} <span class="tag amber">租户</span></div>`;
+  box.innerHTML=html;
+}
+function pickCat(c){ curCat=c; renderCatTabs(); renderDiscover(); }
+
+function renderDiscover(){
+  const q=(document.getElementById('dsQ').value||"").toLowerCase();
+  const body=document.getElementById('dsBody');
+  if(capKind==='skill'){
+    const ts=tenantSkills();
+    if(q){
+      // 搜索：POPO 命中在前，租户命中在后
+      let po=[]; Object.keys(popoSkills).forEach(k=>popoSkills[k].forEach(s=>{ if(s.n.toLowerCase().includes(q)) po.push(s); }));
+      const te=ts.filter(s=>s.name.toLowerCase().includes(q));
+      body.innerHTML = (po.length||te.length)
+        ? grid(po.map(s=>skCard(s.n,s.d,s.i,false)))
+          + (te.length?srcDivider(TENANT_NAME+' · 租户供给')+grid(te.map(s=>skCard(s.name,s.desc,s.ico,true))):'')
+        : emptyBox('没有匹配的技能');
+      return;
+    }
+    if(curCat===TENANT_NAME){
+      body.innerHTML = srcDividerTop() + grid(ts.map(s=>skCard(s.name,s.desc,s.ico,true)));
+    }else{
+      body.innerHTML = grid((popoSkills[curCat]||[]).map(s=>skCard(s.n,s.d,s.i,false)));
+    }
+  }else{
+    const tt=tenantTools();
+    const po=popoTools.filter(m=>!q||m.n.toLowerCase().includes(q));
+    const te=tt.filter(m=>!q||m.name.toLowerCase().includes(q));
+    body.innerHTML = grid(po.map(m=>toolCard(m.n,m.d,m.i,false)))
+      + (te.length? srcDivider(TENANT_NAME+' · 租户供给（排在 POPO 之后）') + grid(te.map(m=>toolCard(m.name,m.desc,m.ico,true))) : '');
+  }
+}
+function grid(items){ return items.length?`<div class="cap-grid">${items.join("")}</div>`:''; }
+function srcDivider(t){ return `<div class="src-div"><span class="ln"></span><span class="lb">${t}</span><span class="ln"></span></div>`; }
+function srcDividerTop(){ return `<div class="note" style="margin:0 0 12px;background:#fffbeb;border-color:#f59e0b;color:#92400e;">本 Tab 下为 <b>${TENANT_NAME}</b> 租户在 Studio 后台已上架的技能，仅归属该租户的 Agent 可见。</div>`; }
+function emptyBox(t){ return `<div class="empty"><div class="ei">🔍</div>${t}</div>`; }
+
+function skCard(n,d,i,isT){
+  const added=boundSkills.includes(n);
+  return `<div class="pick ${isT?'tenant':''}"><div class="ic">${i}</div><div class="tx"><div class="pt">${n} ${isT?'<span class="tag amber">'+TENANT_NAME+'</span>':''}</div><div class="pd">${d}</div></div>
+    <div class="rnd ${added?'added':''}" onclick="toggleBound('skill','${n}')">${added?'−':'＋'}</div></div>`;
+}
+function toolCard(n,d,i,isT){
+  const added=boundTools.includes(n);
+  return `<div class="pick ${isT?'tenant':''}"><div class="ic">${i}</div><div class="tx"><div class="pt">${n} ${isT?'<span class="tag amber">'+TENANT_NAME+'</span>':''}</div><div class="pd">${d}</div></div>
+    <div class="rnd ${added?'added':''}" onclick="toggleBound('tool','${n}')">${added?'−':'＋'}</div></div>`;
+}
+function toggleBound(kind,n){
+  const arr=kind==='skill'?boundSkills:boundTools;
+  const i=arr.indexOf(n);
+  if(i>=0){ arr.splice(i,1); toast('已移除「'+n+'」'); } else { arr.push(n); toast('已添加「'+n+'」'); }
+  renderDiscover();
+}
+
+/* toast */
+let tt_;
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(tt_); tt_=setTimeout(()=>el.classList.remove('on'),2200); }
+
+/* init */
+document.getElementById('nav-skills').classList.add('on');
+renderSkills(); renderMcps(); renderAgentHub();
+</script>
+</body>
+</html>
