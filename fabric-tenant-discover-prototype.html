@@ -76,12 +76,16 @@
   .tag.red{ background:#fee2e2; color:#dc2626; }
   .mono{ font-family:"JetBrains Mono",Menlo,monospace; font-size:12px; color:var(--sub); }
   .muted{ color:var(--mut); }
-  .ops{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .ops{ display:flex; align-items:center; gap:10px; white-space:nowrap; }
   .icob{ width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; color:var(--blue); cursor:pointer; }
   .icob:hover{ background:#eff6ff; }
   .icob.del{ color:#dc2626; } .icob.del:hover{ background:#fef2f2; }
   .pub-btn{ border:1px solid #bfdbfe; background:#fff; color:var(--blue); border-radius:7px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; }
   .pub-btn.off{ border-color:#fecaca; color:#dc2626; }
+  .txb{ font-size:12.5px; color:var(--blue); cursor:pointer; font-weight:600; }
+  .txb:hover{ text-decoration:underline; }
+  .txb.del{ color:#dc2626; }
+  .txb.off{ color:#dc2626; }
   .pager{ display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:14px; font-size:12.5px; color:var(--sub); }
 
   .note{ border-radius:10px; padding:11px 14px; font-size:12.5px; margin-bottom:14px; border-left:4px solid var(--indigo); background:#eef2ff; color:#3730a3; }
@@ -222,13 +226,13 @@
           <div class="tcard">
             <table>
               <thead><tr>
-                <th style="min-width:190px">名称</th><th>描述</th><th>版本</th><th>可见性</th><th>状态</th><th>开发者</th><th>分类</th><th>展示标签</th>
-                <th>AgentHub 状态</th><th style="min-width:190px">操作</th>
+                <th style="min-width:190px">名称</th><th>描述</th><th>版本</th><th>可见性</th><th>状态</th>
+                <th>AgentHub 状态</th><th>开发者</th><th>分类</th><th>展示标签</th><th style="min-width:170px">操作</th>
               </tr></thead>
               <tbody id="skRows"></tbody>
             </table>
           </div>
-          <div class="pager"><span>共 <b id="skCount">7</b> 条</span><span>10 条/页</span><span>‹ 1 ›</span></div>
+          <div class="pager"><span>共 <b id="skCount">8</b> 条</span><span>10 条/页</span><span>‹ 1 ›</span></div>
         </div>
 
         <!-- MCP -->
@@ -249,8 +253,8 @@
           <div class="tcard">
             <table>
               <thead><tr>
-                <th style="min-width:200px">名称</th><th>类型</th><th>归属</th><th>创建人</th><th>认证方式</th><th>状态</th><th>绑定 Agent 数量</th>
-                <th>AgentHub 状态</th><th style="min-width:210px">操作</th>
+                <th style="min-width:200px">名称</th><th>类型</th><th>归属</th><th>创建人</th><th>认证方式</th><th>状态</th>
+                <th>AgentHub 状态</th><th>绑定 Agent 数量</th><th style="min-width:190px">操作</th>
               </tr></thead>
               <tbody id="mcRows"></tbody>
             </table>
@@ -341,7 +345,8 @@ const skills=[
   { id:4, name:"预排期规划", priv:false, desc:"依据需求池与人力自动生成预排期方案", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"🗓️" },
   { id:5, name:"需求拆单建单", priv:false, desc:"把需求描述拆解为子任务并批量建单", ver:"26.7.29.1", dev:"欧思日", cat:"需求", tags:"—", ah:false, ico:"🧾" },
   { id:6, name:"popo-doc", priv:false, desc:"云文档创建、编辑与搜索", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"📄" },
-  { id:7, name:"popo-im", priv:false, desc:"消息发送、找人与群组信息查询", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"💬" }
+  { id:7, name:"popo-im", priv:false, desc:"消息发送、找人与群组信息查询", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"💬" },
+  { id:8, name:"knowledge-assistant", priv:false, desc:"项目知识智能助手部署指导，指导用户创建两个 SubAgent。", ver:"26.9.10.1", dev:"欧思日", cat:"通用", tags:"—", ah:true, ico:"📚" }
 ];
 const mcps=[
   { id:1, name:"易协作·工单查询", desc:"查询易协作工单状态、流转与处理人", auth:"自定义 Header", st:"正常", bind:3, ah:false, ico:"🧩" },
@@ -422,16 +427,16 @@ function renderSkills(){
       <td class="mono">${s.ver}</td>
       <td class="muted">-</td>
       <td><span class="tag act">激活</span></td>
+      <td>${s.ah?'<span class="tag blue">已上架</span>':'<span class="tag gray">未上架</span>'}</td>
       <td>${s.dev}</td>
       <td><span class="tag violet">${s.cat}</span></td>
       <td class="muted">${s.tags}</td>
-      <td>${s.ah?'<span class="tag blue">已上架</span>':'<span class="tag gray">未上架</span>'}</td>
       <td><div class="ops">
+        <span class="icob ${s.ah?'del':''}" title="${s.ah?'从 AgentHub 下架':'上架到 AgentHub'}" onclick="toggleSkill(${s.id})">${s.ah?'⤓':'🚀'}</span>
         <span class="icob" title="编辑">✎</span>
         <span class="icob" title="发布">⬆</span>
         <span class="icob" title="设置">⚙</span>
         <span class="icob del" title="删除">🗑</span>
-        <button class="pub-btn ${s.ah?'off':''}" onclick="toggleSkill(${s.id})">${s.ah?'下架':'上架'}</button>
       </div></td>
     </tr>`).join("");
 }
@@ -457,13 +462,13 @@ function renderMcps(){
       <td class="muted">—</td>
       <td>${m.auth}</td>
       <td>${m.st==='正常'?'<span class="tag act">正常</span>':'<span class="tag red">发现失败</span>'}</td>
-      <td>${m.bind}</td>
       <td>${m.ah?'<span class="tag blue">已上架</span>':'<span class="tag gray">未上架</span>'}</td>
+      <td>${m.bind}</td>
       <td><div class="ops">
-        <span class="icob" title="详情">详</span>
-        <span class="icob" title="编辑">✎</span>
-        <span class="icob del" title="删除">🗑</span>
-        <button class="pub-btn ${m.ah?'off':''}" onclick="toggleMcp(${m.id})">${m.ah?'下架':'上架'}</button>
+        <span class="txb ${m.ah?'off':''}" onclick="toggleMcp(${m.id})">${m.ah?'下架':'上架'}</span>
+        <span class="txb">详情</span>
+        <span class="txb">编辑</span>
+        <span class="txb del">删除</span>
       </div></td>
     </tr>`).join("");
 }
