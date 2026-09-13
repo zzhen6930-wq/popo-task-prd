@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AgentHub · 发现页支持多租户提供技能与工具 · PRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #1f2937; padding: 32px 24px; line-height: 1.7; }
+  .container { max-width: 1120px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%); color: #fff; padding: 30px 34px; border-radius: 16px; margin-bottom: 22px; }
+  .header h1 { font-size: 25px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { display: flex; gap: 22px; font-size: 13px; opacity: 0.92; margin-top: 12px; flex-wrap: wrap; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; border: 1px solid #e5e7eb; }
+  .section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #6366f1; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 600; }
+  .section h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 18px 0 8px; padding-left: 10px; border-left: 3px solid #6366f1; }
+  .section h4 { font-size: 14px; font-weight: 700; color: #334155; margin: 14px 0 6px; }
+  .section p { color: #374151; font-size: 14px; margin-bottom: 8px; }
+  .section ul, .section ol { padding-left: 22px; color: #374151; font-size: 14px; }
+  .section li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  code { background: #eef2ff; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #4338ca; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  .yes { color: #16a34a; font-weight: 700; }
+  .no { color: #dc2626; font-weight: 700; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+  .pill.green { background: #dcfce7; color: #16a34a; }
+  .pill.amber { background: #fef3c7; color: #b45309; }
+  .pill.indigo { background: #ede9fe; color: #6d28d9; }
+  .pill.blue { background: #dbeafe; color: #1d4ed8; }
+  .pill.gray { background: #f1f5f9; color: #64748b; }
+  .callout { border-radius: 10px; padding: 12px 16px; margin: 10px 0; border-left: 4px solid; font-size: 14px; }
+  .callout.tip { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .callout.key { background: #eef2ff; border-color: #6366f1; color: #3730a3; }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+  .callout .title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .flow { background: #0f172a; color: #cbd5e1; border-radius: 10px; padding: 14px 18px; font-family: "JetBrains Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.9; margin: 10px 0; }
+  .flow b { color: #a5b4fc; }
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0; }
+  .scope-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; }
+  .scope-card.do { background: #ecfdf5; border-color: #86efac; } .scope-card.do h4 { color: #047857; margin: 0 0 8px; }
+  .scope-card.dont { background: #fef2f2; border-color: #fca5a5; } .scope-card.dont h4 { color: #b91c1c; margin: 0 0 8px; }
+  .scope-card ul { padding-left: 18px; font-size: 13px; }
+  .tabs-demo { display: flex; gap: 2px; margin: 12px 0; border-bottom: 2px solid #f1f5f9; flex-wrap: wrap; }
+  .tabs-demo span { padding: 8px 14px; font-size: 13px; font-weight: 700; color: #64748b; }
+  .tabs-demo span.on { color: #6366f1; border-bottom: 2px solid #6366f1; margin-bottom: -2px; }
+  .tabs-demo span.new { color: #b45309; background: #fffbeb; border-radius: 8px 8px 0 0; }
+  .tabs-demo span.new::after { content: "NEW"; font-size: 9px; background: #ef4444; color: #fff; border-radius: 4px; padding: 1px 4px; margin-left: 5px; vertical-align: top; }
+  .cardlist { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .mcard { border: 1px solid #e5e7eb; border-radius: 10px; padding: 11px 13px; font-size: 13px; background: #fff; display: flex; align-items: center; gap: 9px; }
+  .mcard.t { background: #fffdf5; border-color: #fde68a; }
+  .mcard .ic { width: 26px; height: 26px; border-radius: 7px; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .mcard b { font-size: 13px; color: #0f172a; }
+  .divlabel { font-size: 12px; color: #94a3b8; margin: 12px 0 4px; font-weight: 700; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>AgentHub · 发现页支持多租户提供技能与工具</h1>
+    <div style="opacity:0.92;font-size:13px;">发现页由「仅 POPO 租户供给」扩展为「POPO 租户 + Agent 归属租户」双来源供给；其他租户在 Studio 后台上架的 Skills / MCP，仅在其归属租户的 Agent 发现页展示，实现租户级隔离。</div>
+    <div class="meta">
+      <span>📅 2026-09-13</span>
+      <span>🏷️ v1.0</span>
+      <span>👤 作者：青远（张振）</span>
+      <span>🧩 归属：AgentHub · 技能和工具 / WorkHub Studio</span>
+    </div>
+  </div>
+
+  <!-- 1 背景与问题 -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span>背景与问题</div>
+    <p>AgentHub 中用户为 Agent 绑定的<b>技能（Skills）</b>与<b>工具（MCP）</b>不足时，可通过「添加技能 / 添加工具 → 发现」页选择更多能力。</p>
+    <h4>现状</h4>
+    <ul>
+      <li>发现页<b>只展示 POPO 租户（官方租户）</b>在 Studio 后台上架的 Skills / MCP。</li>
+      <li>其他租户即使在 Studio 后台配置了 Skills / MCP，<b>也不会在发现页展示</b>。</li>
+      <li>AgentHub 已支持其他租户在 Studio 后台配置 Agent 并设置可见性，其租户用户进入 AgentHub 可直接使用租户提供的 Agent。</li>
+    </ul>
+    <h4>问题</h4>
+    <div class="callout warn"><div class="title">⚠️ 核心问题</div>当<b>其他租户提供的 Agent</b>（如易协作租户）所绑定的技能 / 工具不足时，用户在发现页<b>只能看到 POPO 租户提供的通用能力</b>，<b>看不到本租户提供的垂直领域技能与工具</b>，导致租户垂类能力无法被补充绑定，租户侧供给白建。</div>
+    <h4>目标</h4>
+    <ul>
+      <li>支持<b>其他租户</b>也能把在 Studio 后台上架的 Skills / MCP 供给到 AgentHub 发现页。</li>
+      <li>供给<b>严格按租户隔离</b>：只在<b>归属该租户的 Agent</b> 的发现页展示，不影响其他租户用户。</li>
+    </ul>
+    <div class="callout key"><div class="title">🔑 一句话定位</div>发现页供给 = <b>POPO 租户（全局） + Agent 归属租户（局部）</b>；租户能力只对本租户 Agent 可见。</div>
+  </div>
+
+  <!-- 2 供给与展示规则 -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span>供给来源与展示规则</div>
+
+    <h3>2.1 双来源供给</h3>
+    <table>
+      <thead><tr><th style="width:20%">来源</th><th style="width:22%">供给范围</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>POPO 租户</b>（官方）</td><td>全部 Agent</td><td>官方通用能力，<b>所有 Agent 的发现页均展示</b>，逻辑不变。</td></tr>
+        <tr><td><b>其他租户</b>（如易协作）</td><td>仅归属该租户的 Agent</td><td>租户在 Studio 后台上架的 Skills / MCP，<b>仅在归属租户 = 该租户的 Agent 发现页展示</b>。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 发现页加载判定逻辑</h3>
+    <p>用户打开「添加技能 / 添加工具 → 发现」页时：</p>
+    <div class="flow">
+      <b>① 取 POPO 租户</b>已上架的 Skills / MCP（默认全量供给）<br>
+      ▶ <b>② 取当前 Agent 的归属租户</b><br>
+      ▶ <b>③ 判断该归属租户在 Studio 是否有「已上架」状态的 Skills / MCP</b><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;· 有 → 一并加载并按 2.3 / 2.4 规则展示<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;· 无（或归属租户 = POPO） → 仅展示 POPO 租户能力，与现状一致<br>
+      ▶ <b>④ 渲染发现页</b>
+    </div>
+    <table>
+      <thead><tr><th style="width:26%">判定项</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td>归属租户</td><td>以 <b>Agent 的归属租户</b> 为准（不取当前使用者所属租户）。</td></tr>
+        <tr><td>状态</td><td>仅取归属租户在 Studio 后台<b>「已上架」</b>状态的 Skills / MCP；下架 / 草稿不取。</td></tr>
+        <tr><td>归属租户 = POPO</td><td>等同现状：仅 POPO 供给一份，不重复加载。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><div class="title">🔑 隔离原则</div>易协作租户提供的技能 / 工具，<b>只有易协作租户的 Agent 发现页才展示</b>；非易协作租户的 Agent <b>不展示</b>，避免影响其他用户。</div>
+
+    <h3>2.3 技能（Skills）展示规则</h3>
+    <p>技能<b>沿用 Studio 后台的分类与展示标签逻辑</b>（已有逻辑，不新建一套）。在此基础上：</p>
+    <ul>
+      <li>发现页分类 Tab <b>可新增租户 Tab</b>：在现有分类 Tab 之后（如「法务」之后）追加<b>以租户命名的 Tab</b>（如「易协作」）。</li>
+      <li>该归属租户提供的技能，<b>统一归类到该租户 Tab 下</b>展示。</li>
+      <li>租户 Tab <b>仅在归属租户有已上架技能时出现</b>；无则不出现，Tab 行与现状一致。</li>
+    </ul>
+    <div class="divlabel">发现页 · 技能分类 Tab（易协作租户 Agent 视角）</div>
+    <div class="tabs-demo">
+      <span class="on">通用</span><span>写云文档</span><span>数据分析</span><span>创建多维表格</span><span>HR</span><span>法务</span><span class="new">易协作</span>
+    </div>
+    <table>
+      <thead><tr><th style="width:26%">项</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td>分类与展示标签</td><td>复用 Studio 后台已有的分类 / 展示标签逻辑。</td></tr>
+        <tr><td>Tab 位置</td><td>租户 Tab 追加在<b>现有分类 Tab 末尾</b>（如「法务」之后）。</td></tr>
+        <tr><td>Tab 命名</td><td>取<b>租户名称</b>（如「易协作」）。</td></tr>
+        <tr><td>归类方式</td><td>归属租户提供的全部已上架技能<b>归入该租户 Tab</b>。</td></tr>
+        <tr><td>Tab 出现条件</td><td>归属租户存在<b>已上架</b>且<b>对当前用户可见</b>的技能时才出现。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.4 工具（MCP）展示规则</h3>
+    <p>工具发现页<b>无分类 Tab</b>，采用<b>混排</b>：</p>
+    <ul>
+      <li>归属租户提供的 MCP <b>直接排在 POPO 租户提供的 MCP 之后</b>。</li>
+      <li>POPO 部分内部顺序、租户部分内部顺序均沿用各自现有排序逻辑。</li>
+    </ul>
+    <div class="divlabel">发现页 · 工具列表（混排顺序示意）</div>
+    <div class="cardlist">
+      <div class="mcard"><span class="ic">🔎</span><div><b>天眼查</b> <span class="pill blue">POPO</span></div></div>
+      <div class="mcard"><span class="ic">📊</span><div><b>互娱ELK</b> <span class="pill blue">POPO</span></div></div>
+      <div class="mcard"><span class="ic">⚖️</span><div><b>北大法宝·法律智能检索</b> <span class="pill blue">POPO</span></div></div>
+      <div class="mcard"><span class="ic">🏢</span><div><b>企查查·企业工商信息</b> <span class="pill blue">POPO</span></div></div>
+      <div class="mcard t"><span class="ic">🧩</span><div><b>易协作·工单查询</b> <span class="pill amber">易协作</span></div></div>
+      <div class="mcard t"><span class="ic">🗂️</span><div><b>易协作·排期推演</b> <span class="pill amber">易协作</span></div></div>
+    </div>
+    <div class="callout tip"><div class="title">说明</div>示意图中的来源标签仅用于本 PRD 表达顺序关系；<b>工具卡片本身沿用现有样式</b>，不新增来源标识要求。</div>
+
+    <h3>2.5 重复能力</h3>
+    <p>POPO 租户与归属租户<b>各自提供了同一个能力</b>（如两边都上架了「企查查」MCP）时：</p>
+    <ul>
+      <li><b>不做去重</b>，两条<b>都展示</b>、各自独立。</li>
+      <li>用户可分别添加；两者为不同租户供给的独立记录，配置与凭据互不影响。</li>
+    </ul>
+  </div>
+
+  <!-- 3 可见性 -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span>可见性与定向分发</div>
+    <table>
+      <thead><tr><th style="width:24%">项</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td><b>默认可见性</b></td><td>租户在 Studio 后台<b>上架后，默认本租户全员可见</b>（即该租户下 Agent 的发现页均可见）。</td></tr>
+        <tr><td><b>技能定向分发</b></td><td><b>复用 Skills 现有的定向分发逻辑</b>，可在租户内进一步限定可见人群；发现页按该逻辑过滤后展示。</td></tr>
+        <tr><td><b>工具（MCP）</b></td><td>按 Studio 已有的租户内可见 / 分发能力执行，本期不新增规则。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><div class="title">🔑 两层过滤</div>发现页展示 = <b>第一层：租户隔离</b>（Agent 归属租户）→ <b>第二层：租户内可见性</b>（默认全员可见，可复用 Skills 定向分发收敛）。</div>
+  </div>
+
+  <!-- 4 上下架 -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span>上下架与已绑定能力</div>
+    <table>
+      <thead><tr><th style="width:20%">Studio 后台状态</th><th style="width:28%">发现页</th><th>已绑定到 Agent 的该能力</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill green">已上架</span></td><td><span class="yes">展示</span>（按第 2 节规则）</td><td>正常可用。</td></tr>
+        <tr><td><span class="pill gray">已下架</span></td><td><span class="no">不再展示</span>（不可新增绑定）</td><td><b>继续可用</b>，不强制解绑、不自动停用。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="title">边界</div>下架<b>只影响新增绑定入口</b>（发现页不再出现），<b>不回溯</b>已绑定该技能 / 工具的 Agent。</div>
+  </div>
+
+  <!-- 5 交互流程 -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span>典型场景</div>
+    <h3>5.1 易协作租户用户为租户 Agent 补能力</h3>
+    <div class="flow">
+      易协作用户进入 AgentHub，打开<b>易协作租户提供的 Agent</b> ▶ 技能和工具 Tab<br>
+      ▶ 点击<b>「添加技能」</b> ▶ 发现页加载：POPO 官方分类 Tab + <b>新增「易协作」Tab</b><br>
+      ▶ 在「易协作」Tab 下选中垂类技能 ▶ 添加成功，绑定到该 Agent<br>
+      ▶ 点击<b>「添加工具」</b> ▶ 工具列表：POPO MCP 之后<b>接续展示易协作 MCP</b> ▶ 添加成功
+    </div>
+    <h3>5.2 POPO 租户用户（现状不变）</h3>
+    <div class="flow">
+      POPO 用户打开<b>归属 POPO 的 Agent</b> ▶ 发现页仅展示 POPO 供给<br>
+      ▶ 无租户 Tab、工具列表无追加段 ▶ <b>与当前线上表现完全一致</b>
+    </div>
+    <h3>5.3 非归属租户的 Agent</h3>
+    <div class="flow">
+      非易协作租户用户 / 归属其他租户的 Agent ▶ 发现页<b>不展示易协作供给</b><br>
+      ▶ 既无「易协作」Tab，工具列表亦无易协作 MCP
+    </div>
+  </div>
+
+  <!-- 6 搜索 -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span>搜索</div>
+    <ul>
+      <li>发现页搜索框<b>搜索范围 = POPO 租户供给 + 归属租户供给</b>，一并检索。</li>
+      <li>搜索结果<b>沿用 2.4 的顺序原则</b>：POPO 命中结果在前，归属租户命中结果在后。</li>
+      <li>搜索同样受第 3 节可见性过滤约束。</li>
+    </ul>
+  </div>
+
+  <!-- 7 范围与非目标 -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span>范围与非目标</div>
+    <div class="scope-grid">
+      <div class="scope-card do"><h4>✅ 本期做</h4><ul>
+        <li>发现页支持<b>其他租户</b>供给 Skills / MCP，按 <b>Agent 归属租户</b> 隔离展示。</li>
+        <li>技能：复用 Studio 分类 / 展示标签逻辑，<b>分类 Tab 末尾新增租户 Tab</b>（如「易协作」），租户技能归入该 Tab。</li>
+        <li>工具：<b>混排</b>，租户 MCP <b>排在 POPO MCP 之后</b>。</li>
+        <li>重复能力<b>不去重</b>，各自独立展示。</li>
+        <li>上架后<b>默认租户全员可见</b>，技能<b>复用现有定向分发逻辑</b>。</li>
+        <li>下架后发现页不再展示，<b>已绑定继续可用</b>。</li>
+        <li>搜索覆盖两来源。</li>
+      </ul></div>
+      <div class="scope-card dont"><h4>🚫 本期不做</h4><ul>
+        <li>不做跨租户互通（A 租户能力供给 B 租户 Agent）。</li>
+        <li>不做租户自定义分类体系（复用现有分类 / 展示标签）。</li>
+        <li>不做重复能力的合并 / 去重与优先级择一。</li>
+        <li>不改动工具卡片样式、不新增来源标识字段。</li>
+        <li>下架不回溯清理已绑定关系。</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- 8 验收 -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span>验收标准</div>
+    <ol>
+      <li>打开发现页时，除 POPO 租户供给外，系统按 <b>Agent 归属租户</b> 判断该租户在 Studio 是否有<b>已上架</b>的 Skills / MCP，有则一并展示。</li>
+      <li>技能：归属租户有已上架技能时，分类 Tab 末尾出现<b>以租户名命名的 Tab</b>，该租户技能全部归入该 Tab；无则不出现该 Tab。</li>
+      <li>工具：归属租户 MCP <b>紧随 POPO MCP 之后</b> 混排展示。</li>
+      <li>归属租户 = POPO 或归属租户无已上架能力时，发现页表现<b>与现状一致</b>。</li>
+      <li>非归属租户的 Agent <b>看不到</b>该租户供给（Tab 与工具均无）。</li>
+      <li>POPO 与租户提供同一能力时，<b>两条都展示</b>，可分别添加。</li>
+      <li>租户能力上架后<b>默认本租户全员可见</b>；技能配置定向分发后，仅目标人群在发现页可见。</li>
+      <li>Studio 后台下架某能力后，发现页<b>不再展示</b>，但<b>已绑定该能力的 Agent 仍可正常使用</b>。</li>
+      <li>发现页搜索可同时命中 POPO 与归属租户供给，且 POPO 命中在前。</li>
+    </ol>
+  </div>
+
+  <div class="footer">AgentHub · 发现页支持多租户提供技能与工具 · PRD v1.0 · POPO 全局供给 + 归属租户局部供给 · 租户级隔离</div>
+
+</div>
+</body>
+</html>
