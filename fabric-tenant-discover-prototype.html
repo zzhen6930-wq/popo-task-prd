@@ -339,14 +339,14 @@
 <script>
 /* ================= 数据 ================= */
 const skills=[
-  { id:1, name:"域名续费任务提醒", priv:true, desc:"域名续费到期自动提醒与建单", ver:"26.9.2.1", dev:"许明亮", cat:"通用", tags:"许工(许明亮)", ah:false, ico:"⏰" },
-  { id:2, name:"工单快速处理", priv:false, desc:"按模板快速处理易协作工单，自动补全字段", ver:"26.8.14.2", dev:"欧思日", cat:"工单", tags:"—", ah:false, ico:"🎫" },
-  { id:3, name:"团队负载查询", priv:false, desc:"查询团队成员当前排期负载与可用工时", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"📈" },
-  { id:4, name:"预排期规划", priv:false, desc:"依据需求池与人力自动生成预排期方案", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"🗓️" },
-  { id:5, name:"需求拆单建单", priv:false, desc:"把需求描述拆解为子任务并批量建单", ver:"26.7.29.1", dev:"欧思日", cat:"需求", tags:"—", ah:false, ico:"🧾" },
-  { id:6, name:"popo-doc", priv:false, desc:"云文档创建、编辑与搜索", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"📄" },
-  { id:7, name:"popo-im", priv:false, desc:"消息发送、找人与群组信息查询", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"💬" },
-  { id:8, name:"knowledge-assistant", priv:false, desc:"项目知识智能助手部署指导，指导用户创建两个 SubAgent。", ver:"26.9.10.1", dev:"欧思日", cat:"通用", tags:"—", ah:true, ico:"📚" }
+  { id:1, name:"域名续费任务提醒", priv:true, desc:"域名续费到期自动提醒与建单", ver:"26.9.2.1", dev:"许明亮", cat:"通用", tags:"许工(许明亮)", ah:false, ico:"⏰", dcat:"通用" },
+  { id:2, name:"工单快速处理", priv:false, desc:"按模板快速处理易协作工单，自动补全字段", ver:"26.8.14.2", dev:"欧思日", cat:"工单", tags:"—", ah:false, ico:"🎫", dcat:"易协作" },
+  { id:3, name:"团队负载查询", priv:false, desc:"查询团队成员当前排期负载与可用工时", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"📈", dcat:"易协作" },
+  { id:4, name:"预排期规划", priv:false, desc:"依据需求池与人力自动生成预排期方案", ver:"26.7.29.1", dev:"欧思日", cat:"排期", tags:"—", ah:false, ico:"🗓️", dcat:"易协作" },
+  { id:5, name:"需求拆单建单", priv:false, desc:"把需求描述拆解为子任务并批量建单", ver:"26.7.29.1", dev:"欧思日", cat:"需求", tags:"—", ah:false, ico:"🧾", dcat:"易协作" },
+  { id:6, name:"popo-doc", priv:false, desc:"云文档创建、编辑与搜索", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"📄", dcat:"写云文档" },
+  { id:7, name:"popo-im", priv:false, desc:"消息发送、找人与群组信息查询", ver:"26.8.13.1", dev:"欧思日", cat:"通用", tags:"—", ah:false, ico:"💬", dcat:"通用" },
+  { id:8, name:"knowledge-assistant", priv:false, desc:"项目知识智能助手部署指导，指导用户创建两个 SubAgent。", ver:"26.9.10.1", dev:"欧思日", cat:"通用", tags:"—", ah:true, ico:"📚", dcat:"易协作" }
 ];
 const mcps=[
   { id:1, name:"易协作·工单查询", desc:"查询易协作工单状态、流转与处理人", auth:"自定义 Header", st:"正常", bind:3, ah:false, ico:"🧩" },
@@ -503,7 +503,7 @@ function renderAgentHub(){
   const y=agentTenant==='yxz';
   const ts=tenantSkills(), tt=tenantTools();
   document.getElementById('ahNote').innerHTML= y
-    ? `Agent 归属租户 = <b>易协作</b>。发现页供给 = <b>POPO 官方</b> + <b>易协作已上架能力</b>（当前易协作已上架：技能 <b>${ts.length}</b> 个、工具 <b>${tt.length}</b> 个）。若为 0，请先到视图 ① / ② 点「上架」。`
+    ? `Agent 归属租户 = <b>易协作</b>。发现页供给 = <b>POPO 官方</b> + <b>易协作已上架能力</b>（当前易协作已上架：技能 <b>${ts.length}</b> 个、工具 <b>${tt.length}</b> 个）。技能<b>按租户设置的分类标签</b>归入已有 Tab 或新增 Tab；工具排在 POPO 工具之后。`
     : `Agent 归属租户 = <b>POPO</b>。发现页<b>仅展示 POPO 官方供给</b>，与线上现状一致；<b>看不到易协作租户的能力</b>（租户隔离）。`;
   // 已绑定列表
   const wrap=document.getElementById('boundWrap');
@@ -511,7 +511,7 @@ function renderAgentHub(){
     const list=boundSkills;
     wrap.innerHTML = list.length ? `<div class="cap-grid">`+list.map(n=>{
       const t=ts.find(s=>s.name===n);
-      return `<div class="cap ${t?'tenant':''}"><div class="ic">${t?t.ico:iconOfPopoSkill(n)}</div><div style="min-width:0"><div class="ct">${n} ${t?'<span class="tag amber">易协作</span>':''}</div><div class="cd">${t?t.desc:descOfPopoSkill(n)}</div></div></div>`;
+      return `<div class="cap"><div class="ic">${t?t.ico:iconOfPopoSkill(n)}</div><div style="min-width:0"><div class="ct">${n}</div><div class="cd">${t?t.desc:descOfPopoSkill(n)}</div></div></div>`;
     }).join("")+`</div>`
     : `<div class="empty"><div class="ei">🧩</div>添加技能，让工作伙伴掌握更多方法</div>`;
   }else{
@@ -543,11 +543,12 @@ function renderCatTabs(){
   const box=document.getElementById('catTabs');
   if(capKind!=='skill'){ box.style.display='none'; return; }   // 工具无分类 Tab
   box.style.display='flex';
-  const cats=Object.keys(popoSkills);
-  const ts=tenantSkills();
-  let html=cats.map(c=>`<div class="cat ${curCat===c?'on':''}" onclick="pickCat('${c}')">${c}</div>`).join("");
-  if(ts.length) html+=`<div class="cat tenant ${curCat===TENANT_NAME?'on':''}" onclick="pickCat('${TENANT_NAME}')">${TENANT_NAME} <span class="tag amber">租户</span></div>`;
-  box.innerHTML=html;
+  const base=Object.keys(popoSkills);
+  const extra=[];
+  tenantSkills().forEach(s=>{ if(!base.includes(s.dcat)&&!extra.includes(s.dcat)) extra.push(s.dcat); });
+  const cats=base.concat(extra);
+  if(!cats.includes(curCat)) curCat=cats[0];
+  box.innerHTML=cats.map(c=>`<div class="cat ${curCat===c?'on':''}" onclick="pickCat('${c}')">${c}</div>`).join("");
 }
 function pickCat(c){ curCat=c; renderCatTabs(); renderDiscover(); }
 
@@ -561,16 +562,13 @@ function renderDiscover(){
       let po=[]; Object.keys(popoSkills).forEach(k=>popoSkills[k].forEach(s=>{ if(s.n.toLowerCase().includes(q)) po.push(s); }));
       const te=ts.filter(s=>s.name.toLowerCase().includes(q));
       body.innerHTML = (po.length||te.length)
-        ? grid(po.map(s=>skCard(s.n,s.d,s.i,false)))
-          + (te.length?srcDivider(TENANT_NAME+' · 租户供给')+grid(te.map(s=>skCard(s.name,s.desc,s.ico,true))):'')
+        ? grid(po.map(s=>skCard(s.n,s.d,s.i)).concat(te.map(s=>skCard(s.name,s.desc,s.ico))))
         : emptyBox('没有匹配的技能');
       return;
     }
-    if(curCat===TENANT_NAME){
-      body.innerHTML = srcDividerTop() + grid(ts.map(s=>skCard(s.name,s.desc,s.ico,true)));
-    }else{
-      body.innerHTML = grid((popoSkills[curCat]||[]).map(s=>skCard(s.n,s.d,s.i,false)));
-    }
+    const po=(popoSkills[curCat]||[]).map(s=>skCard(s.n,s.d,s.i));
+    const te=ts.filter(s=>s.dcat===curCat).map(s=>skCard(s.name,s.desc,s.ico));
+    body.innerHTML = (po.length||te.length)? grid(po.concat(te)) : emptyBox('该分类下暂无技能');
   }else{
     const tt=tenantTools();
     const po=popoTools.filter(m=>!q||m.n.toLowerCase().includes(q));
@@ -584,9 +582,9 @@ function srcDivider(t){ return `<div class="src-div"><span class="ln"></span><sp
 function srcDividerTop(){ return `<div class="note" style="margin:0 0 12px;background:#fffbeb;border-color:#f59e0b;color:#92400e;">本 Tab 下为 <b>${TENANT_NAME}</b> 租户在 Studio 后台已上架的技能，仅归属该租户的 Agent 可见。</div>`; }
 function emptyBox(t){ return `<div class="empty"><div class="ei">🔍</div>${t}</div>`; }
 
-function skCard(n,d,i,isT){
+function skCard(n,d,i){
   const added=boundSkills.includes(n);
-  return `<div class="pick ${isT?'tenant':''}"><div class="ic">${i}</div><div class="tx"><div class="pt">${n} ${isT?'<span class="tag amber">'+TENANT_NAME+'</span>':''}</div><div class="pd">${d}</div></div>
+  return `<div class="pick"><div class="ic">${i}</div><div class="tx"><div class="pt">${n}</div><div class="pd">${d}</div></div>
     <div class="rnd ${added?'added':''}" onclick="toggleBound('skill','${n}')">${added?'−':'＋'}</div></div>`;
 }
 function toolCard(n,d,i,isT){

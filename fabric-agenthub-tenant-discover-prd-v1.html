@@ -124,26 +124,27 @@
     <div class="callout key"><div class="title">🔑 隔离原则</div>易协作租户提供的技能 / 工具，<b>只有易协作租户的 Agent 发现页才展示</b>；非易协作租户的 Agent <b>不展示</b>，避免影响其他用户。</div>
 
     <h3>2.3 技能（Skills）展示规则</h3>
-    <p>技能<b>沿用 Studio 后台的分类与展示标签逻辑</b>（已有逻辑，不新建一套）。在此基础上：</p>
+    <p>技能<b>复用 Studio 后台的分类与展示标签逻辑</b>（已有逻辑，不新建一套）。租户在 Studio 后台<b>为 Skills 指派分类标签</b>：</p>
     <ul>
-      <li>发现页分类 Tab <b>可新增租户 Tab</b>：在现有分类 Tab 之后（如「法务」之后）追加<b>以租户命名的 Tab</b>（如「易协作」）。</li>
-      <li>该归属租户提供的技能，<b>统一归类到该租户 Tab 下</b>展示。</li>
-      <li>租户 Tab <b>仅在归属租户有已上架技能时出现</b>；无则不出现，Tab 行与现状一致。</li>
+      <li>可<b>指派到已有分类标签下</b>（如「通用」「写云文档」「HR」「法务」），发现页即<b>混排进对应分类 Tab</b>；</li>
+      <li>也可<b>新增分类标签</b>（如「易协作」），发现页在现有分类 Tab <b>之后追加该 Tab</b>；</li>
+      <li>上述分类标签的<b>生效范围 = 该租户下可见范围内的用户</b>（不影响其他租户，也不改变 POPO 官方分类体系）。</li>
     </ul>
-    <div class="divlabel">发现页 · 技能分类 Tab（易协作租户 Agent 视角）</div>
+    <div class="divlabel">发现页 · 技能分类 Tab（易协作租户 Agent 视角，租户新增了「易协作」标签）</div>
     <div class="tabs-demo">
       <span class="on">通用</span><span>写云文档</span><span>数据分析</span><span>创建多维表格</span><span>HR</span><span>法务</span><span class="new">易协作</span>
     </div>
     <table>
       <thead><tr><th style="width:26%">项</th><th>规则</th></tr></thead>
       <tbody>
-        <tr><td>分类与展示标签</td><td>复用 Studio 后台已有的分类 / 展示标签逻辑。</td></tr>
-        <tr><td>Tab 位置</td><td>租户 Tab 追加在<b>现有分类 Tab 末尾</b>（如「法务」之后）。</td></tr>
-        <tr><td>Tab 命名</td><td>取<b>租户名称</b>（如「易协作」）。</td></tr>
-        <tr><td>归类方式</td><td>归属租户提供的全部已上架技能<b>归入该租户 Tab</b>。</td></tr>
-        <tr><td>Tab 出现条件</td><td>归属租户存在<b>已上架</b>且<b>对当前用户可见</b>的技能时才出现。</td></tr>
+        <tr><td>分类与展示标签</td><td>复用 Studio 后台已有的分类 / 展示标签逻辑，由租户自行指派。</td></tr>
+        <tr><td>指派到已有标签</td><td>技能<b>混排进该分类 Tab</b>，与 POPO 官方技能同 Tab 展示（官方在前、租户在后）。</td></tr>
+        <tr><td>新增标签</td><td>发现页在<b>现有分类 Tab 之后追加</b>该标签 Tab（如「法务」之后的「易协作」）。</td></tr>
+        <tr><td>生效范围</td><td>该租户下<b>可见范围内的用户</b>（见第 3 节可见性），其他租户不受影响。</td></tr>
+        <tr><td>Tab 出现条件</td><td>新增标签下存在<b>已上架</b>且<b>对当前用户可见</b>的技能时才出现；否则不出现。</td></tr>
       </tbody>
     </table>
+    <div class="callout tip"><div class="title">说明</div>发现页<b>不强制以租户名命名 Tab</b>；归入哪个 Tab 完全由租户在 Studio 后台指派的分类标签决定——落在已有标签则混排进该 Tab，落在新标签则新增 Tab。</div>
 
     <h3>2.4 工具（MCP）展示规则</h3>
     <p>工具发现页<b>无分类 Tab</b>，采用<b>混排</b>：</p>
@@ -235,7 +236,7 @@
     <div class="scope-grid">
       <div class="scope-card do"><h4>✅ 本期做</h4><ul>
         <li>发现页支持<b>其他租户</b>供给 Skills / MCP，按 <b>Agent 归属租户</b> 隔离展示。</li>
-        <li>技能：复用 Studio 分类 / 展示标签逻辑，<b>分类 Tab 末尾新增租户 Tab</b>（如「易协作」），租户技能归入该 Tab。</li>
+        <li>技能：<b>复用 Studio 分类 / 展示标签逻辑</b>，租户可将 Skills 指派到<b>已有分类标签</b>（混排进对应 Tab）或<b>新增标签</b>（追加新 Tab），生效范围为该租户可见范围内的用户。</li>
         <li>工具：<b>混排</b>，租户 MCP <b>排在 POPO MCP 之后</b>。</li>
         <li>重复能力<b>不去重</b>，各自独立展示。</li>
         <li>上架后<b>默认租户全员可见</b>，技能<b>复用现有定向分发逻辑</b>。</li>
@@ -244,7 +245,7 @@
       </ul></div>
       <div class="scope-card dont"><h4>🚫 本期不做</h4><ul>
         <li>不做跨租户互通（A 租户能力供给 B 租户 Agent）。</li>
-        <li>不做租户自定义分类体系（复用现有分类 / 展示标签）。</li>
+        <li>不做租户自定义分类体系（复用现有分类 / 展示标签逻辑，租户只做标签指派与新增）。</li>
         <li>不做重复能力的合并 / 去重与优先级择一。</li>
         <li>不改动工具卡片样式、不新增来源标识字段。</li>
         <li>下架不回溯清理已绑定关系。</li>
@@ -257,7 +258,7 @@
     <div class="section-title"><span class="num">8</span>验收标准</div>
     <ol>
       <li>打开发现页时，除 POPO 租户供给外，系统按 <b>Agent 归属租户</b> 判断该租户在 Studio 是否有<b>已上架</b>的 Skills / MCP，有则一并展示。</li>
-      <li>技能：归属租户有已上架技能时，分类 Tab 末尾出现<b>以租户名命名的 Tab</b>，该租户技能全部归入该 Tab；无则不出现该 Tab。</li>
+      <li>技能：租户指派到<b>已有分类标签</b>的技能，在对应分类 Tab 内<b>混排展示</b>（官方在前、租户在后）；指派到<b>新增标签</b>的技能，在现有 Tab 之后<b>追加该 Tab</b> 并展示；无已上架技能则不出现该 Tab。</li>
       <li>工具：归属租户 MCP <b>紧随 POPO MCP 之后</b> 混排展示。</li>
       <li>归属租户 = POPO 或归属租户无已上架能力时，发现页表现<b>与现状一致</b>。</li>
       <li>非归属租户的 Agent <b>看不到</b>该租户供给（Tab 与工具均无）。</li>
